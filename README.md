@@ -81,7 +81,7 @@ Editor features!
 
  * Plugins:
     - move-vim; 
-        Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move line or selection up/down;
+        - Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move line or selection up/down;
 
 Relevant changes in the default Vim behavior!
 -----
