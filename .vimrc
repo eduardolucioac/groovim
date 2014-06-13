@@ -211,7 +211,7 @@
 "    See the License for the specific language governing permissions and
 "    limitations under the License.
 
-let g:grooVimVersion = "v2.0.8b"
+let g:grooVimVersion = "v1.0.0b"
 " Eduardo Lúcio
 " 2014
 
