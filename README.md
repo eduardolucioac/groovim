@@ -1,7 +1,7 @@
-GrooVim Doc
+GrooVim
 =============
 
-GrooVim - Vi IMproved'n'GrooVIed!!??
+Vi IMproved'n'GrooVIed!!??
 -----
 
 <img border="0" alt="GrooVim Doc" src="http://imageshack.com/a/img829/4064/meg6.png" height="15%" width="15%">GrooVim Doc
