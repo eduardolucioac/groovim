@@ -219,6 +219,10 @@ let g:grooVimVersion = "v2.0.8b"
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" ToDo: No copy file sugerir nome automaticamente! Questor
+
+" ToDo: F3+c não pode funcionar para o NerdTree! Questor
+
 " ToDo: Disponibilizar a busca "por palavra inteira apenas"! Questor
 
 " ToDo: GroovyMove está com problemas (para arquivos *.py) no insert/visual (perde o virtual edit)! Questor
@@ -3024,8 +3028,11 @@ endfun
 
 " Note: Para facilitar esse texto sempre deve ser o último! By Questor
 
-let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*\n|GrooVim|=D|2.0.7b|-|Vi|IMproved\'n\'GrooVIed!|".
-\"\n Last change: 2014 May 28\n Eduardo L\u00facio Amorim Costa~\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
+let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
+\"\n|GrooVim|=D|2.0.7b|-|Vi|IMproved\'n\'GrooVIed!|".
+\"\n Last change: 2014 June 12".
+\"\n Eduardo L\u00facio Amorim Costa~".
+\"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n                   {+}".
 \"\n                  {+++}".
@@ -3049,166 +3056,167 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*\n|Groo
 \"\n".
 \"\n|BETA|VERSION!|".
 \"\n".
-\"\n * O que \u00e9 o GrooVim?~".
+\"\n * What is GrooVim?~".
 \"\n".
-\"\n O|GrooVim|\u00e9 um extensivo script (\u00e9 um arquivo|.vimrc|) que modifica o comportamento do Vim visando os seguintes objetivos:".
-\"\n*o*  Permitir o uso com apenas algumas instru\u00e7\u00f5es e por um p\u00fablico mais amplo acostumado aos editores/IDEs padr\u00e3o;".
-\"\n*o*  Facilitar e acelerar extensamente sendo, tamb\u00e9m, uma \"UI\" integrada;".
-\"\n*o*  Preservar sempre que poss\u00edvel o comportamento padr\u00e3o do Vim;".
-\"\n*o*  Refor\u00e7ar o projeto Vim como uma IDE de prop\u00f3sito geral;".
-\"\n*o*  Aproximar o Vim dos editores \"padr\u00e3o\" de texto no que for conveniente e positivo e modificar o Vim em seus aspectos negativos;".
-\"\n*o*  Fomentar Vim como uma alternativa melhor e mais \u00e1gil aos editores de texto e IDEs do mercado assim como um editor de prop\u00f3sito geral;".
-\"\n*o*  Refor\u00e7ar o projeto Vim como uma alternativa livre (esse script \u00e9 Apache License - Version 2.0), independente e apoiada pela comunidade aos editores do mercado;".
-\"\n*o*  Incentivar o uso do Vim \"shell\";".
-\"\n*o*  Ser um pacote \"tudo em um\", ou seja, depender apenas do conte\u00fado do arquivo|.vimrc|para funcionar (nos cen\u00e1rios onde n\u00e3o usamos nenhum plugin);".
-\"\n*o*  Ser um script para todos os tipos de terminais;".
+\"\n The|GrooVim|is an extensive script (it\'s a|.vimrc|) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
+\"\n*o*  Allow use with just a few instructions by a public accustomed to editors/IDEs default;".
+\"\n*o*  Facilitate and accelerate widely the use, being also a integrated \"UI\";".
+\"\n*o*  Preserving always that possible the default behavior of Vim;".
+\"\n*o*  Enhancing Vim project as a general purpose IDE;".
+\"\n*o*  Approach Vim of \"standard\" text editors in what is convenient and positive and modify Vim in its negative aspects;".
+\"\n*o*  Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;".
+\"\n*o*  Enhancing Vim project as a free alternative (this script is Apache License - Version 2.0), independent and community-supported initiative;".
+\"\n*o*  Encourage the use of shell Vim;".
+\"\n*o*  Being a \"all in one\" package, ie, depend only on the contents of the file|.vimrc|to work (no plugin scenario);".
+\"\n*o*  Being a script for all types of terminals;".
 \"\n".
-\"\n * Antes de come\u00e7ar com o GrooVim!~".
+\"\n * Before you start with the GrooVim!~".
 \"\n".
 \"\n--------".
-\"\n *IMPORTANTE_I!* Se voc\u00ea n\u00e3o conhece o Vim ou n\u00e3o sabe utiliza-lo abra um terminal e execute|vimtutor|e fa\u00e7a os exerc\u00edcios (leva 25 \u00e0 30 minutos). Depois continue a ler esse documento! \u00c9 MUITO IMPORTANTE CONHECER O VIM PADR\u00c3O NO SEU B\u00c1SICO, ASSIM VOC\u00ca PODER\u00c1 USA-LO DE FORMA MAIS AMPLA E CONTRIBUIR COM NOVAS FUNCIONALIDADES!".
-\"\n *IMPORTANTE_II!* O Vim \u00e9 um poderos\u00edssimo editor de texto/IDE de prop\u00f3sito geral. Tenha em mente que o GrooVim s\u00f3 foi poss\u00edvel gra\u00e7as a vasta API (script) e grande versatilidade que o Vim oferece!".
-\"\n *IMPORTANTE_III!* Perceba ainda que determinados emuladores de terminal limitam as possibilidade dos Vim e do GrooVim. Sendo assim, recomendamos que para o seu Vim de \"todo o dia\" use um terminal que permita uma gama maior de possibilidades!".
+\"\n *IMPORTANT_I!* If you do not know how Vim works, please open a terminal, run|vimtutor|and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!".
+\"\n *IMPORTANT_II!* The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!".
+\"\n *IMPORTANT_III!* Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your \"all day\" Vim use a terminal that allows more possibilities and features!".
 \"\n--------".
 \"\n".
-\"\n*o*  O GrooVim foi projetado e pensado para trabalhar com um vasto conjunto de atalhos de teclado. Eventualmente, tais atalhos podem apresentar conflitos com atalhos do seu OS visto a quantidede de distribui\u00e7\u00f5es e variantes que existem. Isso \u00e9 normal e caso ocorram conflitos recomendamos que modifique os atalhos do seu OS, pois o ambiente de terminal n\u00e3o permite uma quantidade muito grande de combina\u00e7\u00f5es de teclas para formar atalhos;".
-\"\n*o*  Para facilitar ainda mais a sua vida e aumentar a produtividade recomendamos que fa\u00e7a um mapeamento em seu terminal para navegar entre as tabs/abas deste usando <Shift-Left>/<Shift-Right>. Esses dois atalhos de teclado (<Shift-Left>/<Shift-Right>) n\u00e3o est\u00e3o mapeados no GrooVim para que sejam usados da forma mencionada;".
-\"\n   |-|Note: No ambiente de desktop KDE j\u00e1 funciona dessa forma;".
-\"\n*o*  O GrooVim foi projetado para trabalhar com tabs;".
-\"\n*o*  O GrooVim foi projetado para trabalhar|sem|o|uso|contante|de|\'virtualedit\' (\"set virtualedit=all\") para facilitar a navega\u00e7\u00e3o \"desprezando\" as \u00e1reas \"inv\u00e1lidas\" (ou sem caracter) quando conveniente;".
-\"\n*o*  O GrooVim foi projetado para trabalhar com os melhores plugins;".
-\"\n   |-|Recomendamos instalar TODOS os plugins a seguir:".
+\"\n*o*  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;".
+\"\n*o*  To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using <Shift-Left>/<Shift-Right>. These two keyboard shortcuts (<Shift-Left>/<Shift-Right>) are not mapped in GrooVim to that you use in the way mentioned;".
+\"\n   |-|Note: KDE desktop environment already works in that way with its terminal;".
+\"\n*o*  The GrooVim was designed to work with tabs;".
+\"\n*o*  The GrooVim was designed to work without constant use of \'virtualedit\' (\"virtualedit set=all\") to facilitate cursor navigation \"despising invalid areas\" (or without character) when convenient;".
+\"\n*o*  The GrooVim was designed to work with the best plugins;".
+\"\n   |-|We recommend install ALL the following plugins:".
 \"\n      |-|*NERDTree*".
 \"\n         |[https://github.com/scrooloose/nerdtree]|".
 \"\n      |-|*tcomment*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
-\"\n*o*  Quando usando plugins o plugin *Pathogen* necessita estar intalado|[https://github.com/tpope/vim-pathogen]|;".
-\"\n*o*  Por padr\u00e3o o GrooVim n\u00e3o tem nenhum plugin habilitado (veja em |let|g:enable_all_plugins|=|0|). Voc\u00ea tamb\u00e9m poder\u00e1 habilitar os plugins individualmente;".
+\"\n*o*  When using plugins *Pathogen* plugin needs to be intalled|[https://github.com/tpope/vim-pathogen];".
+\"\n*o*  By default GrooVim not have any enabled plugin (see|let|g:enable_all_plugins|=|0|). You can also enable the plugins individually;".
 \"\n".
-\"\n * O GrooVim resolve os seguintes \"problemas\"!~".
+\"\n * The GrooVim solves the following \"problems\"!!~".
 \"\n".
-\"\n*o*  <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navega\u00e7\u00e3o por palavras de forma convencional e pr\u00e1tica;".
-\"\n*o*  <Tab> (normal mode/visual)- Indenta de forma convencional e pr\u00e1tica;".
-\"\n*o*  <Enter> (normal mode/visual) - Uso de forma convencional e pr\u00e1tica;".
-\"\n*o*  <Backspace> (normal mode/visual) - Uso de forma convencional e pr\u00e1tica (normal e visual mode);".
-\"\n*o*  <Del> (normal mode/visual) - Uso de forma convencional e pr\u00e1tica;".
-\"\n*o*  <Space> (normal mode/visual) - Uso de forma convencional e pr\u00e1tica;".
-\"\n*o*  Na altern\u00e2ncia entre os modos o cursor fica corretamente posicionando;".
-\"\n*o*  Utiliza\u00e7\u00e3o de forma correta e convencional da \u00e1rea de transfer\u00eancia (copiar e colar);".
-\"\n*o* |Replace|, <x> (apagar) e <d> (deletar) preservando a \u00e1rea de transfer\u00eancia;".
-\"\n*o*  <PageDown>/<PageUp> - Com navega\u00e7\u00e3o por toda a tela (\u00e1reas inv\u00e1lidas);".
-\"\n*o*  <MouseScrollDown>/<MouseScrollUp> - Com navega\u00e7\u00e3o por toda a tela (\u00e1reas inv\u00e1lidas);".
-\"\n*o*  <MouseClick> (normal mode) - Em toda a tela (\u00e1reas inv\u00e1lidas);".
-\"\n*o*  Apenas um <Ctrl-w> alterna entre as janelas;".
+\"\n*o*  <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;".
+\"\n*o*  <Tab> (normal mode/visual)- Indent in a conventional and practical way;".
+\"\n*o*  <Enter> (normal mode/visual) - Use in a conventional and practical way;".
+\"\n*o*  <Backspace> (normal mode/visual) - Use in a conventional and practical way;".
+\"\n*o*  <Del> (normal mode/visual) - Use in a conventional and practical way;".
+\"\n*o*  <Space> (normal mode/visual) - Use in a conventional and practical way;".
+\"\n*o*  In the alternation between modes the cursor stays correctly positioned;".
+\"\n*o*  Use default clipboard in a correct and conventional way (copy, cut and paste);".
+\"\n*o* |Replace|, <x> (remove) and <d> (delete) preserving the clipboard;".
+\"\n*o*  <PageDown>/<PageUp> - With navigation across the screen (invalid areas);".
+\"\n*o*  <MouseScrollDown>/<MouseScrollUp> - With navigation across the screen (invalid areas);".
+\"\n*o*  <MouseClick> (normal mode) - Across the screen (invalid areas);".
+\"\n*o*  Just a <Ctrl-w> switches between windows;".
 \"\n*o*  Etc...".
 \"\n".
-\"\n * Funcionalidades de edi\u00e7\u00e3o!~".
+\"\n * Editor features!~".
 \"\n".
-\"\n*o*  Alternar entre os modos:".
-\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Entrar ou sair do insert mode;".
-\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Entrar ou sair do visual mode;".
+\"\n*o*  Switching between modes:".
+\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Enter or exit the insert mode;".
+\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Enter or exit the visual mode;".
 \"\n".
 \"\n*o*  Sele\u00e7\u00e3o de texto:".
-\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert) - Sele\u00e7\u00e3o de palavras para \u00e0 direita/esquerda;".
-\"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Sele\u00e7\u00e3o do texto na linha at\u00e9 o final/in\u00edcio \u00e0 partir do ponto atual;".
+\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert) - Word selection to the right/left;".
+\"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
 \"\n".
-\"\n*o*  Comandos convencionais de editores de texto \"default\":".
-\"\n   |-|<Ctrl-c> (visual mode) - Copiar para a \u00e1rea de transfer\u00eancia;".
-\"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Colar da \u00e1rea de transfer\u00eancia;".
-\"\n   |-|<Ctrl-x> (visual mode) - Recortar para a \u00e1rea de transfer\u00eancia;".
-\"\n   |-|<Ctrl-u> (normal mode/insert/visual) - Desfazer;".
-\"\n   |-|<Ctrl-r> (normal mode/insert/visual) - Refazer;".
+\"\n*o*  Conventional text editors commands:".
+\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
+\"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;".
+\"\n   |-|<Ctrl-x> (visual mode) - Cut to the clipboard;".
+\"\n   |-|<Ctrl-u> (normal mode/insert/visual) - Undo;".
+\"\n   |-|<Ctrl-r> (normal mode/insert/visual) - Redo;".
 \"\n".
 \"\n*o*  Plugins:".
 \"\n   |-|move-vim;|".
-\"\n        <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Mover a linha ou sele\u00e7\u00e3o para cima ou para baixo;".
+\"\n        <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Move line or selection up/down;".
 \"\n".
-\"\n * Modifica\u00e7\u00f5es \"relevantes\" no comportamento padr\u00e3o do Vim!~".
+\"\n * Relevant changes in the default Vim behavior!~".
 \"\n".
-\"\n   |-|Utilize |Ctrl+b| para acessar acessar o visual block mode;".
-\"\n   |-|Ao passar do|visual|mode|para o|insert|mode|o cursor n\u00e3o move;".
-\"\n   |-|Utiliza a \u00e1rea de transfer\u00eancia padr\u00e3o do OS;".
-\"\n   |-|A \"inser\u00e7\u00e3o\" e o \"paste\" ocorrem \u00e0 partir de uma mesma posi\u00e7\u00e3o do cursor;".
+\"\n   |-|Use |Ctrl+b| to enable visual block mode;".
+\"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
+\"\n   |-|Use default OS clipboard;".
+\"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".
 \"\n".
-\"\n * Funcionalidades do script!~".
+\"\n * Script features!~".
 \"\n".
-\"\n*o*  Navega\u00e7\u00e3o".
+\"\n*o*  Navigation".
 \"\n".
-\"\n   |-|<Shift-Alt-Arrows> (normal mode/insert/visual) - Navega\u00e7\u00e3o suave e por toda a tela com movimentos longos (\u00e1reas inv\u00e1lidas);".
-\"\n   |-|<Ctrl-Alt-Arrows> (normal mode/insert/visual) - Navega\u00e7\u00e3o com as setas por toda a tela (\u00e1reas inv\u00e1lidas) usando movimentos curtos;".
-\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Retorna \u00e0 tab anterior;".
-\"\n   |-|<Ctrl-Down>/<Ctrl-Up> (normal mode/insert/visual) - A acessa tabs \u00e0 esquerda/direita;".
+\"\n   |-|<Shift-Alt-Arrows> (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);".
+\"\n   |-|<Ctrl-Alt-Arrows> (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using shorts movements;".
+\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Returns to the previous tab;".
+\"\n   |-|<Ctrl-Down>/<Ctrl-Up> (normal mode/insert/visual) - The access tabs on left/right;".
 \"\n".
-\"\n*o*  Sele\u00e7\u00e3o de palavras".
+\"\n*o*  Word selection".
 \"\n".
-\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Sele\u00e7\u00e3o de palavras para \u00e0 direita/esquerda;".
-\"\n   |-|<2-leftmouse> (normal mode/insert) - Clica duas v\u00eazes com o mouse em uma palavra seguida pressiona a letra <z>. Todas as palavras com o mesmo conte\u00fado ser\u00e3o brilhadas;".
+\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Word selection to the right/left;".
+\"\n   |-|<2-leftmouse> (normal mode/insert) - Double click the mouse on a word then press <z> letter. All words with the same content will be highlighted;".
 \"\n".
-\"\n*o*  Comentar linhas".
+\"\n*o*  Comment lines".
 \"\n".
-\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Comentar linhas usando o *tcomment.vim* ;".
+\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Comment lines using *tcomment.vim* ;".
 \"\n".
-\"\n * ATALHOS F\'S (CommandZ)!~".
+\"\n * F\'S Shortcuts (CommandZ)!~".
 \"\n".
-\"\n  O|CommandZ|\u00e9 uma esp\u00e9cie de \"super leader\" que permite uma extensa combina\u00e7\u00e3o de teclas para criar atalhos de teclado para funcionalidades no Vim. Funciona pressionando as teclas <F2>, <F3> ou <F4> e depois outra tecla.".
+\"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3> or <F4> keys and then another key.".
 \"\n".
-\"\n*o*  Caracter\u00edsticas".
+\"\n*o*  Features".
 \"\n ".
-\"\n |-|Permite replica\u00e7\u00e3o do \u00faltimo comando apenas pressionando a \u00faltima|F|usada. Se em determinado intervalo nenhuma tecla de combina\u00e7\u00e3o for informada o \u00faltimo comando \u00e9 repetido;".
-\"\n |-|Se a|F|for mantida pressionada o comando ser\u00e1 replicado v\u00e1rias v\u00eazes;".
+\"\n |-|Allows replication of the last command just by pressing the last |F| used. If in a given interval a key combination is not informed the last command is repeated;".
+\"\n |-|If |F| is hold down the command is replicated several times;".
 \"\n".
-\"\n    <F2> e depois...".
-\"\n      Note: Preferencialmente para comandos de edi\u00e7\u00e3o;".
-\"\n        <h> - Alinha \u00e0 esquerda (normal mode/insert/visual);".
-\"\n        <k> - Alinha \u00e0 direita (normal mode/insert/visual);".
-\"\n        <j> - Alinha no centro (normal mode/insert/visual);".
-\"\n        <Up> - Modifica para uppercase (normal mode/insert/visual);".
-\"\n        <Down> - Modifica para lowercase (normal mode/insert/visual);".
-\"\n        <c> - Copia todo o texto do buffer atual (normal mode/insert/visual);".
-\"\n        <a> - Seleciona todo o texto do buffer atual (normal mode/insert/visual);".
-\"\n        <d> - Duplica a linha atual (normal mode/insert/visual);".
-\"\n            Note: Se no visual mode n\u00e3o ser\u00e1 poss\u00edvel repeti\u00e7\u00e3o simples;".
-\"\n        <q> - Grava uma macro (normal mode/insert/visual);".
-\"\n        <w> - Excuta uma macro (normal mode/insert/visual);".
-\"\n        <e> - Excuta uma macro de forma repetida ou at\u00e9 a \u00faltima linha (normal mode/insert/visual);".
-\"\n        <End> - Seleciona a palavra abaixo do cursor (normal mode/insert/visual);".
-\"\n        <Del> - Seleciona uma \u00e1rea (normal mode/insert);".
+\"\n    <F2> and then...".
+\"\n      Note: Preferably for editing commands;".
+\"\n        <h> - Aligns to left (normal mode/insert/visual);".
+\"\n        <k> - Aligns to right (normal mode/insert/visual);".
+\"\n        <j> - Aligns to center (normal mode/insert/visual);".
+\"\n        <Up> - Changes to uppercase (normal mode/insert/visual);".
+\"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
+\"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
+\"\n        <a> - Select all text in the current buffer (normal mode/insert/visual);".
+\"\n        <d> - Duplicates the current line/selection (normal mode/insert/visual);".
+\"\n            Note: If in the visual mode can not be replicated;".
+\"\n        <q> - Record a macro (normal mode/insert/visual);".
+\"\n        <w> - Run a macro (normal mode/insert/visual);".
+\"\n        <e> - Run a macro certain number of times or repeatedly until the last line (normal mode/insert/visual);".
+\"\n        <End> - Selects the word under the cursor (normal mode/insert/visual);".
+\"\n        <Del> - Selects an area (normal mode/insert);".
 \"\n".
-\"\n    <F3> e depois...".
-\"\n      Note: Preferencialmente para comandos que \"tradicionalmente\" envolveriam|Ctrl|em outros editores;".
-\"\n        <n> - Abre uma nova tab (normal mode/insert/visual);".
-\"\n        <c> - Fecha a tab atual (normal mode/insert/visual);".
-\"\n        <o> - Fecha todas as demais tabs (normal mode/insert/visual);".
-\"\n        <v> - Abre o arquivo|.vimrc|(normal mode/insert/visual);".
-\"\n        <r> - Recarrega o arquivo|.vimrc|em todas as tabs (normal mode/insert/visual);".
-\"\n       |</>|- Remove marcadores de pesquisa (normal mode/insert/visual);".
-\"\n        <s> - Salva no para o disco (normal mode/insert/visual);".
-\"\n        <f> - Abre para pesquisa (normal mode/insert/visual);".
-\"\n        <d> - Abre para configurar a busca (normal mode/insert/visual);".
-\"\n        <j> - Abre para replace (normal mode/insert/visual);".
-\"\n        <h> - Abre para configurar o replace (normal mode/insert/visual);".
-\"\n       |<[>|- Salva a sess\u00e3o atual (normal mode/insert/visual);".
-\"\n       |<]>|- Recarrega a \u00faltima sess\u00e3o salva (normal mode/insert/visual);".
-\"\n        <p> - Copia para a \u00e1rea de transfer\u00eancia o nome ou nome e caminho de pasta do buffer e/ou arquivo atual (normal mode/insert/visual);".
-\"\n        <t> - Permite retornar para um determinada tab sempre (normal mode/insert/visual);".
-\"\n        <End> - Seleciona e procura a palavra sob o cursor (case sensitive) (normal mode/insert/visual);".
-\"\n        <Del> - Reseleciona \u00e1rea (normal mode/insert/visual);".
-\"\n        <y> - Salva no disco e abre em uma nova tab uma c\u00f3pia do arquivo atual (normal mode/insert/visual);".
+\"\n    <F3> and then...".
+\"\n      Note: Preferably for commands that \"traditionally\" involve|Ctrl|in other editors;".
+\"\n        <n> - Open a new tab (normal mode/insert/visual);".
+\"\n        <c> - Close current tab (normal mode/insert/visual);".
+\"\n        <o> - Close all other tabs (normal mode/insert/visual);".
+\"\n        <v> - Opens the file|.vimrc|(normal mode/insert/visual);".
+\"\n        <r> - Reloads the file|.vimrc|in all tabs (normal mode/insert/visual);".
+\"\n       |</>|- Removes search highlights (normal mode/insert/visual);".
+\"\n        <s> - Save to disk (normal mode/insert/visual);".
+\"\n        <f> - Opens for search (normal mode/insert/visual);".
+\"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
+\"\n        <j> - Opens to replace (normal mode/insert/visual);".
+\"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
+\"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
+\"\n       |<]>|- Reloads the last saved session (normal mode/insert/visual);".
+\"\n        <p> - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);".
+\"\n        <t> - Allows always returning to a particular tab using <Alt-Down> (normal mode/insert/visual);".
+\"\n        <End> - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);".
+\"\n        <Del> - Reselect area (normal mode/insert/visual);".
+\"\n        <y> - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);".
 \"\n".
-\"\n    <F4> e depois...".
-\"\n      Note: Preferencialmente para acionar os plugins instalados ou suas funcionalidades;".
-\"\n        <n> - Abre/fecha o *NERDTree* (normal mode/insert/visual);".
+\"\n    <F4> and then...".
+\"\n      Note: Preferably to trigger the installed plugins and their functionalities;".
+\"\n        <n> - Opens/closes the *NERDTree* (normal mode/insert/visual);".
 \"\n".
-\"\n * Integra\u00e7\u00e3o com plugins~".
+\"\n * Integration with plugins~".
 \"\n".
-\"\n   *Por...fazer...*".
+\"\n   *Undone...*".
 \"\n".
-\"\n * Tarefas/Pend\u00eancias/Bugs~".
+\"\n * Tasks/Pendings/Bugs~".
 \"\n".
-\"\n   *Por...fazer...*\n\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
+\"\n   *Undone...*".
 \"\n".
+\"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
 " Note: Para testar o help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help"! By Questor
@@ -3216,3 +3224,4 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*\n|Groo
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
+
