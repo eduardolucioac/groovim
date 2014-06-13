@@ -10,7 +10,6 @@ The GrooVim is an extensive script (it's a .vimrc ) that modifies the behavior o
  * Preserving always that possible the default behavior of Vim;
  * Enhancing Vim project as a general purpose IDE;
  * Approach Vim of "standard" text editors in what is convenient and positive and modify Vim in its negative aspects;
- * Fomentar Vim como uma alternativa melhor e mais ágil aos editores de texto e IDEs do mercado assim como um editor de propósito geral;
  * Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;
  * Enhancing Vim project as a free alternative (this script is Apache License - Version 2.0), independent and community-supported initiative;
  * Encourage the use of shell Vim;
@@ -40,7 +39,6 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
        - move
           https://github.com/matze/vim-move 
  * When using plugins Pathogen plugin needs to be intalled https://github.com/tpope/vim-pathogen;
- * Por padrão o GrooVim não tem nenhum plugin habilitado (veja em  let g:enable_all_plugins = 0 ). Você também poderá habilitar os plugins individualmente;
  * By default GrooVim not have any enabled plugin (see let g:enable_all_plugins = 0 ). You can also enable the plugins individually;
 
 The GrooVim solves the following "problems"!
