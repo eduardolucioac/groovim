@@ -1,4 +1,4 @@
-GrooVim
+GrooVim - Vi IMproved'n'GrooVIed!
 =============
 
 What is GrooVim?
