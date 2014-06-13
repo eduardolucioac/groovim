@@ -17,20 +17,19 @@ The GrooVim is an extensive script (it's a .vimrc ) that modifies the behavior o
   * Being a "all in one" package, ie, depend only on the contents of the file .vimrc to work (no plugin scenario);
   * Being a script for all types of terminals;
 
-  Before you start with the GrooVim!
+Before you start with the GrooVim!
+-----
 
---------
- IMPORTANT_I! If you do not know how Vim works, please open a terminal, run vimtutor and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
- IMPORTANT_II! The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!
- IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your "all day" Vim use a terminal that allows more possibilities and features!
---------
+IMPORTANT_I! If you do not know how Vim works, please open a terminal, run vimtutor and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
+IMPORTANT_II! The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!
+IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your "all day" Vim use a terminal that allows more possibilities and features!
 
-o  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
-o  To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using <Shift-Left>/<Shift-Right>. These two keyboard shortcuts (<Shift-Left>/<Shift-Right>) are not mapped in GrooVim to that you use in the way mentioned;
+  * The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
+  * To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using <Shift-Left>/<Shift-Right>. These two keyboard shortcuts (<Shift-Left>/<Shift-Right>) are not mapped in GrooVim to that you use in the way mentioned;
     - Note: KDE desktop environment already works in that way with its terminal;
-o  The GrooVim was designed to work with tabs;
-o  The GrooVim was designed to work without constant use of 'virtualedit' ("virtualedit set=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
-o  The GrooVim was designed to work with the best plugins;
+  * The GrooVim was designed to work with tabs;
+  * The GrooVim was designed to work without constant use of 'virtualedit' ("virtualedit set=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
+  * The GrooVim was designed to work with the best plugins;
     - We recommend install ALL the following plugins:
        - NERDTree
           [https://github.com/scrooloose/nerdtree] 
@@ -38,78 +37,82 @@ o  The GrooVim was designed to work with the best plugins;
           [https://github.com/tomtom/tcomment_vim] 
        - move
           [https://github.com/matze/vim-move] 
-o  When using plugins Pathogen plugin needs to be intalled [https://github.com/tpope/vim-pathogen];
-o  Por padrão o GrooVim não tem nenhum plugin habilitado (veja em  let g:enable_all_plugins = 0 ). Você também poderá habilitar os plugins individualmente;
-o  By default GrooVim not have any enabled plugin (see let g:enable_all_plugins = 0 ). You can also enable the plugins individually;
+  * When using plugins Pathogen plugin needs to be intalled [https://github.com/tpope/vim-pathogen];
+  * Por padrão o GrooVim não tem nenhum plugin habilitado (veja em  let g:enable_all_plugins = 0 ). Você também poderá habilitar os plugins individualmente;
+  * By default GrooVim not have any enabled plugin (see let g:enable_all_plugins = 0 ). You can also enable the plugins individually;
 
   The GrooVim solves the following "problems"!!
 
-o  <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;
-o  <Tab> (normal mode/visual)- Indent in a conventional and practical way;
-o  <Enter> (normal mode/visual) - Use in a conventional and practical way;
-o  <Backspace> (normal mode/visual) - Use in a conventional and practical way;
-o  <Del> (normal mode/visual) - Use in a conventional and practical way;
-o  <Space> (normal mode/visual) - Use in a conventional and practical way;
-o  In the alternation between modes the cursor stays correctly positioned;
-o  Use default clipboard in a correct and conventional way (copy, cut and paste);
-o  Replace , <x> (remove) and <d> (delete) preserving the clipboard;
-o  <PageDown>/<PageUp> - With navigation across the screen (invalid areas);
-o  <MouseScrollDown>/<MouseScrollUp> - With navigation across the screen (invalid areas);
-o  <MouseClick> (normal mode) - Across the screen (invalid areas);
-o  Just a <Ctrl-w> switches between windows;
-o  Etc...
+  * <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;
+  * <Tab> (normal mode/visual)- Indent in a conventional and practical way;
+  * <Enter> (normal mode/visual) - Use in a conventional and practical way;
+  * <Backspace> (normal mode/visual) - Use in a conventional and practical way;
+  * <Del> (normal mode/visual) - Use in a conventional and practical way;
+  * <Space> (normal mode/visual) - Use in a conventional and practical way;
+  * In the alternation between modes the cursor stays correctly positioned;
+  * Use default clipboard in a correct and conventional way (copy, cut and paste);
+  * Replace , <x> (remove) and <d> (delete) preserving the clipboard;
+  * <PageDown>/<PageUp> - With navigation across the screen (invalid areas);
+  * <MouseScrollDown>/<MouseScrollUp> - With navigation across the screen (invalid areas);
+  * <MouseClick> (normal mode) - Across the screen (invalid areas);
+  * Just a <Ctrl-w> switches between windows;
+  * Etc...
 
-  Editor features!
+Editor features!
+-----
 
-o  Switching between modes:
+  * Switching between modes:
     - <Alt-Up> (normal mode/insert/visual) - Enter or exit the insert mode;
     - <Alt-Down> (normal mode/insert/visual) - Enter or exit the visual mode;
 
-o  Seleção de texto:
+  * Seleção de texto:
     - <Alt-Right>/<Alt-Left> (normal mode/insert) - Word selection to the right/left;
     - <Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;
 
-o  Conventional text editors commands:
+  * Conventional text editors commands:
     - <Ctrl-c> (visual mode) - Copy to clipboard;
     - <Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;
     - <Ctrl-x> (visual mode) - Cut to the clipboard;
     - <Ctrl-u> (normal mode/insert/visual) - Undo;
     - <Ctrl-r> (normal mode/insert/visual) - Redo;
 
-o  Plugins:
+  * Plugins:
     - move-vim; 
         <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Move line or selection up/down;
 
-  Relevant changes in the default Vim behavior!
+Relevant changes in the default Vim behavior!
+-----
 
     - Use  Ctrl+b  to enable visual block mode;
-    - When changes from  visual mode  to  insert mode the cursor do not move;
+    - When changes from  visual mode  t  * insert mode the cursor do not move;
     - Use default OS clipboard;
     - The "insert" and "paste" from the same cursor position;
 
-  Script features!
+Script features!
+-----
 
-o  Navigation
+  * Navigation
 
     - <Shift-Alt-Arrows> (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);
     - <Ctrl-Alt-Arrows> (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using shorts movements;
     - <Alt-Down> (normal mode/insert/visual) - Returns to the previous tab;
     - <Ctrl-Down>/<Ctrl-Up> (normal mode/insert/visual) - The access tabs on left/right;
 
-o  Word selection
+  * Word selection
 
     - <Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Word selection to the right/left;
     - <2-leftmouse> (normal mode/insert) - Double click the mouse on a word then press <z> letter. All words with the same content will be highlighted;
 
-o  Comment lines
+  * Comment lines
 
     - <Alt-Up> (normal mode/insert/visual) - Comment lines using tcomment.vim ;
 
-  F'S Shortcuts (CommandZ)!
+F'S Shortcuts (CommandZ)!
+-----
 
-  The  CommandZ  is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3> or <F4> keys and then another key.
+The  CommandZ  is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3> or <F4> keys and then another key.
 
-o  Features
+  * Features
  
   - Allows replication of the last command just by pressing the last  F  used. If in a given interval a key combination is not informed the last command is repeated;
   - If  F  is hold down the command is replicated several times;
@@ -155,17 +158,6 @@ o  Features
     <F4> and then...
       Note: Preferably to trigger the installed plugins and their functionalities;
         <n> - Opens/closes the NERDTree (normal mode/insert/visual);
-
-  Integration with plugins
-
-   Undone...
-
-  Tasks/Pendings/Bugs
-
-   Undone...
-
-=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D
-
 
 groovim
 =======
