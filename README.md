@@ -21,7 +21,9 @@ Before you start with the GrooVim!
 -----
 
 IMPORTANT_I! If you do not know how Vim works, please open a terminal, run vimtutor and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
+
 IMPORTANT_II! The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!
+
 IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your "all day" Vim use a terminal that allows more possibilities and features!
 
   * The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
@@ -41,7 +43,8 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
   * Por padrão o GrooVim não tem nenhum plugin habilitado (veja em  let g:enable_all_plugins = 0 ). Você também poderá habilitar os plugins individualmente;
   * By default GrooVim not have any enabled plugin (see let g:enable_all_plugins = 0 ). You can also enable the plugins individually;
 
-  The GrooVim solves the following "problems"!!
+The GrooVim solves the following "problems"!
+-----
 
   * <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;
   * <Tab> (normal mode/visual)- Indent in a conventional and practical way;
@@ -83,10 +86,10 @@ Editor features!
 Relevant changes in the default Vim behavior!
 -----
 
-    - Use  Ctrl+b  to enable visual block mode;
-    - When changes from  visual mode  t  * insert mode the cursor do not move;
-    - Use default OS clipboard;
-    - The "insert" and "paste" from the same cursor position;
+ - Use  Ctrl+b  to enable visual block mode;
+ - When changes from  visual mode  t  * insert mode the cursor do not move;
+ - Use default OS clipboard;
+ - The "insert" and "paste" from the same cursor position;
 
 Script features!
 -----
@@ -158,14 +161,3 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
     <F4> and then...
       Note: Preferably to trigger the installed plugins and their functionalities;
         <n> - Opens/closes the NERDTree (normal mode/insert/visual);
-
-groovim
-=======
-
-The GrooVim is an extensive script (it's a ".vimrc") that modifies the behavior of Vim to facilitate your work and increase your productivity.
-
---------------- 
-
-Initial version (but stable and tested for KDE ui). English translation pending!
-
-For help (portuguese) use F9!
