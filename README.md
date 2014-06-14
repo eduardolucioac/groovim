@@ -13,7 +13,7 @@ The GrooVim is an extensive script (it's a .vimrc ) that modifies the behavior o
  * Enhancing Vim project as a general purpose IDE;
  * Approach Vim of "standard" text editors in what is convenient and positive and modify Vim in its negative aspects;
  * Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;
- * Enhancing Vim project as a free alternative (this script is Apache License - Version 2.0), independent and community-supported initiative;
+ * Enhancing Vim project as a free alternative (this script is __Apache License - Version 2.0__), independent and community-supported initiative;
  * Encourage the use of shell Vim;
  * Being a "all in one" package, ie, depend only on the contents of the file .vimrc to work (no plugin scenario);
  * Being a script for all types of terminals;
