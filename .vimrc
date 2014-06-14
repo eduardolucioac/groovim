@@ -211,7 +211,7 @@
 "    See the License for the specific language governing permissions and
 "    limitations under the License.
 
-let g:grooVimVersion = "v1.0.0b"
+let g:grooVimVersion = "v2.0.8b"
 " Eduardo Lúcio
 " 2014
 
@@ -219,93 +219,54 @@ let g:grooVimVersion = "v1.0.0b"
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" ToDo: No copy file sugerir nome automaticamente! Questor
+" ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! Questor
 
-" ToDo: F3+c não pode funcionar para o NerdTree! Questor
+" Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! Questor
 
-" ToDo: Disponibilizar a busca "por palavra inteira apenas"! Questor
+" ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! Questor
 
-" ToDo: GroovyMove está com problemas (para arquivos *.py) no insert/visual (perde o virtual edit)! Questor
+" Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) Questor
 
-" ToDo: Criar um esquema de configuração de acordo com o tipo de arquivo e que
-" fique no final deste .vimrc! Questor
+" ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc"
+" to work properly! Questor
 
-" ToDo: For python using 4 tab spaces (testar)? Questor
+" ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease
+" of maintenance! (EXAMINE THIS POSSIBILITY) Questor
 
-" ToDo: Usar python scripts? Questor
+" ToDo: The "GrooVim_GroovyMove()" do not work with "visual block mode"! (PRIORITY) Questor
 
-" ToDo: Visual block -> GroovyMove problem! Questor
+" ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
-" ToDo: "Limpar" e "organizar" o código (testar)! By Questor
+" ToDo: Try a solution to "set expandtab" X "set listchars=tab:▒░,trail:·" problem! How we can "listchars" spaces
+" as "tabs"? By Questor
 
-" ToDo: Atualizar o help (OK)! By Questor
+" ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
 
-" ToDo: Save a copy and open that (testar)! By Questor
+" ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done
+" using a script that works according with user distro/UI! By Questor
 
-" ToDo: Funcionalidade para reselecionar a última seleção do visual mode (testar)! By Questor
+" Bug: "Enter" (carriage return) on normal mode fails for certain types of files ("GrooVim_NormalEnterOnNormalMode()")! By Questor
 
-" ToDo: Ctrl+k,j,... (move-vim) no normal mode (testar)! By Questor
+" ToDo: Show cursor position (blink a "scope")! (NOT A PRIORITY) By Questor
 
-" ToDo: A recuperação da área de transferência está dando problema para o
-" replace (testar)! By Questor
+" ToDo: Improve the presentation of the tabs flaps. Using a similar idea to a scroll bar? (EXAMINE THIS POSSIBILITY) By Questor
 
-" ToDo: Replace quando o pathern tem várias linhas? By Questor
+" ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
-" ToDo: "F3+End" não funciona no insert mode! Deve ser case sensitive (testar)! By Questor
+" Bug: Treating problem of slowness with long lines! By Questor
 
-" ToDo: "Forçar" um fundo negro (cancelado)? By Questor
+" ToDo: Create verification of operating system for commands (shell/"system()" calls) that depend on it! By Questor
 
-" ToDo: Cor do cursor na movimentação "GroovyMove" no insert mode (cancelado)! By Questor
+" ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at
+" vim startup (see "GrooVim_OptsUpdate()")! By Questor
 
-" ToDo: Mensagem "Search hit botton!" na lista de pesquisa? By Questor
+" ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
 
-" ToDo: Sempre ficar no final da tab (linhas vazias, normal mode) (testar)! By Questor
+" ToDo: Mark lines and navigate to these (bookmarks). Use "mark.vim"? By Questor
 
-" ToDo: Improve syntax and lexers (mainly python)! By Questor
+" ToDo: Create "expand/collapse an area" ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
 
-" ToDo: A pesquisa com lista não está brilhando as ocorrências (testar)! By Questor
-
-" ToDo: Ao desabilitar a pesquisa por lista, se houver lista aberta esta não
-" fecha se for disparado novamente "F3 -> f" (testar)! By Questor
-
-" ToDo: "set expandtab" X "set listchars=tab:▒░,trail:·" problem! By Questor
-
-" ToDo: Criar configuração parametrizável para cada distribuição (extensível ao help)! By Questor
-
-" ToDo: Colocar atalho de contexto no OS (sergundo botão do mouse e também abrir com duplo click)! By Questor
-
-" ToDo: Replace a partir de determinada posição (o replace padrão é à partir
-" do começo do arquivo)! -> Colocar como opcional (testar)! By Questor
-
-" ToDo: Enter qdo última linha e 1 coluna cria nova linha abaixo (não consegui reproduzir) (Esse comportamento está de acordo
-" com características do arquivo mas não consegui delimitar as causas)! By Questor
-
-" ToDo: Show cursor position (blink a "scope")? By Questor
-
-" ToDo: Melhorar a apresentação das abas das tabs? Barra de rolagem? By Questor
-
-" ToDo: Permitir todas funcionalidades para "virtualedit=all"? By Questor
-
-" ToDo: Voltar para a primeira de todas as posições após um replace? By Questor
-
-" ToDo: Tratar problema de lentidão com linhas longas! By Questor
-
-" ToDo: Criar verificação do sistema operacional para os comandos que
-" dependem dele! By Questor
-
-" ToDo: Criar comando que desabilita totalmente o GrooVim! By Questor
-
-" ToDo: Rever os comandos dependentes de learderkey? By Questor
-
-" ToDo: Mapear setas (apenas referência dos commandos) (colocar no HELP)! By Questor
-
-" ToDo: Mark line and navigate (bookmarks?)(mark.vim?)! By Questor
-
-" ToDo: Toogle area "" TEXT AREA {{{ }}}"! By Questor
-
-" ToDo: Traduzir a documentação para inglês! By Questor
-
-" ToDo: Testar para outras distribuições! By Questor
+" ToDo: Test GrooVim for multiple distributions! By Questor
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "MAIN
@@ -3224,4 +3185,3 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
-
