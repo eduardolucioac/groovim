@@ -161,3 +161,50 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
  * F4 and then...
     - Note: Preferably to trigger the installed plugins and their functionalities;
        - n - Opens/closes the NERDTree (normal mode/insert/visual);
+
+Task List/Bugs List!
+-----
+
+ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! Questor
+
+Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! Questor
+
+ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! Questor
+
+Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) Questor
+
+ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc" to work properly! Questor
+
+ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) Questor
+
+ToDo: The "GrooVim_GroovyMove()" do not work with "visual block mode"! (PRIORITY) Questor
+
+ToDo: Improve syntax and lexers (mainly for python)! By Questor
+
+ToDo: Try a solution to "set expandtab" X "set listchars=tab:▒░,trail:·" problem! How we can "listchars" spaces as "tabs"? By Questor
+
+ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
+
+ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done using a script that works according with user distro/UI! By Questor
+
+Bug: "Enter" (carriage return) on normal mode fails for certain types of files ("GrooVim_NormalEnterOnNormalMode()")! By Questor
+
+ToDo: Show cursor position (blink a "scope")! (NOT A PRIORITY) By Questor
+
+ToDo: Improve the presentation of the tabs flaps. Using a similar idea to a scroll bar? (EXAMINE THIS POSSIBILITY) By Questor
+
+ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
+
+Bug: Treating problem of slowness with long lines! By Questor
+
+ToDo: Create verification of operating system for commands (shell/"system()" calls) that depend on it! By Questor
+
+ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at vim startup (see "GrooVim_OptsUpdate()")! By Questor
+
+ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
+
+ToDo: Mark lines and navigate to these (bookmarks). Use "mark.vim"? By Questor
+
+ToDo: Crea expand/collapse an area ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
+
+ToDo: Test GrooVim for multiple distributions! By Questor
