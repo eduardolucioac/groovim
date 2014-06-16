@@ -87,7 +87,7 @@ Relevant changes in the default Vim behavior!
 -----
 
  - Use  Ctrl+b  to enable visual block mode;
- - When changes from  visual mode  t * insert mode the cursor do not move;
+ - When changes from visual mode to insert mode the cursor do not move;
  - Use default OS clipboard;
  - The "insert" and "paste" from the same cursor position;
 
