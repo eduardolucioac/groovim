@@ -31,7 +31,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using Shift-Left/Shift-Right. These two keyboard shortcuts (Shift-Left/Shift-Right) are not mapped in GrooVim to that you use in the way mentioned;
     - Note: KDE desktop environment already works in that way with its terminal;
  * The GrooVim was designed to work with tabs;
- * The GrooVim was designed to work without constant use of 'virtualedit' ("virtualedit set=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
+ * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
  * The GrooVim was designed to work with the best plugins;
     - We recommend install ALL the following plugins:
        - NERDTree
