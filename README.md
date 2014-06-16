@@ -41,7 +41,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
        - move
           https://github.com/matze/vim-move 
  * When using plugins Pathogen plugin needs to be intalled https://github.com/tpope/vim-pathogen;
- * By default GrooVim not have any enabled plugin (see let g:enable_all_plugins = 0 ). You can also enable the plugins individually;
+ * By default GrooVim not have any enabled plugin (see "let g:enable_all_plugins = 0"). You can also enable the plugins individually;
 
 The GrooVim solves the following "problems"!
 -----
