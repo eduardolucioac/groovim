@@ -162,6 +162,13 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
     - Note: Preferably to trigger the installed plugins and their functionalities;
        - n - Opens/closes the NERDTree (normal mode/insert/visual);
 
+If you liked it, consider helping the project!
+-----
+
+ * We need people to fix the "portuguenglish" in all documentation!
+ * We need people to test!
+ * Of course! We need people to develop!
+
 Task List/Bugs List!
 -----
 
