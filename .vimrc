@@ -268,9 +268,51 @@ let g:grooVimVersion = "v2.0.8b"
 
 " ToDo: Test GrooVim for multiple distributions! By Questor
 
+" Bug: Adjust colum when use "Enter" (carriage return) on end of lines! By Questor
+
+" ToDo: Treating when duplicate a selection using "F2+d" and there is a line just below the selection! By Questor
+
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "MAIN
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+"$$$$$$$$$$$$$$$$$$$$$$$$$$
+"GENERAL BEHAVIOR
+"$$$$$$$$$$$$$"
+
+" Note: Use vim settings, rather then vi settings (much better!)! This must be
+" first, because it changes other options as a side effect! By Questor
+set nocompatible
+
+" Note: Enable "pathogen" plugin! By Questor
+" Note: Force reloading *after* pathogen loaded! Trying avoid override! By Questor
+filetype plugin indent on
+execute pathogen#infect()
+execute pathogen#helptags()
+
+" Note: Enable mouse! By Questor
+set mouse=a
+
+" Note: Avoids compatibility issues when copying to an external application! By Questor
+if has('unnamedplus')
+	set clipboard=unnamedplus
+else
+	set clipboard=unnamed
+endif
+
+" Note: Don't create swap files! By Questor
+set noswapfile
+
+" Note: Solve read only problem! Some files opens as read only! By Questor
+set ma
+
+" Note: When reload ".vimrc" the last search is " highlighted again! By Questor
+" set hlsearch
+
+" Note: Allows an "extra" column at the end of the lines (You want this!)! By Questor
+set virtualedit=onemore
+
+"$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$
 "FILE SYNTAX ASSOCIATIONS AND SPECIFIC CONFIGURATION
@@ -345,57 +387,19 @@ let g:enable_move_vim = 1
 " Note: You got a fast terminal! By Questor
 set ttyfast
 
-" Note: Aumentar a velocidade do scroll! By Questor
+" Note: Increase scroll speed! By Questor
 set ttyscroll=3
 
-" Note: Remover efeitos do cursor para aumentar o desempenho! By Questor
+" Note: Remove cursor effects to improve performance! By Questor
 set nocursorcolumn
 set nocursorline
 
-" Note: Limitar o alcance da sintaxe em linhas muito longas! By Questor
+" Note: Limit the scope of syntax in very long lines to improve performance! By Questor
 set synmaxcol=1000
 
 " Note: Don't redraw while executing macros (good performance config)!
 " Causes scroll "flickering"! By Questor
 " set lazyredraw
-
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
-"GENERAL BEHAVIOR
-"$$$$$$$$$$$$$"
-
-" Note: Use vim settings, rather then vi settings (much better!)! This must be 
-" first, because it changes other options as a side effect! By Questor
-set nocompatible
-
-" Note: Habilita o "pathogen"! By Questor
-" Note: Force reloading *after* pathogen loaded! Trying avoid override! By Questor
-filetype plugin indent on
-execute pathogen#infect()
-execute pathogen#helptags()
-
-" Note: Habilita o mouse! By Questor
-set mouse=a
-
-" Note: Evita problemas de compatibilidade quando se vai copiar para à aplicação
-" externa! By Questor
-if has('unnamedplus')
-	set clipboard=unnamedplus
-else
-	set clipboard=unnamed
-endif
-
-" Note: Don't create swap files! By Questor
-set noswapfile
-
-" Note: Solve read only problem! Some files opens as read only! By Questor
-set ma
-
-" Note: Highlight your search matches! By Questor
-" set hlsearch
-" set nohlsearch
-
-" Note: Permite uma coluna à mais no final da linha! By Questor
-set virtualedit=onemore
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "SHORTCUTS (AND REMOVE VIM STUPID BEHAVIOR)
@@ -404,8 +408,7 @@ set virtualedit=onemore
 " Note: Swap : and ; to make colon commands easier to type! By Questor
 nnoremap  ;  :
 nnoremap  :  ;
-" Note: Importante para a execução de determinados comandos em algumas
-" funcionalidades! By Questor
+" Note: Important for the execution of certain commands in some functionalies! By Questor
 let g:cmdLineCaller = ";"
 
 nnoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? ":call GrooVim_GroovyMove(\"n\", \"l\", 0, 0)<cr>" : ":let g:onMoveScreen = 1<cr>")
@@ -413,8 +416,8 @@ nnoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? ":call GrooVi
 nnoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? ":call GrooVim_GroovyMove(\"n\", \"u\", 0, 0)<cr>" : ":let g:onMoveScreen = 1<cr>")
 nnoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? ":call GrooVim_GroovyMove(\"n\", \"r\", 0, 0)<cr>" : ":let g:onMoveScreen = 1<cr>")
 
-" Note: A variável ":let g:onMoveScreen = 1<cr>" é setada em outra
-" oportunidade para o visual mode! Questor
+" Note: The variable ":let g:onMoveScreen = 1<cr>" is setted in another opportunity
+" for the visual mode! Questor
 vnoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"l\", 0, 0)<cr>" : "")
 vnoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"d\", 0, 0)<cr>" : "")
 vnoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"u\", 0, 0)<cr>" : "")
@@ -449,7 +452,7 @@ inoremap <silent> <C-A-Down> <C-o>:call GrooVim_GroovyMove("i", "d", 0, 1)<cr>
 inoremap <silent> <C-A-Up> <C-o>:call GrooVim_GroovyMove("i", "u", 0, 1)<cr>
 inoremap <silent> <C-A-Right> <C-o>:call GrooVim_GroovyMove("i", "r", 1, 1)<cr>
 
-" Note: Permite movimentação fluida da tela! By Questor
+" Note: Allows fluid cursor movement on the screen! By Questor
 let g:onMoveScreen = 0
 let g:GrooVim_GroovyMoveType = 0
 let g:cursorHoldVisualExec = ""
@@ -569,8 +572,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 			endfor
 		endif
 
-		" Note: Esse workaround serve para que o visual mode use o evento 
-		" "CursorHold" o que só é possível no normal mode! By Questor
+		" Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
 		let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
 		let g:cursorHoldVisual = 1
 		exec "norm \<Esc>"
@@ -579,7 +581,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
 	let g:onMoveScreen = 1
 
-	" Note: "set virtualedit=onemore" se a área já for válida! By Questor
+	" Note: "set virtualedit=onemore" if the area is already valid! By Questor
 	if virtcol('.') <= virtcol('$')
 
 		if &virtualedit == "all"
@@ -594,6 +596,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
 endfunc
 
+" Note: Adjusts the cursor position when this ends the movement ("GrooVim_GroovyMove()") over a tab char! By Questor
 func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range
 
 	let l:lineNow = getline(".")
@@ -641,7 +644,7 @@ nnoremap <silent> <script> <A-Right> :call GrooVim_SelWord("n", "r", 0)<cr>
 inoremap <silent> <script> <A-Right> <C-o>:call GrooVim_SelWord("i", "r", 0)<cr>
 vnoremap <silent> <script> <A-Right> :<C-u>call GrooVim_SelWord("v", "r", 0)<cr>
 
-" Note: Permite a seleção de palavras de forma rápida (para cópia ou deleção)! By Questor
+" Note: Allows selection of words quickly (for copying or deletion)! By Questor
 func! GrooVim_SelWord(mod, direction, fullMove) range
 
 	let l:wordMove = ""
@@ -680,15 +683,14 @@ func! GrooVim_SelWord(mod, direction, fullMove) range
 
 endfunc
 
-" Note: Permite ir ao final de fato da linha no normal modesendo um desdobramento
-" de "set virtualedit=onemore"! By Questor
+" Note: Allows go to the "real" end of the line in normal mode. Is an offshoot of "set virtualedit=onemore"! By Questor
 nnoremap <silent> <End> $<Right>
 
 nnoremap <silent> <A-DOWN> :call GrooVim_TabToReturn()<cr>
 inoremap <silent> <A-DOWN> <C-O>:call GrooVim_TabToReturn()<cr>
 vnoremap <silent> <A-DOWN> :<C-U>call GrooVim_TabToReturn()<cr>v
 
-" Note: Retornar para última tab em uso! By Questor
+" Note: Return to last tab in use! By Questor
 let g:lastTab = 1
 autocmd! TabLeave * let g:lastTab = tabpagenr()
 
@@ -700,14 +702,14 @@ func! GrooVim_TabToReturn()
 			exe "tabn " . g:lastTab
 		else
 			exe "tabn " . g:GrooVim_TabToReturnNumber
-			" Note: "redraw" garante a exibição da mensagem! By Questor
+			" Note: "redraw" ensures the message display! By Questor
 			redraw
 			echo "Tab to return is ENabled to this tab!"
 		endif
 	endif
 endfunc
 
-" Note: Permite retornar para um determinada tab sempre! By Questor
+" Note: Allows returning to a particular tab "forever"! By Questor
 let g:GrooVim_TabToReturnNumber = 0
 func! GrooVim_TabToReturnSet()
 	if g:GrooVim_TabToReturnNumber == 0
@@ -723,10 +725,10 @@ if g:enable_tcomment_vim == 1 && g:enable_all_plugins == 1
 	nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
 	inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
 	vnoremap <silent> <A-Up> :<C-u>call GrooVim_VisualComment()<cr>
-	" Note: Permite comentar a linha de forma simples e rápida! By Questor
+	" Note: Allows comment the current line in a simple and fast way! By Questor
 	func! GrooVim_VisualComment() range
-		" Note: Permite verificar se a seleção envolve mais de uma linha
-		" comparando a linha "do começo" e "do final" da seleção! By Questor
+		" Note: Lets see if the selection involves more than one line comparing the
+		" "start" and "end" line position of the selection!! By Questorr
 		if   getpos("'<")[1] == getpos("'>")[1]
 			exec "norm gcc"
 		else
@@ -736,6 +738,7 @@ if g:enable_tcomment_vim == 1 && g:enable_all_plugins == 1
 	endfunc
 endif
 
+" Note: Get shown messages! By Questor
 let g:messagesHolder = ""
 func! GrooVim_GetMessages()
 	let g:messagesHolder = ""
@@ -744,6 +747,7 @@ func! GrooVim_GetMessages()
 	redir end
 endfunc
 
+" Note: Return the last shown message! By Questor
 func! GrooVim_ReturnLastMessage()
 	call GrooVim_GetMessages()
 	let l:messagesHolderSplitted = split(g:messagesHolder, "\n")
@@ -756,6 +760,7 @@ endfunc
 
 let g:lastMessageWorkaroundShowed = ""
 let g:lastMessageWorkaroundShowedIndex = 0
+" Note: Redisplays the last shown message! By Questor
 func! GrooVim_ShowLastMessageWorkaround()
 
 	let l:GrooVim_ReturnLastMessageReturn = GrooVim_ReturnLastMessage()
@@ -783,7 +788,7 @@ func! GrooVim_ShowLastMessageWorkaround()
 						let l:messageNowTreated = substitute(l:messageNowSplitted[0], "E", "", "")
 
 						if l:messageNowTreated != 0
-							" Note: As aspas servem para fazer com que o resultado de "str2nr" seja "transformado" em string! By Questor
+							" Note: The quotes serve to make the result of "str2nr" be "transformed" into a string! By Questor
 							if l:messageNowTreated == "" . str2nr(l:messageNowTreated) . ""
 								if type(str2nr(l:messageNowTreated)) == type(0)
 									if l:messageNowTreated > 0 && l:messageNowTreated < 10000
@@ -821,19 +826,16 @@ let g:GrooVim_CheckCapsLockLastExec = 0
 let g:GrooVim_CheckCapsLockMsg = 0
 func! GrooVim_CheckCapsLock() range
 
-	" Note: Evitar o retorno de caracteres malucos quando na
-	" execução desse comando! By Questor
-
 	if (strftime("%Y%m%d%H%M%S") - g:GrooVim_CheckCapsLockLastExec) > 1 || g:GrooVim_CheckCapsLockLastExec == ""
 
 		let l:result = system("xset -q | grep \"Caps Lock:   on\"")
 
-		" Note: In terminal vim, prevent ghost echoing while running a shell command via system()! By Questor
+		" Note: In terminal vim, prevent ghost echoing while running a shell command by "system()"! By Questor
 		redraw!
 
-		" Note: Reexibe a última menssagem para corrigir o efeito
-		" "colateral" da execução de "redraw!"! By Questor
-		call GrooVim_ShowLastMessageWorkaround()
+		" Note: Redisplays the last message for correcting the "collateral" effect of
+		" redraw"!! By Questor
+			call GrooVim_ShowLastMessageWorkaround()
 
 
 		if l:result != ""
@@ -855,10 +857,10 @@ func! GrooVim_CheckCapsLock() range
 
 endfunc
 
-" Note: A exclamação em "autocmd!" evita redefinição do evento ao recarregar o
-" .vimrc! By Questor
+" Note: The exclamation in "autocmd!" avoids redefining this event when reload
+" ".vimrc"! By Questor
 
-" Note: Garante o estado de "virtualedit" antes de qualquer edição! By Questor
+" Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertEnter * call GrooVim_InsertEnterPerforms()
 func! GrooVim_InsertEnterPerforms()
 	if g:onMoveScreen == 0
@@ -868,13 +870,13 @@ func! GrooVim_InsertEnterPerforms()
 	endif
 endfunc
 
-" Note: Reposiciona o cursor no local correto ao sair do insert mode! By Questor
+" Note: Repositions the cursor in the correct location when exiting insert mode! By Questor
 autocmd! InsertLeave * call GrooVim_InsertLeavePerforms()
 func! GrooVim_InsertLeavePerforms()
 	exec "norm `^"
 endfunc
 
-" Note: Garante o estado de "virtualedit" antes de qualquer edição! By Questor
+" Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertCharPre * call GrooVim_InsertCharPrePerforms()
 func! GrooVim_InsertCharPrePerforms()
 	if &virtualedit == "all"
@@ -901,7 +903,7 @@ func! GrooVim_CheckCapsLockTimer()
 		let g:GrooVim_GroovyMoveEnabled = 1
 	endif
 
-	" Note: Esse workaround serve para que o visual mode use o evento "CursorHold"! By Questor
+	" Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
 	if g:cursorHoldVisual == 1
 		exec "norm gv"
 		if g:cursorHoldVisualExec != ""
@@ -917,7 +919,7 @@ endfunc
 " Note: Execution delay (in milliseconds)! By Questor
 set updatetime=0
 
-" Note: Esses eventos servem para permitir a movimentação da tela de forma simples e intuitiva! By Questor
+" Note: Allows controlling the status of a number of GrooVim features! By Questor
 autocmd! CursorMoved * call GrooVim_VimStatus()
 autocmd! CursorMovedI * call GrooVim_VimStatus()
 let g:lastMode = ""
@@ -928,15 +930,15 @@ func! GrooVim_VimStatus()
 	let g:onCursorMoved = 1
 	if g:onMoveScreen == 0
 
-" 		Note: Verifica o status do caps lock sempre que o vim muda de 
-" 		modo ou se estiver no modo visual! By Questor
+" 		Note: Checks the status of the capslock when Vim the changes its mode or
+" 		if Vim is in visual mode!! By Questor
 
 		let g:modeNow = mode()
 
 		if g:modeNow != g:lastMode || g:modeNow == "v"
-			" Note: Evita termos que acionar duas vêzes o
-			" "GrooVim_GroovyMove" quando mudamos de modo! By Questor
-			let g:GrooVim_GroovyMoveEnabled = 1
+			" Note: Avoids the need to fire twice "GrooVim_GroovyMove()" when we change
+			" the mode! By Questor
+				let g:GrooVim_GroovyMoveEnabled = 1
 			call GrooVim_CheckCapsLock()
 			if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:GrooVim_CheckCapsLockMsg == 1
 				call GrooVim_GrooVimBarMsg("", "")
@@ -957,8 +959,6 @@ func! GrooVim_VimStatus()
 	let g:onCursorMoved = 0
 endfunc
 
-" Note: Serve para evitar o efeito colateral da verificação de acionamento Caps Lock! By Questor
-
 nnoremap <silent> <ScrollWheelUp> :call GrooVim_ScrollAdm("n", "u")<cr>
 nnoremap <silent> <S-ScrollWheelUp> :call GrooVim_ScrollAdm("n", "u")<cr>
 nnoremap <silent> <ScrollWheelDown> :call GrooVim_ScrollAdm("n", "d")<cr>
@@ -974,6 +974,7 @@ vnoremap <silent> <S-ScrollWheelUp> :<C-u>call GrooVim_ScrollAdm("v", "u")<cr>
 vnoremap <silent> <ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 vnoremap <silent> <S-ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 
+" Note: Serves to avoid the side effect of capslock status checking! By Questor
 func! GrooVim_ScrollAdm(mod, direction) range
 	if &virtualedit == "onemore"
 		set virtualedit=all
@@ -993,92 +994,88 @@ func! GrooVim_ScrollAdm(mod, direction) range
 	let g:onMoveScreen = 1
 endfunc
 
-" Note: Serve para evitar o efeito colateral da verificação de acionamento Caps Lock! By Questor
+" Note: Serves to avoid the side effect of capslock status checking! By Questor
 nnoremap <silent> <LeftMouse> :let g:onMoveScreen = 1<cr><LeftMouse>
 
 nnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 inoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 vnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 
-" Note: Enter visual-block mode and allows select any area! By Questor
+" Note: When enter "visual block" mode and allows select any area! By Questor
 func! GrooVim_SetVisualBlock() range
 	if &virtualedit == "onemore"
 		set virtualedit=all
 	endif
 endfunc
 
-" Note: Evita "acidentes" com a combinação "Ctrl+z"! "<Nop>" equivale a um
-" comando "nulo"! By Questor
+" Note: Avoid "accidents" with "Ctrl+z"! "<nop>" equates to a "null" command! By Questor
 nnoremap <silent> <C-z> <Nop>
 inoremap <silent> <C-z> <Nop>
 vnoremap <silent> <C-z> <Nop>
 
-" Note: Permite "undo"/"redo" no insert/normal mode de forma homogênea! By Questor
+" Note: Allows "undo"/"redo" on normal mode homogeneously! By Questor
 nnoremap <silent> <C-u> u
 
-" Note: Permite undo de forma convencional no visual! By Questor
+" Note: Allows undo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-u> :<C-u>call GrooVim_VisualUndo()<cr>v
 func! GrooVim_VisualUndo() range
 	exec "norm u"
 endfunc
 
-" Note: Permite redo de forma convencional no visual! By Questor
+" Note: Allows redo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-r> :<C-u>call GrooVim_VisualRedo()<cr>v
 func! GrooVim_VisualRedo() range
 	exec "norm \<C-r>"
 endfunc
 
-" Note: Permite undo de forma convencional no insert! By Questor
+" Note: Allows undo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-u> <Esc><bar>:call GrooVim_InsertUndo()<cr>i
 func! GrooVim_InsertUndo()
 	exec "norm u"
 endfunc
 
-" Note: Permite redo de forma convencional no insert! By Questor
+" Note: Allows redo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-r> <Esc><bar>:call GrooVim_InsertRedo()<cr>i
 func! GrooVim_InsertRedo()
 	exec "norm \<C-r>"
 endfunc
 
-" Note: Space no modo normal! By Questor
+" Note: Allows "Space" in normal mode! By Questor
 noremap <silent> <script> <Space> :call GrooVim_SpaceOnNormalMode()<cr>
-
 func! GrooVim_SpaceOnNormalMode()
 	exec "norm i\<Space>"
 endfunc
 
-" Note: Movimentação mais ágil entre as janelas com Ctrl+w! By Questor
+" Note: Allows faster switching between windows with "Ctrl+w"! By Questor
 nnoremap <silent> <C-w> <C-w><C-w>
 inoremap <silent> <C-w> <Esc><C-w><C-w>
 vnoremap <silent> <C-w> <Esc><C-w><C-w>
 
-" Note: Obtém o número de linhas da área de transferência atual! Questor
+" Note: Gets the number of lines in the current transfer area! Questor
 func! GrooVim_NumberOfLinesOnDefaultTransferArea()
-
 	" Note: Get transfer area! By Questor
 	let l:lastYank = @+
 	let l:lastYankNumbOfLines = split(l:lastYank, "\n")
-	" Note: Verifica quantas linhas tem! Questor
+	" Note: Checks how many lines have! Questor
 	return len(l:lastYankNumbOfLines)
-
 endfunc
 
-" Note: Permite o yank de uma linha sem o retorno de caracter! By Questor
+" Note: Allows yank a line without the return character! By Questor
 nnoremap <silent> yy 0y$
 
 nnoremap <silent> <script> p P`]<Right>
 nnoremap <silent> <script> <C-v> P`]<Right>
 
-" Note: Permite paste normal no insert mode (sem quebras de linha e sem
-" precisar do "Shift") (Ctrl+v)! By Questor
+" Note: Allows "normal" paste in insert mode (no line breaks and without need of
+" "Shift" key) (Ctrl+v)! By Questor
 inoremap <silent> <script> <C-v> <C-o>P<C-o>`]<Right>
 
-" Note: Permite copiar para o insert mode de modo convencional (ciclo
-" Ctrl-c/Ctrl-v) (não precisa do "Shift")! By Questor
+" Note: Allows cut to insert mode in a conventional manner (Ctrl-x/Ctrl-v cycle)
+" (do not need the "Shift" key)! By Questor
 vnoremap <silent> <C-x> di
 
-" Note: Permite cortar para o insert mode de modo convencional (ciclo
-" Ctrl-x/Ctrl-v) (não precisa do "Shift")! By Questor
+" Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v cycle)
+" (do not need the "Shift" key)! By Questor
 vnoremap <silent> <C-c> yi
 
 " Note: Delete and backspace without yank! By Questor
@@ -1090,29 +1087,29 @@ vnoremap x "_x
 vnoremap <silent> <script> p "_dP`]<Right>
 vnoremap <silent> <script> <C-v> "_dP`]<Right>
 
-" Note: Movimentação "normal" com Ctrl+Right! By Questor
+" Note: "Normal" movement with "Ctrl+Right"! By Questor
 nmap <silent> <C-Right> e
 imap <silent> <C-Right> <C-o>e<Right>
 vmap <silent> <C-Right> e
 
-" Note: Movimentação "normal" com Ctrl+Left! By Questor
+" Note: "Normal" movement with "Ctrl+Left"! By Questor
 nmap <silent> <C-Left> b
 imap <silent> <C-Left> <C-o>b
 vmap <silent> <C-Left> b
 
-" Note: O parâmetro <script> impede que o mapeamento seja sobreescrito por algum plugin! By Questor
+" Note: The <script> parameter prevents mapping to be overridden by a plugin! By Questor
 
-" Note: Permite que uso "multimodo" do enter (em qualquer tipo de arquivo)! By Questor
+" Note: Allows "multimode" use of enter key in a conventional way! By Questor
 nnoremap <silent> <script> <Enter> :call GrooVim_NormalEnterOnNormalMode()<cr>
 func! GrooVim_NormalEnterOnNormalMode()
 	exec "norm i\<cr>\<Esc>"
 endfunc
 
-" Note: Normal backspace/delete para o visual mode! By Questor
+" Note: "Normal" backspace/delete in visual mode! By Questor
 vmap <silent> <script> <Backspace> "_x
 vmap <silent> <script> <Del> "_d
 
-" Note: Permite uso "multimodo" do backspace! By Questor
+" Note: Allows "multimode" use of backspace key in a conventional way! By Questor
 nmap <silent> <script> <Backspace> :call GrooVim_NormalBackspace()<cr>
 
 func! GrooVim_NormalBackspace()
@@ -1151,7 +1148,7 @@ func! GrooVim_NormalDel()
 
 	let l:continue = 1
 
-	" Note: Esse workaround é necessário quando a linha é vazia para que seja eliminada! By Questor
+	" Note: This workaround is necessary when the line is empty to remove it! By Questor
 	if getline(".") == "" && l:continue == 1
 		call feedkeys("_dd")
 		" call feedkeys("0")
@@ -1175,7 +1172,8 @@ endfunc
 
 " Note: "Multimode" tab! By Questor
 nnoremap <silent> <Tab> :call GrooVim_NormalTab()<cr>
-" Note: Permite tab no normal mode quando a linha está vazia! B Questor
+
+" Note: Allows Tab on normal mode when the line is empty! By Questor
 func! GrooVim_NormalTab()
 	if col(".") == 1 && getline(".") == ""
 		exec "normal i\<Tab>"
@@ -1192,30 +1190,30 @@ nnoremap <silent> <S-Tab> <<
 vnoremap <silent> <Tab> >><Esc>gv
 vnoremap <silent> <S-Tab> <<<Esc>gv
 
-" Note: Quando sai do modo insert para o modo visual! By Questor
+" Note: Allows Tab on normal mode when the line is empty! By Questor
 inoremap <silent> <S-Down> <Esc>v:<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
-" Note: Sair do modo visual! Questor
+" Note: Exit visual mode! Questor
 vnoremap <silent> <S-Down> <Esc>:call GrooVim_VirtualEditAdjust()<cr>
 
-" Note: Permite sair dos modos usando um segundo "<C-S-Up>" ou "<C-S-Down>"! By Questor
+" Note: Allows exit of the current mode using a second "<C-S-Up>" or "<C-S-Down>"! By Questor
 inoremap <silent> <S-Up> <Esc>:call GrooVim_VirtualEditAdjust()<cr>
 nnoremap <silent> <S-Down> :call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
-" Note: O "case sensitive" do "<Esc>" tem influência aqui como tem para
-" o "<Enter>"! By Questor
-" Note: Permite ajustar o parâmetro "set virtualedit=onemore" ao sair do modo em
-" que se está! By Questor
+" Note: The "<Esc>" "case" has influence in the code! By Questor
+
+" Note: Allows adjust the "set virtualedit=onemore" parameter when exit the current
+" mode you are! By Questor
 func! GrooVim_VirtualEditAdjust() range
 	set virtualedit=onemore
 endfunc
 
-" Note: Entrar no insert mode de forma simples! By Questor
+" Note: Enter in insert mode simply and quickly!! By Questor
 vnoremap <silent> <script> <S-Up> <Esc>i
 nnoremap <silent> <script> <S-Up> i
 
-" Note: Serve para que ao entrar no modo visual o vim ajuste o parâmetro
-" "set virtualedit=onemore"! By Questor
+" Note: Allows adjust the "set virtualedit=onemore" parameter when enter visual
+" mode! By Questor
 nnoremap <silent> <script> v :<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v
 func! GrooVim_AdjustOnEnterVisualMode() range
 	set virtualedit=onemore
@@ -1237,12 +1235,12 @@ func! TabDo(command)
 endfunc
 com! -nargs=+ -complete=command Tabdo call TabDo(<q-args>)
 
-" Note: Select and search with a double click and z key otherwise select the
-" word under cursor! By Questor
 nnoremap <silent> <script> <2-Leftmouse> :call GrooVim_SelectNSearch(0, "n")<cr>
 inoremap <silent> <script> <2-Leftmouse> <Esc>:call GrooVim_SelectNSearch(0, "i")<cr>
 vnoremap <silent> <script> <2-Leftmouse> :<C-u>call GrooVim_SelectNSearch(0, "v")<cr>
 
+" Note: Select and search with a double click and z key otherwise select the
+" word under cursor! By Questor
 func! GrooVim_SelectNSearch(type, mode) range
 	if expand('%:t') =~ "GrooVim_SearchGuyResults"
 		call GrooVim_SearchGuyNavigate()
@@ -1270,7 +1268,7 @@ func! GrooVim_SelectNSearch(type, mode) range
 			if a:mode == "i"
 				call feedkeys("\<Esc>i")
 			else
-				" Note: Esse workaround serve para evitar que o cursor mova para a próxima ocorrência quando teclamos <Up> or <Down>! By Questor
+				" Note: This workaround is to prevent the cursor to moves to the next occurrence when press <Up> or <Down> key! By Questor
 				call feedkeys("\<Esc>i\<Esc>")
 			endif
 		endif
@@ -1320,8 +1318,7 @@ func! GrooVim_SelectRange(mod) range
 
 endfunc
 
-" Note: Atualiza uma opção se ela já existir ou a insere se não. Também cria o
-" arquivo de configuração se ele não existir! By Questor
+" Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
 let g:optsTemp = []
 func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 
@@ -1331,7 +1328,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 
 	if a:persistently == 0
 
-		" Note: To update temporary options in all new tabs when necessary! By Questor
+		" Note: To update temporary options when necessary! By Questor
 		for l:value in g:optsTemp
 			if l:value =~ a:valueToSearch
 				call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
@@ -1376,7 +1373,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 
 endfunc
 
-" Note: Configura a pesquisa e/ou o replace a depender dos parâmetros passados! By Questor
+" Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
 	let l:whileControl = 1
@@ -1430,7 +1427,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 	elseif a:typeOfConfig == "search"
 		let g:search_Direction = GrooVim_GetOptions("Search forward/backyard [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
 		call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
-		" Note: Necessário para inverter o sentido da busca! By Questor
+		" Note: Needed to reverse the search! By Questor
 		if g:search_Direction == "b"
 			let g:grooVimSearchFoward = 0
 		elseif g:search_Direction == "f"
@@ -1469,8 +1466,7 @@ endfunc
 " Note: Check if a given option is valid! By Questor
 func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) range
 	for l:value in a:possibleOptions
-		" Note: "("" . l:value . "")" -> To force string compare! By
-		" Questor
+		" Note: "("" . l:value . "")" -> To force string compare! By Questor
 		if ("" . l:value . "") == a:optionNow || (a:optionNow == "" && ("" . a:defaultOption . "") != "")
 			return 1
 		endif
@@ -1622,16 +1618,14 @@ func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment)
 
 endfunc
 
-
-" Note: Define o tipo de pesquisa a ser executada a depender das opções do
-" usuário! By Questor
+" Note: Sets the type of search to be performed depending on user choice! By Questor
 let g:search_WithList = 0
 func! GrooVim_SearchWithMyOptions(mod) range
 
 	let l:callGrooVim_SearchGuy = 1
 
-	" Note: Se a pesquisa com listas estiver ativada fecha as listas e permite
-	" a execução da pesquisa apenas na próxima chamada! By Questor
+	" Note: If the search with lists is enabled closes the lists and allows
+	" performing the search on next call only! By Questor
 	if g:GrooVim_SearchGuyEnabled == 1
 
 		let g:matchedLinesGlobal = ""
@@ -1670,7 +1664,7 @@ func! GrooVim_EasySearch(mod) range
 		set ignorecase
 	endif
 
-	" Note: Inicializar a pesquisa! By Questor
+	" Note: Initialize the search! By Questor
 	let g:block_GrooVim_HLNext = 0
 
 	let l:valueToSearch = ""
@@ -1711,20 +1705,18 @@ func! GrooVim_EasySearch(mod) range
 		let g:grooVimSearchFoward = 1
 	endif
 
-	" Note: Essa estrutura foi feita para que a pesquisa possa ser
-	" executada "de imediato". Com o "feedkeys" acima isso não acontece,
-	" ocasionando problemas de sincronia com funções que dependem que
-	" função "GrooVim_EasySearch" rode primeiro! By Questor
-	" Note: Funciona, mas não me permite "backward search" default! By Questor
+	" Note: This structure was made so that the search can be executed "immediately". With
+	" "feedkeys" (below) this does not happen, causing sync issues with functions that
+	" depend on "GrooVim_EasySearch" function runs first! By Questor
+	" Note: Works but does not allow default "backward search"! By Questor
 
 	let @/ = l:pattern
 	let l:initialPos = getpos(".")
 
-	" Note: Essa operação está duplicada "feedkeys" e "exec" ocasionando
-	" uma dupla execução da pesquisa, mas foi única forma de não ter
-	" problemas na navegação com "n" e "N" e com a pesquisa com lista!
-	" Se não for feito isso, o highlight é perdido após alguns movimentos
-	" da seta! By Questor
+	" Note: This operation is duplicated ("feedkeys" and "exec") causing a double
+	" execution of the search, but it was the only way to not have problems with "n"
+	" and "N" navigating and the search with list! If not done, the highlight is lost
+	" after a few movements of the cursor! By Questor
 	if g:search_WithList == 0
 		call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
 	else
@@ -1735,7 +1727,7 @@ func! GrooVim_EasySearch(mod) range
 
 endfunc
 
-" Note: Organiza as listas de ocorrência e navegação! By Questor
+" Note: Organizes occurrences and navigation lists! By Questor
 let g:matchedLines = ""
 func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, column) range
 	if a:linePosition != ""
@@ -1751,7 +1743,7 @@ func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, c
 	endif
 endfunc
 
-" Note: Executa a busca nas várias tabs criando as listas de ocorrências! By Questor
+" Note: Performs search in multiple tabs creating lists of occurrences! By Questor
 func! GrooVim_SearchGuyTraveler(mod) range
 
 	let l:theresAMatch = 1
@@ -1789,8 +1781,8 @@ func! GrooVim_SearchGuyTraveler(mod) range
 
 endfunc
 
-" Note: Searches for current selection or word under cursor. Esse é o método
-" principal de controle da funcionalidade! By Questor
+" Note: Searches for current selection or word under cursor. This is the main
+" method of the functionality! By Questor
 let g:matchedLinesGlobal = ""
 let g:matchedLinesGlobalNavArray = []
 let g:GrooVim_SearchGuyEnabled = 0
@@ -1824,10 +1816,9 @@ func! GrooVim_SearchGuy(mod) range
 
 	call GrooVim_SearchGuySync()
 
-	" Note: Esse "workaround" serve para evitar um efeito
-	" colateral que ocorre na mudança de tab que é a perda do
-	" hilight. A presença de redraw serve para apagar a exibição
-	" da mensagem gerada por "set hlsearch"! By Questor
+	" Note: This "workaround" is to prevent a side effect that occurs when script
+	" changing tab which that is the loss of search highlight. The presence of redraw
+	" serves to remove the message generated by "set hlsearch"! By Questor
 	" call feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" . g:cmdLineCaller . "redraw!\<cr>")
 
 	let g:grooVimSearchFowardBlock = 0
@@ -1842,19 +1833,18 @@ func! GrooVim_SearchGuy(mod) range
 
 endfunc
 
-" Note: Serve para sincronizar em várias tabs determinados "estados"! É executado 
-" sempre que uma tab é acessada! By Questor
+" Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed! By Questor
 autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise()
-	" Note: Se houver uma lista de pesquisa, abre essa a lista na tab atual se a
-	" funcionalidade estiver ativada! By Questor
+	" Note: If there is a search list this list is open in the current tab if the
+	" functionality is enabled! By Questor
 	if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
 		call GrooVim_SearchGuySync()
 	endif
 endfunc
 
 if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
-	" Note: Abre e fecha o "Nerd Tree atravez do componente "vim-nerdtree-tabs"! By Questor
+	" Note: Opens and closes the "Nerd Tree" through the "vim-nerdtree-tabs" component! By Questor
 	let g:NERDTreeTabsOpen = 0
 	func! GrooVim_ToggleNERDTreeTabs()
 		if g:NERDTreeTabsOpen == 1
@@ -1864,7 +1854,7 @@ if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
 			exec "NERDTreeTabsOpen"
 			let g:NERDTreeTabsOpen = 1
 
-			" Note: Foco no Nerdtree quando abrir! By Questor
+			" Note: Focus on "Nerd Tree" when opens it! By Questor
 			let l:exitWhile = 0
 			let l:firstBufferOnThisTab = expand('%:t')
 			while ! (expand('%:t') =~ "NERD_tree_") && l:exitWhile == 0
@@ -1878,8 +1868,8 @@ if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
 	endfunc
 endif
 
-" Note: Ao entrar em uma tab abre a lista de ocorrências se o search guy estiver
-" acionado! By Questor
+" Note: When entering a tab opens the occurrences list if the search with list
+" is enabled! By Questor
 func! GrooVim_SearchGuySync()
 	if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 0
 
@@ -1897,10 +1887,10 @@ func! GrooVim_SearchGuySync()
 	endif
 endfunc
 
-" Note: Permite navegação nos resultados usando "Del"! By Questor
+" Note: Allows browsing the results using "Del"! By Questor
 func! GrooVim_SearchGuyNavigate() range
 
-	" Note: A navegação da lista é sempre para a frente para facilitar! By Questor
+	" Note: The list navigation is always forward to facilitate! By Questor
 	let g:grooVimSearchFoward = 1
 
 	let l:listPosLinCol = getpos(".")
@@ -1937,15 +1927,14 @@ func! GrooVim_SearchGuyNavigate() range
 
 endfunc
 
-" Note: Prepara o "GrooVim_SearchGuy" para uma nova execução/fecha-o! By Questor
+" Note: Prepare "GrooVim_SearchGuy()" for a new run or closes it! By Questor
 func! GrooVim_SearchGuyPrepare()
 
 	if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 1
 
 		try
-			" Note: Com essa abordagem eu consigo efetivamente "destruir" 
-			" o buffer não retornando "falso" positivos no "bufexists" 
-			" acima! By Questor
+			" Note: With this approach I can effectively "destroy" the buffer not returning
+			" "false" positives on "bufexists()" above! By Questor
 			exec "bwipeout! GrooVim_SearchGuyResults" . tabpagenr()
 		catch
 			
@@ -1955,8 +1944,8 @@ func! GrooVim_SearchGuyPrepare()
 
 endfunc
 
-" Note: For debug purposes. To stop uses "0". Permite uma "parada" na linha em
-" que é chamado e exibe uma menssagem! By Questor
+" Note: For debugging purposes. To stop uses "0". Allows a "stop" on the line in that
+" is called and displays a message! By Questor
 func! GrooVim_PauseExecution(msg)
 	echo "msg: \"" . a:msg . "\""
 	while getchar() != 48
@@ -1964,16 +1953,16 @@ func! GrooVim_PauseExecution(msg)
 	endwhile
 endfunc
 
-" Note: Permite que uso "multimodo" do enter! By Questor
+" Note: Allows normal use of the Enter (carriage return) key in visual mode! By Questor
 vnoremap <buffer> <Enter>  "_x<bar>i<cr><Esc>
 
-" Note: Seta o comportamento do Del a depender do contexto! By Questor
+" Note: Sets the behavior of Del key depending on the context! By Questor
 nnoremap <script> <Del> :call GrooVim_DelBehavior()<cr>
 func! GrooVim_DelBehavior() range
 	if expand('%:t') =~ "GrooVim_SearchGuyResults"
 		call GrooVim_SearchGuyNavigate()
 	else
-		" Note: Permite que uso "multimodo" do del! By Questor
+		" Note: Allows "multimode" normal use (delete) of the Del key! By Questor
 		call GrooVim_NormalDel()
 	endif
 endfunc
@@ -2045,9 +2034,8 @@ func! GrooVim_EntertainmentReplace(mod) range
 	let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(@+) . "\"): "))
 
 	if l:valueThatWillReplace == ""
-		" Note: "GrooVim_EscapeSubstituteValueToSearch()" não é necessário
-		" quando o valor vem de "input()", pois este último já trata
-		" isso! By Questor
+		" Note: "GrooVim_EscapeSubstituteValueToSearch()" is not required when the value
+		" comes from "input()" since it already handles this need! By Questor
 		let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(@+)
 	endif
 
@@ -2075,8 +2063,8 @@ func! GrooVim_EntertainmentReplace(mod) range
 			exec "%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
 		endif
 	else
-		" Note: "let g:tryCathOnTabDo = 1" -> Caso não haja valor para replace em uma das tabs o processo
-		" não levanta erro! By Questor
+		" Note: "let g:tryCathOnTabDo = 1" -> If there is no value to replace in one
+		" of the tabs, the process do not raises an error! By Questor
 		let g:tryCathOnTabDo = 1
 		call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
 		let g:tryCathOnTabDo = 0
@@ -2086,27 +2074,24 @@ func! GrooVim_EntertainmentReplace(mod) range
 
 endfunc
 
+" Note: Create search pattern! By Questor
 func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat)
-	" Note: Create search pattern! By Questor
 	let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]')
 	let l:pattern = substitute(l:pattern, "\n$", "", "")
 	return l:pattern
 endfunc
 
-" Note: Workaround para obter milisegundos! By Questor
+" Note: Workaround to get milliseconds! By Questor
 func! GrooVim_GetMilliseconds()
 	let l:format = "+%s%3N"
 	let l:cmd = "/bin/date -u " . shellescape(format)
-	" Note: É "let fakeHolder = getchar(0)" uma tentativa de evitar o retorno de caracteres malucos quando na
-	" execução desse comando! By Questor
 	let l:result = substitute(system(cmd), "[\]\|[[:cntrl:]]", "", "g")
 	return l:result
 endfunc
 
-" Note: Permite um "super leader" que é acionado em qualquer modo!
-" Com essa abordagem eu, também, consigo mapear uma quantidade muito
-" maior de teclas! Note o uso das teclas z, a e t nos leader commands
-" necessários para certos worarounds! By Questor
+" Note: Allows a "super leader" that fires in any mode! With this approach I can map a
+" larger amount of keys combinations! Note the use of the keys z, a and t in leader
+" commands required for certain worarounds! By Questor
 
 nnoremap <silent> <script> <F2> :call GrooVim_CommandZ("F2", "n")<cr>
 inoremap <silent> <script> <F2> <C-o>:call GrooVim_CommandZ("F2", "i")<cr>
@@ -2136,17 +2121,12 @@ let g:GrooVim_CommandZFCaller = ""
 func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 
 	let l:GrooVim_CommandZNowChar = ""
-	" Note: Essa lógica permite a reexecução do último comando apenas
-	" usando uma tecla F(1, 2, 3...). Se houver um mesmo F? em menos de um
-	" segundo, o último comando é executado sem esperar que seja informada
-	" uma nova tecla para compor o comando. Se for mais de um segundo aguarda
-	" uma nova tecla e se não houver reexecuta o último comando! Sempre
-	" que uma F? diferente da última for acionada o Vim ficará aguardando
-	" uma techa para compor o comando e nada fará enquanto está não for
-	" informada! By Questor
 
-	" Note: O "strftime("%Y%m%d%H%M%S")" não retorna milisegundos e por
-	" isso foi substituído! By Questor
+	" Note: This logic allows rerun the last command just using an F key (1, 2, 3...). If
+	" there is a single F? in few milliseconds, the last command is executed without
+	" waiting for a new key to compose a command. If a new key was informed fast enough
+	" it rerun the last command! If an different F? is informed it will wait for a key
+	" combination to compose the command! By Questor
 
 	let l:GrooVim_CommandZMomentNow = GrooVim_GetMilliseconds()
 
@@ -2167,85 +2147,83 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 	" echo g:GrooVim_CommandZChar
 	let g:GrooVim_CommandZMoment = l:GrooVim_CommandZMomentNow
 	if g:GrooVim_CommandZChar != "" && g:GrooVim_CommandZUnblock == 1
-		" Note: Evita que seja reexecutado um comando enquanto outro
-		" está em adamento! By Questor
+		" Note: Prevents rerun a command while another is in progress! By Questor
 		let g:GrooVim_CommandZUnblock = 0
 		" Note: Edit commands! By Questor
 		if a:GrooVim_CommandZFCallerNow == "F2"
 			" Note: Used keys for F2: h k j up down c a d q w e end del! By Questor
 			" Note: To debug! By Questor
-			" Note: Alinha à esquerda (h)! By Questor
+			" Note: Aligns to left (h)! By Questor
 			if g:GrooVim_CommandZChar == "104"
 				:left
 			endif
-			" Note: Alinha à direita (k)! By Questor
+			" Note: Aligns to right (k)! By Questor
 			if g:GrooVim_CommandZChar == "107"
 				:right
 			endif
-			" Note: Alinha no centro (j)! By Questor
+			" Note: Aligns to center (j)! By Questor
 			if g:GrooVim_CommandZChar == "106"
 				:center
 			endif
-			" Note: To uppercase (normal/insert) (up)! By Questor
+			" Note: Changes to uppercase (normal/insert) (up)! By Questor
 			if g:GrooVim_CommandZChar == "\<Up>" && a:modType != "v"
 				exec "norm gUiwe"
 			endif
-			" Note: To lowercase (normal/insert) (down)! By Questor
+			" Note: Changes to lowercase (normal/insert) (down)! By Questor
 			if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
 				exec "norm guiwe"
 			endif
-			" Note: To uppercase (visual) (up)! By Questor
+			" Note: Changes to uppercase (visual) (up)! By Questor
 			if g:GrooVim_CommandZChar == "\<Up>" && a:modType == "v"
 				call GrooVim_ToUpperLower("Upper")
 			endif
-			" Note: To lowercase (visual) (down)! By Questor
+			" Note: Changes to lowercase (visual) (down)! By Questor
 			if g:GrooVim_CommandZChar == "\<Down>" && a:modType == "v"
 				call GrooVim_ToUpperLower("Lower")
 			endif
-			" Note: Copia todo o texto (c)! By Questor
+			" Note:  Copy all text in the current buffer (c)! By Questor
 			if g:GrooVim_CommandZChar == "99"
 				exec "%y+"
 			endif
-			" Note: Seleciona todo o texto (a)! By Questor
+			" Note: Select all text in the current buffer (a)! By Questor
 			if g:GrooVim_CommandZChar == "97"
 				exec "norm ggVG$"
 			endif
-			" Note: Duplica a linha atual (normal) (d)! By Questor
+			" Note: Duplicates the current line/selection (normal) (d)! By Questor
 			if g:GrooVim_CommandZChar == "100" && a:modType == "n"
 				let l:saved_reg = @+
 				exec "norm yyo\<Esc>p"
 				let @+ = l:saved_reg
 			endif
-			" Note: Duplica a linha atual (insert) (d)! By Questor
+			" Note: Duplicates the current line/selection (insert) (d)! By Questor
 			if g:GrooVim_CommandZChar == "100" && a:modType == "i"
 				let l:saved_reg = @+
 				exec "norm yyo\<Esc>p"
 				let @+ = l:saved_reg
 			endif
-			" Note: Duplica a seleção atual (visual) (d)! By Questor
+			" Note: Duplicates the current line/selection (visual) (d)! By Questor
 			if g:GrooVim_CommandZChar == "100" && a:modType == "v"
 				call GrooVim_DuplicateVisualSelection()
-				" Note: Esse comando não permite repetição
-				" simples! By Questor
+				" Note: If in the visual mode this command can not be replicated hold F key! By Questor
 				let g:GrooVim_CommandZChar = ""
 			endif
-			" Note: Grava uma macro (q)! By Questor
+			" Note: Record a macro (q)! By Questor
 			if g:GrooVim_CommandZChar == "113"
 				call GrooVim_XenRec()
 			endif
-			" Note: Excuta uma macro (w)! By Questor
+			" Note: Run a macro (w)! By Questor
 			if g:GrooVim_CommandZChar == "119"
 				call GrooVim_XenPlay(0)
 			endif
-			" Note: Excuta uma macro de forma repetida (e)! By Questor
+			" Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
 			if g:GrooVim_CommandZChar == "101"
 				call GrooVim_XenPlay(1)
 			endif
-			" Note: Select inner word (End)! By Questor
+			" Note: Selects the word under the cursor (End)! By Questor
 			if g:GrooVim_CommandZChar == "\<End>"
 				exec "norm viw"
 			endif
-			" Note: Select a range (Del)! By Questor
+			" Note: Selects an area (Del)! By Questor
 			if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
 				call GrooVim_SelectRange(a:modType)
 			endif
@@ -2253,80 +2231,80 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 		" Note: Control commands! By Questor
 		if a:GrooVim_CommandZFCallerNow == "F3"
 			" Note: Used keys for F3: n c o v r / s f d h j [ ]! By Questor
-			" Note: Abre uma nova tab (n)! By Questor
+			" Note: Open a new tab (n)! By Questor
 			if g:GrooVim_CommandZChar == "110"
 				tabnew
 				" Note: Solve read only problem! By Questor
 				set ma
 			endif
-			" Note: Fecha a tab atual (c)! By Questor
+			" Note: Close current tab (c)! By Questor
 			if g:GrooVim_CommandZChar == "99"
 				tabc
 			endif
-			" Note: Fecha todas as demais tabs (o)! By Questor
+			" Note: Close all other tabs (o)! By Questor
 			if g:GrooVim_CommandZChar == "111"
 				tabonly
 			endif
-			" Note: Abre o arquivo .vimrc (v)! By Questor
+			" Note: Opens the file .vimrc (normal/visual) (v)! By Questor
 			if g:GrooVim_CommandZChar == "118" && a:modType != "i"
 				" Note: Workaround para evitar
 				" imcompatibilidade! By Questor
 				call feedkeys("\\zv")
 			endif
+			" Note: '' (insert) (v)! By Questor
 			if g:GrooVim_CommandZChar == "118" && a:modType == "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
+				" Note: Workaround to avoid incompatibility! By Questor
 				call feedkeys("\<Esc>\\zvi")
 			endif
-			" Note: Recarrega o arquivo .vimrc (r)! By Questor
+			" Note: Reloads the file .vimrc in all tabs (r)! By Questor
 			if g:GrooVim_CommandZChar == "114" && a:modType == "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
+				" Note: Workaround to avoid incompatibility! By Questor
 				call feedkeys("\<Esc>\\zvvi")
 			endif
+			" Note: '' (normal/visual) (r)! By Questor
 			if g:GrooVim_CommandZChar == "114" && a:modType != "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
+				" Note: Workaround to avoid incompatibility! By Questor
 				call feedkeys("\\zvv")
 			endif
-			" Note: Remove marcadores de pesquisa (visual/normal)(/)! By Questor
+			" Note: Removes search highlights (visual/normal) (/)! By Questor
 			if g:GrooVim_CommandZChar == "47" && a:modType != "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
+				" Note: Workaround to avoid incompatibility! By Questor
 				call feedkeys("\\z/")
 			endif
-			" Note: Remove marcadores de pesquisa (insert)(/)! By Questor
+			" Note: '' (insert)(/)! By Questor
 			if g:GrooVim_CommandZChar == "47" && a:modType == "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
+				" Note: Workaround to avoid incompatibility! By Questor
 				call feedkeys("\<Esc>\\z/i")
 			endif
-			" Note: Salva o arquivo (s)! By Questor
+			" Note: Save to disk (normal/insert) (s)! By Questor
 			if g:GrooVim_CommandZChar == "115" && a:modType != "v"
 				:w
 			endif
+			" Note: '' (visual) (s)! By Questor
 			if g:GrooVim_CommandZChar == "115" && a:modType == "v"
 				call GrooVim_VisualWrite()
 			endif
-			" Note: Abre para pesquisa no normal e insert mode (f)! By Questor
+			" Note: Opens for search (insert/normal) (f)! By Questor
 			if g:GrooVim_CommandZChar == "102" && a:modType != "v"
 				call GrooVim_SearchWithMyOptions("n")
 			endif
+			" Note: '' (visual) (f)! By Questor
 			if g:GrooVim_CommandZChar == "102" && a:modType == "v"
 				call GrooVim_SearchWithMyOptions("v")
 			endif
-			" Note: Abre para configurar a busca (d)! By Questor
+			" Note: Opens to configure the search (d)! By Questor
 			if g:GrooVim_CommandZChar == "100"
 				call GrooVim_ConfigureSearchReplace("search")
 			endif
-			" Note: Abre para configurar o replace (h)! By Questor
+			" Note: Opens to configure the replace (h)! By Questor
 			if g:GrooVim_CommandZChar == "104"
 				call GrooVim_ConfigureSearchReplace("replace")
 			endif
-			" Note: Abre para replace (j)! By Questor
+			" Note: Opens to replace (normal/insert) (j)! By Questor
 			if g:GrooVim_CommandZChar == "106" && a:modType != "v"
 				call GrooVim_EntertainmentReplace("n")
 			endif
+			" Note: '' (visual) (j)! By Questor
 			if g:GrooVim_CommandZChar == "106" && a:modType == "v"
 				call GrooVim_EntertainmentReplace("v")
 			endif
@@ -2343,11 +2321,11 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 			if g:GrooVim_CommandZChar == "112"
 				call GrooVim_GetFileNameAndPath()
 			endif
-			" Note: Permite retornar para um determinada tab sempre (t)! By Questor
+			" Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
 			if g:GrooVim_CommandZChar == "116"
 				call GrooVim_TabToReturnSet()
 			endif
-			" Note: Select and search the word under cursor (End)! By Questor
+			" Note: Select and search the word under the cursor (case sensitive) (End)! By Questor
 			if g:GrooVim_CommandZChar == "\<End>"
 				call GrooVim_SelectNSearch(1, a:modType)
 			endif
@@ -2355,7 +2333,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 			if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
 				exec "norm gv"
 			endif
-			" Note: Salva no disco e abre em uma nova tab uma cópia do arquivo atual (y)! By Questor
+			" Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
 			if g:GrooVim_CommandZChar == "121"
 				call GrooVim_SaveACopy()
 			endif
@@ -2363,14 +2341,14 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 		" Note: Plugin commands! By Questor
 		if a:GrooVim_CommandZFCallerNow == "F4"
 			" Note: Used keys for F4: f d! By Questor
-			" Note: Abre/fecha o nerdtree (n)! By Questor
+			" Note: Opens/closes the "NerdTree" (n)! By Questor
 			if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
 				if g:GrooVim_CommandZChar == "110"
 					" call ToggleNERDTree()
 					call GrooVim_ToggleNERDTreeTabs()
 				endif
 			endif
-			" Note: Abre/fecha o vim debug (d)! By Questor
+			" Note: Opens/closes the "Vim Debug" (d)! By Questor
 			if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
 				if g:GrooVim_CommandZChar == "100"
 					call GrooVim_ToggleDbg()
@@ -2389,22 +2367,21 @@ endfunc
 
 nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
-" Note: Tentar garantir que abra na janela de edição! By Questor
+" Note: Try to ensure that open in an editor window! By Questor
 func! GrooVim_PutOnEditWindow() range
 	while expand('%:t') =~ "GrooVim_SearchGuyResults" || expand('%:t') =~ "NERD_tree_" || expand('%:t') =~ "GrooVimHelp"
 		exec "norm \<C-w>"
 	endwhile
 endfunc
 
-" Note: Exibe a ajuda do GrooVim. Esse texto está no próprio corpo do GrooVim! By Questor
+" Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
 func! GrooVim_ToogleGrooVimHelp() range
 
 	if bufexists("GrooVimHelp") == 0
 
 		call GrooVim_PutOnEditWindow()
 
-		" Note: O "set ma" e "set noma" abre e bloqueia edição do
-		" buffer! By Questor
+		" Note: The "set ma" and "set noma" opens and locks the buffer editing! By Questor
 		set ma
 		silent exec "split GrooVimHelp"
 		exec "put =g:GrooVimHelp"
@@ -2412,9 +2389,8 @@ func! GrooVim_ToogleGrooVimHelp() range
 		exec "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapmargin=0 | set formatoptions+=l | set syntax=help"
 		set noma
 	else
-		" Note: Com essa abordagem eu consigo efetivamente "destruir" 
-		" o buffer não retornando "falso" positivos no "bufexists" 
-		" acima! By Questor
+		" Note: With this approach I can effectively "destroy" the "buffer" not
+		" returning false "positives" in "bufexists()" above! By Questor
 		exec "bwipeout! GrooVimHelp"
 	endif
 
@@ -2439,29 +2415,30 @@ func! GrooVim_GetFileNameAndPath() range
 
 endfunc
 
-" Note: Grava uma macro! By Questor
+" Note: Record a macro! By Questor
 func! GrooVim_XenRec() range
 	call GrooVim_GrooVimBarMsg("Use \"q\" to stop macro recording!", 5)
 	exec "norm qa"
 	echo "Starting a NEW recording!"
 endfunc
 
-" Note: Executa uma macro repetindo ou não! By Questor
+" Note: Run a macro certain number of times or repeatedly until the last line! By Questor
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range
 
 	if a:repeatExecution == 0
 		exec "norm @a"
-		" Note: Por razões desconhecidas o valor da variável "g:GrooVim_CommandZChar" se perde na execução do comando, não
-		" permitindo repetição simples e por isso o workaround! By Questor
+		" Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
+		" lost in the execution of the command, not allowing simple repetition and so
+		" the workaround! By Questor
 		let g:GrooVim_CommandZChar = "119"
 	elseif a:repeatExecution == 1
 		let g:block_GrooVim_HLNext = 1
 		let g:GrooVim_XenPlayRunningWithSearch = 0
 		let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
-		" Note: Executa até a última/primeira linha! By Questor
+		" Note: Runs up to the last/first row!! By Questor
 		if l:numberOfRepetitions == "x"
-			" Note: "set nowrapscan" serve para evitar voltar ao começo! By Questor
+			" Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
 			set nowrapscan
 			let l:stopWhile = 0
 			let l:firstExecution = 1
@@ -2472,9 +2449,9 @@ func! GrooVim_XenPlay(repeatExecution) range
 					let l:stopWhile = 1
 				endif
 
-				" Note: Se não houver mais ocorrências para uma pesquisa para a execução! By Questor
+				" Note: If there are no more occurrences of a search then stops execution! By Questor
 				try
-					" Note: Testa se ainda existem ocorrências! By Questor
+					" Note: Tests if still there are occurrences! By Questor
 					if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
 						if l:executionDirection == "d"
 							exec "norm n"
@@ -2525,12 +2502,11 @@ func! GrooVim_XenPlay(repeatExecution) range
 
 				if l:stopWhile == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0
 					call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-					" Note: O "redraw!" é para garantir que
-					" a menssagem seja exibida! By Questor
+					" Note: The "redraw!" is to ensure that the message is displayed!! By Questor
 					redraw!
 				endif
 
-				" Note: See execution! By Questor
+				" Note: To see execution! By Questor
 				redraw!
 
 				let l:firstExecution = 0
@@ -2539,7 +2515,7 @@ func! GrooVim_XenPlay(repeatExecution) range
 			set wrapscan
 		else
 
-			" Note: Executa "n" vêzes! By Questor
+			" Note: Performs "n" times! By Questor
 
 			" Note: Check for valid numbers! By Questor
 			let l:invalidNumber = 1
@@ -2563,7 +2539,7 @@ func! GrooVim_XenPlay(repeatExecution) range
 
 			for i in range(1, l:numberOfRepetitions)
 
-				" Note: Se no houver mais ocorrências para uma pesquisa para a execução! By Questor
+				" Note: If there are no more occurrences of a search then stops execution! By Questor
 				try
 					exec "norm @a"
 				catch
@@ -2573,18 +2549,18 @@ func! GrooVim_XenPlay(repeatExecution) range
 				let g:onMoveScreen = 1
 				if g:GrooVim_GrooVimBarMsgEnabled == 0
 					call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-					" Note: O "redraw!" é para garantir que
-					" a menssagem seja exibida! By Questor
+					" Note: The "redraw!" is to ensure that the message is displayed! By Questor
 					redraw!
 				endif
-				" Note: See execution! By Questor
+				" Note: To see execution! By Questor
 				redraw!
 			endfor
 
 		endif
 
-		" Note: Por razões desconhecidas o valor da variável "g:GrooVim_CommandZChar" se perde na execução do comando, não 
-		" permitindo repetição simples e por isso o workaround! By Questor
+		" Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
+		" lost in the execution of the command, not allowing simple repetition and so
+		" the workaround! By Questor
 		let g:GrooVim_CommandZChar = "101"
 
 		let g:GrooVim_XenPlayRunningWithSearch = 0
@@ -2595,22 +2571,23 @@ func! GrooVim_XenPlay(repeatExecution) range
 
 endfunc
 
-" Note: Permite duplicar uma área de seleção de forma simples! By Questor
+" Note: Duplicates the current line/selection! By Questor
 func! GrooVim_DuplicateVisualSelection() range
 	let l:saved_reg = @+
 	exec "norm gvygv\<Esc>p"
 	let @+ = l:saved_reg
 endfunc
 
-" Note: Edit/reload the vimrc file! By Questor
+" Note: Reloads the .vimrc file! By Questor
 nnoremap <silent> <leader>zv :tabedit $MYVIMRC<cr>
+" Note: Opens the .vimrc file! By Questor
 nnoremap <silent> <leader>zvv :tabdo source $MYVIMRC<cr><bar>:tabfirst<cr>
 
 " Note: Clears the search register! By Questor
 nnoremap <silent> <leader>z/ :nohlsearch<cr>
 
 if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
-	" Note: Abre e fecha o "VIM Debug" à depender se ele esteja aberto ou fechado! By Questor
+	" Note: Opens and closes the "VIM Debug" depending on if it is open or closed! By Questor
 	let g:NERDTreeIsOpen = 0
 	func! GrooVim_ToggleDbg()
 		if exists("g:Dbg")
@@ -2631,7 +2608,7 @@ if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
 	endfunc
 endif
 
-" Note: Salva no disco e abre em uma nova tab uma cópia do arquivo atual! By Questor
+" Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
 
 		let l:valueToPath = ""
@@ -2644,7 +2621,7 @@ func! GrooVim_SaveACopy() range
 					let l:valueToPath = @+
 				else
 					call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-					" Note: O "redraw!" é para garantir que a menssagem seja exibida! By Questor
+					" Note: The "redraw!" is to ensure that the message is displayed! By Questor
 					redraw!
 				endif
 			elseif l:valueToPath == "1"
@@ -2693,7 +2670,7 @@ func! GrooVim_SaveACopy() range
 
 endfunc
 
-" Note: Permite salvar estando no modo visual! By Questor
+" Note: Saves to disk! By Questor
 func! GrooVim_VisualWrite() range
 	" Note: Witre! By Questor
 	exec "w"
@@ -2701,7 +2678,7 @@ func! GrooVim_VisualWrite() range
 	exec "norm gv"
 endfunc
 
-" Note: Upper ou lower para a palavra ou seleção atual! By Questor
+" Note: Changes to uppercase/lowercase! By Questor
 func! GrooVim_ToUpperLower(modType) range
 	" Note: Reselect area! By Questor
 	exec "norm gv"
@@ -2725,44 +2702,43 @@ endfunc
 "APPEARANCE
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Exibe o número de cada linha! By Questor
+" Note: Displays the number of each line! By Questor
 set number
 
 " Note: Always show current position! By Questor
 set ruler
 
-" Note: Height of the command bar. By Questor
+" Note: Height of the command bar! By Questor
 set cmdheight=2
 
-" For regular expressions turn magic on
+" Note: For regular expressions turn magic on! By Questor
 set magic
 
-" Show matching brackets when text indicator is over them
+" Note: Show matching brackets when text indicator is over them! By Questor
 set showmatch
 
-" How many tenths of a second to blink when matching brackets
+" Note: How many tenths of a second to blink when matching brackets! By Questor
 set mat=2
 
-" No annoying sound on errors
+" Note: No annoying sound on errors! By Questor
 set noerrorbells
 set novisualbell
 
-" ToDo: O que vem a ser isso? By Questor
+" ToDo: What comes to be? By Questor
 " set t_vb=
 
 " ToDo: Line break? By Questor
-set tm=500
+" set tm=500
 
-" Note: Allow the cursor to go in to "invalid" places! By Questor
+" Note: Allow the cursor to go into "invalid" places! By Questor
 " set virtualedit=all
 
-" Note: Always turn on syntax highlighting for diffs! By Questor
-" select by the file-suffix directly...
+" Note: Always turn on syntax highlighting for diffs (select by the file-suffix directly)! By Questor
 augroup PatchDiffHighlight
 	autocmd! BufEnter  *.patch,*.rej,*.diff   syntax enable
 augroup end
 
-" Note: Exibe avisos na barra de rolagem! By Questor
+" Note: Displays messages on the scroll bar! By Questor
 let g:GrooVim_GrooVimBarMsgValue = ""
 let g:GrooVim_GrooVimBarMsgMoment = ""
 let g:GrooVim_GrooVimBarMsgEnabled = 0
@@ -2784,7 +2760,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
 
 endfun
 
-" Note: Exibe uma barra de informações! By Questor
+" Note: Displays an information bar! By Questor
 set laststatus=2
 func! GrooVim_GrooVimBar()
 
@@ -2793,7 +2769,7 @@ func! GrooVim_GrooVimBar()
 
 endfun
 set stl=%!GrooVim_GrooVimBar()
-" Note: Exibe uma menssagem na execução inicial! By Questor
+" Note: Displays a message on the initial run! By Questor
 call GrooVim_GrooVimBarMsg("To see GrooVim help use F9!", 10)
 
 " Note: Make the 81st column stand out (just the 80st column of wide lines...)! By Questor
@@ -2809,7 +2785,7 @@ set list
 " Note: Type II! By Questor
 exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
 
-" Note: switch syntax highlighting on, when the terminal has colors! By Questor
+" Note: Switch syntax highlighting on, when the terminal has colors! By Questor
 if &t_Co > 2 || has("gui_running")
 	syntax on
 endif
@@ -2837,12 +2813,12 @@ if &term =~ "xterm\\|rxvt" && $COLORTERM != "gnome-terminal"
 	autocmd VimLeave * silent !konsoleprofile CustomCursorColor=default;BlinkingCursorEnabled=0
 endif
 
-" " Note: Exibe a linha do cursor (causes slowdown)! By Questor
+" " Note: Displays a line below the cursor (causes slowdown)! By Questor
 " if exists('+cursorline')
 " 	set cursorline cursorcolumn
 " endif
 "
-" " Note: Exibe a coluna do cursor (causes slowdown)! By Questor
+" " Note: Displays a column over the cursor (causes slowdown)! By Questor
 " hi CursorLine cterm=NONE,underline guibg=#F4F4F4
 " hi! link CursorColumn CursorLine
 
@@ -2859,10 +2835,10 @@ set nowrap
 " Note: Allow backspacing over everything in insert mode! By Questor
 set backspace=indent,eol,start
 
-" Note: remember more commands and search history! By Questor
+" Note: Remember more commands and search history! By Questor
 set history=1000
 
-" Note: use many/muchos levels of undo! By Questor
+" Note: Use many/muchos levels of undo! By Questor
 set undolevels=1000
 
 " Note: Ignore case when searching! By Questor
@@ -2871,21 +2847,22 @@ set ignorecase
 " Note: When searching try to be smart about cases! By Questor 
 " set smartcase
 
-" Note: Makes search act like search in modern browsers ("acende" as
-" ocorrências já na digitação)! By Questor
+" Note: Makes search act like search in modern browsers ("highlight"
+" occurrences already in typing)! By Questor
 set incsearch
 
 " Note: Search/replace "globally" (on a line) by default! By Questor
 set gdefault
 
-" Note: Return to last edit position when opening files (You want this!)! By Questor
+" Note: Return to last edit position when opening files (you want this!)! By Questor
 autocmd! BufReadPost *
 	\ if line("'\"") > 0 && line("'\"") <= line("$") |
 	\   exe "normal! g`\"" |
 	\ endif
 set viminfo^=%
 
-" Note: Bind <F1> to show the keyword under cursor general help can still be entered manually, with :h! By Questor
+" Note: Bind <F1> to show the keyword under cursor general help that can still be
+" entered manually, with :h! By Questor
 if has("autocmd")
 	augroup vim_files
 		autocmd! filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
@@ -2893,8 +2870,9 @@ if has("autocmd")
 	augroup end
 endif
 
-" Note: Turn persistent undo on means that you can undo even when you close a buffer/VIM! By Questor
-" ToDo: Colocar a criação desse diretório no roteiro! By Questor
+" Note: Turn persistent undo on means that you can undo even when you close a
+" buffer/VIM! By Questor
+" ToDo: Document the need for this directory! By Questor
 try
 	set undodir=~/.vim/Temp/Undodir
 	set undofile
@@ -2906,11 +2884,9 @@ endtry
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Always set autoindenting on! By Questor
-" ToDo: (Rever)! By Questor"
 " set autoindent
 
 " Note: Copy the previous indentation on autoindenting! By Questor
-" ToDo: (Rever)! By Questor
 " set copyindent
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -2934,7 +2910,8 @@ let NERDTreeShowFiles = 1
 " Note: Highlight the selected entry in the tree! By Questor
 let NERDTreeHighlightCursorline = 1
 
-" Note: Use a single click to fold/unfold directories and a double click to open files! By Questor
+" Note: Use a single click to fold/unfold directories and a double click to open
+" files! By Questor
 let NERDTreeMouseMode=2
 
 " Note: NERDTree always open on the right side! By Questor
@@ -2947,7 +2924,7 @@ if g:enable_move_vim == 1 && g:enable_all_plugins == 1
 	let g:move_key_modifier = "C"
 	inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
 	inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
-	" Note: Esse workaround serve para que o move-vim possa ser acionado no insert mode! By Questor
+	" Note: This workaround is for the "Move Vim" can be fired in insert mode! By Questor
 	func! GrooVim_Move_Vim_OnInsert(direc)
 		if a:direc == "up"
 			exec "norm \<C-k>"
@@ -2987,7 +2964,8 @@ endfun
 "HELP
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Para facilitar esse texto sempre deve ser o último! By Questor
+" Note: To facilitate and avoid performance problems that text should always be
+" the last! By Questor
 
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n|GrooVim|=D|2.0.7b|-|Vi|IMproved\'n\'GrooVIed!|".
@@ -3180,8 +3158,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
-" Note: Para testar o help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help"! By Questor
+" Note: To test the help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help"! By Questor
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
+
