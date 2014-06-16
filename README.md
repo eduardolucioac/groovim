@@ -6,7 +6,7 @@ GrooVim - Vi IMproved'n'GrooVIed!
 What is GrooVim?
 -----
 
-The GrooVim is an extensive script (it's a .vimrc ) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
+The GrooVim is an extensive script (__it's a .vimrc__) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
  * Allow use with just a few instructions by a public accustomed to editors/IDEs default;
  * Facilitate and accelerate widely the use, being also a integrated "UI";
  * Preserving always that possible the default behavior of Vim;
