@@ -172,19 +172,19 @@ If you liked it, consider helping the project!
 Task List/Bugs List!
 -----
 
- * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! Questor
+ * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! By Questor
 
- * Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! Questor
+ * Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! By Questor
 
- * ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! Questor
+ * ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! By Questor
 
- * Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) Questor
+ * Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) By Questor
 
- * ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc" to work properly! Questor
+ * ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc" to work properly! By Questor
 
- * ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) Questor
+ * ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) By Questor
 
- * ToDo: The "GrooVim_GroovyMove()" do not work with "visual block mode"! (PRIORITY) Questor
+ * ToDo: The "GrooVim_GroovyMove()" do not work with "visual block mode"! (PRIORITY) By Questor
 
  * ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
