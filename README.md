@@ -167,7 +167,7 @@ If you liked it, consider helping the project!
 
  * We need people to fix the "portuguenglish" in all documentation!
  * We need people to test!
- * Of course! We need people to develop and fix bugs!
+ * Of course! We need people __to develop__ and __fix bugs__!
 
 Task List/Bugs List!
 -----
