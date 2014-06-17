@@ -21,13 +21,13 @@ The GrooVim is an extensive script (__it's a .vimrc__) that modifies the behavio
 Before you start with the GrooVim!
 -----
 
-IMPORTANT_I! If you do not know how Vim works, please open a terminal, run vimtutor and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
+IMPORTANT_I! If you do not know how Vim works, please open a terminal, run __vimtutor__ and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
 
 IMPORTANT_II! The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!
 
 IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your "all day" Vim use a terminal that allows more possibilities and features!
 
- * The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
+ * The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occurs we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
  * To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using Shift-Left/Shift-Right. These two keyboard shortcuts (Shift-Left/Shift-Right) are not mapped in GrooVim to that you use in the way mentioned;
     - Note: KDE desktop environment already works in that way with its terminal;
  * The GrooVim was designed to work with tabs;
@@ -40,7 +40,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
           https://github.com/tomtom/tcomment_vim 
        - move
           https://github.com/matze/vim-move 
- * When using plugins Pathogen plugin needs to be intalled https://github.com/tpope/vim-pathogen;
+ * When using plugins __Pathogen__ plugin needs to be intalled (https://github.com/tpope/vim-pathogen);
  * By default GrooVim not have any enabled plugin (see "let g:enable_all_plugins = 0"). You can also enable the plugins individually;
 
 The GrooVim solves the following "problems"!
@@ -59,16 +59,16 @@ The GrooVim solves the following "problems"!
  * MouseScrollDown/MouseScrollUp - With navigation across the screen (invalid areas);
  * MouseClick (normal mode) - Across the screen (invalid areas);
  * Just a Ctrl-w switches between windows;
- * Etc...
+ * And much more!
 
-Editor features!
+Some editor features!
 -----
 
  * Switching between modes:
     - Alt-Up (normal mode/insert/visual) - Enter or exit the insert mode;
     - Alt-Down (normal mode/insert/visual) - Enter or exit the visual mode;
 
- * Seleção de texto:
+ * Text selection:
     - Alt-Right/Alt-Left (normal mode/insert) - Word selection to the right/left;
     - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
 
@@ -86,10 +86,10 @@ Editor features!
 Relevant changes in the default Vim behavior!
 -----
 
- - Use  Ctrl+b  to enable visual block mode;
+ - Use Ctrl+b to enable visual block mode (not Ctrl+v);
  - When changes from visual mode to insert mode the cursor do not move;
  - Use default OS clipboard;
- - The "insert" and "paste" from the same cursor position;
+ - The "insert" (includes typed text) and "paste" from the same cursor position;
 
 Script features!
 -----
@@ -97,18 +97,18 @@ Script features!
  * Navigation
 
     - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);
-    - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using shorts movements;
+    - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using short movements;
     - Alt-Down (normal mode/insert/visual) - Returns to the previous tab;
-    - Ctrl-Down/Ctrl-Up (normal mode/insert/visual) - The access tabs on left/right;
+    - Ctrl-Down/Ctrl-Up (normal mode/insert/visual) - Access tabs on left/right;
 
  * Word selection
 
     - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
-    - 2-leftmouse (normal mode/insert) - Double click the mouse on a word then press z letter. All words with the same content will be highlighted;
+    - 2-leftmouse (normal mode/insert) - (Double click the mouse on a word then press z letter) All words with the same content will be highlighted;
 
  * Comment lines
 
-    - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim ;
+    - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim;
 
 F'S Shortcuts (CommandZ)!
 -----
@@ -117,8 +117,8 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
 
  * Features
  
-  - Allows replication of the last command just by pressing the last  F  used. If in a given interval a key combination is not informed the last command is repeated;
-  - If  F  is hold down the command is replicated several times;
+  - Allows replication of the last command just by pressing the last F used. If in a given interval a new key combination is not informed the last command is repeated;
+  - If F is hold down the command is replicated several times;
 
  * F2 and then...
     - Note: Preferably for editing commands;
@@ -146,7 +146,7 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
        - r - Reloads the file .vimrc in all tabs (normal mode/insert/visual);
        - / - Removes search highlights (normal mode/insert/visual);
        - s - Save to disk (normal mode/insert/visual);
-       - f - Opens for search (normal mode/insert/visual);
+       - f - Opens to search (normal mode/insert/visual);
        - d - Opens to configure the search (normal mode/insert/visual);
        - j - Opens to replace (normal mode/insert/visual);
        - h - Opens to configure the replace (normal mode/insert/visual);
@@ -154,7 +154,7 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
        - ] - Reloads the last saved session (normal mode/insert/visual);
        - p - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);
        - t - Allows always returning to a particular tab using Alt-Down (normal mode/insert/visual);
-       - d - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);
+       - d - Select and search (case sensitive) the word under the cursor (normal mode/insert/visual);
        - l - Reselect area (normal mode/insert/visual);
        - y - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);
 
@@ -167,7 +167,7 @@ If you liked it, consider helping the project!
 
  * We need people to fix the "portuguenglish" in all documentation!
  * We need people to test!
- * Of course! We need people to develop!
+ * Of course! We need people to develop and fix bugs!
 
 Task List/Bugs List!
 -----
@@ -180,7 +180,7 @@ Task List/Bugs List!
 
  * Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) By Questor
 
- * ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc" to work properly! By Questor
+ * ToDo: Create a configuration scheme according to the type of file. This scheme must be in the end of ".vimrc" to work properly! By Questor
 
  * ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) By Questor
 
@@ -206,7 +206,7 @@ Task List/Bugs List!
 
  * ToDo: Create verification of operating system for commands (shell/"system()" calls) that depend on it! By Questor
 
- * ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at vim startup (see "GrooVim_OptsUpdate()")! By Questor
+ * ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at Vim startup (see "GrooVim_OptsUpdate()")! By Questor
 
  * ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
 
@@ -215,3 +215,8 @@ Task List/Bugs List!
  * ToDo: Create "expand/collapse an area" ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
 
  * ToDo: Test GrooVim for multiple distributions! By Questor
+
+Contact
+-----
+
+eduardolucioac@gmail.com
