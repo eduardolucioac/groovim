@@ -216,6 +216,8 @@ Task List/Bugs List!
 
  * ToDo: Test GrooVim for multiple distributions! By Questor
 
+ * ToDo: Get the number of occurrences of a particular text (optional case sensitive)! By Questor
+
 Contact
 -----
 
