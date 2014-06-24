@@ -218,6 +218,8 @@ Task List/Bugs List!
 
  * ToDo: Get the number of occurrences of a particular text (optional case sensitive)! By Questor
 
+ * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
+
 Contact
 -----
 
