@@ -220,6 +220,8 @@ Task List/Bugs List!
 
  * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
+ * Bug: The tab character must have 4 spaces for "*.py" files and 2 for the others! (PRIORITY) By Questor
+
 Contact
 -----
 
