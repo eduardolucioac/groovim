@@ -222,6 +222,8 @@ Task List/Bugs List!
 
  * Bug: The tab character must have 4 spaces for "*.py" files and 2 for the others! (PRIORITY) By Questor
 
+ * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
+
 Contact
 -----
 
