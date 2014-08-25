@@ -216,7 +216,7 @@ Task List/Bugs List!
  * Bug: The tab character must have 4 spaces for "*.py" files and 2 for the others! (PRIORITY) By Questor
 
  * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
-
+<a name="buildInstallVIM"></a>
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 -----
 
@@ -295,7 +295,7 @@ hash -r
 [Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----
 
-**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: **"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!"**!
+**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: <a href="#buildInstallVIM">**"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!"**</a>!
 
 - For the installation of "pathogen", run: 
 
