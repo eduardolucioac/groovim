@@ -35,15 +35,8 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with tabs;
  * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
  * The GrooVim was designed to work with the best plugins;
-    - We recommend install ALL the following plugins:
-       - NERDTree
-          https://github.com/scrooloose/nerdtree 
-       - tcomment
-          https://github.com/tomtom/tcomment_vim 
-       - move
-          https://github.com/matze/vim-move 
- * When using plugins __Pathogen__ plugin needs to be intalled (https://github.com/tpope/vim-pathogen);
- * By default GrooVim not have any enabled plugin (see "let g:enable_all_plugins = 0"). You can also enable the plugins individually;
+ * When using plugins, __Pathogen__ plugin needs to be intalled (https://github.com/tpope/vim-pathogen);
+ * By default GrooVim have all plugins enabled (see "let g:enable_all_plugins = 1"). You can also enable/disable the plugins individually. Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
 
 The GrooVim solves the following "problems"!
 -----
@@ -98,8 +91,8 @@ Script features!
 
  * Navigation
 
-    - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);
-    - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using short movements;
+    - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen (including invalid areas) with long movements;
+    - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (including invalid areas) using short movements;
     - Alt-Down (normal mode/insert/visual) - Returns to the previous tab;
     - Ctrl-Down/Ctrl-Up (normal mode/insert/visual) - Access tabs on left/right;
 
@@ -115,7 +108,7 @@ Script features!
 F'S Shortcuts (CommandZ)!
 -----
 
-The  CommandZ  is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing F2, F3 or F4 keys and then another key.
+The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing F2, F3 or F4 keys and then another key.
 
  * Features
  
@@ -127,8 +120,8 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
        - h - Aligns to left (normal mode/insert/visual);
        - k - Aligns to right (normal mode/insert/visual);
        - j - Aligns to center (normal mode/insert/visual);
-       - p - Changes to uppercase (normal mode/insert/visual);
-       - n - Changes to lowercase (normal mode/insert/visual);
+       - Up - Changes to uppercase (normal mode/insert/visual);
+       - Down - Changes to lowercase (normal mode/insert/visual);
        - c - Copy all text in the current buffer (normal mode/insert/visual);
        - a - Select all text in the current buffer (normal mode/insert/visual);
        - d - Duplicates the current line/selection (normal mode/insert/visual);
@@ -137,7 +130,7 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
        - w - Run a macro (normal mode/insert/visual);
        - e - Run a macro certain number of times or repeatedly until the last line (normal mode/insert/visual);
        - d - Selects the word under the cursor (normal mode/insert/visual);
-       - l - Selects an area (normal mode/insert);
+       - Del - Selects an area (normal mode/insert);
 
  * F3 and then...
     - Note: Preferably for commands that "traditionally" involve Ctrl in other editors;
@@ -157,7 +150,7 @@ The  CommandZ  is a kind of "super leader" that allows an extensive keys combina
        - p - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);
        - t - Allows always returning to a particular tab using Alt-Down (normal mode/insert/visual);
        - d - Select and search (case sensitive) the word under the cursor (normal mode/insert/visual);
-       - l - Reselect area (normal mode/insert/visual);
+       - Del - Reselect area (normal mode/insert/visual);
        - y - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);
 
  * F4 and then...
