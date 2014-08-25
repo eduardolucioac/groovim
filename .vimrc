@@ -238,7 +238,7 @@ let g:grooVimVersion = "v2.0.8b"
 " ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
 " ToDo: Try a solution to "set expandtab" X "set listchars=tab:▒░,trail:·" problem! How we can "listchars" spaces
-" as "tabs"? By Questor
+" as "tabs"? Solved using "indentLine" plugin! By Questor
 
 " ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
 
@@ -295,9 +295,9 @@ set mouse=a
 
 " Note: Avoids compatibility issues when copying to an external application! By Questor
 if has('unnamedplus')
-	set clipboard=unnamedplus
+  set clipboard=unnamedplus
 else
-	set clipboard=unnamed
+  set clipboard=unnamed
 endif
 
 " Note: Don't create swap files! By Questor
@@ -330,18 +330,24 @@ set shiftwidth=2
 " other than the (hard) tabstop! By Questor
 set softtabstop=2
 
+" Note: Set tabs to spaces! By Questor
+set expandtab
+
+" Note: Change the indentLine plugin char! By Questor
+" let g:indentLine_char = '|'
+
 " Note: General tab conf! By Questor
 func! SpecificTabConf(tabWidth)
 
-	" Note: Size of a hard tabstop! By Questor
-	exec "set tabstop=" . a:tabWidth
+  " Note: Size of a hard tabstop! By Questor
+  exec "set tabstop=" . a:tabWidth
 
-	" Note: Size of an "indent"! By Questor
-	exec "set shiftwidth=" . a:tabWidth
+  " Note: Size of an "indent"! By Questor
+  exec "set shiftwidth=" . a:tabWidth
 
-	" Note: A combination of spaces and tabs are used to simulate tab stops at a width
-	" other than the (hard) tabstop! By Questor
-	exec "set softtabstop=" . a:tabWidth
+  " Note: A combination of spaces and tabs are used to simulate tab stops at a width
+  " other than the (hard) tabstop! By Questor
+  exec "set softtabstop=" . a:tabWidth
 
 endfun
 
@@ -460,176 +466,176 @@ let g:cursorHoldVisual = 0
 let g:GrooVim_GroovyMoveEnabled = 1
 func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range
 
-	let g:GrooVim_GroovyMoveEnabled = 0
+  let g:GrooVim_GroovyMoveEnabled = 0
 
-	if a:blockSmoothness == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0 && a:GrooVim_GroovyMoveType == 0
-		call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-	endif
+  if a:blockSmoothness == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0 && a:GrooVim_GroovyMoveType == 0
+    call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
+  endif
 
-	if &virtualedit == "onemore"
-		set virtualedit=all
-	endif
+  if &virtualedit == "onemore"
+    set virtualedit=all
+  endif
 
-	let l:disableSmoothness = 0
-	let l:disableHorizontalSmoothness = 0
-	let l:horizontalSmoothnessFactor = 2
-	let l:verticalSmoothnessFactor = 10
+  let l:disableSmoothness = 0
+  let l:disableHorizontalSmoothness = 0
+  let l:horizontalSmoothnessFactor = 2
+  let l:verticalSmoothnessFactor = 10
 
-	if a:GrooVim_GroovyMoveType == 0
-		let l:horizontalMovementFactor = 20
-		let l:verticalMovementFactor = 15
-	elseif a:GrooVim_GroovyMoveType == 1
-		let l:horizontalMovementFactor = 1
-		let l:verticalMovementFactor = 1
-	endif
+  if a:GrooVim_GroovyMoveType == 0
+    let l:horizontalMovementFactor = 20
+    let l:verticalMovementFactor = 15
+  elseif a:GrooVim_GroovyMoveType == 1
+    let l:horizontalMovementFactor = 1
+    let l:verticalMovementFactor = 1
+  endif
 
-	if a:mod == "n" || a:mod == "i"
+  if a:mod == "n" || a:mod == "i"
 
-		if a:direction == "l"
-			for i in range(1, l:horizontalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-					exec "sleep " . l:horizontalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Left>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "d"
-			for i in range(1, l:verticalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0
-					exec "sleep " . l:verticalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Down>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "u"
-			for i in range(1, l:verticalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0
-					exec "sleep " . l:verticalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Up>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "r"
-			for i in range(1, l:horizontalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-					exec "sleep " . l:horizontalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Right>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		endif
+    if a:direction == "l"
+      for i in range(1, l:horizontalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+          exec "sleep " . l:horizontalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Left>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "d"
+      for i in range(1, l:verticalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0
+          exec "sleep " . l:verticalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Down>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "u"
+      for i in range(1, l:verticalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0
+          exec "sleep " . l:verticalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Up>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "r"
+      for i in range(1, l:horizontalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+          exec "sleep " . l:horizontalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Right>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    endif
 
-	elseif a:mod == "v"
+  elseif a:mod == "v"
 
-		exec "norm gv"
-		if a:direction == "l"
-			for i in range(1, l:horizontalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-					exec "sleep " . l:horizontalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Left>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "d"
-			for i in range(1, l:verticalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0
-					exec "sleep " . l:verticalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Down>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "u"
-			for i in range(1, l:verticalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0
-					exec "sleep " . l:verticalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Up>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		elseif a:direction == "r"
-			for i in range(1, l:horizontalMovementFactor)
-				if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-					exec "sleep " . l:horizontalSmoothnessFactor . "m"
-				endif
-				exec "norm \<Right>"
-				if a:blockSmoothness == 0
-					redraw
-				endif
-			endfor
-		endif
+    exec "norm gv"
+    if a:direction == "l"
+      for i in range(1, l:horizontalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+          exec "sleep " . l:horizontalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Left>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "d"
+      for i in range(1, l:verticalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0
+          exec "sleep " . l:verticalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Down>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "u"
+      for i in range(1, l:verticalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0
+          exec "sleep " . l:verticalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Up>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    elseif a:direction == "r"
+      for i in range(1, l:horizontalMovementFactor)
+        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+          exec "sleep " . l:horizontalSmoothnessFactor . "m"
+        endif
+        exec "norm \<Right>"
+        if a:blockSmoothness == 0
+          redraw
+        endif
+      endfor
+    endif
 
-		" Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
-		let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
-		let g:cursorHoldVisual = 1
-		exec "norm \<Esc>"
+    " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
+    let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
+    let g:cursorHoldVisual = 1
+    exec "norm \<Esc>"
 
-	endif
+  endif
 
-	let g:onMoveScreen = 1
+  let g:onMoveScreen = 1
 
-	" Note: "set virtualedit=onemore" if the area is already valid! By Questor
-	if virtcol('.') <= virtcol('$')
+  " Note: "set virtualedit=onemore" if the area is already valid! By Questor
+  if virtcol('.') <= virtcol('$')
 
-		if &virtualedit == "all"
-			set virtualedit=onemore
-		endif
+    if &virtualedit == "all"
+      set virtualedit=onemore
+    endif
 
-		if a:direction == "r" && a:mod != "v"
-			call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
-		endif
+    if a:direction == "r" && a:mod != "v"
+      call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
+    endif
 
-	endif
+  endif
 
 endfunc
 
 " Note: Adjusts the cursor position when this ends the movement ("GrooVim_GroovyMove()") over a tab char! By Questor
 func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range
 
-	let l:lineNow = getline(".")
-	let l:lineSplited = split(l:lineNow, '\zs')
+  let l:lineNow = getline(".")
+  let l:lineSplited = split(l:lineNow, '\zs')
 
-	if len(l:lineSplited) >= 1 && len(l:lineSplited) > (col(".") - 1)
+  if len(l:lineSplited) >= 1 && len(l:lineSplited) > (col(".") - 1)
 
-		if l:lineSplited[col(".") - 1] == "	"
+    if l:lineSplited[col(".") - 1] == " "
 
-			if a:blockSmoothness == 0 && a:disableSmoothness == 0
-				exec "sleep " . a:verticalSmoothnessFactor . "m"
-			endif
+      if a:blockSmoothness == 0 && a:disableSmoothness == 0
+        exec "sleep " . a:verticalSmoothnessFactor . "m"
+      endif
 
-			let l:cursorPosInsert = getpos(".")
-			" ldur
-			if a:direction == "l"
-				call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
-			elseif a:direction == "r"
-				call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2] + 1, 0])
-			elseif a:direction == "d" || a:direction == "u"
-				call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
-			endif
+      let l:cursorPosInsert = getpos(".")
+      " ldur
+      if a:direction == "l"
+        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
+      elseif a:direction == "r"
+        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2] + 1, 0])
+      elseif a:direction == "d" || a:direction == "u"
+        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
+      endif
 
-			if a:blockSmoothness == 0
-				redraw
-			endif
+      if a:blockSmoothness == 0
+        redraw
+      endif
 
-			let g:cursorHoldVisual = 0
-			let g:onMoveScreen = 1
+      let g:cursorHoldVisual = 0
+      let g:onMoveScreen = 1
 
-		endif
+    endif
 
-	endif
+  endif
 
 endfunc
 
@@ -647,39 +653,39 @@ vnoremap <silent> <script> <A-Right> :<C-u>call GrooVim_SelWord("v", "r", 0)<cr>
 " Note: Allows selection of words quickly (for copying or deletion)! By Questor
 func! GrooVim_SelWord(mod, direction, fullMove) range
 
-	let l:wordMove = ""
-	let l:wordMoveInsert = ""
+  let l:wordMove = ""
+  let l:wordMoveInsert = ""
 
-	if a:direction == "l"
-		if a:fullMove == 0
-			let l:wordMove = "b"
-		elseif a:fullMove == 1
-			let l:wordMove = "0"
-		endif
-		let l:wordMoveInsert = "\<Left>"
-	elseif a:direction == "r"
-		if a:fullMove == 0
-			let l:wordMove = "e"
-		elseif a:fullMove == 1
-			let l:wordMove = "$\<Left>"
-		endif
-	endif
+  if a:direction == "l"
+    if a:fullMove == 0
+      let l:wordMove = "b"
+    elseif a:fullMove == 1
+      let l:wordMove = "0"
+    endif
+    let l:wordMoveInsert = "\<Left>"
+  elseif a:direction == "r"
+    if a:fullMove == 0
+      let l:wordMove = "e"
+    elseif a:fullMove == 1
+      let l:wordMove = "$\<Left>"
+    endif
+  endif
 
-	if a:mod == "v"
-		exec "norm gv" . l:wordMove
-	elseif a:mod == "i"
-		if virtcol('.') == (virtcol('$') - 1)
-			if a:direction == "r"
-				exec "norm \<Esc>\<Down>0v" . l:wordMove
-			else
-				exec "norm \<Esc>v" . l:wordMove
-			endif
-		else
-			exec "norm \<Esc>" . l:wordMoveInsert . "v" . l:wordMove
-		endif
-	elseif a:mod == "n"
-		exec "norm v" . l:wordMove
-	endif
+  if a:mod == "v"
+    exec "norm gv" . l:wordMove
+  elseif a:mod == "i"
+    if virtcol('.') == (virtcol('$') - 1)
+      if a:direction == "r"
+        exec "norm \<Esc>\<Down>0v" . l:wordMove
+      else
+        exec "norm \<Esc>v" . l:wordMove
+      endif
+    else
+      exec "norm \<Esc>" . l:wordMoveInsert . "v" . l:wordMove
+    endif
+  elseif a:mod == "n"
+    exec "norm v" . l:wordMove
+  endif
 
 endfunc
 
@@ -695,67 +701,67 @@ let g:lastTab = 1
 autocmd! TabLeave * let g:lastTab = tabpagenr()
 
 func! GrooVim_TabToReturn()
-	if g:GrooVim_TabToReturnNumber == 0
-		exe "tabn " . g:lastTab
-	else
-		if g:GrooVim_TabToReturnNumber == tabpagenr()
-			exe "tabn " . g:lastTab
-		else
-			exe "tabn " . g:GrooVim_TabToReturnNumber
-			" Note: "redraw" ensures the message display! By Questor
-			redraw
-			echo "Tab to return is ENabled to this tab!"
-		endif
-	endif
+  if g:GrooVim_TabToReturnNumber == 0
+    exe "tabn " . g:lastTab
+  else
+    if g:GrooVim_TabToReturnNumber == tabpagenr()
+      exe "tabn " . g:lastTab
+    else
+      exe "tabn " . g:GrooVim_TabToReturnNumber
+      " Note: "redraw" ensures the message display! By Questor
+      redraw
+      echo "Tab to return is ENabled to this tab!"
+    endif
+  endif
 endfunc
 
 " Note: Allows returning to a particular tab "forever"! By Questor
 let g:GrooVim_TabToReturnNumber = 0
 func! GrooVim_TabToReturnSet()
-	if g:GrooVim_TabToReturnNumber == 0
-		let g:GrooVim_TabToReturnNumber = tabpagenr()
-		call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
-	else
-		let g:GrooVim_TabToReturnNumber = 0
-		call GrooVim_GrooVimBarMsg("Tab to return was DISabled!", 4)
-	endif
+  if g:GrooVim_TabToReturnNumber == 0
+    let g:GrooVim_TabToReturnNumber = tabpagenr()
+    call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
+  else
+    let g:GrooVim_TabToReturnNumber = 0
+    call GrooVim_GrooVimBarMsg("Tab to return was DISabled!", 4)
+  endif
 endfunc
 
 if g:enable_tcomment_vim == 1 && g:enable_all_plugins == 1
-	nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
-	inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
-	vnoremap <silent> <A-Up> :<C-u>call GrooVim_VisualComment()<cr>
-	" Note: Allows comment the current line in a simple and fast way! By Questor
-	func! GrooVim_VisualComment() range
-		" Note: Lets see if the selection involves more than one line comparing the
-		" "start" and "end" line position of the selection!! By Questorr
-		if   getpos("'<")[1] == getpos("'>")[1]
-			exec "norm gcc"
-		else
-			exec "norm gv"
-			exec "norm gc"
-		endif
-	endfunc
+  nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
+  inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
+  vnoremap <silent> <A-Up> :<C-u>call GrooVim_VisualComment()<cr>
+  " Note: Allows comment the current line in a simple and fast way! By Questor
+  func! GrooVim_VisualComment() range
+    " Note: Lets see if the selection involves more than one line comparing the
+    " "start" and "end" line position of the selection!! By Questorr
+    if   getpos("'<")[1] == getpos("'>")[1]
+      exec "norm gcc"
+    else
+      exec "norm gv"
+      exec "norm gc"
+    endif
+  endfunc
 endif
 
 " Note: Get shown messages! By Questor
 let g:messagesHolder = ""
 func! GrooVim_GetMessages()
-	let g:messagesHolder = ""
-	redir => g:messagesHolder
-		silent exec "messages"
-	redir end
+  let g:messagesHolder = ""
+  redir => g:messagesHolder
+    silent exec "messages"
+  redir end
 endfunc
 
 " Note: Return the last shown message! By Questor
 func! GrooVim_ReturnLastMessage()
-	call GrooVim_GetMessages()
-	let l:messagesHolderSplitted = split(g:messagesHolder, "\n")
-	if len(l:messagesHolderSplitted) >= 1
-		return [l:messagesHolderSplitted[len(l:messagesHolderSplitted) - 1], len(l:messagesHolderSplitted)]
-	else
-		return ["", 0]
-	endif
+  call GrooVim_GetMessages()
+  let l:messagesHolderSplitted = split(g:messagesHolder, "\n")
+  if len(l:messagesHolderSplitted) >= 1
+    return [l:messagesHolderSplitted[len(l:messagesHolderSplitted) - 1], len(l:messagesHolderSplitted)]
+  else
+    return ["", 0]
+  endif
 endfunc
 
 let g:lastMessageWorkaroundShowed = ""
@@ -763,60 +769,60 @@ let g:lastMessageWorkaroundShowedIndex = 0
 " Note: Redisplays the last shown message! By Questor
 func! GrooVim_ShowLastMessageWorkaround()
 
-	let l:GrooVim_ReturnLastMessageReturn = GrooVim_ReturnLastMessage()
+  let l:GrooVim_ReturnLastMessageReturn = GrooVim_ReturnLastMessage()
 
-	if l:GrooVim_ReturnLastMessageReturn[0] != ""
-		if l:GrooVim_ReturnLastMessageReturn[0] != g:lastMessageWorkaroundShowed || g:lastMessageWorkaroundShowed == "" || g:lastMessageWorkaroundShowedIndex < l:GrooVim_ReturnLastMessageReturn[1]
+  if l:GrooVim_ReturnLastMessageReturn[0] != ""
+    if l:GrooVim_ReturnLastMessageReturn[0] != g:lastMessageWorkaroundShowed || g:lastMessageWorkaroundShowed == "" || g:lastMessageWorkaroundShowedIndex < l:GrooVim_ReturnLastMessageReturn[1]
 
-			let l:messageBlock = 1
-			if l:GrooVim_ReturnLastMessageReturn[0] == "Messages maintainer: Bram Moolenaar <Bram@vim.org>"
-			elseif l:GrooVim_ReturnLastMessageReturn[0] =~ "replace with" && l:GrooVim_ReturnLastMessageReturn[0] =~ "(y/n/a/q/l/"
-			else
-				let l:messageBlock = 0
-			endif
+      let l:messageBlock = 1
+      if l:GrooVim_ReturnLastMessageReturn[0] == "Messages maintainer: Bram Moolenaar <Bram@vim.org>"
+      elseif l:GrooVim_ReturnLastMessageReturn[0] =~ "replace with" && l:GrooVim_ReturnLastMessageReturn[0] =~ "(y/n/a/q/l/"
+      else
+        let l:messageBlock = 0
+      endif
 
-			if l:messageBlock == 0
+      if l:messageBlock == 0
 
-				let l:messageType = "n"
-				try
+        let l:messageType = "n"
+        try
 
-					let l:messageNowToSplit = l:GrooVim_ReturnLastMessageReturn[0]
-					let l:messageNowSplitted = split(l:messageNowToSplit[0:6], ": ")
+          let l:messageNowToSplit = l:GrooVim_ReturnLastMessageReturn[0]
+          let l:messageNowSplitted = split(l:messageNowToSplit[0:6], ": ")
 
-					if len(l:messageNowSplitted) > 0
+          if len(l:messageNowSplitted) > 0
 
-						let l:messageNowTreated = substitute(l:messageNowSplitted[0], "E", "", "")
+            let l:messageNowTreated = substitute(l:messageNowSplitted[0], "E", "", "")
 
-						if l:messageNowTreated != 0
-							" Note: The quotes serve to make the result of "str2nr" be "transformed" into a string! By Questor
-							if l:messageNowTreated == "" . str2nr(l:messageNowTreated) . ""
-								if type(str2nr(l:messageNowTreated)) == type(0)
-									if l:messageNowTreated > 0 && l:messageNowTreated < 10000
-										let l:messageType = "e"
-									endif
-								endif
-							endif
-						endif
+            if l:messageNowTreated != 0
+              " Note: The quotes serve to make the result of "str2nr" be "transformed" into a string! By Questor
+              if l:messageNowTreated == "" . str2nr(l:messageNowTreated) . ""
+                if type(str2nr(l:messageNowTreated)) == type(0)
+                  if l:messageNowTreated > 0 && l:messageNowTreated < 10000
+                    let l:messageType = "e"
+                  endif
+                endif
+              endif
+            endif
 
-						
-					endif
+            
+          endif
 
-				catch
-					
-				endtry
+        catch
+          
+        endtry
 
-				if l:messageType == "e"
-					echohl Error | echo l:GrooVim_ReturnLastMessageReturn[0] | echohl None
-				elseif l:messageType == "n"
-					echo l:GrooVim_ReturnLastMessageReturn[0]
-				endif
-			endif
+        if l:messageType == "e"
+          echohl Error | echo l:GrooVim_ReturnLastMessageReturn[0] | echohl None
+        elseif l:messageType == "n"
+          echo l:GrooVim_ReturnLastMessageReturn[0]
+        endif
+      endif
 
-		endif
-	endif
+    endif
+  endif
 
-	let g:lastMessageWorkaroundShowed = l:GrooVim_ReturnLastMessageReturn[0]
-	let g:lastMessageWorkaroundShowedIndex = l:GrooVim_ReturnLastMessageReturn[1]
+  let g:lastMessageWorkaroundShowed = l:GrooVim_ReturnLastMessageReturn[0]
+  let g:lastMessageWorkaroundShowedIndex = l:GrooVim_ReturnLastMessageReturn[1]
 
 endfunc
 
@@ -826,34 +832,34 @@ let g:GrooVim_CheckCapsLockLastExec = 0
 let g:GrooVim_CheckCapsLockMsg = 0
 func! GrooVim_CheckCapsLock() range
 
-	if (strftime("%Y%m%d%H%M%S") - g:GrooVim_CheckCapsLockLastExec) > 1 || g:GrooVim_CheckCapsLockLastExec == ""
+  if (strftime("%Y%m%d%H%M%S") - g:GrooVim_CheckCapsLockLastExec) > 1 || g:GrooVim_CheckCapsLockLastExec == ""
 
-		let l:result = system("xset -q | grep \"Caps Lock:   on\"")
+    let l:result = system("xset -q | grep \"Caps Lock:   on\"")
 
-		" Note: In terminal vim, prevent ghost echoing while running a shell command by "system()"! By Questor
-		redraw!
+    " Note: In terminal vim, prevent ghost echoing while running a shell command by "system()"! By Questor
+    redraw!
 
-		" Note: Redisplays the last message for correcting the "collateral" effect of
-		" redraw"!! By Questor
-			call GrooVim_ShowLastMessageWorkaround()
+    " Note: Redisplays the last message for correcting the "collateral" effect of
+    " redraw"!! By Questor
+      call GrooVim_ShowLastMessageWorkaround()
 
 
-		if l:result != ""
-			" Note: To debug! By Questor
-			if g:GrooVim_CheckCapsLockReturn == 0
-				" Note: This warning have a special condition and only
-				" disappears if capslock is off! When caps lock is on
-				" any other message will be shown! By Questor
-				call GrooVim_GrooVimBarMsg("((( CAPS LOCK IS ON, OH NO!!! =| )))", 0)
-				let g:GrooVim_CheckCapsLockMsg = 1
-			endif
-			let g:GrooVim_CheckCapsLockReturn = 1
-		else
-			let g:GrooVim_CheckCapsLockReturn = 0
-		endif
-	endif
+    if l:result != ""
+      " Note: To debug! By Questor
+      if g:GrooVim_CheckCapsLockReturn == 0
+        " Note: This warning have a special condition and only
+        " disappears if capslock is off! When caps lock is on
+        " any other message will be shown! By Questor
+        call GrooVim_GrooVimBarMsg("((( CAPS LOCK IS ON, OH NO!!! =| )))", 0)
+        let g:GrooVim_CheckCapsLockMsg = 1
+      endif
+      let g:GrooVim_CheckCapsLockReturn = 1
+    else
+      let g:GrooVim_CheckCapsLockReturn = 0
+    endif
+  endif
 
-	let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
+  let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
 
 endfunc
 
@@ -863,25 +869,25 @@ endfunc
 " Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertEnter * call GrooVim_InsertEnterPerforms()
 func! GrooVim_InsertEnterPerforms()
-	if g:onMoveScreen == 0
-		if &virtualedit == "all"
-			set virtualedit=onemore
-		endif
-	endif
+  if g:onMoveScreen == 0
+    if &virtualedit == "all"
+      set virtualedit=onemore
+    endif
+  endif
 endfunc
 
 " Note: Repositions the cursor in the correct location when exiting insert mode! By Questor
 autocmd! InsertLeave * call GrooVim_InsertLeavePerforms()
 func! GrooVim_InsertLeavePerforms()
-	exec "norm `^"
+  exec "norm `^"
 endfunc
 
 " Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertCharPre * call GrooVim_InsertCharPrePerforms()
 func! GrooVim_InsertCharPrePerforms()
-	if &virtualedit == "all"
-		set virtualedit=onemore
-	endif
+  if &virtualedit == "all"
+    set virtualedit=onemore
+  endif
 endfunc
 
 " Note: Check caps lock status! By Questor
@@ -889,32 +895,32 @@ autocmd! CursorHold * call GrooVim_CheckCapsLockTimer()
 autocmd! CursorHoldI * call GrooVim_CheckCapsLockTimer()
 let g:reloadVimrc = 0
 func! GrooVim_CheckCapsLockTimer()
-	if g:onCursorMoved == 0 && g:onMoveScreen == 0
+  if g:onCursorMoved == 0 && g:onMoveScreen == 0
 
-		call GrooVim_CheckCapsLock()
-		if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:onMoveScreen == 0
-			if (strftime("%Y%m%d%H%M%S") - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
-				call GrooVim_GrooVimBarMsg("", "")
-			endif
-		endif
+    call GrooVim_CheckCapsLock()
+    if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:onMoveScreen == 0
+      if (strftime("%Y%m%d%H%M%S") - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
+        call GrooVim_GrooVimBarMsg("", "")
+      endif
+    endif
 
-	else
-		let g:onMoveScreen = 0
-		let g:GrooVim_GroovyMoveEnabled = 1
-	endif
+  else
+    let g:onMoveScreen = 0
+    let g:GrooVim_GroovyMoveEnabled = 1
+  endif
 
-	" Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
-	if g:cursorHoldVisual == 1
-		exec "norm gv"
-		if g:cursorHoldVisualExec != ""
-			exec g:cursorHoldVisualExec
-			let g:cursorHoldVisualExec = ""
-		endif
-		let g:cursorHoldVisual = 0
-		let g:onMoveScreen = 1
-	endif
+  " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
+  if g:cursorHoldVisual == 1
+    exec "norm gv"
+    if g:cursorHoldVisualExec != ""
+      exec g:cursorHoldVisualExec
+      let g:cursorHoldVisualExec = ""
+    endif
+    let g:cursorHoldVisual = 0
+    let g:onMoveScreen = 1
+  endif
 
-	checktime
+  checktime
 endfunc
 " Note: Execution delay (in milliseconds)! By Questor
 set updatetime=0
@@ -927,36 +933,36 @@ let g:onCursorMoved = 0
 let g:modeNow = ""
 func! GrooVim_VimStatus()
 
-	let g:onCursorMoved = 1
-	if g:onMoveScreen == 0
+  let g:onCursorMoved = 1
+  if g:onMoveScreen == 0
 
-" 		Note: Checks the status of the capslock when Vim the changes its mode or
-" 		if Vim is in visual mode!! By Questor
+"     Note: Checks the status of the capslock when Vim the changes its mode or
+"     if Vim is in visual mode!! By Questor
 
-		let g:modeNow = mode()
+    let g:modeNow = mode()
 
-		if g:modeNow != g:lastMode || g:modeNow == "v"
-			" Note: Avoids the need to fire twice "GrooVim_GroovyMove()" when we change
-			" the mode! By Questor
-				let g:GrooVim_GroovyMoveEnabled = 1
-			call GrooVim_CheckCapsLock()
-			if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:GrooVim_CheckCapsLockMsg == 1
-				call GrooVim_GrooVimBarMsg("", "")
-				let g:GrooVim_CheckCapsLockMsg = 0
-			endif
-		endif
+    if g:modeNow != g:lastMode || g:modeNow == "v"
+      " Note: Avoids the need to fire twice "GrooVim_GroovyMove()" when we change
+      " the mode! By Questor
+        let g:GrooVim_GroovyMoveEnabled = 1
+      call GrooVim_CheckCapsLock()
+      if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:GrooVim_CheckCapsLockMsg == 1
+        call GrooVim_GrooVimBarMsg("", "")
+        let g:GrooVim_CheckCapsLockMsg = 0
+      endif
+    endif
 
-		" Note: When on visual-block mode allows select any area! By Questor
-		if mode() != "\<C-v>"
-			if &virtualedit == "all"
-				set virtualedit=onemore
-			endif
-		endif
+    " Note: When on visual-block mode allows select any area! By Questor
+    if mode() != "\<C-v>"
+      if &virtualedit == "all"
+        set virtualedit=onemore
+      endif
+    endif
 
-		let g:lastMode = g:modeNow
+    let g:lastMode = g:modeNow
 
-	endif
-	let g:onCursorMoved = 0
+  endif
+  let g:onCursorMoved = 0
 endfunc
 
 nnoremap <silent> <ScrollWheelUp> :call GrooVim_ScrollAdm("n", "u")<cr>
@@ -976,22 +982,22 @@ vnoremap <silent> <S-ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 
 " Note: Serves to avoid the side effect of capslock status checking! By Questor
 func! GrooVim_ScrollAdm(mod, direction) range
-	if &virtualedit == "onemore"
-		set virtualedit=all
-	endif
-	let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
+  if &virtualedit == "onemore"
+    set virtualedit=all
+  endif
+  let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
 
-	if a:mod == "v"
-		exec "norm gv"
-	endif
+  if a:mod == "v"
+    exec "norm gv"
+  endif
 
-	if a:direction == "u"
-		exec "norm \<Up>\<Up>\<Up>"
-	elseif a:direction == "d"
-		exec "norm \<Down>\<Down>\<Down>"
-	endif
+  if a:direction == "u"
+    exec "norm \<Up>\<Up>\<Up>"
+  elseif a:direction == "d"
+    exec "norm \<Down>\<Down>\<Down>"
+  endif
 
-	let g:onMoveScreen = 1
+  let g:onMoveScreen = 1
 endfunc
 
 " Note: Serves to avoid the side effect of capslock status checking! By Questor
@@ -1003,9 +1009,9 @@ vnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 
 " Note: When enter "visual block" mode and allows select any area! By Questor
 func! GrooVim_SetVisualBlock() range
-	if &virtualedit == "onemore"
-		set virtualedit=all
-	endif
+  if &virtualedit == "onemore"
+    set virtualedit=all
+  endif
 endfunc
 
 " Note: Avoid "accidents" with "Ctrl+z"! "<nop>" equates to a "null" command! By Questor
@@ -1019,31 +1025,31 @@ nnoremap <silent> <C-u> u
 " Note: Allows undo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-u> :<C-u>call GrooVim_VisualUndo()<cr>v
 func! GrooVim_VisualUndo() range
-	exec "norm u"
+  exec "norm u"
 endfunc
 
 " Note: Allows redo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-r> :<C-u>call GrooVim_VisualRedo()<cr>v
 func! GrooVim_VisualRedo() range
-	exec "norm \<C-r>"
+  exec "norm \<C-r>"
 endfunc
 
 " Note: Allows undo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-u> <Esc><bar>:call GrooVim_InsertUndo()<cr>i
 func! GrooVim_InsertUndo()
-	exec "norm u"
+  exec "norm u"
 endfunc
 
 " Note: Allows redo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-r> <Esc><bar>:call GrooVim_InsertRedo()<cr>i
 func! GrooVim_InsertRedo()
-	exec "norm \<C-r>"
+  exec "norm \<C-r>"
 endfunc
 
 " Note: Allows "Space" in normal mode! By Questor
 noremap <silent> <script> <Space> :call GrooVim_SpaceOnNormalMode()<cr>
 func! GrooVim_SpaceOnNormalMode()
-	exec "norm i\<Space>"
+  exec "norm i\<Space>"
 endfunc
 
 " Note: Allows faster switching between windows with "Ctrl+w"! By Questor
@@ -1053,11 +1059,11 @@ vnoremap <silent> <C-w> <Esc><C-w><C-w>
 
 " Note: Gets the number of lines in the current transfer area! Questor
 func! GrooVim_NumberOfLinesOnDefaultTransferArea()
-	" Note: Get transfer area! By Questor
-	let l:lastYank = @+
-	let l:lastYankNumbOfLines = split(l:lastYank, "\n")
-	" Note: Checks how many lines have! Questor
-	return len(l:lastYankNumbOfLines)
+  " Note: Get transfer area! By Questor
+  let l:lastYank = @+
+  let l:lastYankNumbOfLines = split(l:lastYank, "\n")
+  " Note: Checks how many lines have! Questor
+  return len(l:lastYankNumbOfLines)
 endfunc
 
 " Note: Allows yank a line without the return character! By Questor
@@ -1102,7 +1108,7 @@ vmap <silent> <C-Left> b
 " Note: Allows "multimode" use of enter key in a conventional way! By Questor
 nnoremap <silent> <script> <Enter> :call GrooVim_NormalEnterOnNormalMode()<cr>
 func! GrooVim_NormalEnterOnNormalMode()
-	exec "norm i\<cr>\<Esc>"
+  exec "norm i\<cr>\<Esc>"
 endfunc
 
 " Note: "Normal" backspace/delete in visual mode! By Questor
@@ -1114,22 +1120,22 @@ nmap <silent> <script> <Backspace> :call GrooVim_NormalBackspace()<cr>
 
 func! GrooVim_NormalBackspace()
 
-	let l:continue = 1
+  let l:continue = 1
 
-	if col(".") == 1 && l:continue == 1
-		" call GrooVim_PauseExecution("A")
-		call feedkeys("\i")
-		call feedkeys("\<Backspace>")
-		call feedkeys("\<Esc>")
-		let l:continue = 0
-	endif
+  if col(".") == 1 && l:continue == 1
+    " call GrooVim_PauseExecution("A")
+    call feedkeys("\i")
+    call feedkeys("\<Backspace>")
+    call feedkeys("\<Esc>")
+    let l:continue = 0
+  endif
 
-	if col(".") > 1 && l:continue == 1
-		" call GrooVim_PauseExecution("A")
-		call feedkeys("\<Left>")
-		call feedkeys("\"_x")
-		let l:continue = 0
-	endif
+  if col(".") > 1 && l:continue == 1
+    " call GrooVim_PauseExecution("A")
+    call feedkeys("\<Left>")
+    call feedkeys("\"_x")
+    let l:continue = 0
+  endif
 
 endfunc
 
@@ -1146,27 +1152,27 @@ vnoremap <silent> <C-Down> :<C-U>tabprevious<cr>v
 " Note: Permite que uso "multimodo" do del! By Questor
 func! GrooVim_NormalDel()
 
-	let l:continue = 1
+  let l:continue = 1
 
-	" Note: This workaround is necessary when the line is empty to remove it! By Questor
-	if getline(".") == "" && l:continue == 1
-		call feedkeys("_dd")
-		" call feedkeys("0")
-		let l:continue = 0
-	endif
+  " Note: This workaround is necessary when the line is empty to remove it! By Questor
+  if getline(".") == "" && l:continue == 1
+    call feedkeys("_dd")
+    " call feedkeys("0")
+    let l:continue = 0
+  endif
 
-	if col(".") == col("$") && l:continue == 1
-		call feedkeys("\i")
-		call feedkeys("\<Right>")
-		call feedkeys("\<Del>")
-		call feedkeys("\<Esc>")
-		let l:continue = 0
-	endif
+  if col(".") == col("$") && l:continue == 1
+    call feedkeys("\i")
+    call feedkeys("\<Right>")
+    call feedkeys("\<Del>")
+    call feedkeys("\<Esc>")
+    let l:continue = 0
+  endif
 
-	if l:continue == 1
-		call feedkeys("\"_x")
-		let l:continue = 0
-	endif
+  if l:continue == 1
+    call feedkeys("\"_x")
+    let l:continue = 0
+  endif
 
 endfunc
 
@@ -1175,14 +1181,14 @@ nnoremap <silent> <Tab> :call GrooVim_NormalTab()<cr>
 
 " Note: Allows Tab on normal mode when the line is empty! By Questor
 func! GrooVim_NormalTab()
-	if col(".") == 1 && getline(".") == ""
-		exec "normal i\<Tab>"
-	else
-		exec "normal >>"
-		if len(split(getline("."), '\zs')) == col(".")
-			exec "normal \<Right>"
-		endif
-	endif
+  if col(".") == 1 && getline(".") == ""
+    exec "normal i\<Tab>"
+  else
+    exec "normal >>"
+    if len(split(getline("."), '\zs')) == col(".")
+      exec "normal \<Right>"
+    endif
+  endif
 endfunc
 
 inoremap <silent> <S-Tab> <C-o><<
@@ -1205,7 +1211,7 @@ nnoremap <silent> <S-Down> :call GrooVim_AdjustOnEnterVisualMode()<cr>v
 " Note: Allows adjust the "set virtualedit=onemore" parameter when exit the current
 " mode you are! By Questor
 func! GrooVim_VirtualEditAdjust() range
-	set virtualedit=onemore
+  set virtualedit=onemore
 endfunc
 
 " Note: Enter in insert mode simply and quickly!! By Questor
@@ -1216,22 +1222,22 @@ nnoremap <silent> <script> <S-Up> i
 " mode! By Questor
 nnoremap <silent> <script> v :<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v
 func! GrooVim_AdjustOnEnterVisualMode() range
-	set virtualedit=onemore
+  set virtualedit=onemore
 endfunc
 
 " Note: Like tabdo but restore the current tab! By Questor
 let g:tryCathOnTabDo = 0
 func! TabDo(command)
-	let currTab=tabpagenr()
-	if g:tryCathOnTabDo == 0
-		exec "tabdo " . a:command
-	elseif g:tryCathOnTabDo == 1
-		try
-			exec "tabdo " . a:command
-		catch
-		endtry
-	endif
-	exec "tabn " . currTab
+  let currTab=tabpagenr()
+  if g:tryCathOnTabDo == 0
+    exec "tabdo " . a:command
+  elseif g:tryCathOnTabDo == 1
+    try
+      exec "tabdo " . a:command
+    catch
+    endtry
+  endif
+  exec "tabn " . currTab
 endfunc
 com! -nargs=+ -complete=command Tabdo call TabDo(<q-args>)
 
@@ -1242,38 +1248,38 @@ vnoremap <silent> <script> <2-Leftmouse> :<C-u>call GrooVim_SelectNSearch(0, "v"
 " Note: Select and search with a double click and z key otherwise select the
 " word under cursor! By Questor
 func! GrooVim_SelectNSearch(type, mode) range
-	if expand('%:t') =~ "GrooVim_SearchGuyResults"
-		call GrooVim_SearchGuyNavigate()
-	else
-		" Note: Set "hlsearch" if is off! By Questor
-		if !&hlsearch
-			" Note: Highlight search results! By Questor
-			set hlsearch
-		endif
+  if expand('%:t') =~ "GrooVim_SearchGuyResults"
+    call GrooVim_SearchGuyNavigate()
+  else
+    " Note: Set "hlsearch" if is off! By Questor
+    if !&hlsearch
+      " Note: Highlight search results! By Questor
+      set hlsearch
+    endif
 
-		set noignorecase
-		let l:initialPos = getpos(".")
-		if a:type == 0
-			exec "sleep 250m"
-			let l:enableSearch = getchar(0)
-			if l:enableSearch == "122"
-				let l:pathern = GrooVim_EscapeSubstituteValueToSearch(expand("<cword>"))
-				call feedkeys("/" . l:pathern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
-			else
-				call feedkeys("viw")
-			endif
-		elseif a:type == 1
-			let l:pathern = GrooVim_EscapeSubstituteValueToSearch(expand("<cword>"))
-			call feedkeys("\<Esc>/" . l:pathern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
-			if a:mode == "i"
-				call feedkeys("\<Esc>i")
-			else
-				" Note: This workaround is to prevent the cursor to moves to the next occurrence when press <Up> or <Down> key! By Questor
-				call feedkeys("\<Esc>i\<Esc>")
-			endif
-		endif
+    set noignorecase
+    let l:initialPos = getpos(".")
+    if a:type == 0
+      exec "sleep 250m"
+      let l:enableSearch = getchar(0)
+      if l:enableSearch == "122"
+        let l:pathern = GrooVim_EscapeSubstituteValueToSearch(expand("<cword>"))
+        call feedkeys("/" . l:pathern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
+      else
+        call feedkeys("viw")
+      endif
+    elseif a:type == 1
+      let l:pathern = GrooVim_EscapeSubstituteValueToSearch(expand("<cword>"))
+      call feedkeys("\<Esc>/" . l:pathern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
+      if a:mode == "i"
+        call feedkeys("\<Esc>i")
+      else
+        " Note: This workaround is to prevent the cursor to moves to the next occurrence when press <Up> or <Down> key! By Questor
+        call feedkeys("\<Esc>i\<Esc>")
+      endif
+    endif
 
-	endif
+  endif
 endfunc
 
 " Note: Select a range based on first and last positions! By Questor
@@ -1281,40 +1287,40 @@ let g:lastCursorPos = [0,0]
 let g:GrooVim_SelectRangeInitialize = 1
 func! GrooVim_SelectRange(mod) range
 
-	let l:selDirection = "nothing"
-	if g:GrooVim_SelectRangeInitialize == 0 && a:mod == "i"
-		let l:cursorPosInsert = getpos(".")
-		if g:lastCursorPos[1] < l:cursorPosInsert[1]
-			let l:selDirection = "lessMoreLine"
-		elseif g:lastCursorPos[1] > l:cursorPosInsert[1]
-			let l:selDirection = "moreLessLine"
-		elseif g:lastCursorPos[1] == l:cursorPosInsert[1]
-			if g:lastCursorPos[2] < l:cursorPosInsert[2]
-				let l:selDirection = "lessMoreCol"
-			elseif g:lastCursorPos[2] > l:cursorPosInsert[2]
-				let l:selDirection = "moreLessCol"
-			endif
-		endif
-	endif
+  let l:selDirection = "nothing"
+  if g:GrooVim_SelectRangeInitialize == 0 && a:mod == "i"
+    let l:cursorPosInsert = getpos(".")
+    if g:lastCursorPos[1] < l:cursorPosInsert[1]
+      let l:selDirection = "lessMoreLine"
+    elseif g:lastCursorPos[1] > l:cursorPosInsert[1]
+      let l:selDirection = "moreLessLine"
+    elseif g:lastCursorPos[1] == l:cursorPosInsert[1]
+      if g:lastCursorPos[2] < l:cursorPosInsert[2]
+        let l:selDirection = "lessMoreCol"
+      elseif g:lastCursorPos[2] > l:cursorPosInsert[2]
+        let l:selDirection = "moreLessCol"
+      endif
+    endif
+  endif
 
-	if g:GrooVim_SelectRangeInitialize == 1
-		let g:lastCursorPos = getpos(".")
-		let g:GrooVim_SelectRangeInitialize = 0
-		echomsg "Beginning of the range selected!"
-	elseif g:GrooVim_SelectRangeInitialize == 0
-		let l:cursorPos = getpos(".")
-		call setpos('.', g:lastCursorPos)
-		if (l:selDirection == "moreLessLine" || l:selDirection == "moreLessCol") && a:mod == "i"
-			exec "norm \<Left>"
-		endif
-		exec "norm v"
-		call setpos('.', l:cursorPos)
-		if (l:selDirection == "lessMoreLine" || l:selDirection == "lessMoreCol") && a:mod == "i"
-			exec "norm \<Left>"
-		endif
-		let g:GrooVim_SelectRangeInitialize = 1
-		echomsg "Range selected!"
-	endif
+  if g:GrooVim_SelectRangeInitialize == 1
+    let g:lastCursorPos = getpos(".")
+    let g:GrooVim_SelectRangeInitialize = 0
+    echomsg "Beginning of the range selected!"
+  elseif g:GrooVim_SelectRangeInitialize == 0
+    let l:cursorPos = getpos(".")
+    call setpos('.', g:lastCursorPos)
+    if (l:selDirection == "moreLessLine" || l:selDirection == "moreLessCol") && a:mod == "i"
+      exec "norm \<Left>"
+    endif
+    exec "norm v"
+    call setpos('.', l:cursorPos)
+    if (l:selDirection == "lessMoreLine" || l:selDirection == "lessMoreCol") && a:mod == "i"
+      exec "norm \<Left>"
+    endif
+    let g:GrooVim_SelectRangeInitialize = 1
+    echomsg "Range selected!"
+  endif
 
 endfunc
 
@@ -1322,156 +1328,156 @@ endfunc
 let g:optsTemp = []
 func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 
-	let l:CoolAndVimOptsArrayUpdated = []
+  let l:CoolAndVimOptsArrayUpdated = []
 
-	let l:thisOptionDoesNotExistInTheConfiguration = 1
+  let l:thisOptionDoesNotExistInTheConfiguration = 1
 
-	if a:persistently == 0
+  if a:persistently == 0
 
-		" Note: To update temporary options when necessary! By Questor
-		for l:value in g:optsTemp
-			if l:value =~ a:valueToSearch
-				call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
-				let l:thisOptionDoesNotExistInTheConfiguration = 0
-			else
-				call add(l:CoolAndVimOptsArrayUpdated, l:value)
-			endif
-		endfor
+    " Note: To update temporary options when necessary! By Questor
+    for l:value in g:optsTemp
+      if l:value =~ a:valueToSearch
+        call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
+        let l:thisOptionDoesNotExistInTheConfiguration = 0
+      else
+        call add(l:CoolAndVimOptsArrayUpdated, l:value)
+      endif
+    endfor
 
-		let g:optsTemp = l:CoolAndVimOptsArrayUpdated
+    let g:optsTemp = l:CoolAndVimOptsArrayUpdated
 
-		if l:thisOptionDoesNotExistInTheConfiguration == 1
-			call add(g:optsTemp, a:valueToReplace)
-		endif
+    if l:thisOptionDoesNotExistInTheConfiguration == 1
+      call add(g:optsTemp, a:valueToReplace)
+    endif
 
-		exec a:valueToReplace
+    exec a:valueToReplace
 
-	else
+  else
 
-		if filereadable(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
-			let l:CoolAndVimOptsArrayOriginal = readfile(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
-		endif
+    if filereadable(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
+      let l:CoolAndVimOptsArrayOriginal = readfile(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
+    endif
 
-		let l:CoolAndVimOptsArrayUpdated = []
-		for l:value in l:CoolAndVimOptsArrayOriginal
-			if l:value =~ a:valueToSearch
-				call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
-				let l:thisOptionDoesNotExistInTheConfiguration = 0
-				exec a:valueToSearch . a:valueToReplace
-			else
-				call add(l:CoolAndVimOptsArrayUpdated, l:value)
-			endif
-		endfor
+    let l:CoolAndVimOptsArrayUpdated = []
+    for l:value in l:CoolAndVimOptsArrayOriginal
+      if l:value =~ a:valueToSearch
+        call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
+        let l:thisOptionDoesNotExistInTheConfiguration = 0
+        exec a:valueToSearch . a:valueToReplace
+      else
+        call add(l:CoolAndVimOptsArrayUpdated, l:value)
+      endif
+    endfor
 
-		if l:thisOptionDoesNotExistInTheConfiguration == 1
-			call add(l:CoolAndVimOptsArrayUpdated, l:value)
-		endif
+    if l:thisOptionDoesNotExistInTheConfiguration == 1
+      call add(l:CoolAndVimOptsArrayUpdated, l:value)
+    endif
 
-		call writefile(l:CoolAndVimOptsArrayUpdated, expand('~/.vim/plugin/CoolAndVimOpts.vim'))
+    call writefile(l:CoolAndVimOptsArrayUpdated, expand('~/.vim/plugin/CoolAndVimOpts.vim'))
 
-	endif
+  endif
 
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-	let l:whileControl = 1
+  let l:whileControl = 1
 
-	if a:typeOfConfig == "search"
-		echomsg "Configure Search (use empty for default or option now):"
-	elseif a:typeOfConfig != "search"
-		echomsg "Configure Search and Replace (use empty for default or option now):"
-	endif
+  if a:typeOfConfig == "search"
+    echomsg "Configure Search (use empty for default or option now):"
+  elseif a:typeOfConfig != "search"
+    echomsg "Configure Search and Replace (use empty for default or option now):"
+  endif
 
-	let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replaced/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
-	call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
-	if g:searchReplace_CaseSensitive == 1
-		echomsg " -> Case sensitive is enabled!"
-		call GrooVim_OptsUpdate("set ignorecase", "set noignorecase", 0)
-	else
-		echomsg " -> Case sensitive is disabled!"
-		call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
-	endif
+  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replaced/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
+  call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
+  if g:searchReplace_CaseSensitive == 1
+    echomsg " -> Case sensitive is enabled!"
+    call GrooVim_OptsUpdate("set ignorecase", "set noignorecase", 0)
+  else
+    echomsg " -> Case sensitive is disabled!"
+    call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
+  endif
 
-	let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (replace/search) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\" ]? ", [1,0], g:searchReplace_InAllOpened)
-	call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
-	if g:searchReplace_InAllOpened == 1
-		echomsg " -> Replace/search in all tabs is enabled!"
-	else
-		echomsg " -> Replace/search in all tabs is disabled!"
-	endif
+  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (replace/search) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\" ]? ", [1,0], g:searchReplace_InAllOpened)
+  call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
+  if g:searchReplace_InAllOpened == 1
+    echomsg " -> Replace/search in all tabs is enabled!"
+  else
+    echomsg " -> Replace/search in all tabs is disabled!"
+  endif
 
-	if a:typeOfConfig != "search"
-		let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
-		call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_Confirmation =", "let g:configureGrooVim_EntertainmentReplace_Confirmation = " . g:configureGrooVim_EntertainmentReplace_Confirmation, 0)
-		if g:configureGrooVim_EntertainmentReplace_Confirmation == 1
-			echomsg " -> Confirmation is enabled!"
-		else
-			echomsg " -> Confirmation is disabled!"
-		endif
-		let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
-		call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced =", "let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = " . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced, 0)
-		if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
-			echomsg " -> The value to be replaced will be asked!"
-		else
-			echomsg " -> The value to be replaced will NOT be asked!"
-		endif
-		let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
-		call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
-		if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
-			echomsg " -> Replace begin from current position is enabled!"
-		else
-			echomsg " -> Replace begin from current position is disabled!"
-		endif
-	elseif a:typeOfConfig == "search"
-		let g:search_Direction = GrooVim_GetOptions("Search forward/backyard [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
-		call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
-		" Note: Needed to reverse the search! By Questor
-		if g:search_Direction == "b"
-			let g:grooVimSearchFoward = 0
-		elseif g:search_Direction == "f"
-			let g:grooVimSearchFoward = 1
-		endif
-		if g:search_Direction == "f"
-			echomsg " -> Search forward is enabled!"
-		else
-			echomsg " -> Search backyard is enabled!"
-		endif
-		let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
-		call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
-		if g:search_WithList == 1
-			echomsg " -> Search with list is enabled!"
-		else
-			echomsg " -> Search with list is disabled!"
-		endif
-	endif
+  if a:typeOfConfig != "search"
+    let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
+    call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_Confirmation =", "let g:configureGrooVim_EntertainmentReplace_Confirmation = " . g:configureGrooVim_EntertainmentReplace_Confirmation, 0)
+    if g:configureGrooVim_EntertainmentReplace_Confirmation == 1
+      echomsg " -> Confirmation is enabled!"
+    else
+      echomsg " -> Confirmation is disabled!"
+    endif
+    let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
+    call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced =", "let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = " . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced, 0)
+    if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
+      echomsg " -> The value to be replaced will be asked!"
+    else
+      echomsg " -> The value to be replaced will NOT be asked!"
+    endif
+    let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
+    call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
+    if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
+      echomsg " -> Replace begin from current position is enabled!"
+    else
+      echomsg " -> Replace begin from current position is disabled!"
+    endif
+  elseif a:typeOfConfig == "search"
+    let g:search_Direction = GrooVim_GetOptions("Search forward/backyard [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
+    call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
+    " Note: Needed to reverse the search! By Questor
+    if g:search_Direction == "b"
+      let g:grooVimSearchFoward = 0
+    elseif g:search_Direction == "f"
+      let g:grooVimSearchFoward = 1
+    endif
+    if g:search_Direction == "f"
+      echomsg " -> Search forward is enabled!"
+    else
+      echomsg " -> Search backyard is enabled!"
+    endif
+    let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
+    call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
+    if g:search_WithList == 1
+      echomsg " -> Search with list is enabled!"
+    else
+      echomsg " -> Search with list is disabled!"
+    endif
+  endif
 
 endfunc
 
 " Note: Get and validate a givem option! By Questor
 func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
-	let l:stopWhile = 0
-	let l:optionReturn = ""
-	while l:stopWhile == 0
-		let l:optionReturn = input(a:optionToGet)
-		let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, a:defaultOption)
-		if ("" . l:optionReturn . "") == ""
-			let l:optionReturn = a:defaultOption
-		endif
-	endwhile
-	return l:optionReturn
+  let l:stopWhile = 0
+  let l:optionReturn = ""
+  while l:stopWhile == 0
+    let l:optionReturn = input(a:optionToGet)
+    let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, a:defaultOption)
+    if ("" . l:optionReturn . "") == ""
+      let l:optionReturn = a:defaultOption
+    endif
+  endwhile
+  return l:optionReturn
 endfunc
 
 " Note: Check if a given option is valid! By Questor
 func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) range
-	for l:value in a:possibleOptions
-		" Note: "("" . l:value . "")" -> To force string compare! By Questor
-		if ("" . l:value . "") == a:optionNow || (a:optionNow == "" && ("" . a:defaultOption . "") != "")
-			return 1
-		endif
-	endfor
-	return 0
+  for l:value in a:possibleOptions
+    " Note: "("" . l:value . "")" -> To force string compare! By Questor
+    if ("" . l:value . "") == a:optionNow || (a:optionNow == "" && ("" . a:defaultOption . "") != "")
+      return 1
+    endif
+  endfor
+  return 0
 endfunc
 
 " Note: Highlight matches when jumping to next! This rewires n and N to do
@@ -1485,136 +1491,136 @@ highlight WhiteOnRed ctermbg=red ctermfg=white
 highlight WhiteOnBlue ctermbg=blue ctermfg=white
 func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment)
 
-	let g:GrooVim_XenPlayRunningWithSearch = 1
+  let g:GrooVim_XenPlayRunningWithSearch = 1
 
-	if g:block_GrooVim_HLNext == 0
+  if g:block_GrooVim_HLNext == 0
 
-		if a:moment == 0
+    if a:moment == 0
 
-			let g:cursor_pos_last = getpos(".")
+      let g:cursor_pos_last = getpos(".")
 
-		elseif a:moment == 1
+    elseif a:moment == 1
 
-			" * System (v:searchforward) is forward!
-			if v:searchforward == 1
-				" n -> forward
-				" N -> backward
-				" * I want (g:grooVimSearchFoward) forward!
-				if g:grooVimSearchFoward == 1
-					" n -> n
-					" N -> N
-					" let l:searchMoveDirection = 1
-					if a:moveType == "f"
-						let l:searchMoveDirection = 1
-					elseif a:moveType == "b"
-						let l:searchMoveDirection = 0
-					endif
-				" * I want (g:grooVimSearchFoward) backward!
-				elseif g:grooVimSearchFoward == 0
-					" n -> N
-					" N -> n
-					" let l:searchMoveDirection = 0
-					if a:moveType == "f"
-						let l:searchMoveDirection = 0
-					elseif a:moveType == "b"
-						let l:searchMoveDirection = 1
-					endif
-				endif
-			" * System (v:searchforward) is backward!
-			elseif v:searchforward == 0
-				" n -> backward
-				" N -> forward
-				" * I want (g:grooVimSearchFoward) forward!
-				if g:grooVimSearchFoward == 1
-					" n -> N
-					" N -> n
-					" let l:searchMoveDirection = 1
-					if a:moveType == "f"
-						let l:searchMoveDirection = 1
-					elseif a:moveType == "b"
-						let l:searchMoveDirection = 0
-					endif
-				" * I want (g:grooVimSearchFoward) backward!
-				elseif g:grooVimSearchFoward == 0
-					" n -> n
-					" N -> N
-					" let l:searchMoveDirection = 0
-					if a:moveType == "f"
-						let l:searchMoveDirection = 0
-					elseif a:moveType == "b"
-						let l:searchMoveDirection = 1
-					endif
-				endif
-			endif
+      " * System (v:searchforward) is forward!
+      if v:searchforward == 1
+        " n -> forward
+        " N -> backward
+        " * I want (g:grooVimSearchFoward) forward!
+        if g:grooVimSearchFoward == 1
+          " n -> n
+          " N -> N
+          " let l:searchMoveDirection = 1
+          if a:moveType == "f"
+            let l:searchMoveDirection = 1
+          elseif a:moveType == "b"
+            let l:searchMoveDirection = 0
+          endif
+        " * I want (g:grooVimSearchFoward) backward!
+        elseif g:grooVimSearchFoward == 0
+          " n -> N
+          " N -> n
+          " let l:searchMoveDirection = 0
+          if a:moveType == "f"
+            let l:searchMoveDirection = 0
+          elseif a:moveType == "b"
+            let l:searchMoveDirection = 1
+          endif
+        endif
+      " * System (v:searchforward) is backward!
+      elseif v:searchforward == 0
+        " n -> backward
+        " N -> forward
+        " * I want (g:grooVimSearchFoward) forward!
+        if g:grooVimSearchFoward == 1
+          " n -> N
+          " N -> n
+          " let l:searchMoveDirection = 1
+          if a:moveType == "f"
+            let l:searchMoveDirection = 1
+          elseif a:moveType == "b"
+            let l:searchMoveDirection = 0
+          endif
+        " * I want (g:grooVimSearchFoward) backward!
+        elseif g:grooVimSearchFoward == 0
+          " n -> n
+          " N -> N
+          " let l:searchMoveDirection = 0
+          if a:moveType == "f"
+            let l:searchMoveDirection = 0
+          elseif a:moveType == "b"
+            let l:searchMoveDirection = 1
+          endif
+        endif
+      endif
 
-			let [bufnum, lnum, col, off] = getpos('.')
-			let matchlen = strlen(matchstr(strpart(getline('.'),col-1),@/))
-			let target_pat = '\c\%#'.@/
+      let [bufnum, lnum, col, off] = getpos('.')
+      let matchlen = strlen(matchstr(strpart(getline('.'),col-1),@/))
+      let target_pat = '\c\%#'.@/
 
-			" Note: Foward -> blink: red/Backyard -> blink: blue! By Questor
-			if l:searchMoveDirection == 1
-				let ring = matchadd('WhiteOnRed', target_pat, 101)
-			elseif l:searchMoveDirection == 0
-				let ring = matchadd('WhiteOnBlue', target_pat, 101)
-			endif
+      " Note: Foward -> blink: red/Backyard -> blink: blue! By Questor
+      if l:searchMoveDirection == 1
+        let ring = matchadd('WhiteOnRed', target_pat, 101)
+      elseif l:searchMoveDirection == 0
+        let ring = matchadd('WhiteOnBlue', target_pat, 101)
+      endif
 
-			redraw
-			exec 'sleep ' . float2nr(a:blinkTime * 200) . 'm'
-			call matchdelete(ring)
-			redraw
+      redraw
+      exec 'sleep ' . float2nr(a:blinkTime * 200) . 'm'
+      call matchdelete(ring)
+      redraw
 
-			let l:cursor_pos_now = getpos(".")
+      let l:cursor_pos_now = getpos(".")
 
-			let l:tabChanged = 0
+      let l:tabChanged = 0
 
-			if g:searchReplace_InAllOpened == 1
-				if l:searchMoveDirection == 1 && l:cursor_pos_now[1] < g:cursor_pos_last[1]
-					let g:block_GrooVim_HLNext = 1
-					let g:tabChanged = 1
-					tabnext
-				elseif l:searchMoveDirection == 0 && l:cursor_pos_now[1] > g:cursor_pos_last[1]
-					let g:block_GrooVim_HLNext = 1
-					let g:tabChanged = 1
-					tabprev
-				elseif l:cursor_pos_now[1] == g:cursor_pos_last[1] && l:cursor_pos_now[2] == g:cursor_pos_last[2]
-					if l:searchMoveDirection == 1
-							let g:block_GrooVim_HLNext = 1
-							let g:tabChanged = 1
-							tabnext
-					elseif l:searchMoveDirection == 0
-							let g:block_GrooVim_HLNext = 1
-							let g:tabChanged = 1
-							tabprev
-					endif
-				endif
-			endif
+      if g:searchReplace_InAllOpened == 1
+        if l:searchMoveDirection == 1 && l:cursor_pos_now[1] < g:cursor_pos_last[1]
+          let g:block_GrooVim_HLNext = 1
+          let g:tabChanged = 1
+          tabnext
+        elseif l:searchMoveDirection == 0 && l:cursor_pos_now[1] > g:cursor_pos_last[1]
+          let g:block_GrooVim_HLNext = 1
+          let g:tabChanged = 1
+          tabprev
+        elseif l:cursor_pos_now[1] == g:cursor_pos_last[1] && l:cursor_pos_now[2] == g:cursor_pos_last[2]
+          if l:searchMoveDirection == 1
+              let g:block_GrooVim_HLNext = 1
+              let g:tabChanged = 1
+              tabnext
+          elseif l:searchMoveDirection == 0
+              let g:block_GrooVim_HLNext = 1
+              let g:tabChanged = 1
+              tabprev
+          endif
+        endif
+      endif
 
-			while g:tabChanged == 1
+      while g:tabChanged == 1
 
-				" Note: Positioning in the correct window! By Questor
+        " Note: Positioning in the correct window! By Questor
 
-				call GrooVim_PutOnEditWindow()
+        call GrooVim_PutOnEditWindow()
 
-				try
-					if l:searchMoveDirection == 1
-						exec "norm gg0n"
-					elseif l:searchMoveDirection == 0
-						exec "norm G$N"
-					endif
-					let g:block_GrooVim_HLNext = 0
-					let g:tabChanged = 0
-				catch
-					if l:searchMoveDirection == 1
-						tabnext
-					elseif l:searchMoveDirection == 0
-						tabprev
-					endif
-				endtry
-			endwhile
+        try
+          if l:searchMoveDirection == 1
+            exec "norm gg0n"
+          elseif l:searchMoveDirection == 0
+            exec "norm G$N"
+          endif
+          let g:block_GrooVim_HLNext = 0
+          let g:tabChanged = 0
+        catch
+          if l:searchMoveDirection == 1
+            tabnext
+          elseif l:searchMoveDirection == 0
+            tabprev
+          endif
+        endtry
+      endwhile
 
-		endif
+    endif
 
-	endif
+  endif
 
 endfunc
 
@@ -1622,27 +1628,27 @@ endfunc
 let g:search_WithList = 0
 func! GrooVim_SearchWithMyOptions(mod) range
 
-	let l:callGrooVim_SearchGuy = 1
+  let l:callGrooVim_SearchGuy = 1
 
-	" Note: If the search with lists is enabled closes the lists and allows
-	" performing the search on next call only! By Questor
-	if g:GrooVim_SearchGuyEnabled == 1
+  " Note: If the search with lists is enabled closes the lists and allows
+  " performing the search on next call only! By Questor
+  if g:GrooVim_SearchGuyEnabled == 1
 
-		let g:matchedLinesGlobal = ""
-		let g:matchedLinesGlobalNavArray = []
-		let g:GrooVim_SearchGuyEnabled = 0
-		let l:callGrooVim_SearchGuy = 0
-		call TabDo("call GrooVim_SearchGuyPrepare()")
+    let g:matchedLinesGlobal = ""
+    let g:matchedLinesGlobalNavArray = []
+    let g:GrooVim_SearchGuyEnabled = 0
+    let l:callGrooVim_SearchGuy = 0
+    call TabDo("call GrooVim_SearchGuyPrepare()")
 
-	endif
+  endif
 
-	if l:callGrooVim_SearchGuy == 1
-		if g:search_WithList == 1
-			call GrooVim_SearchGuy(a:mod)
-		elseif g:search_WithList == 0
-			call GrooVim_EasySearch(a:mod)
-		endif
-	endif
+  if l:callGrooVim_SearchGuy == 1
+    if g:search_WithList == 1
+      call GrooVim_SearchGuy(a:mod)
+    elseif g:search_WithList == 0
+      call GrooVim_EasySearch(a:mod)
+    endif
+  endif
 
 endfunc
 
@@ -1652,132 +1658,132 @@ let g:searchReplace_CaseSensitive = 0
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range
 
-	" Note: Set "hlsearch" if is off! By Questor
-	if !&hlsearch
-		" Note: Highlight search results! By Questor
-		set hlsearch
-	endif
+  " Note: Set "hlsearch" if is off! By Questor
+  if !&hlsearch
+    " Note: Highlight search results! By Questor
+    set hlsearch
+  endif
 
-	" Note: Set "ignorecase" if is off! By Questor
-	if !&ignorecase && g:searchReplace_CaseSensitive == 0
-		" Note: Case sensitive search! By Questor
-		set ignorecase
-	endif
+  " Note: Set "ignorecase" if is off! By Questor
+  if !&ignorecase && g:searchReplace_CaseSensitive == 0
+    " Note: Case sensitive search! By Questor
+    set ignorecase
+  endif
 
-	" Note: Initialize the search! By Questor
-	let g:block_GrooVim_HLNext = 0
+  " Note: Initialize the search! By Questor
+  let g:block_GrooVim_HLNext = 0
 
-	let l:valueToSearch = ""
+  let l:valueToSearch = ""
 
-	if a:mod == "v"
-		" Note: Preserve transfer area! By Questor
-		let l:saved_reg = @+
-		" Note: Reselect visual area and yank! By Questor
-		exec "norm gvy"
-		let l:valueToSearch = @+
-	else
-		let l:valueToSearch = expand("<cword>")
-	endif
+  if a:mod == "v"
+    " Note: Preserve transfer area! By Questor
+    let l:saved_reg = @+
+    " Note: Reselect visual area and yank! By Questor
+    exec "norm gvy"
+    let l:valueToSearch = @+
+  else
+    let l:valueToSearch = expand("<cword>")
+  endif
 
-	if a:mod == "v"
-		" Note: Preserve transfer area! By Questor
-		let @+ = l:saved_reg
-	endif
+  if a:mod == "v"
+    " Note: Preserve transfer area! By Questor
+    let @+ = l:saved_reg
+  endif
 
-	let l:valueToSearchTemp = ""
+  let l:valueToSearchTemp = ""
 
-	let l:valueToSearchTemp = input("You want to use this value (use empty to yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+  let l:valueToSearchTemp = input("You want to use this value (use empty to yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
 
-	" Note: Define search pathern automatically! By Questor
-	if l:valueToSearchTemp != ""
-		let l:valueToSearch = l:valueToSearchTemp
-	endif
+  " Note: Define search pathern automatically! By Questor
+  if l:valueToSearchTemp != ""
+    let l:valueToSearch = l:valueToSearchTemp
+  endif
 
-	let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
-	let l:search_Operator = ""
+  let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
+  let l:search_Operator = ""
 
-	" Note: Select operation type! By Questor
-	if g:search_Direction == "b" && g:grooVimSearchFowardBlock == 0
-		let l:search_Operator = "?"
-		let g:grooVimSearchFoward = 0
-	elseif g:search_Direction == "f" || g:grooVimSearchFowardBlock == 1
-		let l:search_Operator = "/"
-		let g:grooVimSearchFoward = 1
-	endif
+  " Note: Select operation type! By Questor
+  if g:search_Direction == "b" && g:grooVimSearchFowardBlock == 0
+    let l:search_Operator = "?"
+    let g:grooVimSearchFoward = 0
+  elseif g:search_Direction == "f" || g:grooVimSearchFowardBlock == 1
+    let l:search_Operator = "/"
+    let g:grooVimSearchFoward = 1
+  endif
 
-	" Note: This structure was made so that the search can be executed "immediately". With
-	" "feedkeys" (below) this does not happen, causing sync issues with functions that
-	" depend on "GrooVim_EasySearch" function runs first! By Questor
-	" Note: Works but does not allow default "backward search"! By Questor
+  " Note: This structure was made so that the search can be executed "immediately". With
+  " "feedkeys" (below) this does not happen, causing sync issues with functions that
+  " depend on "GrooVim_EasySearch" function runs first! By Questor
+  " Note: Works but does not allow default "backward search"! By Questor
 
-	let @/ = l:pattern
-	let l:initialPos = getpos(".")
+  let @/ = l:pattern
+  let l:initialPos = getpos(".")
 
-	" Note: This operation is duplicated ("feedkeys" and "exec") causing a double
-	" execution of the search, but it was the only way to not have problems with "n"
-	" and "N" navigating and the search with list! If not done, the highlight is lost
-	" after a few movements of the cursor! By Questor
-	if g:search_WithList == 0
-		call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
-	else
-		call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
-	endif
+  " Note: This operation is duplicated ("feedkeys" and "exec") causing a double
+  " execution of the search, but it was the only way to not have problems with "n"
+  " and "N" navigating and the search with list! If not done, the highlight is lost
+  " after a few movements of the cursor! By Questor
+  if g:search_WithList == 0
+    call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
+  else
+    call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
+  endif
 
-	call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
+  call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
 
 endfunc
 
 " Note: Organizes occurrences and navigation lists! By Questor
 let g:matchedLines = ""
 func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, column) range
-	if a:linePosition != ""
-		let l:linePositionPrefix = "|" . a:linePosition . "|        "
-		let g:matchedLines =  g:matchedLines . strpart(l:linePositionPrefix, 0, 8) . a:lineValue . "\n"
-	else
-		let g:matchedLines =  g:matchedLines . a:lineValue . "\n"
-	endif
-	if a:tab != "" && a:line != "" && a:column != ""
-		call add(g:matchedLinesGlobalNavArray, a:tab . "," . a:bufferName . "," . a:line . "," . a:column)
-	else
-		call add(g:matchedLinesGlobalNavArray, "0")
-	endif
+  if a:linePosition != ""
+    let l:linePositionPrefix = "|" . a:linePosition . "|        "
+    let g:matchedLines =  g:matchedLines . strpart(l:linePositionPrefix, 0, 8) . a:lineValue . "\n"
+  else
+    let g:matchedLines =  g:matchedLines . a:lineValue . "\n"
+  endif
+  if a:tab != "" && a:line != "" && a:column != ""
+    call add(g:matchedLinesGlobalNavArray, a:tab . "," . a:bufferName . "," . a:line . "," . a:column)
+  else
+    call add(g:matchedLinesGlobalNavArray, "0")
+  endif
 endfunc
 
 " Note: Performs search in multiple tabs creating lists of occurrences! By Questor
 func! GrooVim_SearchGuyTraveler(mod) range
 
-	let l:theresAMatch = 1
+  let l:theresAMatch = 1
 
-	try
-		exec "norm gg0n"
-	catch
-		let l:theresAMatch = 0
-	endtry
+  try
+    exec "norm gg0n"
+  catch
+    let l:theresAMatch = 0
+  endtry
 
-	if l:theresAMatch == 1
+  if l:theresAMatch == 1
 
-		let g:matchedLines = ""
-		" let l:theresAMatch = 0
-		let l:cur_pos_last = [0,0,0]
+    let g:matchedLines = ""
+    " let l:theresAMatch = 0
+    let l:cur_pos_last = [0,0,0]
 
-		if g:matchedLinesGlobal == ""
-			call GrooVim_SearchGuyMatches("", "-------------------------------------------[ Search List ]-------------------------------------------", "", "", "", "")
-		else
-			call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------------------------------------", "", "", "", "")
-		endif
+    if g:matchedLinesGlobal == ""
+      call GrooVim_SearchGuyMatches("", "-------------------------------------------[ Search List ]-------------------------------------------", "", "", "", "")
+    else
+      call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------------------------------------", "", "", "", "")
+    endif
 
-		call GrooVim_SearchGuyMatches("", expand('%:p'), "", "", "", "")
-		call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------", "", "", "", "")
+    call GrooVim_SearchGuyMatches("", expand('%:p'), "", "", "", "")
+    call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------", "", "", "", "")
 
-		while (getpos(".")[1] > l:cur_pos_last[1] || (getpos(".")[1] == l:cur_pos_last[1] && getpos(".")[2] > l:cur_pos_last[2])) && l:theresAMatch == 1
-			let l:cur_pos_last = getpos(".")
-			call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:t'), getpos(".")[1], getpos(".")[2])
-			exec "norm n"
-		endwhile
+    while (getpos(".")[1] > l:cur_pos_last[1] || (getpos(".")[1] == l:cur_pos_last[1] && getpos(".")[2] > l:cur_pos_last[2])) && l:theresAMatch == 1
+      let l:cur_pos_last = getpos(".")
+      call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:t'), getpos(".")[1], getpos(".")[2])
+      exec "norm n"
+    endwhile
 
-		let g:matchedLinesGlobal = g:matchedLinesGlobal . g:matchedLines
+    let g:matchedLinesGlobal = g:matchedLinesGlobal . g:matchedLines
 
-	endif
+  endif
 
 endfunc
 
@@ -1789,168 +1795,168 @@ let g:GrooVim_SearchGuyEnabled = 0
 let g:grooVimSearchFowardBlock = 0
 func! GrooVim_SearchGuy(mod) range
 
-	" Note: Avoid search backward! By Questor
-	let g:grooVimSearchFowardBlock = 1
+  " Note: Avoid search backward! By Questor
+  let g:grooVimSearchFowardBlock = 1
 
-	let l:searchMoveInverterHolder = getpos(".")
+  let l:searchMoveInverterHolder = getpos(".")
 
-	let l:initialPos = getpos(".")
+  let l:initialPos = getpos(".")
 
-	call GrooVim_EasySearch(a:mod)
+  call GrooVim_EasySearch(a:mod)
 
-	let g:matchedLinesGlobal = ""
-	let g:block_GrooVim_HLNext = 1
-	let g:matchedLinesGlobalNavArray = []
-	let g:GrooVim_SearchGuyEnabled = 0
+  let g:matchedLinesGlobal = ""
+  let g:block_GrooVim_HLNext = 1
+  let g:matchedLinesGlobalNavArray = []
+  let g:GrooVim_SearchGuyEnabled = 0
 
-	if g:searchReplace_InAllOpened == 1
-		call TabDo("call GrooVim_SearchGuyTraveler(\"" . a:mod . "\")")
-	else
-		call GrooVim_SearchGuyTraveler(a:mod)
-	endif
+  if g:searchReplace_InAllOpened == 1
+    call TabDo("call GrooVim_SearchGuyTraveler(\"" . a:mod . "\")")
+  else
+    call GrooVim_SearchGuyTraveler(a:mod)
+  endif
 
-	let g:block_GrooVim_HLNext = 0
-	let g:GrooVim_SearchGuyEnabled = 1
+  let g:block_GrooVim_HLNext = 0
+  let g:GrooVim_SearchGuyEnabled = 1
 
-	call setpos(".", l:initialPos)
+  call setpos(".", l:initialPos)
 
-	call GrooVim_SearchGuySync()
+  call GrooVim_SearchGuySync()
 
-	" Note: This "workaround" is to prevent a side effect that occurs when script
-	" changing tab which that is the loss of search highlight. The presence of redraw
-	" serves to remove the message generated by "set hlsearch"! By Questor
-	" call feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" . g:cmdLineCaller . "redraw!\<cr>")
+  " Note: This "workaround" is to prevent a side effect that occurs when script
+  " changing tab which that is the loss of search highlight. The presence of redraw
+  " serves to remove the message generated by "set hlsearch"! By Questor
+  " call feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" . g:cmdLineCaller . "redraw!\<cr>")
 
-	let g:grooVimSearchFowardBlock = 0
+  let g:grooVimSearchFowardBlock = 0
 
-	if g:search_Direction == "b"
-		let g:grooVimSearchFoward = 0
-	elseif g:search_Direction == "f"
-		let g:grooVimSearchFoward = 1
-	endif
+  if g:search_Direction == "b"
+    let g:grooVimSearchFoward = 0
+  elseif g:search_Direction == "f"
+    let g:grooVimSearchFoward = 1
+  endif
 
-	call GrooVim_GrooVimBarMsg("Use Del or double click to navigate!", 4)
+  call GrooVim_GrooVimBarMsg("Use Del or double click to navigate!", 4)
 
 endfunc
 
 " Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed! By Questor
 autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise()
-	" Note: If there is a search list this list is open in the current tab if the
-	" functionality is enabled! By Questor
-	if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
-		call GrooVim_SearchGuySync()
-	endif
+  " Note: If there is a search list this list is open in the current tab if the
+  " functionality is enabled! By Questor
+  if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
+    call GrooVim_SearchGuySync()
+  endif
 endfunc
 
 if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
-	" Note: Opens and closes the "Nerd Tree" through the "vim-nerdtree-tabs" component! By Questor
-	let g:NERDTreeTabsOpen = 0
-	func! GrooVim_ToggleNERDTreeTabs()
-		if g:NERDTreeTabsOpen == 1
-			exec "NERDTreeTabsClose"
-			let g:NERDTreeTabsOpen = 0
-		else
-			exec "NERDTreeTabsOpen"
-			let g:NERDTreeTabsOpen = 1
+  " Note: Opens and closes the "Nerd Tree" through the "vim-nerdtree-tabs" component! By Questor
+  let g:NERDTreeTabsOpen = 0
+  func! GrooVim_ToggleNERDTreeTabs()
+    if g:NERDTreeTabsOpen == 1
+      exec "NERDTreeTabsClose"
+      let g:NERDTreeTabsOpen = 0
+    else
+      exec "NERDTreeTabsOpen"
+      let g:NERDTreeTabsOpen = 1
 
-			" Note: Focus on "Nerd Tree" when opens it! By Questor
-			let l:exitWhile = 0
-			let l:firstBufferOnThisTab = expand('%:t')
-			while ! (expand('%:t') =~ "NERD_tree_") && l:exitWhile == 0
-				exec "norm \<C-w>"
-				if expand('%:t') == l:firstBufferOnThisTab
-					let l:exitWhile = 1
-				endif
-			endwhile
+      " Note: Focus on "Nerd Tree" when opens it! By Questor
+      let l:exitWhile = 0
+      let l:firstBufferOnThisTab = expand('%:t')
+      while ! (expand('%:t') =~ "NERD_tree_") && l:exitWhile == 0
+        exec "norm \<C-w>"
+        if expand('%:t') == l:firstBufferOnThisTab
+          let l:exitWhile = 1
+        endif
+      endwhile
 
-		endif
-	endfunc
+    endif
+  endfunc
 endif
 
 " Note: When entering a tab opens the occurrences list if the search with list
 " is enabled! By Questor
 func! GrooVim_SearchGuySync()
-	if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 0
+  if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 0
 
-		call GrooVim_PutOnEditWindow()
+    call GrooVim_PutOnEditWindow()
 
-		" Note: O "set ma" e "set noma" abre e bloqueia edição do 
-		" buffer! By Questor
-		set ma
-		exec "set splitbelow"
-		silent exec "split GrooVim_SearchGuyResults" . tabpagenr()
-		exec "put =g:matchedLinesGlobal"
-		set cursorline
-		exec "norm ggdd"
-		set noma
-	endif
+    " Note: O "set ma" e "set noma" abre e bloqueia edição do 
+    " buffer! By Questor
+    set ma
+    exec "set splitbelow"
+    silent exec "split GrooVim_SearchGuyResults" . tabpagenr()
+    exec "put =g:matchedLinesGlobal"
+    set cursorline
+    exec "norm ggdd"
+    set noma
+  endif
 endfunc
 
 " Note: Allows browsing the results using "Del"! By Questor
 func! GrooVim_SearchGuyNavigate() range
 
-	" Note: The list navigation is always forward to facilitate! By Questor
-	let g:grooVimSearchFoward = 1
+  " Note: The list navigation is always forward to facilitate! By Questor
+  let g:grooVimSearchFoward = 1
 
-	let l:listPosLinCol = getpos(".")
-	let l:listPosLinToArray = (l:listPosLinCol[1] - 1)
-	if l:listPosLinToArray >= 0 && g:matchedLinesGlobalNavArray[l:listPosLinToArray] != 0
+  let l:listPosLinCol = getpos(".")
+  let l:listPosLinToArray = (l:listPosLinCol[1] - 1)
+  if l:listPosLinToArray >= 0 && g:matchedLinesGlobalNavArray[l:listPosLinToArray] != 0
 
-		exec "tabn " . split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[0]
+    exec "tabn " . split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[0]
 
-		while !(expand('%:t') =~ "GrooVim_SearchGuyResults")
-			exec "norm \<C-w>"
-		endwhile
+    while !(expand('%:t') =~ "GrooVim_SearchGuyResults")
+      exec "norm \<C-w>"
+    endwhile
 
-		set ma
-		exec "norm ggdG"
-		exec "put =g:matchedLinesGlobal"
-		exec "norm ggdd"
-		call setpos(".", l:listPosLinCol)
-		exec "norm 0i->"
-		set noma
+    set ma
+    exec "norm ggdG"
+    exec "put =g:matchedLinesGlobal"
+    exec "norm ggdd"
+    call setpos(".", l:listPosLinCol)
+    exec "norm 0i->"
+    set noma
 
-		while expand('%:t') != split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[1]
-			exec "norm \<C-w>"
-		endwhile
-		call setpos(".", [0, split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[2], split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[3]])
-		exec "norm \<Left>n"
+    while expand('%:t') != split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[1]
+      exec "norm \<C-w>"
+    endwhile
+    call setpos(".", [0, split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[2], split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[3]])
+    exec "norm \<Left>n"
 
-	endif
+  endif
 
-	if g:search_Direction == "b"
-		let g:grooVimSearchFoward = 0
-	elseif g:search_Direction == "f"
-		let g:grooVimSearchFoward = 1
-	endif
+  if g:search_Direction == "b"
+    let g:grooVimSearchFoward = 0
+  elseif g:search_Direction == "f"
+    let g:grooVimSearchFoward = 1
+  endif
 
 endfunc
 
 " Note: Prepare "GrooVim_SearchGuy()" for a new run or closes it! By Questor
 func! GrooVim_SearchGuyPrepare()
 
-	if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 1
+  if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 1
 
-		try
-			" Note: With this approach I can effectively "destroy" the buffer not returning
-			" "false" positives on "bufexists()" above! By Questor
-			exec "bwipeout! GrooVim_SearchGuyResults" . tabpagenr()
-		catch
-			
-		endtry
+    try
+      " Note: With this approach I can effectively "destroy" the buffer not returning
+      " "false" positives on "bufexists()" above! By Questor
+      exec "bwipeout! GrooVim_SearchGuyResults" . tabpagenr()
+    catch
+      
+    endtry
 
-	endif
+  endif
 
 endfunc
 
 " Note: For debugging purposes. To stop uses "0". Allows a "stop" on the line in that
 " is called and displays a message! By Questor
 func! GrooVim_PauseExecution(msg)
-	echo "msg: \"" . a:msg . "\""
-	while getchar() != 48
-		exec "sleep 1000m"
-	endwhile
+  echo "msg: \"" . a:msg . "\""
+  while getchar() != 48
+    exec "sleep 1000m"
+  endwhile
 endfunc
 
 " Note: Allows normal use of the Enter (carriage return) key in visual mode! By Questor
@@ -1959,33 +1965,33 @@ vnoremap <buffer> <Enter>  "_x<bar>i<cr><Esc>
 " Note: Sets the behavior of Del key depending on the context! By Questor
 nnoremap <script> <Del> :call GrooVim_DelBehavior()<cr>
 func! GrooVim_DelBehavior() range
-	if expand('%:t') =~ "GrooVim_SearchGuyResults"
-		call GrooVim_SearchGuyNavigate()
-	else
-		" Note: Allows "multimode" normal use (delete) of the Del key! By Questor
-		call GrooVim_NormalDel()
-	endif
+  if expand('%:t') =~ "GrooVim_SearchGuyResults"
+    call GrooVim_SearchGuyNavigate()
+  else
+    " Note: Allows "multimode" normal use (delete) of the Del key! By Questor
+    call GrooVim_NormalDel()
+  endif
 endfunc
 
 " Note: Treat a string and return a substring to use in prompts! By Questor
 func! GrooVim_SubstringToPrompt(stringToBeTreated)
-	let l:lineSplited = split(a:stringToBeTreated, "\n")
-	let l:transferAreaToShow = ""
-	try
-		" if len(l:lineSplited) > 1
-			if strlen(l:lineSplited[0]) > 70
-				let l:transferAreaToShow = l:lineSplited[0][0:70] . "..."
-			else
-				if len(l:lineSplited) > 1
-					let l:transferAreaToShow = l:lineSplited[0] . "..."
-				else
-					let l:transferAreaToShow = l:lineSplited[0]
-				endif
-			endif
-	catch
+  let l:lineSplited = split(a:stringToBeTreated, "\n")
+  let l:transferAreaToShow = ""
+  try
+    " if len(l:lineSplited) > 1
+      if strlen(l:lineSplited[0]) > 70
+        let l:transferAreaToShow = l:lineSplited[0][0:70] . "..."
+      else
+        if len(l:lineSplited) > 1
+          let l:transferAreaToShow = l:lineSplited[0] . "..."
+        else
+          let l:transferAreaToShow = l:lineSplited[0]
+        endif
+      endif
+  catch
 
-	endtry
-	return l:transferAreaToShow
+  endtry
+  return l:transferAreaToShow
 endfunc
 
 " Note: Searches for current selection or word under cursor! By Questor
@@ -1995,98 +2001,98 @@ let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
 let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 0
 func! GrooVim_EntertainmentReplace(mod) range
 
-	" Note: Set "ignorecase" if is off! By Questor
-	if !&ignorecase && g:searchReplace_CaseSensitive == 0
-		" Note: Case sensitive search! By Questor
-		set ignorecase
-	endif
+  " Note: Set "ignorecase" if is off! By Questor
+  if !&ignorecase && g:searchReplace_CaseSensitive == 0
+    " Note: Case sensitive search! By Questor
+    set ignorecase
+  endif
 
-	let l:valueToReplace = ""
+  let l:valueToReplace = ""
 
-	if a:mod == "v"
-		" Note: Preserve transfer area! By Questor
-		let l:saved_reg = @+
-		" Note: Reselect visual area and yank! By Questor
-		exec "norm gvy"
-		let l:valueToReplace = @+
-	else
-		let l:valueToReplace = expand("<cword>")
-	endif
+  if a:mod == "v"
+    " Note: Preserve transfer area! By Questor
+    let l:saved_reg = @+
+    " Note: Reselect visual area and yank! By Questor
+    exec "norm gvy"
+    let l:valueToReplace = @+
+  else
+    let l:valueToReplace = expand("<cword>")
+  endif
 
-	if a:mod == "v"
-		" Note: Preserve transfer area! By Questor
-		let @+ = l:saved_reg
-	endif
+  if a:mod == "v"
+    " Note: Preserve transfer area! By Questor
+    let @+ = l:saved_reg
+  endif
 
-	if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
-		let l:stopWhile = 0
-		while l:stopWhile == 0
-			let l:valueToReplaceTemp = GrooVim_EscapeSubstituteValueToSearch(input("Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "))
-			if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
-				let l:stopWhile = 1
-				if l:valueToReplaceTemp != ""
-					let l:valueToReplace = l:valueToReplaceTemp
-				endif
-			endif
-		endwhile
-	endif
+  if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
+    let l:stopWhile = 0
+    while l:stopWhile == 0
+      let l:valueToReplaceTemp = GrooVim_EscapeSubstituteValueToSearch(input("Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "))
+      if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
+        let l:stopWhile = 1
+        if l:valueToReplaceTemp != ""
+          let l:valueToReplace = l:valueToReplaceTemp
+        endif
+      endif
+    endwhile
+  endif
 
-	let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(@+) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(@+) . "\"): "))
 
-	if l:valueThatWillReplace == ""
-		" Note: "GrooVim_EscapeSubstituteValueToSearch()" is not required when the value
-		" comes from "input()" since it already handles this need! By Questor
-		let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(@+)
-	endif
+  if l:valueThatWillReplace == ""
+    " Note: "GrooVim_EscapeSubstituteValueToSearch()" is not required when the value
+    " comes from "input()" since it already handles this need! By Questor
+    let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(@+)
+  endif
 
-	let l:valueThatWillReplace = l:valueThatWillReplace
+  let l:valueThatWillReplace = l:valueThatWillReplace
 
-	let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToReplace)
+  let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToReplace)
 
-	let l:confirmOrNot = ""
+  let l:confirmOrNot = ""
 
-	if g:configureGrooVim_EntertainmentReplace_Confirmation == 1
-		let l:confirmOrNot = "c"
-	endif
+  if g:configureGrooVim_EntertainmentReplace_Confirmation == 1
+    let l:confirmOrNot = "c"
+  endif
 
-	if a:mod == "v"
-		exec "norm \<Left>"
-	else
-		exec "norm b\<Left>"
-	endif
+  if a:mod == "v"
+    exec "norm \<Left>"
+  else
+    exec "norm b\<Left>"
+  endif
 
-	if g:searchReplace_InAllOpened != 1
-		if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
-			" Note: Replace begin from current position! By Questor
-			exec ".,$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
-		else
-			exec "%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
-		endif
-	else
-		" Note: "let g:tryCathOnTabDo = 1" -> If there is no value to replace in one
-		" of the tabs, the process do not raises an error! By Questor
-		let g:tryCathOnTabDo = 1
-		call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
-		let g:tryCathOnTabDo = 0
-	endif
+  if g:searchReplace_InAllOpened != 1
+    if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
+      " Note: Replace begin from current position! By Questor
+      exec ".,$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+    else
+      exec "%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+    endif
+  else
+    " Note: "let g:tryCathOnTabDo = 1" -> If there is no value to replace in one
+    " of the tabs, the process do not raises an error! By Questor
+    let g:tryCathOnTabDo = 1
+    call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
+    let g:tryCathOnTabDo = 0
+  endif
 
-	call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"h\"!", 4)
+  call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"h\"!", 4)
 
 endfunc
 
 " Note: Create search pattern! By Questor
 func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat)
-	let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]')
-	let l:pattern = substitute(l:pattern, "\n$", "", "")
-	return l:pattern
+  let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]')
+  let l:pattern = substitute(l:pattern, "\n$", "", "")
+  return l:pattern
 endfunc
 
 " Note: Workaround to get milliseconds! By Questor
 func! GrooVim_GetMilliseconds()
-	let l:format = "+%s%3N"
-	let l:cmd = "/bin/date -u " . shellescape(format)
-	let l:result = substitute(system(cmd), "[\]\|[[:cntrl:]]", "", "g")
-	return l:result
+  let l:format = "+%s%3N"
+  let l:cmd = "/bin/date -u " . shellescape(format)
+  let l:result = substitute(system(cmd), "[\]\|[[:cntrl:]]", "", "g")
+  return l:result
 endfunc
 
 " Note: Allows a "super leader" that fires in any mode! With this approach I can map a
@@ -2120,248 +2126,248 @@ let g:GrooVim_CommandZUnblock = 1
 let g:GrooVim_CommandZFCaller = ""
 func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 
-	let l:GrooVim_CommandZNowChar = ""
+  let l:GrooVim_CommandZNowChar = ""
 
-	" Note: This logic allows rerun the last command just using an F key (1, 2, 3...). If
-	" there is a single F? in few milliseconds, the last command is executed without
-	" waiting for a new key to compose a command. If a new key was informed fast enough
-	" it rerun the last command! If an different F? is informed it will wait for a key
-	" combination to compose the command! By Questor
+  " Note: This logic allows rerun the last command just using an F key (1, 2, 3...). If
+  " there is a single F? in few milliseconds, the last command is executed without
+  " waiting for a new key to compose a command. If a new key was informed fast enough
+  " it rerun the last command! If an different F? is informed it will wait for a key
+  " combination to compose the command! By Questor
 
-	let l:GrooVim_CommandZMomentNow = GrooVim_GetMilliseconds()
+  let l:GrooVim_CommandZMomentNow = GrooVim_GetMilliseconds()
 
-	" Note: In terminal vim, prevent ghost echoing while running a shell command via system()! By Questor
-	redraw!
+  " Note: In terminal vim, prevent ghost echoing while running a shell command via system()! By Questor
+  redraw!
 
-	if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > 400 || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
-		exec "sleep 400m"
-		let l:GrooVim_CommandZNowChar = getchar(0)
-		if l:GrooVim_CommandZNowChar != "" && l:GrooVim_CommandZNowChar != "\<f2>" && l:GrooVim_CommandZNowChar != "\<f3>" && l:GrooVim_CommandZNowChar != "\<f4>" && l:GrooVim_CommandZNowChar != "\<f5>"
-			let g:GrooVim_CommandZChar = l:GrooVim_CommandZNowChar
-		endif
-		if g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow && l:GrooVim_CommandZNowChar == ""
-			let g:GrooVim_CommandZChar = ""
-		endif
-	endif
-	" Note: To debug! By Questor
-	" echo g:GrooVim_CommandZChar
-	let g:GrooVim_CommandZMoment = l:GrooVim_CommandZMomentNow
-	if g:GrooVim_CommandZChar != "" && g:GrooVim_CommandZUnblock == 1
-		" Note: Prevents rerun a command while another is in progress! By Questor
-		let g:GrooVim_CommandZUnblock = 0
-		" Note: Edit commands! By Questor
-		if a:GrooVim_CommandZFCallerNow == "F2"
-			" Note: Used keys for F2: h k j up down c a d q w e end del! By Questor
-			" Note: To debug! By Questor
-			" Note: Aligns to left (h)! By Questor
-			if g:GrooVim_CommandZChar == "104"
-				:left
-			endif
-			" Note: Aligns to right (k)! By Questor
-			if g:GrooVim_CommandZChar == "107"
-				:right
-			endif
-			" Note: Aligns to center (j)! By Questor
-			if g:GrooVim_CommandZChar == "106"
-				:center
-			endif
-			" Note: Changes to uppercase (normal/insert) (up)! By Questor
-			if g:GrooVim_CommandZChar == "\<Up>" && a:modType != "v"
-				exec "norm gUiwe"
-			endif
-			" Note: Changes to lowercase (normal/insert) (down)! By Questor
-			if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
-				exec "norm guiwe"
-			endif
-			" Note: Changes to uppercase (visual) (up)! By Questor
-			if g:GrooVim_CommandZChar == "\<Up>" && a:modType == "v"
-				call GrooVim_ToUpperLower("Upper")
-			endif
-			" Note: Changes to lowercase (visual) (down)! By Questor
-			if g:GrooVim_CommandZChar == "\<Down>" && a:modType == "v"
-				call GrooVim_ToUpperLower("Lower")
-			endif
-			" Note:  Copy all text in the current buffer (c)! By Questor
-			if g:GrooVim_CommandZChar == "99"
-				exec "%y+"
-			endif
-			" Note: Select all text in the current buffer (a)! By Questor
-			if g:GrooVim_CommandZChar == "97"
-				exec "norm ggVG$"
-			endif
-			" Note: Duplicates the current line/selection (normal) (d)! By Questor
-			if g:GrooVim_CommandZChar == "100" && a:modType == "n"
-				let l:saved_reg = @+
-				exec "norm yyo\<Esc>p"
-				let @+ = l:saved_reg
-			endif
-			" Note: Duplicates the current line/selection (insert) (d)! By Questor
-			if g:GrooVim_CommandZChar == "100" && a:modType == "i"
-				let l:saved_reg = @+
-				exec "norm yyo\<Esc>p"
-				let @+ = l:saved_reg
-			endif
-			" Note: Duplicates the current line/selection (visual) (d)! By Questor
-			if g:GrooVim_CommandZChar == "100" && a:modType == "v"
-				call GrooVim_DuplicateVisualSelection()
-				" Note: If in the visual mode this command can not be replicated hold F key! By Questor
-				let g:GrooVim_CommandZChar = ""
-			endif
-			" Note: Record a macro (q)! By Questor
-			if g:GrooVim_CommandZChar == "113"
-				call GrooVim_XenRec()
-			endif
-			" Note: Run a macro (w)! By Questor
-			if g:GrooVim_CommandZChar == "119"
-				call GrooVim_XenPlay(0)
-			endif
-			" Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
-			if g:GrooVim_CommandZChar == "101"
-				call GrooVim_XenPlay(1)
-			endif
-			" Note: Selects the word under the cursor (End)! By Questor
-			if g:GrooVim_CommandZChar == "\<End>"
-				exec "norm viw"
-			endif
-			" Note: Selects an area (Del)! By Questor
-			if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
-				call GrooVim_SelectRange(a:modType)
-			endif
-		endif
-		" Note: Control commands! By Questor
-		if a:GrooVim_CommandZFCallerNow == "F3"
-			" Note: Used keys for F3: n c o v r / s f d h j [ ]! By Questor
-			" Note: Open a new tab (n)! By Questor
-			if g:GrooVim_CommandZChar == "110"
-				tabnew
-				" Note: Solve read only problem! By Questor
-				set ma
-			endif
-			" Note: Close current tab (c)! By Questor
-			if g:GrooVim_CommandZChar == "99"
-				tabc
-			endif
-			" Note: Close all other tabs (o)! By Questor
-			if g:GrooVim_CommandZChar == "111"
-				tabonly
-			endif
-			" Note: Opens the file .vimrc (normal/visual) (v)! By Questor
-			if g:GrooVim_CommandZChar == "118" && a:modType != "i"
-				" Note: Workaround para evitar
-				" imcompatibilidade! By Questor
-				call feedkeys("\\zv")
-			endif
-			" Note: '' (insert) (v)! By Questor
-			if g:GrooVim_CommandZChar == "118" && a:modType == "i"
-				" Note: Workaround to avoid incompatibility! By Questor
-				call feedkeys("\<Esc>\\zvi")
-			endif
-			" Note: Reloads the file .vimrc in all tabs (r)! By Questor
-			if g:GrooVim_CommandZChar == "114" && a:modType == "i"
-				" Note: Workaround to avoid incompatibility! By Questor
-				call feedkeys("\<Esc>\\zvvi")
-			endif
-			" Note: '' (normal/visual) (r)! By Questor
-			if g:GrooVim_CommandZChar == "114" && a:modType != "i"
-				" Note: Workaround to avoid incompatibility! By Questor
-				call feedkeys("\\zvv")
-			endif
-			" Note: Removes search highlights (visual/normal) (/)! By Questor
-			if g:GrooVim_CommandZChar == "47" && a:modType != "i"
-				" Note: Workaround to avoid incompatibility! By Questor
-				call feedkeys("\\z/")
-			endif
-			" Note: '' (insert)(/)! By Questor
-			if g:GrooVim_CommandZChar == "47" && a:modType == "i"
-				" Note: Workaround to avoid incompatibility! By Questor
-				call feedkeys("\<Esc>\\z/i")
-			endif
-			" Note: Save to disk (normal/insert) (s)! By Questor
-			if g:GrooVim_CommandZChar == "115" && a:modType != "v"
-				:w
-			endif
-			" Note: '' (visual) (s)! By Questor
-			if g:GrooVim_CommandZChar == "115" && a:modType == "v"
-				call GrooVim_VisualWrite()
-			endif
-			" Note: Opens for search (insert/normal) (f)! By Questor
-			if g:GrooVim_CommandZChar == "102" && a:modType != "v"
-				call GrooVim_SearchWithMyOptions("n")
-			endif
-			" Note: '' (visual) (f)! By Questor
-			if g:GrooVim_CommandZChar == "102" && a:modType == "v"
-				call GrooVim_SearchWithMyOptions("v")
-			endif
-			" Note: Opens to configure the search (d)! By Questor
-			if g:GrooVim_CommandZChar == "100"
-				call GrooVim_ConfigureSearchReplace("search")
-			endif
-			" Note: Opens to configure the replace (h)! By Questor
-			if g:GrooVim_CommandZChar == "104"
-				call GrooVim_ConfigureSearchReplace("replace")
-			endif
-			" Note: Opens to replace (normal/insert) (j)! By Questor
-			if g:GrooVim_CommandZChar == "106" && a:modType != "v"
-				call GrooVim_EntertainmentReplace("n")
-			endif
-			" Note: '' (visual) (j)! By Questor
-			if g:GrooVim_CommandZChar == "106" && a:modType == "v"
-				call GrooVim_EntertainmentReplace("v")
-			endif
-			" Note: Save session ([)! By Questor
-			if g:GrooVim_CommandZChar == "91"
-				exec "mksession! ~/vim_session"
-				echomsg "Session saved!"
-			endif
-			" Note: Reload session (])! By Questor
-			if g:GrooVim_CommandZChar == "93"
-				exec "source ~/vim_session"
-			endif
-			" Note: Get current filename or filename and path and put on transfer area (p)! By Questor
-			if g:GrooVim_CommandZChar == "112"
-				call GrooVim_GetFileNameAndPath()
-			endif
-			" Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
-			if g:GrooVim_CommandZChar == "116"
-				call GrooVim_TabToReturnSet()
-			endif
-			" Note: Select and search the word under the cursor (case sensitive) (End)! By Questor
-			if g:GrooVim_CommandZChar == "\<End>"
-				call GrooVim_SelectNSearch(1, a:modType)
-			endif
-			" Note: Reselect area (Del)! By Questor
-			if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
-				exec "norm gv"
-			endif
-			" Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
-			if g:GrooVim_CommandZChar == "121"
-				call GrooVim_SaveACopy()
-			endif
-		endif
-		" Note: Plugin commands! By Questor
-		if a:GrooVim_CommandZFCallerNow == "F4"
-			" Note: Used keys for F4: f d! By Questor
-			" Note: Opens/closes the "NerdTree" (n)! By Questor
-			if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
-				if g:GrooVim_CommandZChar == "110"
-					" call ToggleNERDTree()
-					call GrooVim_ToggleNERDTreeTabs()
-				endif
-			endif
-			" Note: Opens/closes the "Vim Debug" (d)! By Questor
-			if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
-				if g:GrooVim_CommandZChar == "100"
-					call GrooVim_ToggleDbg()
-				endif
-			endif
-		endif
-		" Note: Other commands! By Questor
-		" Note: Used keys for F5: ! By Questor
-		if a:GrooVim_CommandZFCallerNow == "F5"
-		endif
-		let g:GrooVim_CommandZUnblock = 1
-	endif
-	let g:GrooVim_CommandZFCaller = a:GrooVim_CommandZFCallerNow
+  if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > 400 || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
+    exec "sleep 400m"
+    let l:GrooVim_CommandZNowChar = getchar(0)
+    if l:GrooVim_CommandZNowChar != "" && l:GrooVim_CommandZNowChar != "\<f2>" && l:GrooVim_CommandZNowChar != "\<f3>" && l:GrooVim_CommandZNowChar != "\<f4>" && l:GrooVim_CommandZNowChar != "\<f5>"
+      let g:GrooVim_CommandZChar = l:GrooVim_CommandZNowChar
+    endif
+    if g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow && l:GrooVim_CommandZNowChar == ""
+      let g:GrooVim_CommandZChar = ""
+    endif
+  endif
+  " Note: To debug! By Questor
+  " echo g:GrooVim_CommandZChar
+  let g:GrooVim_CommandZMoment = l:GrooVim_CommandZMomentNow
+  if g:GrooVim_CommandZChar != "" && g:GrooVim_CommandZUnblock == 1
+    " Note: Prevents rerun a command while another is in progress! By Questor
+    let g:GrooVim_CommandZUnblock = 0
+    " Note: Edit commands! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F2"
+      " Note: Used keys for F2: h k j up down c a d q w e end del! By Questor
+      " Note: To debug! By Questor
+      " Note: Aligns to left (h)! By Questor
+      if g:GrooVim_CommandZChar == "104"
+        :left
+      endif
+      " Note: Aligns to right (k)! By Questor
+      if g:GrooVim_CommandZChar == "107"
+        :right
+      endif
+      " Note: Aligns to center (j)! By Questor
+      if g:GrooVim_CommandZChar == "106"
+        :center
+      endif
+      " Note: Changes to uppercase (normal/insert) (up)! By Questor
+      if g:GrooVim_CommandZChar == "\<Up>" && a:modType != "v"
+        exec "norm gUiwe"
+      endif
+      " Note: Changes to lowercase (normal/insert) (down)! By Questor
+      if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
+        exec "norm guiwe"
+      endif
+      " Note: Changes to uppercase (visual) (up)! By Questor
+      if g:GrooVim_CommandZChar == "\<Up>" && a:modType == "v"
+        call GrooVim_ToUpperLower("Upper")
+      endif
+      " Note: Changes to lowercase (visual) (down)! By Questor
+      if g:GrooVim_CommandZChar == "\<Down>" && a:modType == "v"
+        call GrooVim_ToUpperLower("Lower")
+      endif
+      " Note:  Copy all text in the current buffer (c)! By Questor
+      if g:GrooVim_CommandZChar == "99"
+        exec "%y+"
+      endif
+      " Note: Select all text in the current buffer (a)! By Questor
+      if g:GrooVim_CommandZChar == "97"
+        exec "norm ggVG$"
+      endif
+      " Note: Duplicates the current line/selection (normal) (d)! By Questor
+      if g:GrooVim_CommandZChar == "100" && a:modType == "n"
+        let l:saved_reg = @+
+        exec "norm yyo\<Esc>p"
+        let @+ = l:saved_reg
+      endif
+      " Note: Duplicates the current line/selection (insert) (d)! By Questor
+      if g:GrooVim_CommandZChar == "100" && a:modType == "i"
+        let l:saved_reg = @+
+        exec "norm yyo\<Esc>p"
+        let @+ = l:saved_reg
+      endif
+      " Note: Duplicates the current line/selection (visual) (d)! By Questor
+      if g:GrooVim_CommandZChar == "100" && a:modType == "v"
+        call GrooVim_DuplicateVisualSelection()
+        " Note: If in the visual mode this command can not be replicated hold F key! By Questor
+        let g:GrooVim_CommandZChar = ""
+      endif
+      " Note: Record a macro (q)! By Questor
+      if g:GrooVim_CommandZChar == "113"
+        call GrooVim_XenRec()
+      endif
+      " Note: Run a macro (w)! By Questor
+      if g:GrooVim_CommandZChar == "119"
+        call GrooVim_XenPlay(0)
+      endif
+      " Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
+      if g:GrooVim_CommandZChar == "101"
+        call GrooVim_XenPlay(1)
+      endif
+      " Note: Selects the word under the cursor (End)! By Questor
+      if g:GrooVim_CommandZChar == "\<End>"
+        exec "norm viw"
+      endif
+      " Note: Selects an area (Del)! By Questor
+      if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
+        call GrooVim_SelectRange(a:modType)
+      endif
+    endif
+    " Note: Control commands! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F3"
+      " Note: Used keys for F3: n c o v r / s f d h j [ ]! By Questor
+      " Note: Open a new tab (n)! By Questor
+      if g:GrooVim_CommandZChar == "110"
+        tabnew
+        " Note: Solve read only problem! By Questor
+        set ma
+      endif
+      " Note: Close current tab (c)! By Questor
+      if g:GrooVim_CommandZChar == "99"
+        tabc
+      endif
+      " Note: Close all other tabs (o)! By Questor
+      if g:GrooVim_CommandZChar == "111"
+        tabonly
+      endif
+      " Note: Opens the file .vimrc (normal/visual) (v)! By Questor
+      if g:GrooVim_CommandZChar == "118" && a:modType != "i"
+        " Note: Workaround para evitar
+        " imcompatibilidade! By Questor
+        call feedkeys("\\zv")
+      endif
+      " Note: '' (insert) (v)! By Questor
+      if g:GrooVim_CommandZChar == "118" && a:modType == "i"
+        " Note: Workaround to avoid incompatibility! By Questor
+        call feedkeys("\<Esc>\\zvi")
+      endif
+      " Note: Reloads the file .vimrc in all tabs (r)! By Questor
+      if g:GrooVim_CommandZChar == "114" && a:modType == "i"
+        " Note: Workaround to avoid incompatibility! By Questor
+        call feedkeys("\<Esc>\\zvvi")
+      endif
+      " Note: '' (normal/visual) (r)! By Questor
+      if g:GrooVim_CommandZChar == "114" && a:modType != "i"
+        " Note: Workaround to avoid incompatibility! By Questor
+        call feedkeys("\\zvv")
+      endif
+      " Note: Removes search highlights (visual/normal) (/)! By Questor
+      if g:GrooVim_CommandZChar == "47" && a:modType != "i"
+        " Note: Workaround to avoid incompatibility! By Questor
+        call feedkeys("\\z/")
+      endif
+      " Note: '' (insert)(/)! By Questor
+      if g:GrooVim_CommandZChar == "47" && a:modType == "i"
+        " Note: Workaround to avoid incompatibility! By Questor
+        call feedkeys("\<Esc>\\z/i")
+      endif
+      " Note: Save to disk (normal/insert) (s)! By Questor
+      if g:GrooVim_CommandZChar == "115" && a:modType != "v"
+        :w
+      endif
+      " Note: '' (visual) (s)! By Questor
+      if g:GrooVim_CommandZChar == "115" && a:modType == "v"
+        call GrooVim_VisualWrite()
+      endif
+      " Note: Opens for search (insert/normal) (f)! By Questor
+      if g:GrooVim_CommandZChar == "102" && a:modType != "v"
+        call GrooVim_SearchWithMyOptions("n")
+      endif
+      " Note: '' (visual) (f)! By Questor
+      if g:GrooVim_CommandZChar == "102" && a:modType == "v"
+        call GrooVim_SearchWithMyOptions("v")
+      endif
+      " Note: Opens to configure the search (d)! By Questor
+      if g:GrooVim_CommandZChar == "100"
+        call GrooVim_ConfigureSearchReplace("search")
+      endif
+      " Note: Opens to configure the replace (h)! By Questor
+      if g:GrooVim_CommandZChar == "104"
+        call GrooVim_ConfigureSearchReplace("replace")
+      endif
+      " Note: Opens to replace (normal/insert) (j)! By Questor
+      if g:GrooVim_CommandZChar == "106" && a:modType != "v"
+        call GrooVim_EntertainmentReplace("n")
+      endif
+      " Note: '' (visual) (j)! By Questor
+      if g:GrooVim_CommandZChar == "106" && a:modType == "v"
+        call GrooVim_EntertainmentReplace("v")
+      endif
+      " Note: Save session ([)! By Questor
+      if g:GrooVim_CommandZChar == "91"
+        exec "mksession! ~/vim_session"
+        echomsg "Session saved!"
+      endif
+      " Note: Reload session (])! By Questor
+      if g:GrooVim_CommandZChar == "93"
+        exec "source ~/vim_session"
+      endif
+      " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
+      if g:GrooVim_CommandZChar == "112"
+        call GrooVim_GetFileNameAndPath()
+      endif
+      " Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
+      if g:GrooVim_CommandZChar == "116"
+        call GrooVim_TabToReturnSet()
+      endif
+      " Note: Select and search the word under the cursor (case sensitive) (End)! By Questor
+      if g:GrooVim_CommandZChar == "\<End>"
+        call GrooVim_SelectNSearch(1, a:modType)
+      endif
+      " Note: Reselect area (Del)! By Questor
+      if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
+        exec "norm gv"
+      endif
+      " Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
+      if g:GrooVim_CommandZChar == "121"
+        call GrooVim_SaveACopy()
+      endif
+    endif
+    " Note: Plugin commands! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F4"
+      " Note: Used keys for F4: f d! By Questor
+      " Note: Opens/closes the "NerdTree" (n)! By Questor
+      if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
+        if g:GrooVim_CommandZChar == "110"
+          " call ToggleNERDTree()
+          call GrooVim_ToggleNERDTreeTabs()
+        endif
+      endif
+      " Note: Opens/closes the "Vim Debug" (d)! By Questor
+      if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
+        if g:GrooVim_CommandZChar == "100"
+          call GrooVim_ToggleDbg()
+        endif
+      endif
+    endif
+    " Note: Other commands! By Questor
+    " Note: Used keys for F5: ! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F5"
+    endif
+    let g:GrooVim_CommandZUnblock = 1
+  endif
+  let g:GrooVim_CommandZFCaller = a:GrooVim_CommandZFCallerNow
 
 endfunc
 
@@ -2369,213 +2375,213 @@ nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
 " Note: Try to ensure that open in an editor window! By Questor
 func! GrooVim_PutOnEditWindow() range
-	while expand('%:t') =~ "GrooVim_SearchGuyResults" || expand('%:t') =~ "NERD_tree_" || expand('%:t') =~ "GrooVimHelp"
-		exec "norm \<C-w>"
-	endwhile
+  while expand('%:t') =~ "GrooVim_SearchGuyResults" || expand('%:t') =~ "NERD_tree_" || expand('%:t') =~ "GrooVimHelp"
+    exec "norm \<C-w>"
+  endwhile
 endfunc
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
 func! GrooVim_ToogleGrooVimHelp() range
 
-	if bufexists("GrooVimHelp") == 0
+  if bufexists("GrooVimHelp") == 0
 
-		call GrooVim_PutOnEditWindow()
+    call GrooVim_PutOnEditWindow()
 
-		" Note: The "set ma" and "set noma" opens and locks the buffer editing! By Questor
-		set ma
-		silent exec "split GrooVimHelp"
-		exec "put =g:GrooVimHelp"
-		exec "norm ggdd"
-		exec "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapmargin=0 | set formatoptions+=l | set syntax=help"
-		set noma
-	else
-		" Note: With this approach I can effectively "destroy" the "buffer" not
-		" returning false "positives" in "bufexists()" above! By Questor
-		exec "bwipeout! GrooVimHelp"
-	endif
+    " Note: The "set ma" and "set noma" opens and locks the buffer editing! By Questor
+    set ma
+    silent exec "split GrooVimHelp"
+    exec "put =g:GrooVimHelp"
+    exec "norm ggdd"
+    exec "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapmargin=0 | set formatoptions+=l | set syntax=help"
+    set noma
+  else
+    " Note: With this approach I can effectively "destroy" the "buffer" not
+    " returning false "positives" in "bufexists()" above! By Questor
+    exec "bwipeout! GrooVimHelp"
+  endif
 
 endfunc
 
 " Note: Get current filename or filename and path and put on transfer area! By Questor
 func! GrooVim_GetFileNameAndPath() range
 
-	let l:filenameOrFilenameAndPath = ""
+  let l:filenameOrFilenameAndPath = ""
 
-	let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
-	if l:getFilenameOrFilenameAndPath == 0
-		let l:filenameOrFilenameAndPath = expand('%:t')
-		echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
-	elseif l:getFilenameOrFilenameAndPath == 1
-		let l:filenameOrFilenameAndPath = expand('%:p')
-		echomsg " -> Filename and path \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
-	endif
+  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
+  if l:getFilenameOrFilenameAndPath == 0
+    let l:filenameOrFilenameAndPath = expand('%:t')
+    echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
+  elseif l:getFilenameOrFilenameAndPath == 1
+    let l:filenameOrFilenameAndPath = expand('%:p')
+    echomsg " -> Filename and path \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
+  endif
 
-	" Note: Set the clipboard register! By Questor
-	let @+ = l:filenameOrFilenameAndPath
+  " Note: Set the clipboard register! By Questor
+  let @+ = l:filenameOrFilenameAndPath
 
 endfunc
 
 " Note: Record a macro! By Questor
 func! GrooVim_XenRec() range
-	call GrooVim_GrooVimBarMsg("Use \"q\" to stop macro recording!", 5)
-	exec "norm qa"
-	echo "Starting a NEW recording!"
+  call GrooVim_GrooVimBarMsg("Use \"q\" to stop macro recording!", 5)
+  exec "norm qa"
+  echo "Starting a NEW recording!"
 endfunc
 
 " Note: Run a macro certain number of times or repeatedly until the last line! By Questor
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range
 
-	if a:repeatExecution == 0
-		exec "norm @a"
-		" Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
-		" lost in the execution of the command, not allowing simple repetition and so
-		" the workaround! By Questor
-		let g:GrooVim_CommandZChar = "119"
-	elseif a:repeatExecution == 1
-		let g:block_GrooVim_HLNext = 1
-		let g:GrooVim_XenPlayRunningWithSearch = 0
-		let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
-		" Note: Runs up to the last/first row!! By Questor
-		if l:numberOfRepetitions == "x"
-			" Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
-			set nowrapscan
-			let l:stopWhile = 0
-			let l:firstExecution = 1
-			let l:executionDirection = ""
-			while l:stopWhile == 0
-				let l:posBefore = getpos(".")
-				if (l:posBefore[1] >= getpos("$")[1] || l:posBefore[1] == 1) && l:firstExecution == 0 && g:GrooVim_XenPlayRunningWithSearch == 0
-					let l:stopWhile = 1
-				endif
+  if a:repeatExecution == 0
+    exec "norm @a"
+    " Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
+    " lost in the execution of the command, not allowing simple repetition and so
+    " the workaround! By Questor
+    let g:GrooVim_CommandZChar = "119"
+  elseif a:repeatExecution == 1
+    let g:block_GrooVim_HLNext = 1
+    let g:GrooVim_XenPlayRunningWithSearch = 0
+    let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
+    " Note: Runs up to the last/first row!! By Questor
+    if l:numberOfRepetitions == "x"
+      " Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
+      set nowrapscan
+      let l:stopWhile = 0
+      let l:firstExecution = 1
+      let l:executionDirection = ""
+      while l:stopWhile == 0
+        let l:posBefore = getpos(".")
+        if (l:posBefore[1] >= getpos("$")[1] || l:posBefore[1] == 1) && l:firstExecution == 0 && g:GrooVim_XenPlayRunningWithSearch == 0
+          let l:stopWhile = 1
+        endif
 
-				" Note: If there are no more occurrences of a search then stops execution! By Questor
-				try
-					" Note: Tests if still there are occurrences! By Questor
-					if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
-						if l:executionDirection == "d"
-							exec "norm n"
-						endif
-						if l:executionDirection == "u"
-							exec "norm N"
-						endif
-						call setpos(".", l:posBefore)
-					endif
-					exec "norm @a"
+        " Note: If there are no more occurrences of a search then stops execution! By Questor
+        try
+          " Note: Tests if still there are occurrences! By Questor
+          if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
+            if l:executionDirection == "d"
+              exec "norm n"
+            endif
+            if l:executionDirection == "u"
+              exec "norm N"
+            endif
+            call setpos(".", l:posBefore)
+          endif
+          exec "norm @a"
 
-				catch
-					let l:stopWhile = 1
-				endtry
+        catch
+          let l:stopWhile = 1
+        endtry
 
-				let l:posAfter = getpos(".")
+        let l:posAfter = getpos(".")
 
-				if l:posBefore[1] == l:posAfter[1] && l:firstExecution == 1 && g:GrooVim_XenPlayRunningWithSearch == 0
+        if l:posBefore[1] == l:posAfter[1] && l:firstExecution == 1 && g:GrooVim_XenPlayRunningWithSearch == 0
 
-					if l:posBefore[1] != getpos("$")[1] && l:posBefore[1] != 1
-						call GrooVim_GrooVimBarMsg("This macro isn't compatible with the execution that you selected. The current line will be always the same!", 4)
-					endif
-					let l:stopWhile = 1
+          if l:posBefore[1] != getpos("$")[1] && l:posBefore[1] != 1
+            call GrooVim_GrooVimBarMsg("This macro isn't compatible with the execution that you selected. The current line will be always the same!", 4)
+          endif
+          let l:stopWhile = 1
 
-				endif
+        endif
 
-				if l:executionDirection != ""
-					if l:executionDirection == "d"
-						if l:posBefore[1] > l:posAfter[1]
-							let l:stopWhile = 1
-						endif
-					endif
-					if l:executionDirection == "u"
-						if l:posBefore[1] < l:posAfter[1]
-							let l:stopWhile = 1
-						endif
-					endif
-				endif
+        if l:executionDirection != ""
+          if l:executionDirection == "d"
+            if l:posBefore[1] > l:posAfter[1]
+              let l:stopWhile = 1
+            endif
+          endif
+          if l:executionDirection == "u"
+            if l:posBefore[1] < l:posAfter[1]
+              let l:stopWhile = 1
+            endif
+          endif
+        endif
 
-				if l:executionDirection == ""
-					if l:posBefore[1] < l:posAfter[1] || (l:posBefore[1] == l:posAfter[1] && l:posBefore[2] < l:posAfter[2])
-						let l:executionDirection = "d"
-					endif
-					if l:posBefore[1] > l:posAfter[1] || (l:posBefore[1] == l:posAfter[1] && l:posBefore[2] > l:posAfter[2])
-						let l:executionDirection = "u"
-					endif
-				endif
+        if l:executionDirection == ""
+          if l:posBefore[1] < l:posAfter[1] || (l:posBefore[1] == l:posAfter[1] && l:posBefore[2] < l:posAfter[2])
+            let l:executionDirection = "d"
+          endif
+          if l:posBefore[1] > l:posAfter[1] || (l:posBefore[1] == l:posAfter[1] && l:posBefore[2] > l:posAfter[2])
+            let l:executionDirection = "u"
+          endif
+        endif
 
-				if l:stopWhile == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0
-					call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-					" Note: The "redraw!" is to ensure that the message is displayed!! By Questor
-					redraw!
-				endif
+        if l:stopWhile == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0
+          call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
+          " Note: The "redraw!" is to ensure that the message is displayed!! By Questor
+          redraw!
+        endif
 
-				" Note: To see execution! By Questor
-				redraw!
+        " Note: To see execution! By Questor
+        redraw!
 
-				let l:firstExecution = 0
+        let l:firstExecution = 0
 
-			endwhile
-			set wrapscan
-		else
+      endwhile
+      set wrapscan
+    else
 
-			" Note: Performs "n" times! By Questor
+      " Note: Performs "n" times! By Questor
 
-			" Note: Check for valid numbers! By Questor
-			let l:invalidNumber = 1
-			while l:invalidNumber == 1
+      " Note: Check for valid numbers! By Questor
+      let l:invalidNumber = 1
+      while l:invalidNumber == 1
 
-				let l:invalidNumber = 0
+        let l:invalidNumber = 0
 
-				if l:numberOfRepetitions != str2nr(l:numberOfRepetitions)
-					let l:invalidNumber = 1
-				endif
+        if l:numberOfRepetitions != str2nr(l:numberOfRepetitions)
+          let l:invalidNumber = 1
+        endif
 
-				if l:numberOfRepetitions <= 0
-					let l:invalidNumber = 1
-				endif
+        if l:numberOfRepetitions <= 0
+          let l:invalidNumber = 1
+        endif
 
-				if l:invalidNumber == 1
-					let l:numberOfRepetitions = input("Number of repetitions (use a valid one!): ")
-				endif
+        if l:invalidNumber == 1
+          let l:numberOfRepetitions = input("Number of repetitions (use a valid one!): ")
+        endif
 
-			endwhile
+      endwhile
 
-			for i in range(1, l:numberOfRepetitions)
+      for i in range(1, l:numberOfRepetitions)
 
-				" Note: If there are no more occurrences of a search then stops execution! By Questor
-				try
-					exec "norm @a"
-				catch
-					let l:stopWhile = 1
-				endtry
+        " Note: If there are no more occurrences of a search then stops execution! By Questor
+        try
+          exec "norm @a"
+        catch
+          let l:stopWhile = 1
+        endtry
 
-				let g:onMoveScreen = 1
-				if g:GrooVim_GrooVimBarMsgEnabled == 0
-					call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-					" Note: The "redraw!" is to ensure that the message is displayed! By Questor
-					redraw!
-				endif
-				" Note: To see execution! By Questor
-				redraw!
-			endfor
+        let g:onMoveScreen = 1
+        if g:GrooVim_GrooVimBarMsgEnabled == 0
+          call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
+          " Note: The "redraw!" is to ensure that the message is displayed! By Questor
+          redraw!
+        endif
+        " Note: To see execution! By Questor
+        redraw!
+      endfor
 
-		endif
+    endif
 
-		" Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
-		" lost in the execution of the command, not allowing simple repetition and so
-		" the workaround! By Questor
-		let g:GrooVim_CommandZChar = "101"
+    " Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
+    " lost in the execution of the command, not allowing simple repetition and so
+    " the workaround! By Questor
+    let g:GrooVim_CommandZChar = "101"
 
-		let g:GrooVim_XenPlayRunningWithSearch = 0
+    let g:GrooVim_XenPlayRunningWithSearch = 0
 
-	endif
+  endif
 
-	let g:block_GrooVim_HLNext = 0
+  let g:block_GrooVim_HLNext = 0
 
 endfunc
 
 " Note: Duplicates the current line/selection! By Questor
 func! GrooVim_DuplicateVisualSelection() range
-	let l:saved_reg = @+
-	exec "norm gvygv\<Esc>p"
-	let @+ = l:saved_reg
+  let l:saved_reg = @+
+  exec "norm gvygv\<Esc>p"
+  let @+ = l:saved_reg
 endfunc
 
 " Note: Reloads the .vimrc file! By Questor
@@ -2587,112 +2593,112 @@ nnoremap <silent> <leader>zvv :tabdo source $MYVIMRC<cr><bar>:tabfirst<cr>
 nnoremap <silent> <leader>z/ :nohlsearch<cr>
 
 if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
-	" Note: Opens and closes the "VIM Debug" depending on if it is open or closed! By Questor
-	let g:NERDTreeIsOpen = 0
-	func! GrooVim_ToggleDbg()
-		if exists("g:Dbg")
-			unlet g:Dbg
-			Dbg quit
-		else
-			try
-				if exists("g:NERDTreeIsOpen")
-					unlet g:NERDTreeIsOpen
-					NERDTreeTabsClose
-				endif
-					Dbg .
-				let g:Dbg = 1
-			catch
-				echo "No Errors found!"
-			endtry
-		endif
-	endfunc
+  " Note: Opens and closes the "VIM Debug" depending on if it is open or closed! By Questor
+  let g:NERDTreeIsOpen = 0
+  func! GrooVim_ToggleDbg()
+    if exists("g:Dbg")
+      unlet g:Dbg
+      Dbg quit
+    else
+      try
+        if exists("g:NERDTreeIsOpen")
+          unlet g:NERDTreeIsOpen
+          NERDTreeTabsClose
+        endif
+          Dbg .
+        let g:Dbg = 1
+      catch
+        echo "No Errors found!"
+      endtry
+    endif
+  endfunc
 endif
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
 
-		let l:valueToPath = ""
-		let l:stopWhile = 0
-		while l:stopWhile == 0
-			let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(@+) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
-			if l:valueToPath == "0"
-				if !empty(matchstr(@+, "\/$"))
-					let l:stopWhile = 1
-					let l:valueToPath = @+
-				else
-					call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-					" Note: The "redraw!" is to ensure that the message is displayed! By Questor
-					redraw!
-				endif
-			elseif l:valueToPath == "1"
-				let l:stopWhile = 1
-				let l:valueToPath = ""
-			elseif l:valueToPath == "2"
-				let l:stopWhile = 1
-				let l:valueToPath = expand("%:h") . "/"
-			elseif ("" . l:valueToPath . "") != ""
-				if !empty(matchstr(l:valueToPath, "\/$"))
-					let l:stopWhile = 1
-				else
-					call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-					redraw!
-				endif
-			endif
-		endwhile
+    let l:valueToPath = ""
+    let l:stopWhile = 0
+    while l:stopWhile == 0
+      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(@+) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+      if l:valueToPath == "0"
+        if !empty(matchstr(@+, "\/$"))
+          let l:stopWhile = 1
+          let l:valueToPath = @+
+        else
+          call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+          " Note: The "redraw!" is to ensure that the message is displayed! By Questor
+          redraw!
+        endif
+      elseif l:valueToPath == "1"
+        let l:stopWhile = 1
+        let l:valueToPath = ""
+      elseif l:valueToPath == "2"
+        let l:stopWhile = 1
+        let l:valueToPath = expand("%:h") . "/"
+      elseif ("" . l:valueToPath . "") != ""
+        if !empty(matchstr(l:valueToPath, "\/$"))
+          let l:stopWhile = 1
+        else
+          call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+          redraw!
+        endif
+      endif
+    endwhile
 
-		let l:definePathWarning = ""
-		let l:valueToName = ""
-		let l:stopWhile = 0
-		while l:stopWhile == 0
-			if l:valueToPath == ""
-				let l:definePathWarning = " (DEFINE A PATH TOO!)"
-			endif
-			let l:valueToName = input("NAME of the file copy to be saved" . l:definePathWarning . ": ")
-			if ("" . l:valueToName . "") != ""
-				if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
-					let l:stopWhile = 1
-				else
-					call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
-					redraw!
-				endif
-			endif
-		endwhile
+    let l:definePathWarning = ""
+    let l:valueToName = ""
+    let l:stopWhile = 0
+    while l:stopWhile == 0
+      if l:valueToPath == ""
+        let l:definePathWarning = " (DEFINE A PATH TOO!)"
+      endif
+      let l:valueToName = input("NAME of the file copy to be saved" . l:definePathWarning . ": ")
+      if ("" . l:valueToName . "") != ""
+        if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
+          let l:stopWhile = 1
+        else
+          call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
+          redraw!
+        endif
+      endif
+    endwhile
 
-		try
-			exec "w " . l:valueToPath . l:valueToName
-			exec "tabnew " . l:valueToPath . l:valueToName
-			call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
-			redraw!
-		catch
-			call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
-			redraw!
-		endtry
+    try
+      exec "w " . l:valueToPath . l:valueToName
+      exec "tabnew " . l:valueToPath . l:valueToName
+      call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
+      redraw!
+    catch
+      call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
+      redraw!
+    endtry
 
 endfunc
 
 " Note: Saves to disk! By Questor
 func! GrooVim_VisualWrite() range
-	" Note: Witre! By Questor
-	exec "w"
-	" Note: Reselect area! By Questor
-	exec "norm gv"
+  " Note: Witre! By Questor
+  exec "w"
+  " Note: Reselect area! By Questor
+  exec "norm gv"
 endfunc
 
 " Note: Changes to uppercase/lowercase! By Questor
 func! GrooVim_ToUpperLower(modType) range
-	" Note: Reselect area! By Questor
-	exec "norm gv"
+  " Note: Reselect area! By Questor
+  exec "norm gv"
 
-	if a:modType == "Upper"
-		exec "norm gU"
-	endif
+  if a:modType == "Upper"
+    exec "norm gU"
+  endif
 
-	if a:modType == "Lower"
-		exec "norm gu"
-	endif
+  if a:modType == "Lower"
+    exec "norm gu"
+  endif
 
-	" Note: Repositioning on final! By Questor
-	exec "norm gv\<Esc>"
+  " Note: Repositioning on final! By Questor
+  exec "norm gv\<Esc>"
 endfunc
 
 " Note: Sudo to write! By Questor
@@ -2735,7 +2741,7 @@ set novisualbell
 
 " Note: Always turn on syntax highlighting for diffs (select by the file-suffix directly)! By Questor
 augroup PatchDiffHighlight
-	autocmd! BufEnter  *.patch,*.rej,*.diff   syntax enable
+  autocmd! BufEnter  *.patch,*.rej,*.diff   syntax enable
 augroup end
 
 " Note: Displays messages on the scroll bar! By Questor
@@ -2745,18 +2751,18 @@ let g:GrooVim_GrooVimBarMsgEnabled = 0
 let g:GrooVim_GrooVimBarMsgDuration = 0
 func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
 
-	if g:GrooVim_CheckCapsLockReturn == 0
-		if a:msgValue != ""
-			let g:GrooVim_GrooVimBarMsgValue = " Hey: " . a:msgValue
-			let g:GrooVim_GrooVimBarMsgMoment = strftime("%Y%m%d%H%M%S")
-			let g:GrooVim_GrooVimBarMsgEnabled = 1
-			let g:GrooVim_GrooVimBarMsgDuration = a:msgDuration
-		else
-			let g:GrooVim_GrooVimBarMsgValue = ""
-			let g:GrooVim_GrooVimBarMsgEnabled = 0
-		endif
-		call GrooVim_GrooVimBar()
-	endif
+  if g:GrooVim_CheckCapsLockReturn == 0
+    if a:msgValue != ""
+      let g:GrooVim_GrooVimBarMsgValue = " Hey: " . a:msgValue
+      let g:GrooVim_GrooVimBarMsgMoment = strftime("%Y%m%d%H%M%S")
+      let g:GrooVim_GrooVimBarMsgEnabled = 1
+      let g:GrooVim_GrooVimBarMsgDuration = a:msgDuration
+    else
+      let g:GrooVim_GrooVimBarMsgValue = ""
+      let g:GrooVim_GrooVimBarMsgEnabled = 0
+    endif
+    call GrooVim_GrooVimBar()
+  endif
 
 endfun
 
@@ -2764,8 +2770,8 @@ endfun
 set laststatus=2
 func! GrooVim_GrooVimBar()
 
-	let l:barContents = '%f [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
-	return l:barContents . " Powered by [GrooVim =D " . g:grooVimVersion . "]!" . g:GrooVim_GrooVimBarMsgValue
+  let l:barContents = '%f [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  return l:barContents . " Powered by [GrooVim =D " . g:grooVimVersion . "]!" . g:GrooVim_GrooVimBarMsgValue
 
 endfun
 set stl=%!GrooVim_GrooVimBar()
@@ -2775,19 +2781,25 @@ call GrooVim_GrooVimBarMsg("To see GrooVim help use F9!", 10)
 " Note: Make the 81st column stand out (just the 80st column of wide lines...)! By Questor
 highlight GrooVim_ColorColumn ctermbg=blue
 augroup GrooVim_ColorColumn
-	autocmd! VimEnter,WinEnter * call matchadd('GrooVim_ColorColumn', '\%81v', 100)
+  autocmd! VimEnter,WinEnter * call matchadd('GrooVim_ColorColumn', '\%81v', 100)
 augroup end
 
-" Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
+
+" Note: Make trailing whitespace and non-breaking spaces visible! By Questor
 set list
-" Note: Type I! By Questor
-"exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
-" Note: Type II! By Questor
-exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
+exec "set listchars=trail:\uB7,nbsp:~"
+
+
+" " Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
+" " Note: Type I! By Questor
+" "exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
+" " Note: Type II! By Questor
+" exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
+
 
 " Note: Switch syntax highlighting on, when the terminal has colors! By Questor
 if &t_Co > 2 || has("gui_running")
-	syntax on
+  syntax on
 endif
 
 " Note: Switch from block-cursor to vertical-line-cursor when going into/out of insert mode! By Questor
@@ -2802,20 +2814,20 @@ let g:cursorColorNV = "red"
 let g:cursorColorBlock = 0
 
 func! SetCursorColor()
-	let &t_SI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorI . ";BlinkingCursorEnabled=1\x7"
-	let &t_EI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorNV . ";BlinkingCursorEnabled=0\x7"
+  let &t_SI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorI . ";BlinkingCursorEnabled=1\x7"
+  let &t_EI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorNV . ";BlinkingCursorEnabled=0\x7"
 endfun
 
 if &term =~ "xterm\\|rxvt" && $COLORTERM != "gnome-terminal"
-	autocmd VimEnter * silent !konsoleprofile UseCustomCursorColor=1
-	call SetCursorColor()
-	silent !konsoleprofile CustomCursorColor=red
-	autocmd VimLeave * silent !konsoleprofile CustomCursorColor=default;BlinkingCursorEnabled=0
+  autocmd VimEnter * silent !konsoleprofile UseCustomCursorColor=1
+  call SetCursorColor()
+  silent !konsoleprofile CustomCursorColor=red
+  autocmd VimLeave * silent !konsoleprofile CustomCursorColor=default;BlinkingCursorEnabled=0
 endif
 
 " " Note: Displays a line below the cursor (causes slowdown)! By Questor
 " if exists('+cursorline')
-" 	set cursorline cursorcolumn
+"   set cursorline cursorcolumn
 " endif
 "
 " " Note: Displays a column over the cursor (causes slowdown)! By Questor
@@ -2856,26 +2868,26 @@ set gdefault
 
 " Note: Return to last edit position when opening files (you want this!)! By Questor
 autocmd! BufReadPost *
-	\ if line("'\"") > 0 && line("'\"") <= line("$") |
-	\   exe "normal! g`\"" |
-	\ endif
+  \ if line("'\"") > 0 && line("'\"") <= line("$") |
+  \   exe "normal! g`\"" |
+  \ endif
 set viminfo^=%
 
 " Note: Bind <F1> to show the keyword under cursor general help that can still be
 " entered manually, with :h! By Questor
 if has("autocmd")
-	augroup vim_files
-		autocmd! filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
-		autocmd! filetype vim noremap! <buffer> <F1> <Esc>:help <C-r><C-w><cr>
-	augroup end
+  augroup vim_files
+    autocmd! filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
+    autocmd! filetype vim noremap! <buffer> <F1> <Esc>:help <C-r><C-w><cr>
+  augroup end
 endif
 
 " Note: Turn persistent undo on means that you can undo even when you close a
 " buffer/VIM! By Questor
 " ToDo: Document the need for this directory! By Questor
 try
-	set undodir=~/.vim/Temp/Undodir
-	set undofile
+  set undodir=~/.vim/Temp/Undodir
+  set undofile
 catch
 endtry
 
@@ -2921,17 +2933,17 @@ let NERDTreeWinPos = "right"
 
 " Note: Mapping to move-vim! By Questor
 if g:enable_move_vim == 1 && g:enable_all_plugins == 1
-	let g:move_key_modifier = "C"
-	inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
-	inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
-	" Note: This workaround is for the "Move Vim" can be fired in insert mode! By Questor
-	func! GrooVim_Move_Vim_OnInsert(direc)
-		if a:direc == "up"
-			exec "norm \<C-k>"
-		elseif a:direc == "down"
-			exec "norm \<C-j>"
-		endif
-	endfun
+  let g:move_key_modifier = "C"
+  inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
+  inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
+  " Note: This workaround is for the "Move Vim" can be fired in insert mode! By Questor
+  func! GrooVim_Move_Vim_OnInsert(direc)
+    if a:direc == "up"
+      exec "norm \<C-k>"
+    elseif a:direc == "down"
+      exec "norm \<C-j>"
+    endif
+  endfun
 endif
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -2944,20 +2956,20 @@ set fileencoding=utf-8
 set fileencodings=ucs-bom,utf-8,big5,gb2312,latin1
 
 fun! ViewUTF8()
-	set encoding=utf-8
-	set termencoding=big5
+  set encoding=utf-8
+  set termencoding=big5
 endfun
 
 fun! UTF8()
-	set encoding=utf-8
-	set termencoding=big5
-	set fileencoding=utf-8
-	set fileencodings=ucs-bom,big5,utf-8,latin1
+  set encoding=utf-8
+  set termencoding=big5
+  set fileencoding=utf-8
+  set fileencodings=ucs-bom,big5,utf-8,latin1
 endfun
 
 fun! Big5()
-	set encoding=big5
-	set fileencoding=big5
+  set encoding=big5
+  set fileencoding=big5
 endfun
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
