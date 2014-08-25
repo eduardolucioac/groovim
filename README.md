@@ -224,6 +224,79 @@ Task List/Bugs List!
 
  * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
 
+How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
+-----
+
+ * How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu
+
+ - Remove any installed vim packages
+
+[RHEL]
+
+yum remove $(rpm -qa | grep ^vim)
+
+[Ubuntu]
+
+sudo apt-get remove vim vim-runtime gvim
+sudo apt-get remove vim-tiny vim-common vim-gui-common
+
+ - Download VIM version 7.4 from here
+
+mkdir -p /opt/pkgs
+cd /opt/pkgs
+wget ftp://ftp.vim.org/pub/vim/unix/vim-7.4.tar.bz2
+tar jxvf vim-*.tar.bz2
+rm -f vim-*.tar.bz2
+cd vim*
+
+ - Set-up build environment
+
+[RHEL]
+
+yum install gcc make ncurses-devel
+
+[Ubuntu]
+
+sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev \
+libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
+libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev ruby-dev mercurial
+
+ - Configure and build VIM sources
+
+[RHEL]
+
+./configure --disable-selinux \
+            --with-features=huge \
+            --with-modified-by=Questor \
+            --enable-gui=gtk2 \
+            --enable-multibyte \
+            --enable-rubyinterp \
+            --enable-pythoninterp \
+            --enable-perlinterp \
+            --enable-luainterp \
+            --enable-cscope \
+            --prefix=/usr
+
+[Ubuntu]
+
+./configure --with-features=huge \
+            --with-modified-by=Questor \
+            --enable-gui=gtk2 \
+            --enable-multibyte \
+            --enable-rubyinterp \
+            --enable-pythoninterp \
+            --enable-perlinterp \
+            --enable-luainterp \
+            --enable-cscope \
+            --prefix=/usr
+
+make
+make install
+
+ - Re-hash the environment
+
+hash -r
+
 Contact
 -----
 
