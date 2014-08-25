@@ -227,8 +227,6 @@ Task List/Bugs List!
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 -----
 
- * How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu
-
  - Remove any installed vim packages
 
 [RHEL]
@@ -240,7 +238,7 @@ yum remove $(rpm -qa | grep ^vim)
 sudo apt-get remove vim vim-runtime gvim
 sudo apt-get remove vim-tiny vim-common vim-gui-common
 
- - Download VIM version 7.4 from here
+ - Download VIM version 7.4 from here...
 
 mkdir -p /opt/pkgs
 cd /opt/pkgs
