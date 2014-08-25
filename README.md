@@ -216,6 +216,7 @@ Task List/Bugs List!
  * Bug: The tab character must have 4 spaces for "*.py" files and 2 for the others! (PRIORITY) By Questor
 
  * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
+
 <a name="buildInstallVIM"></a>
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 -----
