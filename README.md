@@ -6,7 +6,7 @@ GrooVim - Vi IMproved'n'GrooVIed!
 What is GrooVim?
 -----
 
-**Note:** If you want to start using GrooVim immediately go to section! -> "I do not want to know anything about GrooVim and want to start using now and with all the features!".
+**Note:** If you want to start using GrooVim immediately go to section: **"I do not want to know anything about GrooVim and want to start using now and with all the features!"**.
 
 The GrooVim is an extensive script (__it's a .vimrc__) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
  * Allow use with just a few instructions by a public accustomed to editors/IDEs default;
@@ -231,7 +231,7 @@ How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 
  - Remove any installed vim packages
 
-[RHEL]
+[RHEL/CentOS]
 ```
 yum remove $(rpm -qa | grep ^vim)
 ```
@@ -251,7 +251,7 @@ cd vim*
 ```
  - Set-up build environment
 
-[RHEL]
+[RHEL/CentOS]
 ```
 yum install gcc make ncurses-devel
 ```
@@ -263,7 +263,7 @@ libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev ruby-dev mercurial
 ```
  - Configure and build VIM sources
 
-[RHEL]
+[RHEL/CentOS]
 ```
 ./configure --disable-selinux \
 --with-features=huge \
@@ -299,6 +299,52 @@ make install
  - Re-hash the environment
 ```
 hash -r
+```
+
+I do not want to know anything about GrooVim and want to start using now and with all the features!
+-----
+
+**Note:** We recommend that you install the Vim from source code to ensure compatibility with GrooVim. For that, see the section: **How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!**!
+
+- For the installation of "pathogen", run: 
+
+**Note:** Facilitates the installation of addons in VIM.
+```
+sudo apt-get install curl # Not for [RHEL/CentOS]
+```
+```
+mkdir -p ~/.vim/autoload ~/.vim/bundle; \
+curl -Sso ~/.vim/autoload/pathogen.vim \
+https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
+```
+- To install the "git", run: 
+```
+sudo apt-get install git # Not for [RHEL/CentOS]
+```
+- Clone GrooVim ("~/.vimrc"). 
+```
+git clone https://github.com/eduardolucioac/groovim.git /usr/local/share/groovim
+cp /usr/local/share/groovim/.vimrc ~/.vimrc
+```
+- For the installation of "nerdtree" plugin, run: 
+```
+git clone https://github.com/scrooloose/nerdtree.git  ~/.vim/bundle/nerdtree/
+```
+- To install the "vim-nerdtree-tabs" plugin, run: 
+```
+git clone https://github.com/jistr/vim-nerdtree-tabs.git ~/.vim/bundle/vim-nerdtree-tabs/
+```
+- For the installation of "tcomment_vim" plugin, run: 
+```
+git clone https://github.com/tomtom/tcomment_vim.git ~/.vim/bundle/tcomment_vim/
+```
+- To install the "vim-move" plugin, run: 
+```
+git clone https://github.com/matze/vim-move.git ~/.vim/bundle/vim-move/
+```
+- For the installation of "indentLine" plugin, run: 
+```
+git clone https://github.com/Yggdroot/indentLine.git ~/.vim/bundle/indentLine/
 ```
 Contact
 -----
