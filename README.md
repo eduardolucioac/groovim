@@ -299,10 +299,10 @@ make install
 hash -r
 ```
 
-[Install GrooVim or...] I do not want to know anything about GrooVim and want to start using now and with all the features!
+[Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----
 
-**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: **How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!**!
+**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: **"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!"**!
 
 - For the installation of "pathogen", run: 
 
