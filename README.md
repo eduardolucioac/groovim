@@ -264,29 +264,29 @@ libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev ruby-dev mercurial
 [RHEL]
 
 ./configure --disable-selinux \
-            --with-features=huge \
-            --with-modified-by=Questor \
-            --enable-gui=gtk2 \
-            --enable-multibyte \
-            --enable-rubyinterp \
-            --enable-pythoninterp \
-            --enable-perlinterp \
-            --enable-luainterp \
-            --enable-cscope \
-            --prefix=/usr
+--with-features=huge \
+--with-modified-by=Questor \
+--enable-gui=gtk2 \
+--enable-multibyte \
+--enable-rubyinterp \
+--enable-pythoninterp \
+--enable-perlinterp \
+--enable-luainterp \
+--enable-cscope \
+--prefix=/usr
 
 [Ubuntu]
 
 ./configure --with-features=huge \
-            --with-modified-by=Questor \
-            --enable-gui=gtk2 \
-            --enable-multibyte \
-            --enable-rubyinterp \
-            --enable-pythoninterp \
-            --enable-perlinterp \
-            --enable-luainterp \
-            --enable-cscope \
-            --prefix=/usr
+--with-modified-by=Questor \
+--enable-gui=gtk2 \
+--enable-multibyte \
+--enable-rubyinterp \
+--enable-pythoninterp \
+--enable-perlinterp \
+--enable-luainterp \
+--enable-cscope \
+--prefix=/usr
 
 make
 make install
