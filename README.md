@@ -190,8 +190,6 @@ Task List/Bugs List!
 
  * ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
- * ToDo: Try a solution to "set expandtab" X "set listchars=tab:▒░,trail:·" problem! How we can "listchars" spaces as "tabs"? By Questor
-
  * ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
 
  * ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done using a script that works according with user distro/UI! By Questor
@@ -301,10 +299,10 @@ make install
 hash -r
 ```
 
-I do not want to know anything about GrooVim and want to start using now and with all the features!
+[Install GrooVim or...] I do not want to know anything about GrooVim and want to start using now and with all the features!
 -----
 
-**Note:** We recommend that you install the Vim from source code to ensure compatibility with GrooVim. For that, see the section: **How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!**!
+**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: **How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!**!
 
 - For the installation of "pathogen", run: 
 
@@ -326,7 +324,7 @@ sudo apt-get install git # Not for [RHEL/CentOS]
 git clone https://github.com/eduardolucioac/groovim.git /usr/local/share/groovim
 cp /usr/local/share/groovim/.vimrc ~/.vimrc
 ```
-- For the installation of "nerdtree" plugin, run: 
+- To install the "nerdtree" plugin, run: 
 ```
 git clone https://github.com/scrooloose/nerdtree.git  ~/.vim/bundle/nerdtree/
 ```
@@ -334,7 +332,7 @@ git clone https://github.com/scrooloose/nerdtree.git  ~/.vim/bundle/nerdtree/
 ```
 git clone https://github.com/jistr/vim-nerdtree-tabs.git ~/.vim/bundle/vim-nerdtree-tabs/
 ```
-- For the installation of "tcomment_vim" plugin, run: 
+- To install the "tcomment_vim" plugin, run: 
 ```
 git clone https://github.com/tomtom/tcomment_vim.git ~/.vim/bundle/tcomment_vim/
 ```
@@ -342,10 +340,11 @@ git clone https://github.com/tomtom/tcomment_vim.git ~/.vim/bundle/tcomment_vim/
 ```
 git clone https://github.com/matze/vim-move.git ~/.vim/bundle/vim-move/
 ```
-- For the installation of "indentLine" plugin, run: 
+- To install the "indentLine" plugin, run: 
 ```
 git clone https://github.com/Yggdroot/indentLine.git ~/.vim/bundle/indentLine/
 ```
+
 Contact
 -----
 
