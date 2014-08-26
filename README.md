@@ -315,8 +315,8 @@ sudo apt-get install git # Not for [RHEL/CentOS]
 ```
 - Clone GrooVim ("~/.vimrc"). 
 ```
-git clone https://github.com/eduardolucioac/groovim.git /usr/local/share/groovim
-cp /usr/local/share/groovim/.vimrc ~/.vimrc
+git clone https://github.com/eduardolucioac/groovim.git ~/Downloads/groovim
+cp ~/Downloads/groovim/.vimrc ~/.vimrc
 ```
 - To install the "nerdtree" plugin, run: 
 ```
