@@ -217,6 +217,8 @@ Task List/Bugs List!
 
  * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
 
+ * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
+
 <a name="buildInstallVIM"></a>
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 -----
