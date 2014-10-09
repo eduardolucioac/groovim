@@ -220,7 +220,7 @@ Task List/Bugs List!
  * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
 
 <a name="buildInstallVIM"></a>
-How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
+How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!
 -----
 
  - Remove any installed vim packages
@@ -229,7 +229,7 @@ How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!
 ```
 yum remove $(rpm -qa | grep ^vim)
 ```
-[Ubuntu]
+[Ubuntu/Debian]
 ```
 sudo apt-get remove vim vim-runtime gvim
 sudo apt-get remove vim-tiny vim-common vim-gui-common
@@ -249,7 +249,7 @@ cd vim*
 ```
 yum install gcc make ncurses-devel
 ```
-[Ubuntu]
+[Ubuntu/Debian]
 ```
 sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev \
 libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
@@ -274,7 +274,7 @@ libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev ruby-dev mercurial
 make
 make install
 ```
-[Ubuntu]
+[Ubuntu/Debian]
 ```
 ./configure --with-features=huge \
 --with-modified-by=Questor \
@@ -298,7 +298,7 @@ hash -r
 [Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----
 
-**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: <a href="#buildInstallVIM">**"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu!"**</a>!
+**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: <a href="#buildInstallVIM">**"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!"**</a>!
 
 - For the installation of "pathogen", run: 
 
