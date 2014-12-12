@@ -219,6 +219,10 @@ Task List/Bugs List!
 
  * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
 
+ * ToDo: When we do text replace in multiple tabs the GrooVim makes replacement of the first occurrence only on each tab! By Questor
+
+ * ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
+
 <a name="buildInstallVIM"></a>
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!
 -----
