@@ -294,6 +294,20 @@ make install
 make
 make install
 ```
+
+Note: If you have problems compiling Vim, try use this reduced configuration:
+
+```
+./configure --disable-selinux \
+--with-features=huge \
+--with-modified-by=Questor \
+--enable-gui=gtk2 \
+--enable-multibyte \
+--enable-pythoninterp \
+--enable-cscope \
+--prefix=/usr
+```
+
  - Re-hash the environment
 ```
 hash -r
