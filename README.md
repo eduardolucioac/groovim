@@ -223,7 +223,7 @@ Task List/Bugs List!
 
  * ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
 
- * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E ^ D)! By Questor
+ * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
 
 <a name="buildInstallVIM"></a>
 How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!
