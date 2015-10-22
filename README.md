@@ -1,7 +1,7 @@
 LightBase - Direto à informação!
 =============
 
-<img border="0" alt="GrooVim Doc" src="http://lightbase.com.br/wp-content/uploads/2012/01/BrLightBase_Logomarca.jpg" height="15%" width="15%"/>BRLight LTDA
+<img border="0" alt="GrooVim Doc" src="http://lightbase.com.br/wp-content/uploads/2012/01/BrLightBase_Logomarca.jpg" height="15%" width="50%"/>
 
 O que é o LightBase?
 -----
