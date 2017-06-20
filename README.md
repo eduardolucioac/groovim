@@ -175,6 +175,8 @@ Task List/Bugs List!
 
  * Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) By Questor
 
+ * ToDo: Create a shortcut to moving between matching braces! By Questor
+
  * ToDo: Create a configuration scheme according to the type of file. This scheme must be in the end of ".vimrc" to work properly! By Questor
 
  * ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) By Questor
