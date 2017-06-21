@@ -174,6 +174,9 @@ Task List/Bugs List!
  * TODO: In "visual mode" "End" key must go "have to go" one column less! By Questor
  
  * TODO: Create instalation scripts for RHEL, Debian and Arch or based on these! By Questor
+ 
+ * TODO: Try to use wombat256 color scheme! By Questor
+    https://raw.githubusercontent.com/Lucidyan/vpyde3/master/data/wombat256mod.vim
 
  * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! By Questor
 
