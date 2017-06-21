@@ -167,6 +167,14 @@ If you liked it, consider helping the project!
 Task List/Bugs List!
 -----
 
+ * TODO: Open file passing path (use F's shortcut)! By Questor
+ 
+ * TODO: "Power Search" open in vim from a vim shortcut the results off a "find" command! By Questor
+ 
+ * TODO: In "visual mode" "End" key must go "have to go" one column less! By Questor
+ 
+ * TODO: Create instalation scripts for RHEL, Debian and Arch or based on these! By Questor
+
  * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! By Questor
 
  * Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! By Questor
