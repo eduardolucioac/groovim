@@ -321,12 +321,56 @@ let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
 " paste stays off unless you know your terminal answers! By Questor
 let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
 
+" Note: The "osc52" package asks the terminal with a DA1 query ("ESC [ c") and
+" only believes it when the answer advertises "52". That is how xterm announces
+" it, but several terminals DO implement OSC 52 without ever saying so that way
+" -- Konsole is one of them, which is why the detection quietly failed there.
+" So we recognize by their own environment the terminals we know, and tell the
+" package to go ahead. Set "g:osc52_force_avail" yourself to overrule! By Questor
+func! GrooVim_TerminalDoesOSC52()
+
+  " Note: Under a GUI the terminal sequences make no sense! By Questor
+  if has("gui_running")
+    return 0
+  endif
+
+  " Note: Terminals that do OSC 52 and identify themselves! By Questor
+  if $KONSOLE_VERSION != "" || $KITTY_WINDOW_ID != "" || $ALACRITTY_WINDOW_ID != ""
+        \ || $ALACRITTY_SOCKET != "" || $WEZTERM_PANE != "" || $GHOSTTY_BIN_DIR != ""
+    return 1
+  endif
+
+  " Note: VTE (GNOME Terminal and relatives) does OSC 52 from 0.72 on! By Questor
+  if $VTE_VERSION != "" && str2nr($VTE_VERSION) >= 7200
+    return 1
+  endif
+
+  if $TERM_PROGRAM =~? "iTerm\\|WezTerm\\|ghostty\\|vscode\\|Apple_Terminal"
+    return 1
+  endif
+
+  if &term =~ "^\\(foot\\|kitty\\|alacritty\\|wezterm\\|contour\\|rio\\)"
+    return 1
+  endif
+
+  " Note: tmux forwards OSC 52 to the terminal around it when "set-clipboard" is
+  " on, which is its default! By Questor
+  if $TMUX != ""
+    return 1
+  endif
+
+  return 0
+endfunc
+
 if g:GrooVim_EnableOSC52 && exists("v:clipproviders") && exists("+clipmethod")
+  let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
   try
     packadd osc52
     if &clipmethod !~ "osc52"
       set clipmethod+=osc52
     endif
+    " Note: Makes Vim pick a clipmethod again now that the provider exists! By Questor
+    silent! clipreset
   catch
   endtry
 endif
@@ -359,13 +403,19 @@ func! GrooVim_ClipReg()
   if g:GrooVim_ClipRegCache != ""
     return g:GrooVim_ClipRegCache
   endif
-  let l:available = has("clipboard_working")
-  " Note: A clipboard provider (OSC 52) exposes the registers even on a Vim
-  " built without "+clipboard"! By Questor
-  if !l:available && exists("v:clipmethod")
-    let l:available = v:clipmethod != "" && v:clipmethod != "none"
+  " Note: A clipboard provider (OSC 52) exposes BOTH registers even on a Vim
+  " built without "+clipboard", and there "+" is the one we want: the provider
+  " sends "OSC 52;c" for "+", which is the real clipboard, and "OSC 52;p" for
+  " "*", which is the primary selection (the middle click one). Asking
+  " has("unnamedplus") here would answer 0 on such a build and quietly send
+  " every copy to the wrong selection! By Questor
+  if exists("v:clipmethod") && v:clipmethod != "" && v:clipmethod != "none"
+        \ && exists("v:clipproviders") && has_key(v:clipproviders, v:clipmethod)
+    let g:GrooVim_ClipRegCache = "+"
+    return g:GrooVim_ClipRegCache
   endif
-  if l:available
+
+  if has("clipboard_working")
     let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
     return g:GrooVim_ClipRegCache
   endif
@@ -1028,8 +1078,19 @@ endfunc
 
 " Note: Check if caps lock is on! By Questor
 let g:GrooVim_CheckCapsLockReturn = 0
-let g:GrooVim_CheckCapsLockLastExec = 0
 let g:GrooVim_CheckCapsLockMsg = 0
+" Note: Reading a file does not disturb the screen the way "system()" did, so
+" neither the "redraw!" nor the workaround that put the last message back on
+" screen after it are needed here anymore! By Questor
+"
+" Note: This acts only when the state CHANGED, instead of on a clock. The old
+" gate compared against the moment of the last CALL, and the moment was updated
+" on every call, so while the cursor was busy the gate simply never opened: the
+" warning only showed up after a pause followed by more cursor movement! By Questor
+"
+" Note: Mind the order! "GrooVim_GrooVimBarMsg()" refuses to show anything while
+" "g:GrooVim_CheckCapsLockReturn" is 1, so the warning must be pushed BEFORE
+" that flag is raised! By Questor
 func! GrooVim_CheckCapsLock() range
 
   " Note: Nothing to read, nothing to do! By Questor
@@ -1037,30 +1098,55 @@ func! GrooVim_CheckCapsLock() range
     return
   endif
 
-  if (localtime() - g:GrooVim_CheckCapsLockLastExec) > 1
+  let l:isOn = GrooVim_CapsLockIsOn()
 
-    " Note: Reading a file does not disturb the screen the way "system()" did,
-    " so neither the "redraw!" nor the workaround that put the last message back
-    " on screen after it are needed here anymore! By Questor
+  if l:isOn == g:GrooVim_CheckCapsLockReturn
+    return
+  endif
 
-    if GrooVim_CapsLockIsOn()
-      " Note: To debug! By Questor
-      if g:GrooVim_CheckCapsLockReturn == 0
-        " Note: This warning have a special condition and only
-        " disappears if capslock is off! When caps lock is on
-        " any other message will be shown! By Questor
-        call GrooVim_GrooVimBarMsg("((( CAPS LOCK IS ON, OH NO!!! =| )))", 0)
-        let g:GrooVim_CheckCapsLockMsg = 1
-      endif
-      let g:GrooVim_CheckCapsLockReturn = 1
-    else
-      let g:GrooVim_CheckCapsLockReturn = 0
+  if l:isOn
+    " Note: This warning have a special condition and only
+    " disappears if capslock is off! When caps lock is on
+    " any other message will be shown! By Questor
+    call GrooVim_GrooVimBarMsg("((( CAPS LOCK IS ON, OH NO!!! =| )))", 0)
+    let g:GrooVim_CheckCapsLockMsg = 1
+    let g:GrooVim_CheckCapsLockReturn = 1
+  else
+    let g:GrooVim_CheckCapsLockReturn = 0
+    if g:GrooVim_CheckCapsLockMsg == 1
+      let g:GrooVim_CheckCapsLockMsg = 0
+      call GrooVim_GrooVimBarMsg("", "")
     endif
   endif
 
-  let g:GrooVim_CheckCapsLockLastExec = localtime()
-
 endfunc
+
+" Note: The caps lock is watched by its OWN timer instead of riding on cursor
+" events. Reading the LED costs a small file read, and this way the warning
+" appears (and disappears) even when you are not touching anything! By Questor
+let g:GrooVim_CapsLockPollMs = get(g:, "GrooVim_CapsLockPollMs", 300)
+
+func! GrooVim_CapsLockPoll(timerId)
+  " Note: Stay out of the way while a movement is being animated! By Questor
+  if g:GrooVim_GroovyMoveEnabled == 0
+    return
+  endif
+  call GrooVim_CheckCapsLock()
+  call GrooVim_GrooVimBarMsgExpire()
+endfunc
+
+" Note: Reloading the ".vimrc" ("F3" and then "r") would otherwise pile up one
+" timer per reload! By Questor
+if exists("g:GrooVim_CapsLockTimer")
+  try
+    call timer_stop(g:GrooVim_CapsLockTimer)
+  catch
+  endtry
+endif
+let g:GrooVim_CapsLockTimer = -1
+if !empty(g:GrooVim_CapsLockLeds) && exists("*timer_start")
+  let g:GrooVim_CapsLockTimer = timer_start(g:GrooVim_CapsLockPollMs, "GrooVim_CapsLockPoll", {"repeat": -1})
+endif
 
 " Note: The exclamation in "autocmd!" avoids redefining this event when reload
 " ".vimrc"! By Questor
@@ -1097,11 +1183,7 @@ func! GrooVim_CheckCapsLockTimer()
   if g:onCursorMoved == 0 && g:onMoveScreen == 0
 
     call GrooVim_CheckCapsLock()
-    if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:onMoveScreen == 0
-      if (localtime() - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
-        call GrooVim_GrooVimBarMsg("", "")
-      endif
-    endif
+    call GrooVim_GrooVimBarMsgExpire()
 
   else
     let g:onMoveScreen = 0
@@ -1183,12 +1265,11 @@ vnoremap <silent> <S-ScrollWheelUp> :<C-u>call GrooVim_ScrollAdm("v", "u")<cr>
 vnoremap <silent> <ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 vnoremap <silent> <S-ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 
-" Note: Serves to avoid the side effect of capslock status checking! By Questor
+" Note: Scrolls with the wheel allowing the cursor over "invalid" areas! By Questor
 func! GrooVim_ScrollAdm(mod, direction) range
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
-  let g:GrooVim_CheckCapsLockLastExec = localtime()
 
   if a:mod == "v"
     exec "norm gv"
@@ -2969,10 +3050,25 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
       let g:GrooVim_GrooVimBarMsgValue = ""
       let g:GrooVim_GrooVimBarMsgEnabled = 0
     endif
-    call GrooVim_GrooVimBar()
+    " Note: The status line is "%!GrooVim_GrooVimBar()", so it is Vim that calls
+    " it when redrawing. Just calling it here changed nothing on screen: the
+    " message only appeared at the next screen update, whenever that came! By Questor
+    try
+      redrawstatus!
+    catch
+    endtry
   endif
 
 endfun
+
+" Note: Drops a timed message from the bar once its time is over! By Questor
+func! GrooVim_GrooVimBarMsgExpire()
+  if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0
+    if (localtime() - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
+      call GrooVim_GrooVimBarMsg("", "")
+    endif
+  endif
+endfunc
 
 " Note: Displays an information bar! By Questor
 set laststatus=2
