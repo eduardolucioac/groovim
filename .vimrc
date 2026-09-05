@@ -379,18 +379,6 @@ endif
 " with 0700 because a clipboard tends to carry private things! By Questor
 let g:GrooVim_ClipFile = expand("~/.vim/GrooVim/clipboard")
 
-" Note: Avoids compatibility issues when copying to an external application! By Questor
-func! GrooVim_ClipSyncOption()
-  if has("clipboard_working")
-    if has("unnamedplus")
-      set clipboard=unnamedplus
-    else
-      set clipboard=unnamed
-    endif
-  endif
-endfunc
-call GrooVim_ClipSyncOption()
-
 " Note: Which register answers as clipboard RIGHT NOW. This is not decided once
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
 " the terminal and waits for the answer), so it may only become available after
@@ -423,11 +411,33 @@ func! GrooVim_ClipReg()
   return "\""
 endfunc
 
+" Note: Avoids compatibility issues when copying to an external application! By Questor
+"
+" Note: This is what makes a plain "y" reach the clipboard. It must follow
+" GrooVim_ClipReg() and NOT has("clipboard_working"): on a Vim built without
+" "+clipboard" but with the OSC 52 provider active, "clipboard_working" and
+" "unnamedplus" both answer 0, "clipboard" was left empty, and so every yank
+" stopped at the unnamed register and nothing was ever sent to the terminal!
+" By Questor
+func! GrooVim_ClipSyncOption()
+  let l:reg = GrooVim_ClipReg()
+  try
+    if l:reg == "+"
+      set clipboard=unnamedplus
+    elseif l:reg == "*"
+      set clipboard=unnamed
+    endif
+  catch
+  endtry
+endfunc
+
 " Note: Re-checks the clipboard once the terminal had time to answer! By Questor
 func! GrooVim_ClipRefresh()
   let g:GrooVim_ClipRegCache = ""
   call GrooVim_ClipSyncOption()
 endfunc
+
+call GrooVim_ClipSyncOption()
 
 augroup GrooVim_Clipboard
   autocmd!
