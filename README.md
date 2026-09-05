@@ -37,6 +37,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with the best plugins;
  * When using plugins, __Pathogen__ plugin needs to be intalled (https://github.com/tpope/vim-pathogen);
  * By default GrooVim have all plugins enabled (see "let g:enable_all_plugins = 1"). You can also enable/disable the plugins individually. Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
+ * The debug plugin support ("F4" and then "d") is disabled by default ("let g:enable_debugger_vim = 0") because no debug plugin is installed by the instructions below;
 
 The GrooVim solves the following "problems"!
 -----
@@ -60,8 +61,8 @@ Some editor features!
 -----
 
  * Switching between modes:
-    - Alt-Up (normal mode/insert/visual) - Enter or exit the insert mode;
-    - Alt-Down (normal mode/insert/visual) - Enter or exit the visual mode;
+    - Shift-Up (normal mode/insert/visual) - Enter or exit the insert mode;
+    - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
 
  * Text selection:
     - Alt-Right/Alt-Left (normal mode/insert) - Word selection to the right/left;

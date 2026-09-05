@@ -294,11 +294,32 @@ execute pathogen#helptags()
 set mouse=a
 
 " Note: Avoids compatibility issues when copying to an external application! By Questor
-if has('unnamedplus')
-  set clipboard=unnamedplus
+" Note: Vim can be built without clipboard support ("-clipboard") or without a
+" working clipboard provider. In that case "GrooVim_ClipGet()"/"@*" raise "E354" and "set
+" clipboard" is pointless, so we fall back to the unnamed register! By Questor
+if has('clipboard_working')
+  if has('unnamedplus')
+    set clipboard=unnamedplus
+    let g:GrooVim_ClipReg = "+"
+  else
+    set clipboard=unnamed
+    let g:GrooVim_ClipReg = "*"
+  endif
 else
-  set clipboard=unnamed
+  let g:GrooVim_ClipReg = "\""
 endif
+
+" Note: Read the "transfer area" through the register available on this Vim
+" build! By Questor
+func! GrooVim_ClipGet()
+  return getreg(g:GrooVim_ClipReg)
+endfunc
+
+" Note: Write to the "transfer area" through the register available on this Vim
+" build! By Questor
+func! GrooVim_ClipSet(value)
+  call setreg(g:GrooVim_ClipReg, a:value)
+endfunc
 
 " Note: Don't create swap files! By Questor
 set noswapfile
@@ -379,7 +400,9 @@ let g:enable_tcomment_vim = 1
 let g:enable_nerdtree_vim = 1
 
 " Note: debugger.vim! By Questor
-let g:enable_debugger_vim = 1
+" Note: Disabled by default: there is no install instruction for a debug plugin,
+" so "F4" and then "d" would always fail. Set to 1 if you install one! By Questor
+let g:enable_debugger_vim = 0
 
 " Note: move.vim! By Questor
 let g:enable_move_vim = 1
@@ -832,7 +855,7 @@ let g:GrooVim_CheckCapsLockLastExec = 0
 let g:GrooVim_CheckCapsLockMsg = 0
 func! GrooVim_CheckCapsLock() range
 
-  if (strftime("%Y%m%d%H%M%S") - g:GrooVim_CheckCapsLockLastExec) > 1 || g:GrooVim_CheckCapsLockLastExec == ""
+  if (localtime() - g:GrooVim_CheckCapsLockLastExec) > 1
 
     let l:result = system("xset -q | grep \"Caps Lock:   on\"")
 
@@ -859,7 +882,7 @@ func! GrooVim_CheckCapsLock() range
     endif
   endif
 
-  let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
+  let g:GrooVim_CheckCapsLockLastExec = localtime()
 
 endfunc
 
@@ -899,7 +922,7 @@ func! GrooVim_CheckCapsLockTimer()
 
     call GrooVim_CheckCapsLock()
     if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:onMoveScreen == 0
-      if (strftime("%Y%m%d%H%M%S") - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
+      if (localtime() - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
         call GrooVim_GrooVimBarMsg("", "")
       endif
     endif
@@ -985,7 +1008,7 @@ func! GrooVim_ScrollAdm(mod, direction) range
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
-  let g:GrooVim_CheckCapsLockLastExec = strftime("%Y%m%d%H%M%S")
+  let g:GrooVim_CheckCapsLockLastExec = localtime()
 
   if a:mod == "v"
     exec "norm gv"
@@ -1060,7 +1083,7 @@ vnoremap <silent> <C-w> <Esc><C-w><C-w>
 " Note: Gets the number of lines in the current transfer area! Questor
 func! GrooVim_NumberOfLinesOnDefaultTransferArea()
   " Note: Get transfer area! By Questor
-  let l:lastYank = @+
+  let l:lastYank = GrooVim_ClipGet()
   let l:lastYankNumbOfLines = split(l:lastYank, "\n")
   " Note: Checks how many lines have! Questor
   return len(l:lastYankNumbOfLines)
@@ -1677,17 +1700,17 @@ func! GrooVim_EasySearch(mod) range
 
   if a:mod == "v"
     " Note: Preserve transfer area! By Questor
-    let l:saved_reg = @+
+    let l:saved_reg = GrooVim_ClipGet()
     " Note: Reselect visual area and yank! By Questor
     exec "norm gvy"
-    let l:valueToSearch = @+
+    let l:valueToSearch = GrooVim_ClipGet()
   else
     let l:valueToSearch = expand("<cword>")
   endif
 
   if a:mod == "v"
     " Note: Preserve transfer area! By Questor
-    let @+ = l:saved_reg
+    call GrooVim_ClipSet(l:saved_reg)
   endif
 
   let l:valueToSearchTemp = ""
@@ -1960,7 +1983,7 @@ func! GrooVim_PauseExecution(msg)
 endfunc
 
 " Note: Allows normal use of the Enter (carriage return) key in visual mode! By Questor
-vnoremap <buffer> <Enter>  "_x<bar>i<cr><Esc>
+vnoremap <Enter>  "_x<bar>i<cr><Esc>
 
 " Note: Sets the behavior of Del key depending on the context! By Questor
 nnoremap <script> <Del> :call GrooVim_DelBehavior()<cr>
@@ -2011,23 +2034,23 @@ func! GrooVim_EntertainmentReplace(mod) range
 
   if a:mod == "v"
     " Note: Preserve transfer area! By Questor
-    let l:saved_reg = @+
+    let l:saved_reg = GrooVim_ClipGet()
     " Note: Reselect visual area and yank! By Questor
     exec "norm gvy"
-    let l:valueToReplace = @+
+    let l:valueToReplace = GrooVim_ClipGet()
   else
     let l:valueToReplace = expand("<cword>")
   endif
 
   if a:mod == "v"
     " Note: Preserve transfer area! By Questor
-    let @+ = l:saved_reg
+    call GrooVim_ClipSet(l:saved_reg)
   endif
 
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
     while l:stopWhile == 0
-      let l:valueToReplaceTemp = GrooVim_EscapeSubstituteValueToSearch(input("Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "))
+      let l:valueToReplaceTemp = (input("Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
         let l:stopWhile = 1
         if l:valueToReplaceTemp != ""
@@ -2037,12 +2060,10 @@ func! GrooVim_EntertainmentReplace(mod) range
     endwhile
   endif
 
-  let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(@+) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
 
   if l:valueThatWillReplace == ""
-    " Note: "GrooVim_EscapeSubstituteValueToSearch()" is not required when the value
-    " comes from "input()" since it already handles this need! By Questor
-    let l:valueThatWillReplace = GrooVim_EscapeSubstituteValueToSearch(@+)
+    let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_ClipGet())
   endif
 
   let l:valueThatWillReplace = l:valueThatWillReplace
@@ -2080,11 +2101,21 @@ func! GrooVim_EntertainmentReplace(mod) range
 
 endfunc
 
-" Note: Create search pattern! By Questor
+" Note: Create a search pattern! The "/" is escaped because it separates a
+" search command and the "#" because it separates a ":substitute" command! By Questor
 func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat)
-  let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]')
+  let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]#')
   let l:pattern = substitute(l:pattern, "\n$", "", "")
   return l:pattern
+endfunc
+
+" Note: Create a ":substitute" REPLACEMENT value! The special chars here are not
+" the same of a pattern: "&" means the whole match and "~" the previous
+" replacement. The "#" is the separator we use! By Questor
+func! GrooVim_EscapeSubstituteReplacement(valueToTreat)
+  let l:replacement = escape(a:valueToTreat, '\\&~#')
+  let l:replacement = substitute(l:replacement, "\n$", "", "")
+  return l:replacement
 endfunc
 
 " Note: Workaround to get milliseconds! By Questor
@@ -2111,10 +2142,7 @@ nnoremap <silent> <script> <F4> :call GrooVim_CommandZ("F4", "n")<cr>
 inoremap <silent> <script> <F4> <C-o>:call GrooVim_CommandZ("F4", "i")<cr>
 vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
 
-nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
-inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
-vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
-
+" Note: F5 stops a macro recording started with "F2" and then "q"! By Questor
 nnoremap <silent> <script> <F5> :norm q<cr>
 
 " Tip: Try to "balance" the distribution of the keys to preserve your
@@ -2189,7 +2217,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note:  Copy all text in the current buffer (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
-        exec "%y+"
+        exec "%y" . g:GrooVim_ClipReg
       endif
       " Note: Select all text in the current buffer (a)! By Questor
       if g:GrooVim_CommandZChar == "97"
@@ -2197,15 +2225,15 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Duplicates the current line/selection (normal) (d)! By Questor
       if g:GrooVim_CommandZChar == "100" && a:modType == "n"
-        let l:saved_reg = @+
+        let l:saved_reg = GrooVim_ClipGet()
         exec "norm yyo\<Esc>p"
-        let @+ = l:saved_reg
+        call GrooVim_ClipSet(l:saved_reg)
       endif
       " Note: Duplicates the current line/selection (insert) (d)! By Questor
       if g:GrooVim_CommandZChar == "100" && a:modType == "i"
-        let l:saved_reg = @+
+        let l:saved_reg = GrooVim_ClipGet()
         exec "norm yyo\<Esc>p"
-        let @+ = l:saved_reg
+        call GrooVim_ClipSet(l:saved_reg)
       endif
       " Note: Duplicates the current line/selection (visual) (d)! By Questor
       if g:GrooVim_CommandZChar == "100" && a:modType == "v"
@@ -2361,10 +2389,6 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
         endif
       endif
     endif
-    " Note: Other commands! By Questor
-    " Note: Used keys for F5: ! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F5"
-    endif
     let g:GrooVim_CommandZUnblock = 1
   endif
   let g:GrooVim_CommandZFCaller = a:GrooVim_CommandZFCallerNow
@@ -2417,7 +2441,7 @@ func! GrooVim_GetFileNameAndPath() range
   endif
 
   " Note: Set the clipboard register! By Questor
-  let @+ = l:filenameOrFilenameAndPath
+  call GrooVim_ClipSet(l:filenameOrFilenameAndPath)
 
 endfunc
 
@@ -2579,9 +2603,9 @@ endfunc
 
 " Note: Duplicates the current line/selection! By Questor
 func! GrooVim_DuplicateVisualSelection() range
-  let l:saved_reg = @+
+  let l:saved_reg = GrooVim_ClipGet()
   exec "norm gvygv\<Esc>p"
-  let @+ = l:saved_reg
+  call GrooVim_ClipSet(l:saved_reg)
 endfunc
 
 " Note: Reloads the .vimrc file! By Questor
@@ -2620,11 +2644,11 @@ func! GrooVim_SaveACopy() range
     let l:valueToPath = ""
     let l:stopWhile = 0
     while l:stopWhile == 0
-      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(@+) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
       if l:valueToPath == "0"
-        if !empty(matchstr(@+, "\/$"))
+        if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
           let l:stopWhile = 1
-          let l:valueToPath = @+
+          let l:valueToPath = GrooVim_ClipGet()
         else
           call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
           " Note: The "redraw!" is to ensure that the message is displayed! By Questor
@@ -2746,7 +2770,7 @@ augroup end
 
 " Note: Displays messages on the scroll bar! By Questor
 let g:GrooVim_GrooVimBarMsgValue = ""
-let g:GrooVim_GrooVimBarMsgMoment = ""
+let g:GrooVim_GrooVimBarMsgMoment = 0
 let g:GrooVim_GrooVimBarMsgEnabled = 0
 let g:GrooVim_GrooVimBarMsgDuration = 0
 func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
@@ -2754,7 +2778,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
   if g:GrooVim_CheckCapsLockReturn == 0
     if a:msgValue != ""
       let g:GrooVim_GrooVimBarMsgValue = " Hey: " . a:msgValue
-      let g:GrooVim_GrooVimBarMsgMoment = strftime("%Y%m%d%H%M%S")
+      let g:GrooVim_GrooVimBarMsgMoment = localtime()
       let g:GrooVim_GrooVimBarMsgEnabled = 1
       let g:GrooVim_GrooVimBarMsgDuration = a:msgDuration
     else
@@ -2884,9 +2908,14 @@ endif
 
 " Note: Turn persistent undo on means that you can undo even when you close a
 " buffer/VIM! By Questor
-" ToDo: Document the need for this directory! By Questor
+" Note: The directory must exist, otherwise "undofile" silently fails to write
+" the undo history! By Questor
 try
-  set undodir=~/.vim/Temp/Undodir
+  let g:GrooVim_UndoDir = expand("~/.vim/Temp/Undodir")
+  if !isdirectory(g:GrooVim_UndoDir)
+    call mkdir(g:GrooVim_UndoDir, "p", 0700)
+  endif
+  exec "set undodir=" . escape(g:GrooVim_UndoDir, " \\")
   set undofile
 catch
 endtry
@@ -2980,8 +3009,8 @@ endfun
 " the last! By Questor
 
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
-\"\n|GrooVim|=D|2.0.7b|-|Vi|IMproved\'n\'GrooVIed!|".
-\"\n Last change: 2014 June 12".
+\"\n|GrooVim|=D|2.0.8b|-|Vi|IMproved\'n\'GrooVIed!|".
+\"\n Last change: 2026 September 4".
 \"\n Eduardo L\u00facio Amorim Costa~".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
@@ -3042,8 +3071,12 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
+\"\n      |-|*vim-nerdtree-tabs*".
+\"\n         |[https://github.com/jistr/vim-nerdtree-tabs]|".
+\"\n      |-|*indentLine*".
+\"\n         |[https://github.com/Yggdroot/indentLine]|".
 \"\n*o*  When using plugins *Pathogen* plugin needs to be intalled|[https://github.com/tpope/vim-pathogen];".
-\"\n*o*  By default GrooVim not have any enabled plugin (see|let|g:enable_all_plugins|=|0|). You can also enable the plugins individually;".
+\"\n*o*  By default GrooVim have all plugins enabled (see|let|g:enable_all_plugins|=|1|). You can also enable/disable the plugins individually;".
 \"\n".
 \"\n * The GrooVim solves the following \"problems\"!!~".
 \"\n".
@@ -3065,10 +3098,10 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n * Editor features!~".
 \"\n".
 \"\n*o*  Switching between modes:".
-\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Enter or exit the insert mode;".
-\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Enter or exit the visual mode;".
+\"\n   |-|<Shift-Up> (normal mode/insert/visual) - Enter or exit the insert mode;".
+\"\n   |-|<Shift-Down> (normal mode/insert/visual) - Enter or exit the visual mode;".
 \"\n".
-\"\n*o*  Sele\u00e7\u00e3o de texto:".
+\"\n*o*  Text selection:".
 \"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert) - Word selection to the right/left;".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
 \"\n".
