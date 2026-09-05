@@ -282,6 +282,35 @@ You can see which one is in use from inside Vim with:
 :echo GrooVim_ClipReg()
 ```
 
+**Pasting from another application.** OSC 52 carries a copy *out* through the
+terminal, but reading the clipboard *back* would require the terminal to answer
+a query, and almost no terminal does that on purpose (a program running over
+SSH could steal your clipboard). So `Ctrl-v` pastes what Vim itself copied, and
+to bring in what another application copied you use your terminal's own paste,
+which is `Ctrl-Shift-v` on most of them.
+
+If you want `Ctrl-v` to reach the system clipboard as well, install a clipboard
+tool and GrooVim picks it up by itself, with no change to your `.vimrc`:
+
+```
+sudo pacman -S wl-clipboard      # Wayland
+sudo apt install wl-clipboard    # Wayland
+sudo apt install xclip           # X11
+```
+
+GrooVim looks for `wl-copy`/`wl-paste`, then `xclip`, then `xsel`, first inside
+`~/.vim/GrooVim/bin` (see `g:GrooVim_ClipBinDir`) and then in your `$PATH`. That
+first directory exists so you can drop a tool by hand on a machine where you
+cannot use the package manager.
+
+**GrooVim ships no binary, on purpose.** A Linux executable is not portable: it
+is built for one architecture (the Arch/CachyOS build of `wl-clipboard` is
+`x86_64_v3` and needs AVX2), it is linked against one `libc`, and `wl-copy` also
+needs `libwayland-client` at run time. And on a headless server there is no
+compositor for it to talk to anyway: that is exactly the case OSC 52 already
+covers, sending your copy across SSH to the clipboard of the machine you are
+sitting at.
+
 <a name="installGrooVim"></a>
 [Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----

@@ -383,21 +383,42 @@ endif
 "
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
 " reports itself unavailable and the cascade simply goes on to OSC 52! By Questor
-let g:GrooVim_ClipTools = [
+let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
       \ {"copy": ["wl-copy", "--type", "text/plain"],
       \  "paste": ["wl-paste", "--no-newline", "--type", "text/plain"]},
       \ {"copy": ["xclip", "-selection", "clipboard"],
       \  "paste": ["xclip", "-selection", "clipboard", "-o"]},
       \ {"copy": ["xsel", "--clipboard", "--input"],
       \  "paste": ["xsel", "--clipboard", "--output"]},
-      \ ]
+      \ ])
 
-" Note: The first tool of the list that is actually installed wins! By Questor
+" Note: A directory of YOUR own where a clipboard tool can be dropped by hand,
+" for a machine where you cannot (or would rather not) use the package manager.
+" What is found here wins over "$PATH".
+"
+" GrooVim ships NO binary and never will: a Linux executable is not portable
+" between machines (it is built for one architecture and linked against one
+" libc, and "wl-copy" also needs libwayland-client at run time), so carrying one
+" is your call and your responsibility. Note as well that on a headless server
+" there is no compositor for "wl-copy" to talk to: there the answer is OSC 52,
+" which already crosses SSH by itself! By Questor
+let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", expand("~/.vim/GrooVim/bin"))
+
+" Note: The first tool that is actually there wins, and a hand placed one comes
+" before the one from "$PATH"! By Questor
 func! GrooVim_ClipToolFind()
-  for l:tool in g:GrooVim_ClipTools
-    if executable(l:tool["copy"][0]) && executable(l:tool["paste"][0])
-      return l:tool
-    endif
+  for l:dir in [g:GrooVim_ClipBinDir, ""]
+    for l:tool in g:GrooVim_ClipTools
+      let l:copy = copy(l:tool["copy"])
+      let l:paste = copy(l:tool["paste"])
+      if l:dir != ""
+        let l:copy[0] = l:dir . "/" . l:copy[0]
+        let l:paste[0] = l:dir . "/" . l:paste[0]
+      endif
+      if executable(l:copy[0]) && executable(l:paste[0])
+        return {"copy": l:copy, "paste": l:paste}
+      endif
+    endfor
   endfor
   return {}
 endfunc
