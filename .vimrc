@@ -293,32 +293,151 @@ execute pathogen#helptags()
 " Note: Enable mouse! By Questor
 set mouse=a
 
-" Note: Avoids compatibility issues when copying to an external application! By Questor
-" Note: Vim can be built without clipboard support ("-clipboard") or without a
-" working clipboard provider. In that case "GrooVim_ClipGet()"/"@*" raise "E354" and "set
-" clipboard" is pointless, so we fall back to the unnamed register! By Questor
-if has('clipboard_working')
-  if has('unnamedplus')
-    set clipboard=unnamedplus
-    let g:GrooVim_ClipReg = "+"
-  else
-    set clipboard=unnamed
-    let g:GrooVim_ClipReg = "*"
-  endif
-else
-  let g:GrooVim_ClipReg = "\""
+" Note: The "transfer area" (clipboard) is reached through a cascade, so that
+" GrooVim depends on NO external package and works with no graphical session at
+" all (think of a headless server reached by SSH)! By Questor
+"
+"   1. The native clipboard, when Vim was built with a working "+clipboard";
+"   2. "OSC 52", an escape sequence that carries the clipboard THROUGH the
+"      terminal itself. It needs no X11, no Wayland and no desktop, it crosses
+"      SSH, and Vim 9.2 already ships the "osc52" package (nothing to install);
+"   3. A file shared between Vim instances, which always works, even on a bare
+"      tty with a terminal that speaks nothing;
+"   4. The unnamed register, our last resort.
+
+" Note: Set to 0 to keep the terminal out of it! By Questor
+let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
+
+" Note: An OSC 52 PASTE makes Vim block waiting for an answer that many
+" terminals never send (Ctrl-C cancels it). Copy is what we really want here, so
+" paste stays off unless you know your terminal answers! By Questor
+let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
+
+if g:GrooVim_EnableOSC52 && exists("v:clipproviders") && exists("+clipmethod")
+  try
+    packadd osc52
+    if &clipmethod !~ "osc52"
+      set clipmethod+=osc52
+    endif
+  catch
+  endtry
 endif
 
-" Note: Read the "transfer area" through the register available on this Vim
-" build! By Questor
-func! GrooVim_ClipGet()
-  return getreg(g:GrooVim_ClipReg)
+" Note: Where the file based "transfer area" lives. The directory is created
+" with 0700 because a clipboard tends to carry private things! By Questor
+let g:GrooVim_ClipFile = expand("~/.vim/GrooVim/clipboard")
+
+" Note: Avoids compatibility issues when copying to an external application! By Questor
+func! GrooVim_ClipSyncOption()
+  if has("clipboard_working")
+    if has("unnamedplus")
+      set clipboard=unnamedplus
+    else
+      set clipboard=unnamed
+    endif
+  endif
+endfunc
+call GrooVim_ClipSyncOption()
+
+" Note: Which register answers as clipboard RIGHT NOW. This is not decided once
+" at startup because the OSC 52 provider is detected asynchronously (Vim asks
+" the terminal and waits for the answer), so it may only become available after
+" the ".vimrc" was read! By Questor
+" Note: Careful: "getreg()" does NOT fail on a Vim with no clipboard, it just
+" warns (W24) and answers empty. Only "setreg()" raises E354. So availability is
+" asked to Vim itself, never probed by writing! By Questor
+let g:GrooVim_ClipRegCache = ""
+func! GrooVim_ClipReg()
+  if g:GrooVim_ClipRegCache != ""
+    return g:GrooVim_ClipRegCache
+  endif
+  let l:available = has("clipboard_working")
+  " Note: A clipboard provider (OSC 52) exposes the registers even on a Vim
+  " built without "+clipboard"! By Questor
+  if !l:available && exists("v:clipmethod")
+    let l:available = v:clipmethod != "" && v:clipmethod != "none"
+  endif
+  if l:available
+    let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
+    return g:GrooVim_ClipRegCache
+  endif
+  " Note: Not cached on purpose, so a provider that shows up later is used! By Questor
+  return "\""
 endfunc
 
-" Note: Write to the "transfer area" through the register available on this Vim
-" build! By Questor
+" Note: Re-checks the clipboard once the terminal had time to answer! By Questor
+func! GrooVim_ClipRefresh()
+  let g:GrooVim_ClipRegCache = ""
+  call GrooVim_ClipSyncOption()
+endfunc
+
+augroup GrooVim_Clipboard
+  autocmd!
+  autocmd VimEnter * call GrooVim_ClipRefresh()
+augroup end
+
+" Note: The file based "transfer area", used when there is no clipboard
+" register at all. It also lets two Vim instances share a copy! By Questor
+func! GrooVim_ClipFileSet(value)
+  try
+    let l:dir = fnamemodify(g:GrooVim_ClipFile, ":h")
+    if !isdirectory(l:dir)
+      call mkdir(l:dir, "p", 0700)
+    endif
+    call writefile(split(a:value, "\n", 1), g:GrooVim_ClipFile)
+    " Note: A clipboard carries private things, so keep it readable only by its
+    " owner! By Questor
+    if exists("*setfperm")
+      call setfperm(g:GrooVim_ClipFile, "rw-------")
+    endif
+  catch
+  endtry
+endfunc
+
+func! GrooVim_ClipFileGet()
+  try
+    if filereadable(g:GrooVim_ClipFile)
+      return join(readfile(g:GrooVim_ClipFile), "\n")
+    endif
+  catch
+  endtry
+  return ""
+endfunc
+
+" Note: Read the "transfer area"! By Questor
+func! GrooVim_ClipGet()
+  let l:reg = GrooVim_ClipReg()
+  if l:reg != "\""
+    try
+      return getreg(l:reg)
+    catch
+      " Note: It was announced but did not answer. Forget it and go down the
+      " cascade! By Questor
+      let g:GrooVim_ClipRegCache = ""
+    endtry
+  endif
+  let l:fromFile = GrooVim_ClipFileGet()
+  if l:fromFile != ""
+    return l:fromFile
+  endif
+  return getreg("\"")
+endfunc
+
+" Note: Write to the "transfer area"! By Questor
 func! GrooVim_ClipSet(value)
-  call setreg(g:GrooVim_ClipReg, a:value)
+  let l:reg = GrooVim_ClipReg()
+  if l:reg != "\""
+    try
+      call setreg(l:reg, a:value)
+      return
+    catch
+      let g:GrooVim_ClipRegCache = ""
+    endtry
+  endif
+  " Note: No clipboard register: the unnamed one plus the file, so another Vim
+  " instance can pick it up! By Questor
+  call setreg("\"", a:value)
+  call GrooVim_ClipFileSet(a:value)
 endfunc
 
 " Note: Don't create swap files! By Questor
@@ -849,25 +968,57 @@ func! GrooVim_ShowLastMessageWorkaround()
 
 endfunc
 
+" Note: Finds the keyboard LEDs that report the CapsLock state. This used to
+" call "xset", which needs X11 and forks a shell about once per second. Reading
+" the LED works on Wayland, on X11 and on a bare tty, costs a file read and
+" needs no graphical session. On a machine with no physical keyboard (a
+" headless server) there is simply no LED and the check turns itself off! By Questor
+func! GrooVim_CapsLockLedsFind()
+  let l:leds = []
+  try
+    for l:led in glob("/sys/class/leds/*capslock*/brightness", 0, 1)
+      if filereadable(l:led)
+        call add(l:leds, l:led)
+      endif
+    endfor
+  catch
+  endtry
+  return l:leds
+endfunc
+
+let g:GrooVim_CapsLockLeds = GrooVim_CapsLockLedsFind()
+
+" Note: There can be one LED per keyboard, so any of them lit means it is on! By Questor
+func! GrooVim_CapsLockIsOn()
+  for l:led in g:GrooVim_CapsLockLeds
+    try
+      if str2nr(get(readfile(l:led), 0, "0")) > 0
+        return 1
+      endif
+    catch
+    endtry
+  endfor
+  return 0
+endfunc
+
 " Note: Check if caps lock is on! By Questor
 let g:GrooVim_CheckCapsLockReturn = 0
 let g:GrooVim_CheckCapsLockLastExec = 0
 let g:GrooVim_CheckCapsLockMsg = 0
 func! GrooVim_CheckCapsLock() range
 
+  " Note: Nothing to read, nothing to do! By Questor
+  if empty(g:GrooVim_CapsLockLeds)
+    return
+  endif
+
   if (localtime() - g:GrooVim_CheckCapsLockLastExec) > 1
 
-    let l:result = system("xset -q | grep \"Caps Lock:   on\"")
+    " Note: Reading a file does not disturb the screen the way "system()" did,
+    " so neither the "redraw!" nor the workaround that put the last message back
+    " on screen after it are needed here anymore! By Questor
 
-    " Note: In terminal vim, prevent ghost echoing while running a shell command by "system()"! By Questor
-    redraw!
-
-    " Note: Redisplays the last message for correcting the "collateral" effect of
-    " redraw"!! By Questor
-      call GrooVim_ShowLastMessageWorkaround()
-
-
-    if l:result != ""
+    if GrooVim_CapsLockIsOn()
       " Note: To debug! By Questor
       if g:GrooVim_CheckCapsLockReturn == 0
         " Note: This warning have a special condition and only
@@ -945,7 +1096,11 @@ func! GrooVim_CheckCapsLockTimer()
 
   checktime
 endfunc
-" Note: Execution delay (in milliseconds)! By Questor
+" Note: Execution delay (in milliseconds). Zero is deliberate: "CursorHold"
+" does NOT repeat while Vim is idle (see ":h CursorHold"), it fires once after
+" the user stops typing. Zero makes GrooVim react immediately, which is what
+" the visual mode workaround of "GrooVim_GroovyMove()" depends on, and it costs
+" nothing now that no shell command runs from here! By Questor
 set updatetime=0
 
 " Note: Allows controlling the status of a number of GrooVim features! By Questor
@@ -2118,12 +2273,16 @@ func! GrooVim_EscapeSubstituteReplacement(valueToTreat)
   return l:replacement
 endfunc
 
-" Note: Workaround to get milliseconds! By Questor
+" Note: Milliseconds, used by the CommandZ timing. This used to call
+" "/bin/date", which means forking a shell on EVERY F key press. "reltime()" is
+" built into Vim and costs nothing! By Questor
 func! GrooVim_GetMilliseconds()
-  let l:format = "+%s%3N"
-  let l:cmd = "/bin/date -u " . shellescape(format)
-  let l:result = substitute(system(cmd), "[\]\|[[:cntrl:]]", "", "g")
-  return l:result
+  if exists("*reltimefloat")
+    return float2nr(reltimefloat(reltime()) * 1000)
+  endif
+  " Note: Vim without "+reltime": one second of resolution still keeps the
+  " CommandZ repetition usable! By Questor
+  return localtime() * 1000
 endfunc
 
 " Note: Allows a "super leader" that fires in any mode! With this approach I can map a
@@ -2164,7 +2323,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
 
   let l:GrooVim_CommandZMomentNow = GrooVim_GetMilliseconds()
 
-  " Note: In terminal vim, prevent ghost echoing while running a shell command via system()! By Questor
+  " Note: Clears the screen before reading the next key of the combination! By Questor
   redraw!
 
   if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > 400 || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
@@ -2217,7 +2376,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note:  Copy all text in the current buffer (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
-        exec "%y" . g:GrooVim_ClipReg
+        call GrooVim_ClipSet(join(getline(1, "$"), "\n"))
       endif
       " Note: Select all text in the current buffer (a)! By Questor
       if g:GrooVim_CommandZChar == "97"
@@ -2837,16 +2996,41 @@ let g:cursorColorI = "orange"
 let g:cursorColorNV = "red"
 let g:cursorColorBlock = 0
 
+" Note: "OSC 12" is the standard sequence to set the cursor color and "OSC 112"
+" resets it. The old code used an OSC 50 payload that only Konsole understands
+" AND forked "konsoleprofile" three times (on load, on VimEnter and on
+" VimLeave). This speaks to any terminal that listens (Konsole, xterm, kitty,
+" alacritty, foot, wezterm...), forks nothing and works over SSH! By Questor
 func! SetCursorColor()
-  let &t_SI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorI . ";BlinkingCursorEnabled=1\x7"
-  let &t_EI = "\<Esc>]50;CustomCursorColor=" . g:cursorColorNV . ";BlinkingCursorEnabled=0\x7"
+  let &t_SI = "\<Esc>]12;" . g:cursorColorI . "\x7"
+  let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
 endfun
 
-if &term =~ "xterm\\|rxvt" && $COLORTERM != "gnome-terminal"
-  autocmd VimEnter * silent !konsoleprofile UseCustomCursorColor=1
+" Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
+" insert mode! By Questor
+func! GrooVim_CursorColorNow()
+  if exists("*echoraw")
+    call echoraw("\<Esc>]12;" . g:cursorColorNV . "\x7")
+  endif
+endfunc
+
+" Note: Gives the cursor back to the terminal when leaving! By Questor
+func! GrooVim_CursorColorReset()
+  if exists("*echoraw")
+    call echoraw("\<Esc>]112\x7")
+  endif
+endfunc
+
+" Note: A plain Linux console has no colored cursor and inside a GUI these
+" terminal codes make no sense! By Questor
+let g:GrooVim_CursorColorEnabled = !has("gui_running") && &term !~ "^\\(linux\\|dumb\\|cons\\)"
+if g:GrooVim_CursorColorEnabled
   call SetCursorColor()
-  silent !konsoleprofile CustomCursorColor=red
-  autocmd VimLeave * silent !konsoleprofile CustomCursorColor=default;BlinkingCursorEnabled=0
+  augroup GrooVim_CursorColor
+    autocmd!
+    autocmd VimEnter * call GrooVim_CursorColorNow()
+    autocmd VimLeave * call GrooVim_CursorColorReset()
+  augroup end
 endif
 
 " " Note: Displays a line below the cursor (causes slowdown)! By Questor
