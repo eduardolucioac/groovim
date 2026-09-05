@@ -71,6 +71,7 @@ Some editor features!
  * Conventional text editors commands:
     - Ctrl-c (visual mode) - Copy to clipboard;
     - Ctrl-v (normal mode/insert/visual) - Paste from clipboard;
+        - Note: Copying out always works. To PASTE what another application copied you need a clipboard tool installed, or your terminal own paste (usually Ctrl-Shift-v). See <a href="#clipboard">**"About the clipboard"**</a>;
     - Ctrl-x (visual mode) - Cut to the clipboard;
     - Ctrl-u (normal mode/insert/visual) - Undo;
     - Ctrl-r (normal mode/insert/visual) - Redo;
@@ -84,7 +85,7 @@ Relevant changes in the default Vim behavior!
 
  - Use Ctrl+b to enable visual block mode (not Ctrl+v);
  - When changes from visual mode to insert mode the cursor do not move;
- - Use default OS clipboard;
+ - Use the system clipboard whenever it can be reached, see <a href="#clipboard">**"About the clipboard"**</a>;
  - The "insert" (includes typed text) and "paste" from the same cursor position;
 
 Script features!
@@ -260,7 +261,10 @@ sudo dnf install vim-enhanced
 sudo apt install vim
 ```
 
-**Note about the clipboard.** Some distributions ship Vim built *without*
+<a name="clipboard"></a>
+### About the clipboard
+
+Some distributions ship Vim built *without*
 clipboard support. You can check yours with:
 
 ```

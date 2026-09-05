@@ -3546,8 +3546,32 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n   |-|Use |Ctrl+b| to enable visual block mode;".
 \"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
-\"\n   |-|Use default OS clipboard;".
+\"\n   |-|Use the system clipboard when it can be reached, see |Clipboard|below;".
 \"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".
+\"\n".
+\"\n * Clipboard (the \"transfer area\")!~".
+\"\n".
+\"\n GrooVim reaches the clipboard through a CASCADE, and it requires nothing to be installed. It uses the first of these that answers:".
+\"\n".
+\"\n*o*  |1.| The native clipboard, when your Vim was built with a working |+clipboard| ;".
+\"\n*o*  |2.| A clipboard TOOL (*wl-copy* / *wl-paste* , *xclip* or *xsel* ), used only if one is already there;".
+\"\n*o*  |3.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no X11, no Wayland and no desktop, and it crosses SSH, so a copy made on a remote server lands on the clipboard of the machine you are sitting at. Vim ships this one, there is nothing to install;".
+\"\n*o*  |4.| A file in|~/.vim/GrooVim/clipboard| , which always works and also lets two Vim instances share a copy;".
+\"\n".
+\"\n To see which one is in use:|:echo|v:clipmethod| and|:echo|GrooVim_ClipReg()| .".
+\"\n".
+\"\n *PASTING*FROM*ANOTHER*APPLICATION!* This is the one case that needs help. OSC 52 carries a copy OUT, but reading the clipboard BACK would require the terminal to ANSWER a query, and almost no terminal does that on purpose (a program running over SSH could steal your clipboard). So:".
+\"\n".
+\"\n*o*  With NO tool installed, <Ctrl-v> pastes what Vim itself copied. To bring in what another application copied, use your terminal own paste, usually <Ctrl-Shift-v> ;".
+\"\n*o*  With a tool installed, <Ctrl-v> reaches the system clipboard too, and nothing has to be changed in your|.vimrc|:".
+\"\n      |-|Wayland:|sudo|pacman|-S|wl-clipboard| or|sudo|apt|install|wl-clipboard| ;".
+\"\n      |-|X11:|sudo|pacman|-S|xclip| or|sudo|apt|install|xclip| ;".
+\"\n".
+\"\n GrooVim looks for the tool inside|~/.vim/GrooVim/bin| first (see|g:GrooVim_ClipBinDir| ) and then in your|$PATH| . That first directory is there so you can drop a tool BY HAND on a machine where you cannot use the package manager.".
+\"\n".
+\"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is not portable: it is built for one architecture, it is linked against one libc, and|wl-copy|also needs libwayland-client at run time. And on a headless server there is no compositor for it to talk to anyway, which is exactly the case OSC 52 already covers by itself.".
+\"\n".
+\"\n Knobs:|g:GrooVim_EnableClipTool| ,|g:GrooVim_EnableOSC52| ,|g:GrooVim_ClipTools| ,|g:GrooVim_ClipBinDir| .".
 \"\n".
 \"\n * Script features!~".
 \"\n".
