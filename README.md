@@ -35,8 +35,8 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with tabs;
  * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
  * The GrooVim was designed to work with the best plugins;
- * When using plugins, __Pathogen__ plugin needs to be intalled (https://github.com/tpope/vim-pathogen);
- * By default GrooVim have all plugins enabled (see "let g:enable_all_plugins = 1"). You can also enable/disable the plugins individually. Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
+ * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `~/.vim/pack/*/start` by themselves. __Pathogen__ is still recognized if you already use it, but it is not required;
+ * GrooVim detects which plugins are installed and enables the mapping of each one by itself. Nothing that is missing causes an error, so the script works alone. You can still force any of them with "let g:enable_tcomment_vim = 0/1", or ignore all at once with "let g:enable_all_plugins = 0". Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
  * The debug plugin support ("F4" and then "d") is disabled by default ("let g:enable_debugger_vim = 0") because no debug plugin is installed by the instructions below;
 
 The GrooVim solves the following "problems"!
@@ -240,140 +240,90 @@ Task List/Bugs List!
  * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
 
 <a name="buildInstallVIM"></a>
-How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!
+How to install Vim!
 -----
 
- - Remove any installed vim packages
+GrooVim needs **Vim 7.4 or newer**, and it is developed and tested against the
+current Vim (9.x). Every distribution ships something recent enough today, so
+building from source is no longer necessary:
 
-[RHEL/CentOS]
+[Arch/Manjaro/CachyOS]
 ```
-yum remove $(rpm -qa | grep ^vim)
+sudo pacman -S vim
+```
+[RHEL/CentOS/Fedora]
+```
+sudo dnf install vim-enhanced
 ```
 [Ubuntu/Debian]
 ```
-sudo apt-get remove vim vim-runtime gvim
-sudo apt-get remove vim-tiny vim-common vim-gui-common
-```
- - Download VIM version 7.4 from here...
-```
-mkdir -p /opt/pkgs
-cd /opt/pkgs
-wget ftp://ftp.vim.org/pub/vim/unix/vim-7.4.tar.bz2
-tar jxvf vim-*.tar.bz2
-rm -f vim-*.tar.bz2
-cd vim*
-```
- - Set-up build environment
-
-[RHEL/CentOS]
-```
-yum install gcc make ncurses-devel
-```
-[Ubuntu/Debian]
-```
-sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev \
-libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
-libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev ruby-dev mercurial
-```
- - Configure and build VIM sources
-
-[RHEL/CentOS]
-```
-./configure --disable-selinux \
---with-features=huge \
---with-modified-by=Questor \
---enable-gui=gtk2 \
---enable-multibyte \
---enable-rubyinterp \
---enable-pythoninterp \
---enable-perlinterp \
---enable-luainterp \
---enable-cscope \
---prefix=/usr
-
-make
-make install
-```
-[Ubuntu/Debian]
-```
-./configure --with-features=huge \
---with-modified-by=Questor \
---enable-gui=gtk2 \
---enable-multibyte \
---enable-rubyinterp \
---enable-pythoninterp \
---enable-perlinterp \
---enable-luainterp \
---enable-cscope \
---prefix=/usr
-
-make
-make install
+sudo apt install vim
 ```
 
-Note: If you have problems compiling Vim, try use this reduced configuration:
+**Note about the clipboard.** Some distributions ship Vim built *without*
+clipboard support. You can check yours with:
 
 ```
-./configure --disable-selinux \
---with-features=huge \
---with-modified-by=Questor \
---enable-gui=gtk2 \
---enable-multibyte \
---enable-pythoninterp \
---enable-cscope \
---prefix=/usr
+vim --version | grep -o '[+-]clipboard'
 ```
 
- - Re-hash the environment
+If it says `-clipboard`, **you do not need to do anything**: GrooVim falls back
+by itself, in this order, to OSC 52 (which carries the clipboard through the
+terminal itself, and works over SSH and on a machine with no graphical session
+at all), then to a file shared between Vim instances, then to the unnamed
+register. Nothing to install. If you would rather have the native clipboard,
+install a Vim built with it (on Arch based systems that is the `gvim` package,
+which provides the same `/usr/bin/vim`).
+
+You can see which one is in use from inside Vim with:
+
 ```
-hash -r
+:echo v:clipmethod
+:echo GrooVim_ClipReg()
 ```
+
 <a name="installGrooVim"></a>
 [Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----
 
-**Note:** We recommend that you install Vim from source code to ensure compatibility with GrooVim. For that, see the section: <a href="#buildInstallVIM">**"How to build and install VIM 7.4 from source on CentOS/RHEL/Ubuntu/Debian!"**</a>!
+**GrooVim is a single file and needs nothing else.** No plugin manager, no
+external package. Copy it and you are done:
 
-- For the installation of "pathogen", run: 
-
-**Note:** Facilitates the installation of addons in VIM.
-```
-sudo apt-get install curl # Not for [RHEL/CentOS]
-```
-```
-mkdir -p ~/.vim/autoload ~/.vim/bundle; \
-curl -Sso ~/.vim/autoload/pathogen.vim \
-https://raw.githubusercontent.com/tpope/vim-pathogen/master/autoload/pathogen.vim
-```
-- To install the "git", run: 
-```
-sudo apt-get install git # Not for [RHEL/CentOS]
-```
-- Clone GrooVim ("~/.vimrc"). 
 ```
 git clone https://github.com/eduardolucioac/groovim.git ~/Downloads/groovim
 cp ~/Downloads/groovim/.vimrc ~/.vimrc
 ```
-- To install the "nerdtree" plugin, run: 
+
+That is the whole installation. Whatever plugin you do not have simply stays
+quiet, exactly as the "all in one" objective promises.
+
+- **Optional:** the plugins that GrooVim knows how to drive.
+
+Vim 8 and later load anything under `~/.vim/pack/*/start` on their own, so
+there is no plugin manager involved here either:
+
 ```
-git clone https://github.com/scrooloose/nerdtree.git  ~/.vim/bundle/nerdtree/
+mkdir -p ~/.vim/pack/groovim/start
+cd ~/.vim/pack/groovim/start
+git clone https://github.com/preservim/nerdtree.git nerdtree
+git clone https://github.com/jistr/vim-nerdtree-tabs.git vim-nerdtree-tabs
+git clone https://github.com/tomtom/tcomment_vim.git tcomment_vim
+git clone https://github.com/matze/vim-move.git vim-move
+git clone https://github.com/Yggdroot/indentLine.git indentLine
 ```
-- To install the "vim-nerdtree-tabs" plugin, run: 
+
+GrooVim detects each one and enables its mapping by itself. To force a plugin
+off (or on), set its variable before GrooVim is sourced:
+
 ```
-git clone https://github.com/jistr/vim-nerdtree-tabs.git ~/.vim/bundle/vim-nerdtree-tabs/
+let g:enable_tcomment_vim = 0
+let g:enable_all_plugins = 0    " ignore every plugin at once
 ```
-- To install the "tcomment_vim" plugin, run: 
-```
-git clone https://github.com/tomtom/tcomment_vim.git ~/.vim/bundle/tcomment_vim/
-```
-- To install the "vim-move" plugin, run: 
-```
-git clone https://github.com/matze/vim-move.git ~/.vim/bundle/vim-move/
-```
-- To install the "indentLine" plugin, run: 
-```
-git clone https://github.com/Yggdroot/indentLine.git ~/.vim/bundle/indentLine/
-```
+
+**Note:** If you already use **Pathogen** and keep your plugins in
+`~/.vim/bundle`, that keeps working: GrooVim looks in both places and calls
+Pathogen only when it is actually installed.
+
 
 Contact
 -----

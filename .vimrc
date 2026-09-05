@@ -284,11 +284,19 @@ let g:grooVimVersion = "v2.0.8b"
 " first, because it changes other options as a side effect! By Questor
 set nocompatible
 
-" Note: Enable "pathogen" plugin! By Questor
-" Note: Force reloading *after* pathogen loaded! Trying avoid override! By Questor
+" Note: Force reloading *after* the plugins loaded! Trying avoid override! By Questor
 filetype plugin indent on
-execute pathogen#infect()
-execute pathogen#helptags()
+
+" Note: Vim 8 and later load everything under "~/.vim/pack/*/start" on their
+" own, so NO plugin manager is needed. Pathogen is still honoured for whoever
+" already uses it, but it is not required anymore: this used to be an
+" unconditional call that raised "E117" twice on a machine without Pathogen,
+" which broke the "all in one" objective of GrooVim. Note that "exists()" does
+" NOT source an autoload script, so we look for the file itself! By Questor
+if globpath(&runtimepath, "autoload/pathogen.vim") != ""
+  execute pathogen#infect()
+  execute pathogen#helptags()
+endif
 
 " Note: Enable mouse! By Questor
 set mouse=a
@@ -509,22 +517,39 @@ autocmd! BufReadPost *.py call SpecificTabConf(4)
 "ENABLE PLUGINS
 "$$$$$$$$$$$$$
 
-" Note: Enable all plugins! By Questor
-let g:enable_all_plugins = 1
+" Note: Is a given plugin installed? Looks into the native package directories
+" of Vim 8 and later AND into the "bundle" directory of Pathogen, so both ways
+" of installing are recognized! By Questor
+func! GrooVim_HasPlugin(name)
+  for l:place in ["pack/*/start/", "pack/*/opt/", "bundle/"]
+    if !empty(glob(expand("~/.vim/") . l:place . a:name, 0, 1))
+      return 1
+    endif
+  endfor
+  return 0
+endfunc
+
+" Note: Master switch: set it to 0 to ignore every plugin! By Questor
+let g:enable_all_plugins = get(g:, "enable_all_plugins", 1)
+
+" Note: Each plugin is now DETECTED instead of assumed. GrooVim promises to work
+" depending only on the contents of this ".vimrc" (the "no plugin scenario"), so
+" whatever is not installed simply stays quiet instead of failing. Set any of
+" these before sourcing GrooVim to force a value! By Questor
 
 " Note: tcomment.vim! By Questor
-let g:enable_tcomment_vim = 1
+let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tcomment_vim"))
 
-" Note: nerdtree.vim! By Questor
-let g:enable_nerdtree_vim = 1
+" Note: nerdtree.vim! Both are needed here, since the mapping drives the tabs
+" aware one! By Questor
+let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree") && GrooVim_HasPlugin("vim-nerdtree-tabs"))
 
-" Note: debugger.vim! By Questor
-" Note: Disabled by default: there is no install instruction for a debug plugin,
-" so "F4" and then "d" would always fail. Set to 1 if you install one! By Questor
-let g:enable_debugger_vim = 0
+" Note: debugger.vim! No debug plugin is installed by the README instructions,
+" so this one stays off unless you ask for it! By Questor
+let g:enable_debugger_vim = get(g:, "enable_debugger_vim", 0)
 
 " Note: move.vim! By Questor
-let g:enable_move_vim = 1
+let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move"))
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$
 
