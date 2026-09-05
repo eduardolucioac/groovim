@@ -375,6 +375,96 @@ if g:GrooVim_EnableOSC52 && exists("v:clipproviders") && exists("+clipmethod")
   endtry
 endif
 
+" Note: A clipboard provider backed by an external tool, used ONLY when the tool
+" is ALREADY installed. This is what makes PASTE from another application work:
+" OSC 52 carries a copy out through the terminal, but reading back would require
+" the terminal to ANSWER a query, and almost none of them do it (on purpose: a
+" remote program could steal your clipboard), so Vim would just block waiting.
+"
+" Nothing here is a requirement of GrooVim. With no tool around, this provider
+" reports itself unavailable and the cascade simply goes on to OSC 52! By Questor
+let g:GrooVim_ClipTools = [
+      \ {"copy": ["wl-copy", "--type", "text/plain"],
+      \  "paste": ["wl-paste", "--no-newline", "--type", "text/plain"]},
+      \ {"copy": ["xclip", "-selection", "clipboard"],
+      \  "paste": ["xclip", "-selection", "clipboard", "-o"]},
+      \ {"copy": ["xsel", "--clipboard", "--input"],
+      \  "paste": ["xsel", "--clipboard", "--output"]},
+      \ ]
+
+" Note: The first tool of the list that is actually installed wins! By Questor
+func! GrooVim_ClipToolFind()
+  for l:tool in g:GrooVim_ClipTools
+    if executable(l:tool["copy"][0]) && executable(l:tool["paste"][0])
+      return l:tool
+    endif
+  endfor
+  return {}
+endfunc
+
+let g:GrooVim_ClipTool = {}
+
+func! GrooVim_ClipToolAvailable()
+  return !empty(g:GrooVim_ClipTool)
+endfunc
+
+func! GrooVim_ClipToolCopy(reg, type, lines)
+  if empty(g:GrooVim_ClipTool)
+    return
+  endif
+  let l:text = join(a:lines, "\n")
+  " Note: A LINEWISE copy ends with a line break, so other applications receive
+  " whole lines instead of a truncated one! By Questor
+  if a:type ==# "V"
+    let l:text = l:text . "\n"
+  endif
+  " Note: The command goes as a LIST, so there is no shell and nothing to quote! By Questor
+  call system(g:GrooVim_ClipTool["copy"], l:text)
+endfunc
+
+func! GrooVim_ClipToolPaste(reg)
+  if empty(g:GrooVim_ClipTool)
+    return ["c", []]
+  endif
+  let l:out = system(g:GrooVim_ClipTool["paste"])
+  if v:shell_error != 0
+    return ["v", []]
+  endif
+  " Note: Returning an empty type would let Vim guess, and it guesses LINEWISE,
+  " which pastes the text on a line of its own instead of where the cursor is.
+  " A trailing line break is what really tells the two apart! By Questor
+  if l:out =~ "\n$"
+    return ["V", split(l:out, "\n", 1)[0:-2]]
+  endif
+  return ["v", split(l:out, "\n", 1)]
+endfunc
+
+" Note: Set to 0 to ignore any installed clipboard tool! By Questor
+let g:GrooVim_EnableClipTool = get(g:, "GrooVim_EnableClipTool", 1)
+
+if g:GrooVim_EnableClipTool
+  if exists("v:clipproviders") && exists("+clipmethod")
+    let g:GrooVim_ClipTool = GrooVim_ClipToolFind()
+    if !empty(g:GrooVim_ClipTool) && &clipmethod !~ "groovim"
+      let v:clipproviders["groovim"] = {
+            \ "available": function("GrooVim_ClipToolAvailable"),
+            \ "copy":  {"+": function("GrooVim_ClipToolCopy"),
+            \           "*": function("GrooVim_ClipToolCopy")},
+            \ "paste": {"+": function("GrooVim_ClipToolPaste"),
+            \           "*": function("GrooVim_ClipToolPaste")},
+            \ }
+      " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the
+      " native methods, which are faster when the Vim build has them! By Questor
+      if &clipmethod =~ "osc52"
+        let &clipmethod = substitute(&clipmethod, "osc52", "groovim,osc52", "")
+      else
+        set clipmethod+=groovim
+      endif
+      silent! clipreset
+    endif
+  endif
+endif
+
 " Note: Where the file based "transfer area" lives. The directory is created
 " with 0700 because a clipboard tends to carry private things! By Questor
 let g:GrooVim_ClipFile = expand("~/.vim/GrooVim/clipboard")
