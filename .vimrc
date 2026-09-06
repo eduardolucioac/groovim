@@ -428,6 +428,32 @@ endfunc
 
 let g:GrooVim_ClipTool = {}
 
+" Note: The tool takes the clipboard ASYNCHRONOUSLY, so right after a copy the
+" system clipboard can still report the PREVIOUS content. That matters because
+" GrooVim itself copies and then reads the value straight back: duplicating a
+" line or a selection, and searching or replacing what is selected. Without this
+" they would silently use whatever was in the clipboard BEFORE.
+"
+" Note: So what we wrote is remembered and served until the tool catches up. The
+" window is short and closes as soon as a read agrees with what we wrote, or at
+" the latest after "g:GrooVim_ClipCacheMs"! By Questor
+let g:GrooVim_ClipCacheMs = get(g:, "GrooVim_ClipCacheMs", 300)
+let g:GrooVim_ClipCache = ""
+let g:GrooVim_ClipCachePending = 0
+
+func! GrooVim_ClipCacheClear(...)
+  let g:GrooVim_ClipCachePending = 0
+endfunc
+
+" Note: A trailing line break is what tells a LINEWISE copy from a charwise one!
+" By Questor
+func! GrooVim_ClipToText(text)
+  if a:text =~ "\n$"
+    return ["V", split(a:text, "\n", 1)[0:-2]]
+  endif
+  return ["v", split(a:text, "\n", 1)]
+endfunc
+
 func! GrooVim_ClipToolAvailable()
   return !empty(g:GrooVim_ClipTool)
 endfunc
@@ -457,6 +483,14 @@ func! GrooVim_ClipToolCopy(reg, type, lines)
   " default Vim would kill it on exit and your copy would vanish from the
   " clipboard exactly when you left the editor! By Questor
   " Note: The command goes as a LIST, so there is no shell and nothing to quote! By Questor
+  " Note: Remembered BEFORE the job starts, so a read that happens in the very
+  " next instruction already finds it! By Questor
+  let g:GrooVim_ClipCache = l:text
+  let g:GrooVim_ClipCachePending = 1
+  if exists("*timer_start")
+    call timer_start(g:GrooVim_ClipCacheMs, "GrooVim_ClipCacheClear")
+  endif
+
   try
     let l:job = job_start(g:GrooVim_ClipTool["copy"], {
           \ "in_io": "pipe",
@@ -478,15 +512,27 @@ func! GrooVim_ClipToolPaste(reg)
   endif
   let l:out = system(g:GrooVim_ClipTool["paste"])
   if v:shell_error != 0
+    " Note: The tool failed, but what we wrote is still the truth! By Questor
+    if g:GrooVim_ClipCachePending
+      return GrooVim_ClipToText(g:GrooVim_ClipCache)
+    endif
     return ["v", []]
   endif
-  " Note: Returning an empty type would let Vim guess, and it guesses LINEWISE,
-  " which pastes the text on a line of its own instead of where the cursor is.
-  " A trailing line break is what really tells the two apart! By Questor
-  if l:out =~ "\n$"
-    return ["V", split(l:out, "\n", 1)[0:-2]]
+
+  " Note: While our write has not landed, what we wrote is what should be read.
+  " Comparing without the trailing line break because the tool may add or strip
+  " one of its own! By Questor
+  if g:GrooVim_ClipCachePending
+    if substitute(l:out, "\n$", "", "") ==# substitute(g:GrooVim_ClipCache, "\n$", "", "")
+      let g:GrooVim_ClipCachePending = 0
+    else
+      return GrooVim_ClipToText(g:GrooVim_ClipCache)
+    endif
   endif
-  return ["v", split(l:out, "\n", 1)]
+
+  " Note: Returning an empty type would let Vim guess, and it guesses LINEWISE,
+  " which pastes the text on a line of its own instead of where the cursor is! By Questor
+  return GrooVim_ClipToText(l:out)
 endfunc
 
 " Note: Set to 0 to ignore any installed clipboard tool! By Questor
@@ -2591,6 +2637,12 @@ func! GrooVim_EntertainmentReplace(mod) range
     let l:confirmOrNot = "c"
   endif
 
+  " Note: Where the replace should begin, taken BEFORE the cursor is moved just
+  " below. With the cursor on the first column, "b" jumps to the PREVIOUS line,
+  " so using "." for the range made "begin from current position" start one line
+  " too early and replace what was above the cursor! By Questor
+  let l:startLine = line(".")
+
   if a:mod == "v"
     exec "norm \<Left>"
   else
@@ -2600,7 +2652,7 @@ func! GrooVim_EntertainmentReplace(mod) range
   if g:searchReplace_InAllOpened != 1
     if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
       " Note: Replace begin from current position! By Questor
-      exec ".,$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+      exec l:startLine . ",$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
     else
       exec "%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
     endif
@@ -3121,9 +3173,12 @@ func! GrooVim_XenPlay(repeatExecution) range
 endfunc
 
 " Note: Duplicates the current line/selection! By Questor
+" Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
+" BEFORE the cursor. Going through the mappings here made the copy land one
+" character too early, turning "DUPLICAR" into "DUPLICADUPLICARR"! By Questor
 func! GrooVim_DuplicateVisualSelection() range
   let l:saved_reg = GrooVim_ClipGet()
-  exec "norm gvygv\<Esc>p"
+  exec "norm! gvygv\<Esc>p"
   call GrooVim_ClipSet(l:saved_reg)
 endfunc
 
