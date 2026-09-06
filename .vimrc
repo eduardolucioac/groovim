@@ -3273,10 +3273,17 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
     " Note: The status line is "%!GrooVim_GrooVimBar()", so it is Vim that calls
     " it when redrawing. Just calling it here changed nothing on screen: the
     " message only appeared at the next screen update, whenever that came! By Questor
-    try
-      redrawstatus!
-    catch
-    endtry
+    "
+    " Note: ONLY after startup! Asking for a redraw while the ".vimrc" is still
+    " being read makes Vim paint the screen BEFORE switching to the terminal
+    " alternate screen, and everything painted there stays behind on the shell
+    " when you quit Vim! By Questor
+    if v:vim_did_enter
+      try
+        redrawstatus!
+      catch
+      endtry
+    endif
   endif
 
 endfun
