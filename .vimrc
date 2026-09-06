@@ -237,9 +237,6 @@ let g:grooVimVersion = "v2.0.8b"
 
 " ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
-" ToDo: Try a solution to "set expandtab" X "set listchars=tab:▒░,trail:·" problem! How we can "listchars" spaces
-" as "tabs"? Solved using "indentLine" plugin! By Questor
-
 " ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
 
 " ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done
@@ -637,38 +634,98 @@ set virtualedit=onemore
 "FILE SYNTAX ASSOCIATIONS AND SPECIFIC CONFIGURATION
 "$$$$$$$$$$$$$
 
-" Note: General tab conf! By Questor
+" Note: General indent width! By Questor
+let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
+
+" Note: Indent width per file type, the same idea of the "Tab Settings" per
+" language of Notepad++, using the file type of Vim as the key. ONE line is
+" enough to add your own: >
+"   let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
+" <
+" Note: Only what is listed here is touched! Vim already ships file type plugins
+" that know what they are doing, and some of them are not a matter of taste:
+" "make" needs a REAL tab on its recipe lines (it fails with "missing separator"
+" otherwise) and "go" is written with tabs by gofmt. Configuring EVERY type here
+" would run after those plugins and undo them! By Questor
+let g:GrooVim_IndentWidthPerType = get(g:, "GrooVim_IndentWidthPerType", {"python": 4})
+
+" Note: The char that draws the indentation guides. Use "" to turn them off! By Questor
+let g:GrooVim_IndentGuideChar = get(g:, "GrooVim_IndentGuideChar", "\u250A")
 
 " Note: Size of a hard tabstop! By Questor
-set tabstop=2
+exec "set tabstop=" . g:GrooVim_IndentWidth
 
 " Note: Size of an "indent"! By Questor
-set shiftwidth=2
+exec "set shiftwidth=" . g:GrooVim_IndentWidth
 
 " Note: A combination of spaces and tabs are used to simulate tab stops at a width
 " other than the (hard) tabstop! By Questor
-set softtabstop=2
+exec "set softtabstop=" . g:GrooVim_IndentWidth
 
 " Note: Set tabs to spaces! By Questor
 set expandtab
 
-" Note: Change the indentLine plugin char! By Questor
-" let g:indentLine_char = '|'
+" Note: Draws the indentation guides with "leadmultispace", which is native to
+" Vim and replaces what a plugin used to do here.
+"
+" Note: The width is NOT remembered by us, it is read from the standard Vim
+" options at the moment of drawing. That way the guide follows a modeline, a file
+" type plugin or a ":set shiftwidth=" you type, instead of drifting away from the
+" real indent. Falling back to "tabstop" is what keeps "make" right, since its
+" file type plugin leaves "shiftwidth" at zero! By Questor
+func! GrooVim_IndentGuideSet()
+
+  let l:listchars = "trail:\uB7,nbsp:~"
+
+  if g:GrooVim_IndentGuideChar != ""
+    let l:width = &shiftwidth > 0 ? &shiftwidth : &tabstop
+    if l:width > 1
+      let l:listchars = l:listchars . ",leadmultispace:" . g:GrooVim_IndentGuideChar . repeat(" ", l:width - 1)
+    endif
+  endif
+
+  " Note: Assigning the option instead of using ":set" avoids having to escape
+  " the spaces with a backslash! By Questor
+  " Note: "leadmultispace" is from Vim 9, and "listchars" is only window local on
+  " a recent enough Vim, so both are attempted and neither is fatal! By Questor
+  try
+    let &l:listchars = l:listchars
+  catch
+    try
+      let &listchars = l:listchars
+    catch
+    endtry
+  endtry
+
+endfunc
 
 " Note: General tab conf! By Questor
+" Note: "setlocal" and not "set": this runs per buffer, and setting it globally
+" made opening one file change the indent width of every other open buffer! By Questor
 func! SpecificTabConf(tabWidth)
 
   " Note: Size of a hard tabstop! By Questor
-  exec "set tabstop=" . a:tabWidth
+  exec "setlocal tabstop=" . a:tabWidth
 
   " Note: Size of an "indent"! By Questor
-  exec "set shiftwidth=" . a:tabWidth
+  exec "setlocal shiftwidth=" . a:tabWidth
 
   " Note: A combination of spaces and tabs are used to simulate tab stops at a width
   " other than the (hard) tabstop! By Questor
-  exec "set softtabstop=" . a:tabWidth
+  exec "setlocal softtabstop=" . a:tabWidth
+
+  call GrooVim_IndentGuideSet()
 
 endfun
+
+" Note: Applies the per file type width, and ONLY for what is listed. The guides
+" are refreshed on window entry because "listchars" is window local! By Questor
+augroup GrooVim_Indent
+  autocmd!
+  autocmd FileType * if has_key(g:GrooVim_IndentWidthPerType, &filetype) |
+        \ call SpecificTabConf(g:GrooVim_IndentWidthPerType[&filetype]) | endif
+  autocmd BufWinEnter,WinEnter * call GrooVim_IndentGuideSet()
+augroup end
 
 "  * .inc
 
@@ -677,10 +734,6 @@ autocmd! BufReadPost *.inc set syntax=html | set filetype=html
 "  * .gds
 
 autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
-
-"  * .py
-
-autocmd! BufReadPost *.py call SpecificTabConf(4)
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$
 
@@ -711,9 +764,8 @@ let g:enable_all_plugins = get(g:, "enable_all_plugins", 1)
 " Note: tcomment.vim! By Questor
 let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tcomment_vim"))
 
-" Note: nerdtree.vim! Both are needed here, since the mapping drives the tabs
-" aware one! By Questor
-let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree") && GrooVim_HasPlugin("vim-nerdtree-tabs"))
+" Note: nerdtree.vim! By Questor
+let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree"))
 
 " Note: debugger.vim! No debug plugin is installed by the README instructions,
 " so this one stays off unless you ask for it! By Questor
@@ -2255,27 +2307,73 @@ func! GrooVim_TabParadise()
 endfunc
 
 if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
-  " Note: Opens and closes the "Nerd Tree" through the "vim-nerdtree-tabs" component! By Questor
-  let g:NERDTreeTabsOpen = 0
-  func! GrooVim_ToggleNERDTreeTabs()
-    if g:NERDTreeTabsOpen == 1
-      exec "NERDTreeTabsClose"
-      let g:NERDTreeTabsOpen = 0
-    else
-      exec "NERDTreeTabsOpen"
-      let g:NERDTreeTabsOpen = 1
-
-      " Note: Focus on "Nerd Tree" when opens it! By Questor
-      let l:exitWhile = 0
-      let l:firstBufferOnThisTab = expand('%:t')
-      while ! (expand('%:t') =~ "NERD_tree_") && l:exitWhile == 0
-        exec "norm \<C-w>"
-        if expand('%:t') == l:firstBufferOnThisTab
-          let l:exitWhile = 1
-        endif
-      endwhile
-
+  " Note: Opens and closes the "Nerd Tree", sharing the SAME tree between the
+  " tabs. "NERDTreeMirror" is what brings the tree of another tab into this one,
+  " and it complains when there is none to mirror, hence the "silent!".
+  " "NERDTreeFocus" opens it if needed and puts the cursor inside it! By Questor
+  "
+  " Note: The state is asked to NERDTree itself instead of being remembered in a
+  " variable of ours: closing the tree with "q" would desync such a variable and
+  " the next call would refuse to reopen! By Questor
+  func! GrooVim_NERDTreeIsOpen()
+    if !exists("g:NERDTree")
+      return 0
     endif
+    try
+      return g:NERDTree.ExistsForTab() && g:NERDTree.IsOpen()
+    catch
+      return 0
+    endtry
+  endfunc
+
+  " Note: Is there a tree in ANY tab to be mirrored? Asking first avoids the
+  " "No trees to mirror" notice that NERDTree prints on every first open! By Questor
+  " Note: Does THIS tab already own a tree, open or merely closed? By Questor
+  func! GrooVim_NERDTreeExistsForTab()
+    if !exists("g:NERDTree")
+      return 0
+    endif
+    try
+      return g:NERDTree.ExistsForTab()
+    catch
+      return 0
+    endtry
+  endfunc
+
+  func! GrooVim_NERDTreeExistsAnywhere()
+    for l:buffer in range(1, bufnr("$"))
+      if bufexists(l:buffer) && bufname(l:buffer) =~ "NERD_tree_"
+        return 1
+      endif
+    endfor
+    return 0
+  endfunc
+
+  func! GrooVim_ToggleNERDTreeTabs()
+
+    " Note: NERDTree draws its window by editing a buffer, and Vim reports that
+    " as "N fewer lines". Raising "report" while it works keeps the bar quiet! By Questor
+    let l:reportSaved = &report
+    set report=9999
+
+    try
+
+    if GrooVim_NERDTreeIsOpen()
+      silent! NERDTreeClose
+    else
+      " Note: Mirror only when the tree to be shared comes from ANOTHER tab. If
+      " this tab already owns one (it was merely closed), "NERDTreeFocus" brings
+      " it back and asking to mirror would only print a notice! By Questor
+      if !GrooVim_NERDTreeExistsForTab() && GrooVim_NERDTreeExistsAnywhere()
+        silent! NERDTreeMirror
+      endif
+      silent! NERDTreeFocus
+    endif
+
+    finally
+      let &report = l:reportSaved
+    endtry
+
   endfunc
 endif
 
@@ -3004,16 +3102,17 @@ nnoremap <silent> <leader>z/ :nohlsearch<cr>
 
 if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
   " Note: Opens and closes the "VIM Debug" depending on if it is open or closed! By Questor
-  let g:NERDTreeIsOpen = 0
   func! GrooVim_ToggleDbg()
     if exists("g:Dbg")
       unlet g:Dbg
       Dbg quit
     else
       try
-        if exists("g:NERDTreeIsOpen")
-          unlet g:NERDTreeIsOpen
-          NERDTreeTabsClose
+        " Note: The debugger wants the room, so the tree steps aside. The
+        " "exists()" is because this block and the NERDTree one are enabled by
+        " different variables, so the tree helper may not be defined! By Questor
+        if exists("*GrooVim_NERDTreeIsOpen") && GrooVim_NERDTreeIsOpen()
+          silent! NERDTreeClose
         endif
           Dbg .
         let g:Dbg = 1
@@ -3212,7 +3311,9 @@ augroup end
 
 " Note: Make trailing whitespace and non-breaking spaces visible! By Questor
 set list
-exec "set listchars=trail:\uB7,nbsp:~"
+" Note: The trailing/non breaking space marks AND the indentation guides are all
+" built by this one, so that both always agree on the same "listchars"! By Questor
+call GrooVim_IndentGuideSet()
 
 
 " " Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
@@ -3492,17 +3593,13 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  The GrooVim was designed to work with the best plugins;".
 \"\n   |-|We recommend install ALL the following plugins:".
 \"\n      |-|*NERDTree*".
-\"\n         |[https://github.com/scrooloose/nerdtree]|".
+\"\n         |[https://github.com/preservim/nerdtree]|".
 \"\n      |-|*tcomment*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
-\"\n      |-|*vim-nerdtree-tabs*".
-\"\n         |[https://github.com/jistr/vim-nerdtree-tabs]|".
-\"\n      |-|*indentLine*".
-\"\n         |[https://github.com/Yggdroot/indentLine]|".
-\"\n*o*  When using plugins *Pathogen* plugin needs to be intalled|[https://github.com/tpope/vim-pathogen];".
-\"\n*o*  By default GrooVim have all plugins enabled (see|let|g:enable_all_plugins|=|1|). You can also enable/disable the plugins individually;".
+\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.vim/pack/*/start| by themselves. *Pathogen* is recognized if you already use it, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
+\"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
 \"\n".
 \"\n * The GrooVim solves the following \"problems\"!!~".
 \"\n".
@@ -3548,6 +3645,20 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
 \"\n   |-|Use the system clipboard when it can be reached, see |Clipboard|below;".
 \"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".
+\"\n".
+\"\n * Indentation!~".
+\"\n".
+\"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
+\"\n".
+\"\n*o*  |g:GrooVim_IndentWidth| - the general width;".
+\"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
+\"\n     let g:GrooVim_IndentWidthPerType = {\"python\": 4, \"javascript\": 2}".
+\"\n<".
+\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off;".
+\"\n".
+\"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
+\"\n".
+\"\n The guides read the width from the standard Vim options when drawing, so they follow a|modeline| , a file type plugin or a|:set|shiftwidth=| you type.".
 \"\n".
 \"\n * Clipboard (the \"transfer area\")!~".
 \"\n".

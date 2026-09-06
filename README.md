@@ -80,6 +80,29 @@ Some editor features!
     - move-vim; 
         - Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move line or selection up/down;
 
+Indentation!
+-----
+
+The indent is **2 columns wide and made of spaces**, and the guides that draw the
+levels come from `listchars`, native to Vim.
+
+ * `g:GrooVim_IndentWidth` - the general width;
+ * `g:GrooVim_IndentWidthPerType` - the width per file type. One line is enough:
+
+```
+let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
+```
+
+ * `g:GrooVim_IndentGuideChar` - the char of the guide, or `""` to turn the guides off;
+
+Only the file types you list are touched. Vim already ships file type plugins that
+know what they are doing, and some of them are not a matter of taste: **make** needs
+a REAL tab on its recipe lines and **go** is written with tabs by gofmt. Those are
+left alone.
+
+The guides read the width from the standard Vim options when drawing, so they follow
+a `modeline`, a file type plugin or a `:set shiftwidth=` you type.
+
 Relevant changes in the default Vim behavior!
 -----
 
@@ -228,8 +251,6 @@ Task List/Bugs List!
 
  * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
- * Bug: The tab character must have 4 spaces for "*.py" files and 2 for the others! (PRIORITY) By Questor
-
  * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
 
  * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
@@ -339,10 +360,8 @@ there is no plugin manager involved here either:
 mkdir -p ~/.vim/pack/groovim/start
 cd ~/.vim/pack/groovim/start
 git clone https://github.com/preservim/nerdtree.git nerdtree
-git clone https://github.com/jistr/vim-nerdtree-tabs.git vim-nerdtree-tabs
 git clone https://github.com/tomtom/tcomment_vim.git tcomment_vim
 git clone https://github.com/matze/vim-move.git vim-move
-git clone https://github.com/Yggdroot/indentLine.git indentLine
 ```
 
 GrooVim detects each one and enables its mapping by itself. To force a plugin
