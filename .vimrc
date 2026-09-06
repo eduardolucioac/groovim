@@ -2463,10 +2463,13 @@ func! GrooVim_PauseExecution(msg)
 endfunc
 
 " Note: Allows normal use of the Enter (carriage return) key in visual mode! By Questor
-vnoremap <Enter>  "_x<bar>i<cr><Esc>
+" Note: There used to be a "<bar>" between the delete and the insert. It produces
+" a literal "|", which in normal mode means "go to column 1", so the line break
+" was inserted at the START of the line instead of where the selection was! By Questor
+vnoremap <silent> <Enter> "_xi<cr><Esc>
 
 " Note: Sets the behavior of Del key depending on the context! By Questor
-nnoremap <script> <Del> :call GrooVim_DelBehavior()<cr>
+nnoremap <silent> <script> <Del> :call GrooVim_DelBehavior()<cr>
 func! GrooVim_DelBehavior() range
   if expand('%:t') =~ "GrooVim_SearchGuyResults"
     call GrooVim_SearchGuyNavigate()
