@@ -403,7 +403,13 @@ let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", expand("~/.vim/GrooVim/
 
 " Note: The first tool that is actually there wins, and a hand placed one comes
 " before the one from "$PATH"! By Questor
+" Note: Jobs are required: see GrooVim_ClipToolCopy() for why a "system()" call
+" would freeze Vim on every copy. Without them we simply do not offer this
+" provider and the cascade goes on to OSC 52! By Questor
 func! GrooVim_ClipToolFind()
+  if !exists("*job_start")
+    return {}
+  endif
   for l:dir in [g:GrooVim_ClipBinDir, ""]
     for l:tool in g:GrooVim_ClipTools
       let l:copy = copy(l:tool["copy"])
@@ -430,14 +436,40 @@ func! GrooVim_ClipToolCopy(reg, type, lines)
   if empty(g:GrooVim_ClipTool)
     return
   endif
+
   let l:text = join(a:lines, "\n")
   " Note: A LINEWISE copy ends with a line break, so other applications receive
   " whole lines instead of a truncated one! By Questor
   if a:type ==# "V"
     let l:text = l:text . "\n"
   endif
+
+  " Note: This CANNOT be a "system()" call! These tools do not copy and leave:
+  " on Wayland and on X11 the clipboard belongs to the process that offered it,
+  " so "wl-copy" (and "xclip", and "xsel") forks and KEEPS RUNNING to serve the
+  " data to whoever asks for it, exiting only when another application takes the
+  " clipboard over. The child inherits the pipes, "system()" waits for them to
+  " close, and Vim would sit frozen after every copy until you copied something
+  " somewhere else.
+  "
+  " Note: A job writes the text and walks away. "out_io"/"err_io" as null keep no
+  " pipe open, and "stoponexit" empty is what lets the tool outlive Vim: with the
+  " default Vim would kill it on exit and your copy would vanish from the
+  " clipboard exactly when you left the editor! By Questor
   " Note: The command goes as a LIST, so there is no shell and nothing to quote! By Questor
-  call system(g:GrooVim_ClipTool["copy"], l:text)
+  try
+    let l:job = job_start(g:GrooVim_ClipTool["copy"], {
+          \ "in_io": "pipe",
+          \ "out_io": "null",
+          \ "err_io": "null",
+          \ "stoponexit": ""
+          \ })
+    let l:channel = job_getchannel(l:job)
+    call ch_sendraw(l:channel, l:text)
+    call ch_close_in(l:channel)
+  catch
+  endtry
+
 endfunc
 
 func! GrooVim_ClipToolPaste(reg)
