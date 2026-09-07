@@ -1377,9 +1377,16 @@ endfunc
 " appears (and disappears) even when you are not touching anything! By Questor
 let g:GrooVim_CapsLockPollMs = get(g:, "GrooVim_CapsLockPollMs", 300)
 
+" Note: Raised while an interactive prompt of GrooVim is on screen. The timer
+" below stays out of the way then: its status line redraw was wiping the match
+" highlight of a ":substitute" with confirmation and moving the cursor off the
+" question! By Questor
+let g:GrooVim_Busy = 0
+
 func! GrooVim_CapsLockPoll(timerId)
-  " Note: Stay out of the way while a movement is being animated! By Questor
-  if g:GrooVim_GroovyMoveEnabled == 0
+  " Note: Stay out of the way while a movement is being animated, or while a
+  " prompt is waiting for an answer! By Questor
+  if g:GrooVim_GroovyMoveEnabled == 0 || g:GrooVim_Busy
     return
   endif
   call GrooVim_CheckCapsLock()
@@ -1919,7 +1926,8 @@ endfunc
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-  let l:whileControl = 1
+  let g:GrooVim_Busy = 1
+  try
 
   if a:typeOfConfig == "search"
     echomsg "Configure Search (leave empty to keep the current value):"
@@ -1929,44 +1937,25 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
+  " Note: No "it is enabled/disabled" echo here: the prompt already shows the
+  " value that was just chosen, and every extra line pushes the command area
+  " around! By Questor
   if g:searchReplace_CaseSensitive == 1
-    echomsg " -> Case sensitive is enabled!"
     call GrooVim_OptsUpdate("set ignorecase", "set noignorecase", 0)
   else
-    echomsg " -> Case sensitive is disabled!"
     call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
   endif
 
   let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (replace/search) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\" ]? ", [1,0], g:searchReplace_InAllOpened)
   call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
-  if g:searchReplace_InAllOpened == 1
-    echomsg " -> Replace/search in all tabs is enabled!"
-  else
-    echomsg " -> Replace/search in all tabs is disabled!"
-  endif
 
   if a:typeOfConfig != "search"
     let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_Confirmation =", "let g:configureGrooVim_EntertainmentReplace_Confirmation = " . g:configureGrooVim_EntertainmentReplace_Confirmation, 0)
-    if g:configureGrooVim_EntertainmentReplace_Confirmation == 1
-      echomsg " -> Confirmation is enabled!"
-    else
-      echomsg " -> Confirmation is disabled!"
-    endif
     let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced =", "let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = " . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced, 0)
-    if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
-      echomsg " -> The value to be replaced will be asked!"
-    else
-      echomsg " -> The value to be replaced will NOT be asked!"
-    endif
     let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
-    if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
-      echomsg " -> Replace begin from current position is enabled!"
-    else
-      echomsg " -> Replace begin from current position is disabled!"
-    endif
   elseif a:typeOfConfig == "search"
     let g:search_Direction = GrooVim_GetOptions("Search forward/backward [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
@@ -1976,19 +1965,13 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     elseif g:search_Direction == "f"
       let g:grooVimSearchFoward = 1
     endif
-    if g:search_Direction == "f"
-      echomsg " -> Search forward is enabled!"
-    else
-      echomsg " -> Search backward is enabled!"
-    endif
     let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
-    if g:search_WithList == 1
-      echomsg " -> Search with list is enabled!"
-    else
-      echomsg " -> Search with list is disabled!"
-    endif
   endif
+
+  finally
+    let g:GrooVim_Busy = 0
+  endtry
 
 endfunc
 
@@ -2667,9 +2650,14 @@ func! GrooVim_EntertainmentReplace(mod) range
 
       " Note: Wrap around, like Notepad++: having reached the end of the file, if
       " occurrences were left BEHIND the starting point the replace continues from
-      " the top, and says so. Without this, beginning at the cursor would quietly
-      " leave part of the file untouched! By Questor
-      if l:startLine > 1
+      " the top, and says so.
+      "
+      " Note: Only WITH confirmation. Without it there is nobody to warn and
+      " nothing to decide, so wrapping would simply replace everything, which is
+      " what turning "begin from current position" OFF already does. Keeping the
+      " option meaningful means that, without confirmation, it does exactly what
+      " it says: from the cursor down! By Questor
+      if l:startLine > 1 && g:configureGrooVim_EntertainmentReplace_Confirmation == 1
         let l:leftBehind = GrooVim_CountOccurrences(l:pattern, 1, l:startLine - 1)
         if l:leftBehind > 0
           let l:wrapped = l:leftBehind
@@ -2700,7 +2688,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     " Note: What actually happened matters more than the hint below! By Questor
     call GrooVim_GrooVimBarMsg("Reached the end of the file: " . l:wrapped . " occurrence(s) replaced from the top!", 6)
   else
-    call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"h\"!", 4)
+    call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"j\"!", 4)
   endif
 
 endfunc
@@ -2820,7 +2808,12 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
   let g:GrooVim_CommandZMoment = l:GrooVim_CommandZMomentNow
   if g:GrooVim_CommandZChar != "" && g:GrooVim_CommandZUnblock == 1
     " Note: Prevents rerun a command while another is in progress! By Questor
+    " Note: The "try/finally" is what keeps a Ctrl-C from locking CommandZ for
+    " good: interrupting a prompt raises an exception, the function used to be
+    " abandoned with this flag still at zero, and from then on NO F key worked
+    " anymore! By Questor
     let g:GrooVim_CommandZUnblock = 0
+    try
     " Note: Edit commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F2"
       " Note: Used keys for F2: h k j up down c a d q w e end del! By Questor
@@ -2967,17 +2960,17 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "100"
         call GrooVim_ConfigureSearchReplace("search")
       endif
-      " Note: Opens to configure the replace (h)! By Questor
-      if g:GrooVim_CommandZChar == "104"
-        call GrooVim_ConfigureSearchReplace("replace")
-      endif
-      " Note: Opens to replace (normal/insert) (j)! By Questor
-      if g:GrooVim_CommandZChar == "106" && a:modType != "v"
+      " Note: Opens to replace (normal/insert) (h)! By Questor
+      if g:GrooVim_CommandZChar == "104" && a:modType != "v"
         call GrooVim_EntertainmentReplace("n")
       endif
-      " Note: '' (visual) (j)! By Questor
-      if g:GrooVim_CommandZChar == "106" && a:modType == "v"
+      " Note: '' (visual) (h)! By Questor
+      if g:GrooVim_CommandZChar == "104" && a:modType == "v"
         call GrooVim_EntertainmentReplace("v")
+      endif
+      " Note: Opens to configure the replace (j)! By Questor
+      if g:GrooVim_CommandZChar == "106"
+        call GrooVim_ConfigureSearchReplace("replace")
       endif
       " Note: Save session ([)! By Questor
       if g:GrooVim_CommandZChar == "91"
@@ -3026,7 +3019,9 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
         endif
       endif
     endif
-    let g:GrooVim_CommandZUnblock = 1
+    finally
+      let g:GrooVim_CommandZUnblock = 1
+    endtry
   endif
   let g:GrooVim_CommandZFCaller = a:GrooVim_CommandZFCallerNow
 
@@ -3491,6 +3486,28 @@ if &t_Co > 2 || has("gui_running")
   syntax on
 endif
 
+" Note: The ":substitute" with confirmation paints the match under decision with
+" "IncSearch" (see ":h :s_c"). Blue here, matching the blue that "N" uses when
+" walking BACK through the search results.
+"
+" Note: This has to come AFTER "syntax on" and be repeated on "ColorScheme",
+" because both reset the highlight groups! By Questor
+" Note: "cterm=NONE gui=NONE" is not decoration: the default "IncSearch" carries
+" "reverse", which SWAPS foreground and background and would show blue letters on
+" a white block instead of white on blue! By Questor
+let g:GrooVim_ReplaceHighlight = get(g:, "GrooVim_ReplaceHighlight", "cterm=NONE gui=NONE ctermbg=blue ctermfg=white guibg=blue guifg=white")
+func! GrooVim_SetReplaceHighlight()
+  try
+    exec "highlight IncSearch " . g:GrooVim_ReplaceHighlight
+  catch
+  endtry
+endfunc
+call GrooVim_SetReplaceHighlight()
+augroup GrooVim_ReplaceHighlightGroup
+  autocmd!
+  autocmd ColorScheme * call GrooVim_SetReplaceHighlight()
+augroup end
+
 " Note: Switch from block-cursor to vertical-line-cursor when going into/out of insert mode! By Questor
 " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 " let &t_EI = "\<Esc>]50;CursorShape=0\x7"
@@ -3902,9 +3919,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <s> - Save to disk (normal mode/insert/visual);".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
 \"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
-\"\n        <j> - Opens to replace (normal mode/insert/visual);".
-\"\n            Note: The replace begins at the CURSOR. Having reached the end of the file, if occurrences were left behind it continues from the top and says so, the way Notepad++ does. Turn this off with <F3> and then <h>;".
-\"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
+\"\n        <h> - Opens to replace (normal mode/insert/visual);".
+\"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with <F3> and then <j>;".
+\"\n        <j> - Opens to configure the replace (normal mode/insert/visual);".
 \"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
 \"\n       |<]>|- Reloads the last saved session (normal mode/insert/visual);".
 \"\n        <p> - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);".

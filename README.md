@@ -168,8 +168,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
        - s - Save to disk (normal mode/insert/visual);
        - f - Opens to search (normal mode/insert/visual);
        - d - Opens to configure the search (normal mode/insert/visual);
-       - j - Opens to replace (normal mode/insert/visual);
-       - h - Opens to configure the replace (normal mode/insert/visual);
+       - h - Opens to replace (normal mode/insert/visual). The replace begins at the CURSOR; with confirmation it continues from the top of the file if occurrences were left behind, and says so;
+       - j - Opens to configure the replace (normal mode/insert/visual);
        - [ - Saves the current session (normal mode/insert/visual);
        - ] - Reloads the last saved session (normal mode/insert/visual);
        - p - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);
