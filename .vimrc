@@ -1684,7 +1684,7 @@ nnoremap <silent> <C-Down> :tabprevious<cr>
 inoremap <silent> <C-Down> <C-O>:tabprevious<cr>
 vnoremap <silent> <C-Down> :<C-U>tabprevious<cr>v
 
-" Note: Permite que uso "multimodo" do del! By Questor
+" Note: Allows "multimode" use of the Del key! By Questor
 func! GrooVim_NormalDel()
 
   let l:continue = 1
@@ -1920,12 +1920,12 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   let l:whileControl = 1
 
   if a:typeOfConfig == "search"
-    echomsg "Configure Search (use empty for default or option now):"
+    echomsg "Configure Search (leave empty to keep the current value):"
   elseif a:typeOfConfig != "search"
-    echomsg "Configure Search and Replace (use empty for default or option now):"
+    echomsg "Configure Search and Replace (leave empty to keep the current value):"
   endif
 
-  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replaced/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
+  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   if g:searchReplace_CaseSensitive == 1
     echomsg " -> Case sensitive is enabled!"
@@ -1966,7 +1966,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
       echomsg " -> Replace begin from current position is disabled!"
     endif
   elseif a:typeOfConfig == "search"
-    let g:search_Direction = GrooVim_GetOptions("Search forward/backyard [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
+    let g:search_Direction = GrooVim_GetOptions("Search forward/backward [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
     " Note: Needed to reverse the search! By Questor
     if g:search_Direction == "b"
@@ -1977,7 +1977,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     if g:search_Direction == "f"
       echomsg " -> Search forward is enabled!"
     else
-      echomsg " -> Search backyard is enabled!"
+      echomsg " -> Search backward is enabled!"
     endif
     let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
@@ -2227,7 +2227,7 @@ func! GrooVim_EasySearch(mod) range
 
   let l:valueToSearchTemp = ""
 
-  let l:valueToSearchTemp = input("You want to use this value (use empty to yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+  let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
 
   " Note: Define search pathern automatically! By Questor
   if l:valueToSearchTemp != ""
@@ -2462,7 +2462,7 @@ func! GrooVim_SearchGuySync()
 
     call GrooVim_PutOnEditWindow()
 
-    " Note: O "set ma" e "set noma" abre e bloqueia edição do 
+    " Note: The "set ma" and "set noma" open and lock the editing of the
     " buffer! By Questor
     set ma
     exec "set splitbelow"
@@ -2582,7 +2582,7 @@ endfunc
 let g:configureGrooVim_EntertainmentReplace_Confirmation = 1
 let g:searchReplace_InAllOpened = 0
 let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
-let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 0
+let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 1
 func! GrooVim_EntertainmentReplace(mod) range
 
   " Note: Set "ignorecase" if is off! By Questor
@@ -2621,7 +2621,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     endwhile
   endif
 
-  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer área value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
 
   if l:valueThatWillReplace == ""
     let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_ClipGet())
@@ -2852,8 +2852,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Opens the file .vimrc (normal/visual) (v)! By Questor
       if g:GrooVim_CommandZChar == "118" && a:modType != "i"
-        " Note: Workaround para evitar
-        " imcompatibilidade! By Questor
+        " Note: Workaround to avoid incompatibility! By Questor
         call feedkeys("\\zv")
       endif
       " Note: '' (insert) (v)! By Questor
@@ -3277,7 +3276,7 @@ endfunc
 
 " Note: Saves to disk! By Questor
 func! GrooVim_VisualWrite() range
-  " Note: Witre! By Questor
+  " Note: Write! By Questor
   exec "w"
   " Note: Reselect area! By Questor
   exec "norm gv"
