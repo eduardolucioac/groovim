@@ -1615,9 +1615,11 @@ inoremap <silent> <script> <C-v> <C-o>P<C-o>`]<Right>
 " (do not need the "Shift" key)! By Questor
 vnoremap <silent> <C-x> di
 
-" Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v cycle)
-" (do not need the "Shift" key)! By Questor
-vnoremap <silent> <C-c> yi
+" Note: Copy KEEPING the selection, the way Notepad++ does: there, Ctrl-c copies
+" and leaves everything as it was. The "gv" is what puts the selection back after
+" the yank. Note that Ctrl-x below is different on purpose: cutting and then
+" typing in the place of what was cut IS the conventional behaviour! By Questor
+vnoremap <silent> <C-c> ygv
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d
@@ -2649,10 +2651,40 @@ func! GrooVim_EntertainmentReplace(mod) range
     exec "norm b\<Left>"
   endif
 
+  " Note: Tells whether the file wrapped around, so that the hint at the end of
+  " this function does not overwrite a message that actually matters! By Questor
+  let l:wrapped = 0
+
   if g:searchReplace_InAllOpened != 1
     if g:configureGrooVim_EntertainmentReplace_FromCurrentPosition == 1
+
       " Note: Replace begin from current position! By Questor
-      exec l:startLine . ",$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+      try
+        exec l:startLine . ",$s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+      catch /E486/
+        " Note: Nothing from here down, and the wrap below still has to run! By Questor
+      endtry
+
+      " Note: Wrap around, like Notepad++: having reached the end of the file, if
+      " occurrences were left BEHIND the starting point the replace continues from
+      " the top, and says so. Without this, beginning at the cursor would quietly
+      " leave part of the file untouched! By Questor
+      if l:startLine > 1
+        let l:leftBehind = GrooVim_CountOccurrences(l:pattern, 1, l:startLine - 1)
+        if l:leftBehind > 0
+          let l:wrapped = l:leftBehind
+          call GrooVim_GrooVimBarMsg("Reached the end of the file: continuing from the top (" . l:leftBehind . " to go)!", 6)
+          " Note: The message has to reach the screen BEFORE the confirmation
+          " prompts start, otherwise you would be answering them without knowing
+          " that the file wrapped around! By Questor
+          redraw
+          try
+            exec "1," . (l:startLine - 1) . "s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
+          catch /E486/
+          endtry
+        endif
+      endif
+
     else
       exec "%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot
     endif
@@ -2664,7 +2696,42 @@ func! GrooVim_EntertainmentReplace(mod) range
     let g:tryCathOnTabDo = 0
   endif
 
-  call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"h\"!", 4)
+  if l:wrapped > 0
+    " Note: What actually happened matters more than the hint below! By Questor
+    call GrooVim_GrooVimBarMsg("Reached the end of the file: " . l:wrapped . " occurrence(s) replaced from the top!", 6)
+  else
+    call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"h\"!", 4)
+  endif
+
+endfunc
+
+" Note: How many times a pattern appears in a range, without changing anything.
+" The "n" flag of ":substitute" only reports the count.
+"
+" Note: "gdefault" is turned off while counting because it INVERTS the meaning of
+" the "g" flag: with it on, "g" would ask for only the FIRST match per line and
+" the count would come out short! By Questor
+func! GrooVim_CountOccurrences(pattern, firstLine, lastLine)
+
+  if a:pattern == "" || a:firstLine > a:lastLine || a:firstLine < 1
+    return 0
+  endif
+
+  let l:gdefaultSaved = &gdefault
+  let l:report = ""
+
+  try
+    set nogdefault
+    redir => l:report
+    silent exec a:firstLine . "," . a:lastLine . "s#" . a:pattern . "##gn"
+  catch
+    " Note: No match at all raises E486, and zero is the right answer! By Questor
+  finally
+    redir END
+    let &gdefault = l:gdefaultSaved
+  endtry
+
+  return str2nr(matchstr(l:report, '\d\+'))
 
 endfunc
 
@@ -3725,7 +3792,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
 \"\n".
 \"\n*o*  Conventional text editors commands:".
-\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
+\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard, KEEPING the selection;".
 \"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;".
 \"\n   |-|<Ctrl-x> (visual mode) - Cut to the clipboard;".
 \"\n   |-|<Ctrl-u> (normal mode/insert/visual) - Undo;".
@@ -3836,6 +3903,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
 \"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
 \"\n        <j> - Opens to replace (normal mode/insert/visual);".
+\"\n            Note: The replace begins at the CURSOR. Having reached the end of the file, if occurrences were left behind it continues from the top and says so, the way Notepad++ does. Turn this off with <F3> and then <h>;".
 \"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
 \"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
 \"\n       |<]>|- Reloads the last saved session (normal mode/insert/visual);".
