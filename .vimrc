@@ -2236,7 +2236,15 @@ func! GrooVim_EasySearch(mod) range
 
   let l:valueToSearchTemp = ""
 
-  let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+  " Note: With nothing under the cursor there is no value to offer, and asking
+  " "you want to use this value?" about an empty one makes no sense! By Questor
+  if ("" . l:valueToSearch . "") != ""
+    let l:promptToSearch = "You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": "
+  else
+    let l:promptToSearch = "Type a value: "
+  endif
+
+  let l:valueToSearchTemp = input(l:promptToSearch)
 
   " Note: Define search pathern automatically! By Questor
   if l:valueToSearchTemp != ""
@@ -2620,13 +2628,17 @@ func! GrooVim_EntertainmentReplace(mod) range
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
     while l:stopWhile == 0
-      " Note: With nothing under the cursor there is no value to offer, and the
-      " loop around here only lets go of a NON empty answer. Saying "empty to use
-      " \"\"" would be a lie: leaving it empty just asks again! By Questor
+      " Note: With nothing under the cursor there is no value to offer, and saying
+      " "empty to use \"\"" would be a lie twice over: there is no value to use,
+      " and the loop around here only lets go of a NON empty answer.
+      "
+      " Note: "(required)" and not an instruction because it states the RULE, the
+      " way the neighbouring prompts state "[now: ...]" and "[0[default]/1]". And
+      " it is true here: the loop really does enforce it! By Questor
       if ("" . l:valueToReplace . "") != ""
         let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
       else
-        let l:promptToReplace = "Value that will be REPLACED (type a value): "
+        let l:promptToReplace = "Value that will be REPLACED (required): "
       endif
       let l:valueToReplaceTemp = (input(l:promptToReplace))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
