@@ -2202,6 +2202,9 @@ let g:searchReplace_CaseSensitive = 0
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range
 
+  let g:GrooVim_Busy = 1
+  try
+
   " Note: Set "hlsearch" if is off! By Questor
   if !&hlsearch
     " Note: Highlight search results! By Questor
@@ -2237,14 +2240,19 @@ func! GrooVim_EasySearch(mod) range
   let l:valueToSearchTemp = ""
 
   " Note: With nothing under the cursor there is no value to offer, and asking
-  " "you want to use this value?" about an empty one makes no sense! By Questor
+  " "you want to use this value?" about an empty one makes no sense.
+  "
+  " Note: In that case the answer is REQUIRED, and the loop is what makes the
+  " word true: searching for nothing would do nothing useful anyway. Ctrl-C gets
+  " you out, and it no longer leaves CommandZ blocked! By Questor
   if ("" . l:valueToSearch . "") != ""
-    let l:promptToSearch = "You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": "
+    let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
   else
-    let l:promptToSearch = "Type a value: "
+    let l:valueToSearchTemp = ""
+    while ("" . l:valueToSearchTemp . "") == ""
+      let l:valueToSearchTemp = input("Value to SEARCH (required): ")
+    endwhile
   endif
-
-  let l:valueToSearchTemp = input(l:promptToSearch)
 
   " Note: Define search pathern automatically! By Questor
   if l:valueToSearchTemp != ""
@@ -2282,6 +2290,10 @@ func! GrooVim_EasySearch(mod) range
   endif
 
   call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
+
+  finally
+    let g:GrooVim_Busy = 0
+  endtry
 
 endfunc
 
@@ -2602,6 +2614,13 @@ let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
 let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 1
 func! GrooVim_EntertainmentReplace(mod) range
 
+  " Note: Raised for the WHOLE function, and this is the one that matters most:
+  " the ":substitute" with confirmation waits for an answer per occurrence, and
+  " the CapsLock timer redrawing the bar underneath was wiping the highlight of
+  " the match being decided and moving the cursor off the question! By Questor
+  let g:GrooVim_Busy = 1
+  try
+
   " Note: Set "ignorecase" if is off! By Questor
   if !&ignorecase && g:searchReplace_CaseSensitive == 0
     " Note: Case sensitive search! By Questor
@@ -2734,6 +2753,10 @@ func! GrooVim_EntertainmentReplace(mod) range
   else
     call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"j\"!", 4)
   endif
+
+  finally
+    let g:GrooVim_Busy = 0
+  endtry
 
 endfunc
 
