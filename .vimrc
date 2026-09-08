@@ -1999,13 +1999,17 @@ func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
   " into a summary and ends at the "Press ENTER" prompt. Measured on the terminal:
   " with nothing echoed, the line is erased and nothing accumulates.
   "
-  " Note: The EFFECTIVE value and not what was typed, because on an empty answer
-  " that is precisely what one wants to see: which value was kept. It also has to
-  " be non empty, or the line is erased just the same.
+  " Note: What was TYPED, or "[empty]" when nothing was. It also has to be non
+  " empty, or the line is erased just the same.
+  "
+  " Note: The " -> " is not decoration either: "input()" already printed what was
+  " typed, so without a separator the answer would appear glued to itself. The
+  " prompt is 59 columns wide, the typed value lands on column 60 and the echo on
+  " column 61, which would read "? 11".
   "
   " Note: And being here, inside the asker itself, every question of GrooVim gets
   " this for free, with no per-option sentence to write! By Questor
-  echomsg " -> " . l:optionReturn
+  echomsg " -> " . (l:typed == "" ? "[empty]" : l:typed)
 
   return l:optionReturn
 endfunc
