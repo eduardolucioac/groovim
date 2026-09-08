@@ -1964,16 +1964,14 @@ endfunc
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-  call GrooVim_ContextEnter(a:typeOfConfig == "search" ? "[configuration] Search" : "[configuration] Replace")
+  call GrooVim_ContextEnter(a:typeOfConfig == "search" ? "[configuration] [search]" : "[configuration] [replace]")
   try
 
-  if a:typeOfConfig == "search"
-    echomsg "Search (leave empty to keep the current value):"
-  elseif a:typeOfConfig != "search"
-    echomsg "Replace (leave empty to keep the current value):"
-  endif
+  " Note: No header line here. The bar already says "[configuration] [search]" or
+  " "[configuration] [replace]", and what an empty answer does is written in the
+  " help (F9), so a line repeating it would only crowd the screen! By Questor
 
-  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
+  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (search/replace) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\"]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
   " value that was just chosen, and every extra line pushes the command area
@@ -1984,18 +1982,18 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
   endif
 
-  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (replace/search) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\" ]? ", [1,0], g:searchReplace_InAllOpened)
+  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (search/replace) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\"]? ", [1,0], g:searchReplace_InAllOpened)
   call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
 
   if a:typeOfConfig != "search"
-    let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
+    let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_Confirmation =", "let g:configureGrooVim_EntertainmentReplace_Confirmation = " . g:configureGrooVim_EntertainmentReplace_Confirmation, 0)
-    let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
+    let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced =", "let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = " . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced, 0)
-    let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\" ]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
+    let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
   elseif a:typeOfConfig == "search"
-    let g:search_Direction = GrooVim_GetOptions("Search forward/backward [f[default]/b][now: \"" . g:search_Direction . "\" ]? ", ["f","b"], g:search_Direction)
+    let g:search_Direction = GrooVim_GetOptions("Search forward/backward [f[default]/b][now: \"" . g:search_Direction . "\"]? ", ["f","b"], g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
     " Note: Needed to reverse the search! By Questor
     if g:search_Direction == "b"
@@ -2003,7 +2001,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     elseif g:search_Direction == "f"
       let g:grooVimSearchFoward = 1
     endif
-    let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
+    let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\"]? ", [1,0], g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
 
