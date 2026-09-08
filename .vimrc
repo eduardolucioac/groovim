@@ -1924,6 +1924,11 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
+" Note: Reads better than "1" and "0" on the summary below! By Questor
+func! GrooVim_ConfigOnOff(value)
+  return a:value == 1 ? "enabled" : "disabled"
+endfunc
+
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
   let g:GrooVim_Busy = 1
@@ -1967,6 +1972,30 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     endif
     let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\" ]? ", [1,0], g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
+  endif
+
+  " Note: A summary of everything that was chosen, shown at once at the end.
+  "
+  " Note: The "redraw" wipes the leftover of the questions, which used to stay on
+  " screen after the last answer. And the summary being taller than "cmdheight"
+  " is what makes Vim hold it with its "Press ENTER" prompt, so you read what you
+  " chose and close it yourself! By Questor
+  redraw
+
+  if a:typeOfConfig == "search"
+    echomsg "Search configured:"
+  else
+    echomsg "Search and Replace configured:"
+  endif
+  echomsg "   Case sensitive ................ " . GrooVim_ConfigOnOff(g:searchReplace_CaseSensitive)
+  echomsg "   In all tabs ................... " . GrooVim_ConfigOnOff(g:searchReplace_InAllOpened)
+  if a:typeOfConfig != "search"
+    echomsg "   Replace with confirmation ..... " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_Confirmation)
+    echomsg "   Ask the value to be replaced .. " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
+    echomsg "   Begin from current position ... " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
+  else
+    echomsg "   Search direction .............. " . (g:search_Direction == "f" ? "forward" : "backward")
+    echomsg "   Search with list .............. " . GrooVim_ConfigOnOff(g:search_WithList)
   endif
 
   finally
@@ -3515,8 +3544,11 @@ augroup end
 " Note: " Cursor -> Orange in insert mode and red in command mode!
 " if you want to use rgb color formatting: konsoleprofile
 " CustomCursorColor=#255255255! By Questor
-let g:cursorColorI = "orange"
-let g:cursorColorNV = "red"
+" Note: One color per mode, so you know where you are without looking at the
+" bar: green in normal, blue in visual, orange while typing! By Questor
+let g:cursorColorI = get(g:, "cursorColorI", "orange")
+let g:cursorColorNV = get(g:, "cursorColorNV", "green")
+let g:cursorColorV = get(g:, "cursorColorV", "blue")
 let g:cursorColorBlock = 0
 
 " Note: "OSC 12" is the standard sequence to set the cursor color and "OSC 112"
@@ -3529,12 +3561,34 @@ func! SetCursorColor()
   let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
 endfun
 
+" Note: Sends the color to the terminal right now! By Questor
+func! GrooVim_CursorColorEmit(color)
+  if exists("*echoraw")
+    call echoraw("\<Esc>]12;" . a:color . "\x7")
+  endif
+endfunc
+
+" Note: Which color belongs to the mode we are in.
+"
+" Note: "t_SI"/"t_EI" only know insert from everything else, so they cannot tell
+" visual from normal. The "ModeChanged" event can, and it is what paints visual
+" blue! By Questor
+func! GrooVim_CursorColorForMode()
+  let l:mode = mode()
+  if l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
+        \ || l:mode ==# "s" || l:mode ==# "S" || l:mode ==# "\<C-s>"
+    call GrooVim_CursorColorEmit(g:cursorColorV)
+  elseif l:mode =~# "^[iR]"
+    call GrooVim_CursorColorEmit(g:cursorColorI)
+  else
+    call GrooVim_CursorColorEmit(g:cursorColorNV)
+  endif
+endfunc
+
 " Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
 " insert mode! By Questor
 func! GrooVim_CursorColorNow()
-  if exists("*echoraw")
-    call echoraw("\<Esc>]12;" . g:cursorColorNV . "\x7")
-  endif
+  call GrooVim_CursorColorEmit(g:cursorColorNV)
 endfunc
 
 " Note: Gives the cursor back to the terminal when leaving! By Questor
@@ -3548,12 +3602,20 @@ endfunc
 " terminal codes make no sense! By Questor
 let g:GrooVim_CursorColorEnabled = !has("gui_running") && &term !~ "^\\(linux\\|dumb\\|cons\\)"
 if g:GrooVim_CursorColorEnabled
-  call SetCursorColor()
   augroup GrooVim_CursorColor
     autocmd!
     autocmd VimEnter * call GrooVim_CursorColorNow()
     autocmd VimLeave * call GrooVim_CursorColorReset()
+    if exists("##ModeChanged")
+      " Note: With "ModeChanged" available this covers every mode, so "t_SI" and
+      " "t_EI" are left alone to avoid painting the cursor twice! By Questor
+      autocmd ModeChanged * call GrooVim_CursorColorForMode()
+    endif
   augroup end
+  if !exists("##ModeChanged")
+    " Note: Older Vim: insert against everything else is all we get! By Questor
+    call SetCursorColor()
+  endif
 endif
 
 " " Note: Displays a line below the cursor (causes slowdown)! By Questor
