@@ -2427,6 +2427,11 @@ func! GrooVim_EasySearch(mod) range
     let l:valueToSearch = l:valueToSearchTemp
   endif
 
+  " Note: What you actually typed, kept for the bar of the occurrences list. The
+  " pattern below is the escaped form, and showing it would leak the escaping to
+  " a place where you just want to read what was searched! By Questor
+  let g:GrooVim_SearchGuyValue = l:valueToSearch
+
   let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
   let l:search_Operator = ""
 
@@ -2485,6 +2490,11 @@ endfunc
 " Note: Performs search in multiple tabs creating lists of occurrences! By Questor
 func! GrooVim_SearchGuyTraveler(mod) range
 
+  " Note: Counted BEFORE knowing whether there is a match, because Notepad++ says
+  " "of N searched" about every file it looked at, not only the ones that had
+  " something! By Questor
+  let g:GrooVim_SearchGuyFilesSearched = g:GrooVim_SearchGuyFilesSearched + 1
+
   let l:theresAMatch = 1
 
   try
@@ -2525,6 +2535,8 @@ endfunc
 let g:matchedLinesGlobal = ""
 let g:matchedLinesGlobalNavArray = []
 let g:GrooVim_SearchGuyEnabled = 0
+let g:GrooVim_SearchGuyValue = ""
+let g:GrooVim_SearchGuyFilesSearched = 0
 let g:grooVimSearchFowardBlock = 0
 func! GrooVim_SearchGuy(mod) range
 
@@ -2541,6 +2553,7 @@ func! GrooVim_SearchGuy(mod) range
   let g:block_GrooVim_HLNext = 1
   let g:matchedLinesGlobalNavArray = []
   let g:GrooVim_SearchGuyEnabled = 0
+  let g:GrooVim_SearchGuyFilesSearched = 0
 
   if g:searchReplace_InAllOpened == 1
     call TabDo("call GrooVim_SearchGuyTraveler(\"" . a:mod . "\")")
@@ -2667,9 +2680,72 @@ func! GrooVim_SearchGuySync()
     silent exec "split GrooVim_SearchGuyResults" . tabpagenr()
     exec "put =g:matchedLinesGlobal"
     set cursorline
-    exec "norm ggdd"
+    " Note: "norm!" and not "norm": the list turns off the editing keys with
+    " buffer mappings, and without the "!" this code would run through them and
+    " do something else entirely! By Questor
+    exec "norm! ggdd"
     set noma
+    call GrooVim_SearchGuyPanelSetup()
   endif
+endfunc
+
+" Note: Turns the window into what it really is: a list you read and navigate,
+" never one you type into! By Questor
+func! GrooVim_SearchGuyPanelSetup()
+
+  " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
+  " forgot to save: it was showing up as modified and listed in ":ls"! By Questor
+  setlocal buftype=nofile
+  setlocal bufhidden=hide
+  setlocal noswapfile
+  setlocal nobuflisted
+
+  " Note: The bar of the list says what Notepad++ says on its "Search results":
+  " the value, the hits, the files. Line, column and percentage mean nothing
+  " here! By Questor
+  let &l:statusline = "%!GrooVim_SearchGuyBar()"
+
+  " Note: "Enter" to jump to the occurrence, which is what the key means
+  " everywhere else in a list. "Del" keeps working for whoever got used to it!
+  " By Questor
+  nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
+
+  " Note: The buffer is already "nomodifiable", so these keys could only produce
+  " an "E21" error. Turned off, they simply do nothing, and the list stays in
+  " normal mode as a list should. Yanking and visual selection are left alone:
+  " copying a result is useful! By Questor
+  for l:key in ["i", "I", "a", "A", "o", "O", "s", "S", "c", "C", "R",
+              \ "x", "X", "d", "D", "p", "P", "r", "u", "gi", "gI", "gR"]
+    exec "nnoremap <buffer> <silent> " . l:key . " <Nop>"
+  endfor
+
+endfunc
+
+" Note: "Search \"value\" (N hits in M files of K searched)", the way Notepad++
+" reports it. Everything comes from the navigation array that was already being
+" built: an entry is either an occurrence ("tab,file,line,column") or a "0" for
+" the separators and the file names! By Questor
+func! GrooVim_SearchGuyBar()
+
+  let l:hits = 0
+  let l:files = {}
+  for l:entry in g:matchedLinesGlobalNavArray
+    if l:entry != "0"
+      let l:hits = l:hits + 1
+      let l:entryParts = split(l:entry, ",")
+      let l:files[l:entryParts[0] . "," . l:entryParts[1]] = 1
+    endif
+  endfor
+
+  " Note: "%" starts a format item in a status line, so a searched value carrying
+  " one has to be doubled or the bar would eat it! By Questor
+  let l:value = substitute(g:GrooVim_SearchGuyValue, "%", "%%", "g")
+
+  return "Search \"" . l:value . "\" (" .
+    \ l:hits . " hit" . (l:hits == 1 ? "" : "s") . " in " .
+    \ len(l:files) . " file" . (len(l:files) == 1 ? "" : "s") . " of " .
+    \ g:GrooVim_SearchGuyFilesSearched . " searched)"
+
 endfunc
 
 " Note: Allows browsing the results using "Del"! By Questor
@@ -2689,11 +2765,14 @@ func! GrooVim_SearchGuyNavigate() range
     endwhile
 
     set ma
-    exec "norm ggdG"
+    " Note: "norm!" for the same reason as in "GrooVim_SearchGuySync()": these
+    " run inside the list, where "d", "i" and friends are mapped to nothing! By
+    " Questor
+    exec "norm! ggdG"
     exec "put =g:matchedLinesGlobal"
-    exec "norm ggdd"
+    exec "norm! ggdd"
     call setpos(".", l:listPosLinCol)
-    exec "norm 0i->"
+    exec "norm! 0i->"
     set noma
 
     while expand('%:t') != split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[1]
