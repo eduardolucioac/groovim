@@ -1393,6 +1393,15 @@ let g:GrooVim_GrooVimBarContext = ""
 func! GrooVim_ContextEnter(context)
   let g:GrooVim_Busy = 1
   let g:GrooVim_GrooVimBarContext = a:context
+  " Note: Whatever was on the bar was said BEFORE this operation and has nothing
+  " to do with it, so it goes. Messages raised DURING the operation still show up
+  " next to the context, which is how a warning like the one about wrapping to
+  " the top of the file survives.
+  "
+  " Note: Going through GrooVim_GrooVimBarMsg() and not clearing the variables by
+  " hand is deliberate: it refuses to erase anything while the CapsLock is on, and
+  " that warning must not be swallowed by an operation! By Questor
+  call GrooVim_GrooVimBarMsg("", "")
   call GrooVim_ContextRedraw()
 endfunc
 
