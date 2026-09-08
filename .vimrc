@@ -1622,11 +1622,12 @@ inoremap <silent> <script> <C-v> <C-o>P<C-o>`]<Right>
 " (do not need the "Shift" key)! By Questor
 vnoremap <silent> <C-x> di
 
-" Note: Copy KEEPING the selection, the way Notepad++ does: there, Ctrl-c copies
-" and leaves everything as it was. The "gv" is what puts the selection back after
-" the yank. Note that Ctrl-x below is different on purpose: cutting and then
-" typing in the place of what was cut IS the conventional behaviour! By Questor
-vnoremap <silent> <C-c> ygv
+" Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v cycle)
+" (do not need the "Shift" key)! By Questor
+" Note: Same shape as the Ctrl-x above on purpose: in an editor without modes you
+" simply keep typing after copying or cutting, and landing on insert is what
+" comes closest to that! By Questor
+vnoremap <silent> <C-c> yi
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d
@@ -3958,7 +3959,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
 \"\n".
 \"\n*o*  Conventional text editors commands:".
-\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard, KEEPING the selection;".
+\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
 \"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;".
 \"\n   |-|<Ctrl-x> (visual mode) - Cut to the clipboard;".
 \"\n   |-|<Ctrl-u> (normal mode/insert/visual) - Undo;".
