@@ -1383,6 +1383,34 @@ let g:GrooVim_CapsLockPollMs = get(g:, "GrooVim_CapsLockPollMs", 300)
 " question! By Questor
 let g:GrooVim_Busy = 0
 
+" Note: What the bar announces while an operation is running! By Questor
+let g:GrooVim_GrooVimBarContext = ""
+
+" Note: Entering and leaving an operation: raises the busy flag and puts its name
+" on the bar, then takes both back. Every function that asks something goes
+" through this pair, inside a try/finally, so an interruption cannot leave the
+" bar lying about what is happening! By Questor
+func! GrooVim_ContextEnter(context)
+  let g:GrooVim_Busy = 1
+  let g:GrooVim_GrooVimBarContext = a:context
+  call GrooVim_ContextRedraw()
+endfunc
+
+func! GrooVim_ContextLeave()
+  let g:GrooVim_Busy = 0
+  let g:GrooVim_GrooVimBarContext = ""
+  call GrooVim_ContextRedraw()
+endfunc
+
+func! GrooVim_ContextRedraw()
+  if v:vim_did_enter
+    try
+      redrawstatus!
+    catch
+    endtry
+  endif
+endfunc
+
 func! GrooVim_CapsLockPoll(timerId)
   " Note: Stay out of the way while a movement is being animated, or while a
   " prompt is waiting for an answer! By Questor
@@ -1927,13 +1955,13 @@ endfunc
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-  let g:GrooVim_Busy = 1
+  call GrooVim_ContextEnter(a:typeOfConfig == "search" ? "[configuration] Search" : "[configuration] Replace")
   try
 
   if a:typeOfConfig == "search"
-    echomsg "[configuration] Search (leave empty to keep the current value):"
+    echomsg "Search (leave empty to keep the current value):"
   elseif a:typeOfConfig != "search"
-    echomsg "[configuration] Replace (leave empty to keep the current value):"
+    echomsg "Replace (leave empty to keep the current value):"
   endif
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
@@ -1971,7 +1999,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   endif
 
   finally
-    let g:GrooVim_Busy = 0
+    call GrooVim_ContextLeave()
   endtry
 
 endfunc
@@ -2224,7 +2252,7 @@ let g:searchReplace_CaseSensitive = 0
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range
 
-  let g:GrooVim_Busy = 1
+  call GrooVim_ContextEnter("[search]")
   try
 
   " Note: Set "hlsearch" if is off! By Questor
@@ -2278,11 +2306,11 @@ func! GrooVim_EasySearch(mod) range
   " word true: searching for nothing would do nothing useful anyway. Ctrl-C gets
   " you out, and it no longer leaves CommandZ blocked! By Questor
   if ("" . l:valueToSearch . "") != ""
-    let l:valueToSearchTemp = input("[search] You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+    let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
   else
     let l:valueToSearchTemp = ""
     while ("" . l:valueToSearchTemp . "") == ""
-      let l:valueToSearchTemp = input("[search] Type a value (required): ")
+      let l:valueToSearchTemp = input("Type a value (required): ")
     endwhile
   endif
 
@@ -2327,7 +2355,7 @@ func! GrooVim_EasySearch(mod) range
   call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
 
   finally
-    let g:GrooVim_Busy = 0
+    call GrooVim_ContextLeave()
     " Note: Safety net: an interruption must not leave the text painted! By Questor
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
@@ -2655,7 +2683,7 @@ func! GrooVim_EntertainmentReplace(mod) range
   " the ":substitute" with confirmation waits for an answer per occurrence, and
   " the CapsLock timer redrawing the bar underneath was wiping the highlight of
   " the match being decided and moving the cursor off the question! By Questor
-  let g:GrooVim_Busy = 1
+  call GrooVim_ContextEnter("[replace]")
   try
 
   " Note: Set "ignorecase" if is off! By Questor
@@ -2702,9 +2730,9 @@ func! GrooVim_EntertainmentReplace(mod) range
       " way the neighbouring prompts state "[now: ...]" and "[0[default]/1]". And
       " it is true here: the loop really does enforce it! By Questor
       if ("" . l:valueToReplace . "") != ""
-        let l:promptToReplace = "[replace] Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
+        let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
       else
-        let l:promptToReplace = "[replace] Value that will be REPLACED (required): "
+        let l:promptToReplace = "Value that will be REPLACED (required): "
       endif
       let l:valueToReplaceTemp = (input(l:promptToReplace))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
@@ -2716,7 +2744,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     endwhile
   endif
 
-  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("[replace] Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
 
   if l:valueThatWillReplace == ""
     let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_ClipGet())
@@ -2807,7 +2835,7 @@ func! GrooVim_EntertainmentReplace(mod) range
   endif
 
   finally
-    let g:GrooVim_Busy = 0
+    call GrooVim_ContextLeave()
     " Note: Safety net: an interruption must not leave the text painted! By Questor
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
@@ -3182,9 +3210,12 @@ endfunc
 " Note: Get current filename or filename and path and put on transfer area! By Questor
 func! GrooVim_GetFileNameAndPath() range
 
+  call GrooVim_ContextEnter("[file name]")
+  try
+
   let l:filenameOrFilenameAndPath = ""
 
-  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("[file name] Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
+  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
   if l:getFilenameOrFilenameAndPath == 0
     let l:filenameOrFilenameAndPath = expand('%:t')
     echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
@@ -3195,6 +3226,10 @@ func! GrooVim_GetFileNameAndPath() range
 
   " Note: Set the clipboard register! By Questor
   call GrooVim_ClipSet(l:filenameOrFilenameAndPath)
+
+  finally
+    call GrooVim_ContextLeave()
+  endtry
 
 endfunc
 
@@ -3209,6 +3244,9 @@ endfunc
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range
 
+  call GrooVim_ContextEnter("[macro]")
+  try
+
   if a:repeatExecution == 0
     exec "norm @a"
     " Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
@@ -3218,7 +3256,7 @@ func! GrooVim_XenPlay(repeatExecution) range
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
-    let l:numberOfRepetitions = input("[macro] Number of repetitions (use \"x\" to excute to last/first line): ")
+    let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
     " Note: Runs up to the last/first row!! By Questor
     if l:numberOfRepetitions == "x"
       " Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
@@ -3315,7 +3353,7 @@ func! GrooVim_XenPlay(repeatExecution) range
         endif
 
         if l:invalidNumber == 1
-          let l:numberOfRepetitions = input("[macro] Number of repetitions (use a valid one!): ")
+          let l:numberOfRepetitions = input("Number of repetitions (use a valid one!): ")
         endif
 
       endwhile
@@ -3351,6 +3389,10 @@ func! GrooVim_XenPlay(repeatExecution) range
   endif
 
   let g:block_GrooVim_HLNext = 0
+
+  finally
+    call GrooVim_ContextLeave()
+  endtry
 
 endfunc
 
@@ -3398,10 +3440,13 @@ endif
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
 
+  call GrooVim_ContextEnter("[save a copy]")
+  try
+
     let l:valueToPath = ""
     let l:stopWhile = 0
     while l:stopWhile == 0
-      let l:valueToPath = input("[save a copy] PATH (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
       if l:valueToPath == "0"
         if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
           let l:stopWhile = 1
@@ -3434,7 +3479,7 @@ func! GrooVim_SaveACopy() range
       if l:valueToPath == ""
         let l:definePathWarning = " (DEFINE A PATH TOO!)"
       endif
-      let l:valueToName = input("[save a copy] NAME of the file copy to be saved" . l:definePathWarning . ": ")
+      let l:valueToName = input("NAME of the file copy to be saved" . l:definePathWarning . ": ")
       if ("" . l:valueToName . "") != ""
         if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
           let l:stopWhile = 1
@@ -3454,6 +3499,10 @@ func! GrooVim_SaveACopy() range
       call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
       redraw!
     endtry
+
+  finally
+    call GrooVim_ContextLeave()
+  endtry
 
 endfunc
 
@@ -3571,9 +3620,18 @@ endfunc
 
 " Note: Displays an information bar! By Questor
 set laststatus=2
+" Note: While an operation is asking something, its name takes the place of the
+" "Powered by" on the bar, and the bar goes back to normal when it is over. The
+" prompt itself stays clean: the context lives here, not glued to the question!
+" By Questor
 func! GrooVim_GrooVimBar()
 
   let l:barContents = '%f [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+
+  if g:GrooVim_GrooVimBarContext != ""
+    return l:barContents . " " . g:GrooVim_GrooVimBarContext . g:GrooVim_GrooVimBarMsgValue
+  endif
+
   return l:barContents . " Powered by [GrooVim =D " . g:grooVimVersion . "]!" . g:GrooVim_GrooVimBarMsgValue
 
 endfun
