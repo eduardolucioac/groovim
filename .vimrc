@@ -1991,17 +1991,21 @@ func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
     endif
   endwhile
 
-  " Note: Re-emits the question ALREADY ANSWERED, showing what was typed, or
-  " nothing when the answer was empty.
+  " Note: Shows the value the question ended up with, right after the answer.
   "
   " Note: This is not decoration. Being a MESSAGE, and not merely the leftover of
   " "input()", is what makes the answered questions STACK on the screen instead
   " of each one wiping the previous, which is how the configuration builds itself
-  " into a summary and ends at the "Press ENTER" prompt.
+  " into a summary and ends at the "Press ENTER" prompt. Measured on the terminal:
+  " with nothing echoed, the line is erased and nothing accumulates.
+  "
+  " Note: The EFFECTIVE value and not what was typed, because on an empty answer
+  " that is precisely what one wants to see: which value was kept. It also has to
+  " be non empty, or the line is erased just the same.
   "
   " Note: And being here, inside the asker itself, every question of GrooVim gets
-  " this for free, with no per-option text to write! By Questor
-  echomsg a:optionToGet . l:typed
+  " this for free, with no per-option sentence to write! By Questor
+  echomsg " -> " . l:optionReturn
 
   return l:optionReturn
 endfunc
