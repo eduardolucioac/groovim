@@ -3607,8 +3607,10 @@ set number
 " Note: Always show current position! By Questor
 set ruler
 
-" Note: Height of the command bar! By Questor
-set cmdheight=2
+" Note: Height of the command bar! One line keeps the prompts of the "super
+" commands" on the first line of the command area, without a blank line above
+" them, and gives one more line to the text. By Questor
+set cmdheight=1
 
 " Note: For regular expressions turn magic on! By Questor
 set magic
