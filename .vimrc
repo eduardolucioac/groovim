@@ -2620,7 +2620,15 @@ func! GrooVim_EntertainmentReplace(mod) range
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
     while l:stopWhile == 0
-      let l:valueToReplaceTemp = (input("Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "))
+      " Note: With nothing under the cursor there is no value to offer, and the
+      " loop around here only lets go of a NON empty answer. Saying "empty to use
+      " \"\"" would be a lie: leaving it empty just asks again! By Questor
+      if ("" . l:valueToReplace . "") != ""
+        let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
+      else
+        let l:promptToReplace = "Value that will be REPLACED (type a value): "
+      endif
+      let l:valueToReplaceTemp = (input(l:promptToReplace))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
         let l:stopWhile = 1
         if l:valueToReplaceTemp != ""
