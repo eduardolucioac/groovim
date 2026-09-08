@@ -1924,19 +1924,16 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
-" Note: Reads better than "1" and "0" on the summary below! By Questor
-func! GrooVim_ConfigOnOff(value)
-  return a:value == 1 ? "enabled" : "disabled"
-endfunc
-
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
   let g:GrooVim_Busy = 1
   try
 
-  " Note: No header here. It would only be useful while the questions are on
-  " screen, and it survived the "redraw" below to end up glued on top of the
-  " summary. What it explained lives in the help now (F9)! By Questor
+  if a:typeOfConfig == "search"
+    echomsg "Configure Search (leave empty to keep the current value):"
+  elseif a:typeOfConfig != "search"
+    echomsg "Configure Search and Replace (leave empty to keep the current value):"
+  endif
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
@@ -1972,30 +1969,6 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
 
-  " Note: A summary of everything that was chosen, shown at once at the end.
-  "
-  " Note: The "redraw" wipes the leftover of the questions, which used to stay on
-  " screen after the last answer. And the summary being taller than "cmdheight"
-  " is what makes Vim hold it with its "Press ENTER" prompt, so you read what you
-  " chose and close it yourself! By Questor
-  redraw
-
-  if a:typeOfConfig == "search"
-    echomsg "Search configured:"
-  else
-    echomsg "Search and Replace configured:"
-  endif
-  echomsg "   Case sensitive ................ " . GrooVim_ConfigOnOff(g:searchReplace_CaseSensitive)
-  echomsg "   In all tabs ................... " . GrooVim_ConfigOnOff(g:searchReplace_InAllOpened)
-  if a:typeOfConfig != "search"
-    echomsg "   Replace with confirmation ..... " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_Confirmation)
-    echomsg "   Ask the value to be replaced .. " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
-    echomsg "   Begin from current position ... " . GrooVim_ConfigOnOff(g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
-  else
-    echomsg "   Search direction .............. " . (g:search_Direction == "f" ? "forward" : "backward")
-    echomsg "   Search with list .............. " . GrooVim_ConfigOnOff(g:search_WithList)
-  endif
-
   finally
     let g:GrooVim_Busy = 0
   endtry
@@ -2006,13 +1979,30 @@ endfunc
 func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
   let l:stopWhile = 0
   let l:optionReturn = ""
+  let l:typed = ""
   while l:stopWhile == 0
     let l:optionReturn = input(a:optionToGet)
+    " Note: Kept before the line below turns an empty answer into the current
+    " value, so that what gets shown is what was really typed! By Questor
+    let l:typed = l:optionReturn
     let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, a:defaultOption)
     if ("" . l:optionReturn . "") == ""
       let l:optionReturn = a:defaultOption
     endif
   endwhile
+
+  " Note: Re-emits the question ALREADY ANSWERED, showing what was typed, or
+  " nothing when the answer was empty.
+  "
+  " Note: This is not decoration. Being a MESSAGE, and not merely the leftover of
+  " "input()", is what makes the answered questions STACK on the screen instead
+  " of each one wiping the previous, which is how the configuration builds itself
+  " into a summary and ends at the "Press ENTER" prompt.
+  "
+  " Note: And being here, inside the asker itself, every question of GrooVim gets
+  " this for free, with no per-option text to write! By Questor
+  echomsg a:optionToGet . l:typed
+
   return l:optionReturn
 endfunc
 
