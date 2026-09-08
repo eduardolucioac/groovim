@@ -2196,6 +2196,27 @@ func! GrooVim_SearchWithMyOptions(mod) range
 
 endfunc
 
+" Note: Keeps the selection visible while a prompt is open. Yanking with "gvy"
+" ends visual mode and the marks stop being painted, so the value offered on the
+" prompt had no counterpart on the text.
+"
+" Note: "\%V" is the regex atom for "inside the Visual area", and it keeps
+" working after visual mode ended, matching what "gv" would reselect, which is
+" exactly the case here! By Questor
+func! GrooVim_SelectionHighlight()
+  try
+    return matchadd("Visual", '\%V.\%V\|\%V')
+  catch
+    return -1
+  endtry
+endfunc
+
+func! GrooVim_SelectionHighlightClear(matchId)
+  if a:matchId > 0
+    silent! call matchdelete(a:matchId)
+  endif
+endfunc
+
 " Note: Searches for current selection or word under cursor! By Questor
 let g:search_Direction = "f"
 let g:searchReplace_CaseSensitive = 0
@@ -2237,6 +2258,14 @@ func! GrooVim_EasySearch(mod) range
     call GrooVim_ClipSet(l:saved_reg)
   endif
 
+  " Note: Paints the selection back before asking, so you SEE what is being
+  " offered! By Questor
+  let l:selectionMatch = -1
+  if a:mod == "v"
+    let l:selectionMatch = GrooVim_SelectionHighlight()
+    redraw
+  endif
+
   let l:valueToSearchTemp = ""
 
   " Note: With nothing under the cursor there is no value to offer, and asking
@@ -2253,6 +2282,9 @@ func! GrooVim_EasySearch(mod) range
       let l:valueToSearchTemp = input("Value to SEARCH (required): ")
     endwhile
   endif
+
+  call GrooVim_SelectionHighlightClear(l:selectionMatch)
+  let l:selectionMatch = -1
 
   " Note: Define search pathern automatically! By Questor
   if l:valueToSearchTemp != ""
@@ -2293,6 +2325,8 @@ func! GrooVim_EasySearch(mod) range
 
   finally
     let g:GrooVim_Busy = 0
+    " Note: Safety net: an interruption must not leave the text painted! By Questor
+    call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
 
 endfunc
@@ -2644,6 +2678,14 @@ func! GrooVim_EntertainmentReplace(mod) range
     call GrooVim_ClipSet(l:saved_reg)
   endif
 
+  " Note: Paints the selection back before asking, so you SEE what is being
+  " offered! By Questor
+  let l:selectionMatch = -1
+  if a:mod == "v"
+    let l:selectionMatch = GrooVim_SelectionHighlight()
+    redraw
+  endif
+
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
     while l:stopWhile == 0
@@ -2676,6 +2718,11 @@ func! GrooVim_EntertainmentReplace(mod) range
   endif
 
   let l:valueThatWillReplace = l:valueThatWillReplace
+
+  " Note: Cleared before the substitution, so it does not compete with the
+  " "IncSearch" that marks the occurrence under decision! By Questor
+  call GrooVim_SelectionHighlightClear(l:selectionMatch)
+  let l:selectionMatch = -1
 
   let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToReplace)
 
@@ -2756,6 +2803,8 @@ func! GrooVim_EntertainmentReplace(mod) range
 
   finally
     let g:GrooVim_Busy = 0
+    " Note: Safety net: an interruption must not leave the text painted! By Questor
+    call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
 
 endfunc
