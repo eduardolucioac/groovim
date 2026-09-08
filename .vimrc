@@ -1390,7 +1390,30 @@ let g:GrooVim_GrooVimBarContext = ""
 " on the bar, then takes both back. Every function that asks something goes
 " through this pair, inside a try/finally, so an interruption cannot leave the
 " bar lying about what is happening! By Questor
+" Note: Runs anything as a NAMED OPERATION: announces it on the bar, holds the
+" busy flag while it runs, and takes both back at the end, whatever happens,
+" including an interruption.
+"
+" Note: This is where the context lives now. A feature that asks the user
+" something does not need to know any of this: it is enough to be INVOKED
+" through here, and the name travels with the invocation. Adding a new one costs
+" a single line at the point that triggers it! By Questor
+func! GrooVim_Operation(context, funcName, args)
+  call GrooVim_ContextEnter(a:context)
+  try
+    return call(a:funcName, a:args)
+  finally
+    call GrooVim_ContextLeave()
+  endtry
+endfunc
+
+" Note: Operations can call one another (the search with list calls the plain
+" search), so what was announced before is put back instead of simply cleared!
+" By Questor
+let g:GrooVim_ContextStack = []
+
 func! GrooVim_ContextEnter(context)
+  call add(g:GrooVim_ContextStack, g:GrooVim_GrooVimBarContext)
   let g:GrooVim_Busy = 1
   let g:GrooVim_GrooVimBarContext = a:context
   " Note: Whatever was on the bar was said BEFORE this operation and has nothing
@@ -1406,8 +1429,13 @@ func! GrooVim_ContextEnter(context)
 endfunc
 
 func! GrooVim_ContextLeave()
-  let g:GrooVim_Busy = 0
-  let g:GrooVim_GrooVimBarContext = ""
+  if !empty(g:GrooVim_ContextStack)
+    let g:GrooVim_GrooVimBarContext = remove(g:GrooVim_ContextStack, -1)
+  else
+    let g:GrooVim_GrooVimBarContext = ""
+  endif
+  " Note: Still busy if an outer operation is going on! By Questor
+  let g:GrooVim_Busy = g:GrooVim_GrooVimBarContext != "" ? 1 : 0
   call GrooVim_ContextRedraw()
 endfunc
 
@@ -1964,14 +1992,12 @@ endfunc
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-  call GrooVim_ContextEnter(a:typeOfConfig == "search" ? "[configuration] [search]" : "[configuration] [replace]")
-  try
 
   " Note: No header line here. The bar already says "[configuration] [search]" or
   " "[configuration] [replace]", and what an empty answer does is written in the
   " help (F9), so a line repeating it would only crowd the screen! By Questor
 
-  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (search/replace) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\"]? ", [1,0], g:searchReplace_CaseSensitive)
+  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (SEARCH/REPLACE) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\"]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
   " value that was just chosen, and every extra line pushes the command area
@@ -1982,7 +2008,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
   endif
 
-  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (search/replace) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\"]? ", [1,0], g:searchReplace_InAllOpened)
+  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (SEARCH/REPLACE) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\"]? ", [1,0], g:searchReplace_InAllOpened)
   call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
 
   if a:typeOfConfig != "search"
@@ -2005,9 +2031,6 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
 
-  finally
-    call GrooVim_ContextLeave()
-  endtry
 
 endfunc
 
@@ -2259,7 +2282,6 @@ let g:searchReplace_CaseSensitive = 0
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range
 
-  call GrooVim_ContextEnter("[search]")
   try
 
   " Note: Set "hlsearch" if is off! By Questor
@@ -2362,7 +2384,6 @@ func! GrooVim_EasySearch(mod) range
   call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
 
   finally
-    call GrooVim_ContextLeave()
     " Note: Safety net: an interruption must not leave the text painted! By Questor
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
@@ -2690,7 +2711,6 @@ func! GrooVim_EntertainmentReplace(mod) range
   " the ":substitute" with confirmation waits for an answer per occurrence, and
   " the CapsLock timer redrawing the bar underneath was wiping the highlight of
   " the match being decided and moving the cursor off the question! By Questor
-  call GrooVim_ContextEnter("[replace]")
   try
 
   " Note: Set "ignorecase" if is off! By Questor
@@ -2842,7 +2862,6 @@ func! GrooVim_EntertainmentReplace(mod) range
   endif
 
   finally
-    call GrooVim_ContextLeave()
     " Note: Safety net: an interruption must not leave the text painted! By Questor
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
@@ -3034,11 +3053,11 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Run a macro (w)! By Questor
       if g:GrooVim_CommandZChar == "119"
-        call GrooVim_XenPlay(0)
+        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])
       endif
       " Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
       if g:GrooVim_CommandZChar == "101"
-        call GrooVim_XenPlay(1)
+        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])
       endif
       " Note: Selects the word under the cursor (End)! By Questor
       if g:GrooVim_CommandZChar == "\<End>"
@@ -3106,27 +3125,27 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Opens for search (insert/normal) (f)! By Questor
       if g:GrooVim_CommandZChar == "102" && a:modType != "v"
-        call GrooVim_SearchWithMyOptions("n")
+        call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])
       endif
       " Note: '' (visual) (f)! By Questor
       if g:GrooVim_CommandZChar == "102" && a:modType == "v"
-        call GrooVim_SearchWithMyOptions("v")
+        call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])
       endif
       " Note: Opens to configure the search (d)! By Questor
       if g:GrooVim_CommandZChar == "100"
-        call GrooVim_ConfigureSearchReplace("search")
+        call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
       endif
       " Note: Opens to replace (normal/insert) (h)! By Questor
       if g:GrooVim_CommandZChar == "104" && a:modType != "v"
-        call GrooVim_EntertainmentReplace("n")
+        call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])
       endif
       " Note: '' (visual) (h)! By Questor
       if g:GrooVim_CommandZChar == "104" && a:modType == "v"
-        call GrooVim_EntertainmentReplace("v")
+        call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])
       endif
       " Note: Opens to configure the replace (j)! By Questor
       if g:GrooVim_CommandZChar == "106"
-        call GrooVim_ConfigureSearchReplace("replace")
+        call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
       endif
       " Note: Save session ([)! By Questor
       if g:GrooVim_CommandZChar == "91"
@@ -3139,7 +3158,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
       if g:GrooVim_CommandZChar == "112"
-        call GrooVim_GetFileNameAndPath()
+        call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])
       endif
       " Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
       if g:GrooVim_CommandZChar == "116"
@@ -3155,7 +3174,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
       if g:GrooVim_CommandZChar == "121"
-        call GrooVim_SaveACopy()
+        call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])
       endif
     endif
     " Note: Plugin commands! By Questor
@@ -3217,8 +3236,6 @@ endfunc
 " Note: Get current filename or filename and path and put on transfer area! By Questor
 func! GrooVim_GetFileNameAndPath() range
 
-  call GrooVim_ContextEnter("[file name]")
-  try
 
   let l:filenameOrFilenameAndPath = ""
 
@@ -3234,9 +3251,6 @@ func! GrooVim_GetFileNameAndPath() range
   " Note: Set the clipboard register! By Questor
   call GrooVim_ClipSet(l:filenameOrFilenameAndPath)
 
-  finally
-    call GrooVim_ContextLeave()
-  endtry
 
 endfunc
 
@@ -3251,8 +3265,6 @@ endfunc
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range
 
-  call GrooVim_ContextEnter("[macro]")
-  try
 
   if a:repeatExecution == 0
     exec "norm @a"
@@ -3397,9 +3409,6 @@ func! GrooVim_XenPlay(repeatExecution) range
 
   let g:block_GrooVim_HLNext = 0
 
-  finally
-    call GrooVim_ContextLeave()
-  endtry
 
 endfunc
 
@@ -3447,8 +3456,6 @@ endif
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
 
-  call GrooVim_ContextEnter("[save a copy]")
-  try
 
     let l:valueToPath = ""
     let l:stopWhile = 0
@@ -3507,9 +3514,6 @@ func! GrooVim_SaveACopy() range
       redraw!
     endtry
 
-  finally
-    call GrooVim_ContextLeave()
-  endtry
 
 endfunc
 
