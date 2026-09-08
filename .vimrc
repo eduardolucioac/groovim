@@ -1837,8 +1837,34 @@ endfunc
 
 " Note: Like tabdo but restore the current tab! By Questor
 let g:tryCathOnTabDo = 0
+
+" Note: With "g:keepCursorOnTabDo" the cursor of EVERY tab goes back to where it
+" was, not only the tab you came from: ":tabdo %s" walks through all of them and
+" leaves each cursor on its own last replaced line! By Questor
+let g:keepCursorOnTabDo = 0
+let g:GrooVim_TabDoViews = {}
+
+" Note: Called through "tabdo", so they run once per tab and each one sees its own
+" "tabpagenr()"! By Questor
+func! GrooVim_TabDoViewSave()
+  let g:GrooVim_TabDoViews[tabpagenr()] = winsaveview()
+endfunc
+
+func! GrooVim_TabDoViewRestore()
+  if has_key(g:GrooVim_TabDoViews, tabpagenr())
+    call winrestview(g:GrooVim_TabDoViews[tabpagenr()])
+  endif
+endfunc
+
 func! TabDo(command)
   let currTab=tabpagenr()
+  " Note: "noautocmd" because this pass is pure bookkeeping and must not fire the
+  " tab events that the real command fires! By Questor
+  if g:keepCursorOnTabDo == 1
+    let g:GrooVim_TabDoViews = {}
+    silent noautocmd tabdo call GrooVim_TabDoViewSave()
+    exec "noautocmd tabn " . currTab
+  endif
   if g:tryCathOnTabDo == 0
     exec "tabdo " . a:command
   elseif g:tryCathOnTabDo == 1
@@ -1846,6 +1872,9 @@ func! TabDo(command)
       exec "tabdo " . a:command
     catch
     endtry
+  endif
+  if g:keepCursorOnTabDo == 1
+    silent noautocmd tabdo call GrooVim_TabDoViewRestore()
   endif
   exec "tabn " . currTab
 endfunc
@@ -2754,6 +2783,13 @@ let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
 let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 1
 func! GrooVim_EntertainmentReplace(mod) range
 
+  " Note: Where the cursor was before anything happened. Notepad++ puts the caret
+  " back where it was once a "Replace All" finishes, and ":substitute" leaves it on
+  " the last replaced line instead. Restored in the "finally", so an interruption
+  " also brings you back. "winsaveview()" keeps the scroll position too, not only
+  " the line and the column! By Questor
+  let l:viewBefore = winsaveview()
+
   " Note: Raised for the WHOLE function, and this is the one that matters most:
   " the ":substitute" with confirmation waits for an answer per occurrence, and
   " the CapsLock timer redrawing the bar underneath was wiping the highlight of
@@ -2902,8 +2938,13 @@ func! GrooVim_EntertainmentReplace(mod) range
     " Note: "let g:tryCathOnTabDo = 1" -> If there is no value to replace in one
     " of the tabs, the process do not raises an error! By Questor
     let g:tryCathOnTabDo = 1
-    call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
-    let g:tryCathOnTabDo = 0
+    let g:keepCursorOnTabDo = 1
+    try
+      call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
+    finally
+      let g:tryCathOnTabDo = 0
+      let g:keepCursorOnTabDo = 0
+    endtry
   endif
 
   if l:wrapped > 0
@@ -2916,6 +2957,8 @@ func! GrooVim_EntertainmentReplace(mod) range
   finally
     " Note: Safety net: an interruption must not leave the text painted! By Questor
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
+    " Note: Back to where you were, like Notepad++! By Questor
+    call winrestview(l:viewBefore)
   endtry
 
 endfunc
