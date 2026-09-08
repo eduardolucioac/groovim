@@ -2002,14 +2002,13 @@ func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
   " Note: What was TYPED, or "[empty]" when nothing was. It also has to be non
   " empty, or the line is erased just the same.
   "
-  " Note: The " -> " is not decoration either: "input()" already printed what was
-  " typed, so without a separator the answer would appear glued to itself. The
-  " prompt is 59 columns wide, the typed value lands on column 60 and the echo on
-  " column 61, which would read "? 11".
+  " Note: The leading spaces are not decoration either: "input()" already printed
+  " what was typed, and the echo lands on the very next column, so without them
+  " the answer would appear glued to itself and read "? 11".
   "
   " Note: And being here, inside the asker itself, every question of GrooVim gets
   " this for free, with no per-option sentence to write! By Questor
-  echomsg " -> " . (l:typed == "" ? "[empty]" : l:typed)
+  echomsg "   " . (l:typed == "" ? "[empty]" : l:typed)
 
   return l:optionReturn
 endfunc
