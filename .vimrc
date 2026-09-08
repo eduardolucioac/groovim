@@ -1934,11 +1934,9 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   let g:GrooVim_Busy = 1
   try
 
-  if a:typeOfConfig == "search"
-    echomsg "Configure Search (leave empty to keep the current value):"
-  elseif a:typeOfConfig != "search"
-    echomsg "Configure Search and Replace (leave empty to keep the current value):"
-  endif
+  " Note: No header here. It would only be useful while the questions are on
+  " screen, and it survived the "redraw" below to end up glued on top of the
+  " summary. What it explained lives in the help now (F9)! By Questor
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
@@ -3981,6 +3979,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <s> - Save to disk (normal mode/insert/visual);".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
 \"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
+\"\n            Note: On the configuration screens (this one and <j> below), leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
 \"\n        <h> - Opens to replace (normal mode/insert/visual);".
 \"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with <F3> and then <j>;".
 \"\n        <j> - Opens to configure the replace (normal mode/insert/visual);".
