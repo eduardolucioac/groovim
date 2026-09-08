@@ -1931,9 +1931,9 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   try
 
   if a:typeOfConfig == "search"
-    echomsg "Configure Search (leave empty to keep the current value):"
+    echomsg "[configuration] Search (leave empty to keep the current value):"
   elseif a:typeOfConfig != "search"
-    echomsg "Configure Search and Replace (leave empty to keep the current value):"
+    echomsg "[configuration] Replace (leave empty to keep the current value):"
   endif
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (replace/search) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\" ]? ", [1,0], g:searchReplace_CaseSensitive)
@@ -2263,8 +2263,10 @@ func! GrooVim_EasySearch(mod) range
   " offered! By Questor
   let l:selectionMatch = -1
   if a:mod == "v"
+    " Note: No "redraw" here. The "input()" below already repaints, so the
+    " selection shows up anyway, and forcing it made the prompt land on the
+    " SECOND line of the command area, leaving a blank line above it! By Questor
     let l:selectionMatch = GrooVim_SelectionHighlight()
-    redraw
   endif
 
   let l:valueToSearchTemp = ""
@@ -2276,11 +2278,11 @@ func! GrooVim_EasySearch(mod) range
   " word true: searching for nothing would do nothing useful anyway. Ctrl-C gets
   " you out, and it no longer leaves CommandZ blocked! By Questor
   if ("" . l:valueToSearch . "") != ""
-    let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+    let l:valueToSearchTemp = input("[search] You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
   else
     let l:valueToSearchTemp = ""
     while ("" . l:valueToSearchTemp . "") == ""
-      let l:valueToSearchTemp = input("Value to SEARCH (required): ")
+      let l:valueToSearchTemp = input("[search] Type a value (required): ")
     endwhile
   endif
 
@@ -2683,8 +2685,10 @@ func! GrooVim_EntertainmentReplace(mod) range
   " offered! By Questor
   let l:selectionMatch = -1
   if a:mod == "v"
+    " Note: No "redraw" here. The "input()" below already repaints, so the
+    " selection shows up anyway, and forcing it made the prompt land on the
+    " SECOND line of the command area, leaving a blank line above it! By Questor
     let l:selectionMatch = GrooVim_SelectionHighlight()
-    redraw
   endif
 
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
@@ -2698,9 +2702,9 @@ func! GrooVim_EntertainmentReplace(mod) range
       " way the neighbouring prompts state "[now: ...]" and "[0[default]/1]". And
       " it is true here: the loop really does enforce it! By Questor
       if ("" . l:valueToReplace . "") != ""
-        let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
+        let l:promptToReplace = "[replace] Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
       else
-        let l:promptToReplace = "Value that will be REPLACED (required): "
+        let l:promptToReplace = "[replace] Value that will be REPLACED (required): "
       endif
       let l:valueToReplaceTemp = (input(l:promptToReplace))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
@@ -2712,7 +2716,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     endwhile
   endif
 
-  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("[replace] Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
 
   if l:valueThatWillReplace == ""
     let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_ClipGet())
@@ -3180,7 +3184,7 @@ func! GrooVim_GetFileNameAndPath() range
 
   let l:filenameOrFilenameAndPath = ""
 
-  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
+  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("[file name] Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
   if l:getFilenameOrFilenameAndPath == 0
     let l:filenameOrFilenameAndPath = expand('%:t')
     echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
@@ -3214,7 +3218,7 @@ func! GrooVim_XenPlay(repeatExecution) range
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
-    let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
+    let l:numberOfRepetitions = input("[macro] Number of repetitions (use \"x\" to excute to last/first line): ")
     " Note: Runs up to the last/first row!! By Questor
     if l:numberOfRepetitions == "x"
       " Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
@@ -3311,7 +3315,7 @@ func! GrooVim_XenPlay(repeatExecution) range
         endif
 
         if l:invalidNumber == 1
-          let l:numberOfRepetitions = input("Number of repetitions (use a valid one!): ")
+          let l:numberOfRepetitions = input("[macro] Number of repetitions (use a valid one!): ")
         endif
 
       endwhile
@@ -3397,7 +3401,7 @@ func! GrooVim_SaveACopy() range
     let l:valueToPath = ""
     let l:stopWhile = 0
     while l:stopWhile == 0
-      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+      let l:valueToPath = input("[save a copy] PATH (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
       if l:valueToPath == "0"
         if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
           let l:stopWhile = 1
@@ -3430,7 +3434,7 @@ func! GrooVim_SaveACopy() range
       if l:valueToPath == ""
         let l:definePathWarning = " (DEFINE A PATH TOO!)"
       endif
-      let l:valueToName = input("NAME of the file copy to be saved" . l:definePathWarning . ": ")
+      let l:valueToName = input("[save a copy] NAME of the file copy to be saved" . l:definePathWarning . ": ")
       if ("" . l:valueToName . "") != ""
         if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
           let l:stopWhile = 1
