@@ -2270,6 +2270,48 @@ func! GrooVim_SelectionHighlight()
   endtry
 endfunc
 
+" Note: Where the word under the cursor begins and how long it is, which is the
+" value offered when nothing is selected.
+"
+" Note: The boundaries come from "searchpos()" with the word atoms, and not from
+" walking the string by index, because indexing a String in Vim walks BYTES and
+" would cut an accented word in half! By Questor
+func! GrooVim_WordUnderCursorPos()
+
+  " Note: Nothing to mark if the cursor is not sitting on a word! By Questor
+  if matchstr(getline("."), '\%' . col(".") . 'c.') !~ '\k'
+    return []
+  endif
+
+  let l:first = searchpos('\<', 'bcn', line("."))
+  let l:last = searchpos('\>', 'cn', line("."))
+
+  if empty(l:first) || l:first[0] == 0 || empty(l:last) || l:last[0] == 0
+    return []
+  endif
+
+  return [l:first[0], l:first[1], l:last[1] - l:first[1]]
+
+endfunc
+
+" Note: Marks whatever is being OFFERED on the prompt: the selection in visual
+" mode, the word under the cursor otherwise. Same idea in both, so that the
+" question always has a counterpart on the text! By Questor
+func! GrooVim_OfferHighlight(mod)
+  if a:mod == "v"
+    return GrooVim_SelectionHighlight()
+  endif
+  let l:where = GrooVim_WordUnderCursorPos()
+  if empty(l:where)
+    return -1
+  endif
+  try
+    return matchaddpos("Visual", [l:where])
+  catch
+    return -1
+  endtry
+endfunc
+
 func! GrooVim_SelectionHighlightClear(matchId)
   if a:matchId > 0
     silent! call matchdelete(a:matchId)
@@ -2316,15 +2358,20 @@ func! GrooVim_EasySearch(mod) range
     call GrooVim_ClipSet(l:saved_reg)
   endif
 
-  " Note: Paints the selection back before asking, so you SEE what is being
-  " offered! By Questor
-  let l:selectionMatch = -1
-  if a:mod == "v"
-    " Note: No "redraw" here. The "input()" below already repaints, so the
-    " selection shows up anyway, and forcing it made the prompt land on the
-    " SECOND line of the command area, leaving a blank line above it! By Questor
-    let l:selectionMatch = GrooVim_SelectionHighlight()
-  endif
+  " Note: Paints what is being offered before asking, so you SEE it: the
+  " selection in visual mode, the word under the cursor otherwise.
+  "
+  " Note: The "redraw" is what actually paints the mark. Measured on the terminal:
+  " without it NOTHING is painted while the prompt waits, in either mode. I had
+  " claimed otherwise before, misled by a test that was catching the paint Vim
+  " does by itself while a selection is being dragged.
+  "
+  " Note: The price is that in VISUAL mode the prompt then lands on the second
+  " line of the command area, with a blank line above it. Four ways around it
+  " were measured (no redraw, "redraw!", clearing the message first, turning
+  " "showmode" off) and none avoided it! By Questor
+  let l:selectionMatch = GrooVim_OfferHighlight(a:mod)
+  redraw
 
   let l:valueToSearchTemp = ""
 
@@ -2736,15 +2783,20 @@ func! GrooVim_EntertainmentReplace(mod) range
     call GrooVim_ClipSet(l:saved_reg)
   endif
 
-  " Note: Paints the selection back before asking, so you SEE what is being
-  " offered! By Questor
-  let l:selectionMatch = -1
-  if a:mod == "v"
-    " Note: No "redraw" here. The "input()" below already repaints, so the
-    " selection shows up anyway, and forcing it made the prompt land on the
-    " SECOND line of the command area, leaving a blank line above it! By Questor
-    let l:selectionMatch = GrooVim_SelectionHighlight()
-  endif
+  " Note: Paints what is being offered before asking, so you SEE it: the
+  " selection in visual mode, the word under the cursor otherwise.
+  "
+  " Note: The "redraw" is what actually paints the mark. Measured on the terminal:
+  " without it NOTHING is painted while the prompt waits, in either mode. I had
+  " claimed otherwise before, misled by a test that was catching the paint Vim
+  " does by itself while a selection is being dragged.
+  "
+  " Note: The price is that in VISUAL mode the prompt then lands on the second
+  " line of the command area, with a blank line above it. Four ways around it
+  " were measured (no redraw, "redraw!", clearing the message first, turning
+  " "showmode" off) and none avoided it! By Questor
+  let l:selectionMatch = GrooVim_OfferHighlight(a:mod)
+  redraw
 
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
