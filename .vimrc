@@ -2809,6 +2809,8 @@ endfunc
 " Note: The "Busy" guard is because navigating walks through windows and tabs,
 " and passing through a tab must not close it! By Questor
 let g:GrooVim_SearchGuyBusy = 0
+" Note: Only the occurrences list, on purpose. NERDTree has its own rule for its
+" own window and two rules pulling the same window would fight! By Questor
 func! GrooVim_SearchGuyCloseIfAlone()
   if g:GrooVim_SearchGuyBusy == 0 && winnr("$") == 1 &&
    \ bufname("%") =~ "GrooVim_SearchGuyResults"
@@ -2882,6 +2884,10 @@ func! GrooVim_SearchGuyNavigate() range
       " With the file closed the name never came and Vim froze! By Questor
       if !GrooVim_SearchGuyFindFile(l:entryPath)
         exec "tabnew " . fnameescape(l:entryPath)
+        " Note: The new tab gets its own list, by the same rule that gives one to
+        " every tab you walk into. Reopening a file and landing in a tab without
+        " the results would leave you with no way back to them! By Questor
+        call GrooVim_TabParadise()
       endif
 
       call setpos(".", [0, l:entryLine, l:entryColumn])
@@ -3480,12 +3486,86 @@ endfunc
 
 nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
-" Note: Try to ensure that open in an editor window! By Questor
-func! GrooVim_PutOnEditWindow() range
-  while expand('%:t') =~ "GrooVim_SearchGuyResults" || expand('%:t') =~ "NERD_tree_" || expand('%:t') =~ "GrooVimHelp"
-    exec "norm \<C-w>"
-  endwhile
+" Note: The windows that are accessories of a tab and not documents of yours. In
+" one place because more than one thing needs to know it! By Questor
+func! GrooVim_IsHelperBuffer(name)
+  return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "NERD_tree_" ||
+   \ a:name =~ "GrooVimHelp"
 endfunc
+
+" Note: Try to ensure that open in an editor window! By Questor
+"
+" Note: It walks the windows a bounded number of times. It used to be a "while"
+" that pressed "<C-w>" until it landed on an editor: with nothing but accessories
+" open that day never came and Vim froze! By Questor
+func! GrooVim_PutOnEditWindow() range
+  for l:window in range(1, winnr("$"))
+    if !GrooVim_IsHelperBuffer(expand('%:t'))
+      return
+    endif
+    exec "wincmd w"
+  endfor
+endfunc
+
+" Note: The default tab label is the buffer of the CURRENT window of the tab, so
+" standing on the occurrences list renamed the tab to "GrooVim_SearchGuyResults1"
+" and your file was no longer findable among many tabs. Here the label is always
+" a document of yours: the accessories are skipped! By Questor
+func! GrooVim_TabLabel(tab)
+  let l:buffers = tabpagebuflist(a:tab)
+  let l:chosen = l:buffers[tabpagewinnr(a:tab) - 1]
+
+  " Note: The window you are on comes first, so a tab split between two files
+  " still follows where you are! By Questor
+  if GrooVim_IsHelperBuffer(bufname(l:chosen))
+    let l:chosen = 0
+    for l:buffer in l:buffers
+      if !GrooVim_IsHelperBuffer(bufname(l:buffer))
+        let l:chosen = l:buffer
+        break
+      endif
+    endfor
+  endif
+
+  if l:chosen == 0
+    return "[GrooVim]"
+  endif
+
+  let l:name = fnamemodify(bufname(l:chosen), ":t")
+  return l:name == "" ? "[No Name]" : l:name
+endfunc
+
+" Note: Like the tab line Vim draws by itself, with the same window count and the
+" same "+" for modified, except that only YOUR documents are counted: an
+" accessory is not a window you opened! By Questor
+func! GrooVim_TabLine()
+  let l:line = ""
+
+  for l:tab in range(1, tabpagenr("$"))
+    let l:line = l:line . (l:tab == tabpagenr() ? "%#TabLineSel#" : "%#TabLine#")
+    " Note: Makes the tab clickable, just like the default one! By Questor
+    let l:line = l:line . "%" . l:tab . "T"
+
+    let l:windows = 0
+    let l:modified = 0
+    for l:buffer in tabpagebuflist(l:tab)
+      if !GrooVim_IsHelperBuffer(bufname(l:buffer))
+        let l:windows = l:windows + 1
+        if getbufvar(l:buffer, "&modified")
+          let l:modified = 1
+        endif
+      endif
+    endfor
+
+    let l:prefix = (l:windows > 1 ? l:windows : "") . (l:modified ? "+" : "")
+    let l:line = l:line . " " . (l:prefix == "" ? "" : l:prefix . " ")
+    let l:line = l:line . GrooVim_TabLabel(l:tab) . " "
+  endfor
+
+  return l:line . "%#TabLineFill#%T"
+endfunc
+
+set tabline=%!GrooVim_TabLine()
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
 func! GrooVim_ToogleGrooVimHelp() range
