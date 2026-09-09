@@ -2706,8 +2706,7 @@ func! GrooVim_SearchGuyPanelSetup()
   let &l:statusline = "%!GrooVim_SearchGuyBar()"
 
   " Note: "Enter" to jump to the occurrence, which is what the key means
-  " everywhere else in a list. "Del" keeps working for whoever got used to it!
-  " By Questor
+  " everywhere else in a list. A double click does the same! By Questor
   nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
 
   " Note: The buffer is already "nomodifiable", so these keys could only produce
@@ -2715,7 +2714,8 @@ func! GrooVim_SearchGuyPanelSetup()
   " normal mode as a list should. Yanking and visual selection are left alone:
   " copying a result is useful! By Questor
   for l:key in ["i", "I", "a", "A", "o", "O", "s", "S", "c", "C", "R",
-              \ "x", "X", "d", "D", "p", "P", "r", "u", "gi", "gI", "gR"]
+              \ "x", "X", "d", "D", "p", "P", "r", "u", "gi", "gI", "gR",
+              \ "<Del>", "<Backspace>"]
     exec "nnoremap <buffer> <silent> " . l:key . " <Nop>"
   endfor
 
@@ -2823,16 +2823,8 @@ endfunc
 " was inserted at the START of the line instead of where the selection was! By Questor
 vnoremap <silent> <Enter> "_xi<cr><Esc>
 
-" Note: Sets the behavior of Del key depending on the context! By Questor
-nnoremap <silent> <script> <Del> :call GrooVim_DelBehavior()<cr>
-func! GrooVim_DelBehavior() range
-  if expand('%:t') =~ "GrooVim_SearchGuyResults"
-    call GrooVim_SearchGuyNavigate()
-  else
-    " Note: Allows "multimode" normal use (delete) of the Del key! By Questor
-    call GrooVim_NormalDel()
-  endif
-endfunc
+" Note: Allows "multimode" normal use (delete) of the Del key! By Questor
+nnoremap <silent> <script> <Del> :call GrooVim_NormalDel()<cr>
 
 " Note: Treat a string and return a substring to use in prompts! By Questor
 func! GrooVim_SubstringToPrompt(stringToBeTreated)
