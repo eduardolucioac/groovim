@@ -2710,13 +2710,33 @@ func! GrooVim_SearchGuyPanelSetup()
   nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
 
   " Note: The buffer is already "nomodifiable", so these keys could only produce
-  " an "E21" error. Turned off, they simply do nothing, and the list stays in
-  " normal mode as a list should. Yanking and visual selection are left alone:
-  " copying a result is useful! By Questor
-  for l:key in ["i", "I", "a", "A", "o", "O", "s", "S", "c", "C", "R",
-              \ "x", "X", "d", "D", "p", "P", "r", "u", "gi", "gI", "gR",
-              \ "<Del>", "<Backspace>"]
+  " an "E21" error. Turned off, they simply do nothing.
+  "
+  " Note: The rule is the same in both modes: what would CHANGE the text is off,
+  " what reads, moves or copies stays. So "y", the arrows, "PageUp"/"PageDown"
+  " and "Alt" with the arrows are all left alone, and so is the visual mode:
+  " selecting a result and copying it is useful!
+  "
+  " Note: The list is not only the obvious letters. GrooVim gives a conventional
+  " editor meaning to keys that Vim does not touch, and several of them end up
+  " editing: "Shift-Up" is "i", "Ctrl-V" pastes, "Ctrl-X" cuts the selection,
+  " and "Enter", "Del" and "Backspace" delete what is selected! By Questor
+  let l:offOnNormal = ["i", "I", "a", "A", "o", "O", "s", "S", "c", "C",
+                    \ "r", "R", "x", "X", "d", "D", "p", "P", "u", "U",
+                    \ "J", "~", "gi", "gI", "gR", "gJ", "gp", "gP",
+                    \ "gu", "gU", "g~", "<Del>", "<BS>", "<S-Up>", "<C-V>"]
+
+  let l:offOnVisual = ["i", "a", "s", "S", "c", "C", "r", "R", "x", "X",
+                    \ "d", "D", "p", "P", "u", "U", "J", "~", "gJ", "gp",
+                    \ "gP", "gu", "gU", "g~", "gq", "<", ">", "=",
+                    \ "<Del>", "<BS>", "<S-Up>", "<Enter>", "<C-V>", "<C-X>"]
+
+  for l:key in l:offOnNormal
     exec "nnoremap <buffer> <silent> " . l:key . " <Nop>"
+  endfor
+
+  for l:key in l:offOnVisual
+    exec "xnoremap <buffer> <silent> " . l:key . " <Nop>"
   endfor
 
 endfunc
