@@ -2520,7 +2520,10 @@ func! GrooVim_SearchGuyTraveler(mod) range
 
     while (getpos(".")[1] > l:cur_pos_last[1] || (getpos(".")[1] == l:cur_pos_last[1] && getpos(".")[2] > l:cur_pos_last[2])) && l:theresAMatch == 1
       let l:cur_pos_last = getpos(".")
-      call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:t'), getpos(".")[1], getpos(".")[2])
+      " Note: The FULL path, not just the file name: with it the list can open a
+      " file again after you closed it, and two files with the same name in
+      " different directories stop being the same entry! By Questor
+      call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:p'), getpos(".")[1], getpos(".")[2])
       exec "norm n"
     endwhile
 
@@ -2768,7 +2771,70 @@ func! GrooVim_SearchGuyBar()
 
 endfunc
 
-" Note: Allows browsing the results using "Del"! By Questor
+" Note: Walks the windows of the CURRENT tab looking for one, and says whether it
+" found it. The name is a pattern for the list and an exact full path for a file!
+" By Questor
+func! GrooVim_SearchGuyFocusWindow(name, byPath)
+  for l:window in range(1, winnr("$"))
+    exec l:window . "wincmd w"
+    if a:byPath
+      if expand('%:p') ==# a:name
+        return 1
+      endif
+    elseif expand('%:t') =~ a:name
+      return 1
+    endif
+  endfor
+  return 0
+endfunc
+
+" Note: The same thing across every tab, because a file can be open somewhere
+" else than where it was when the search ran! By Questor
+func! GrooVim_SearchGuyFindFile(path)
+  let l:tabNow = tabpagenr()
+  for l:tab in range(1, tabpagenr("$"))
+    exec "tabn " . l:tab
+    if GrooVim_SearchGuyFocusWindow(a:path, 1)
+      return 1
+    endif
+  endfor
+  exec "tabn " . l:tabNow
+  return 0
+endfunc
+
+" Note: The list is an accessory of the tab, not a window in its own right: once
+" the file is closed there is nothing left to navigate FROM, so it must not keep
+" the tab open by itself. This is what NERDTree does with its own window.
+"
+" Note: The "Busy" guard is because navigating walks through windows and tabs,
+" and passing through a tab must not close it! By Questor
+let g:GrooVim_SearchGuyBusy = 0
+func! GrooVim_SearchGuyCloseIfAlone()
+  if g:GrooVim_SearchGuyBusy == 0 && winnr("$") == 1 &&
+   \ bufname("%") =~ "GrooVim_SearchGuyResults"
+    " Note: Through a timer because Vim refuses to change the window layout from
+    " inside this autocmd ("E1312"). The timer runs right after it, already
+    " outside! By Questor
+    call timer_start(0, "GrooVim_SearchGuyCloseNow")
+  endif
+endfunc
+
+func! GrooVim_SearchGuyCloseNow(timer)
+  " Note: Checked again because the timer runs later and the window may already
+  " have company by then! By Questor
+  if winnr("$") == 1 && bufname("%") =~ "GrooVim_SearchGuyResults"
+    quit
+  endif
+endfunc
+
+" Note: In a group of its own, because there are "autocmd!" for "WinEnter *"
+" further down that would wipe it! By Questor
+augroup GrooVim_SearchGuyGroup
+  autocmd!
+  autocmd WinEnter * call GrooVim_SearchGuyCloseIfAlone()
+augroup END
+
+" Note: Jumps to the occurrence of the line under the cursor! By Questor
 func! GrooVim_SearchGuyNavigate() range
 
   " Note: The list navigation is always forward to facilitate! By Questor
@@ -2778,28 +2844,52 @@ func! GrooVim_SearchGuyNavigate() range
   let l:listPosLinToArray = (l:listPosLinCol[1] - 1)
   if l:listPosLinToArray >= 0 && g:matchedLinesGlobalNavArray[l:listPosLinToArray] != 0
 
-    exec "tabn " . split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[0]
+    " Note: An entry is "tab,path,line,column". Read from the ENDS because a path
+    " is allowed to carry a comma of its own! By Questor
+    let l:entry = split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")
+    let l:entryTab = l:entry[0]
+    let l:entryLine = l:entry[-2]
+    let l:entryColumn = l:entry[-1]
+    let l:entryPath = join(l:entry[1:-3], ",")
 
-    while !(expand('%:t') =~ "GrooVim_SearchGuyResults")
-      exec "norm \<C-w>"
-    endwhile
+    let g:GrooVim_SearchGuyBusy = 1
+    try
 
-    set ma
-    " Note: "norm!" for the same reason as in "GrooVim_SearchGuySync()": these
-    " run inside the list, where "d", "i" and friends are mapped to nothing! By
-    " Questor
-    exec "norm! ggdG"
-    exec "put =g:matchedLinesGlobal"
-    exec "norm! ggdd"
-    call setpos(".", l:listPosLinCol)
-    exec "norm! 0i->"
-    set noma
+      if l:entryTab <= tabpagenr("$")
+        exec "tabn " . l:entryTab
+      endif
 
-    while expand('%:t') != split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[1]
-      exec "norm \<C-w>"
-    endwhile
-    call setpos(".", [0, split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[2], split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")[3]])
-    exec "norm \<Left>n"
+      " Note: Only if this tab still has a list. Rebuilding it is what puts the
+      " "->" on the line you are jumping from! By Questor
+      if GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
+        set ma
+        " Note: "norm!" for the same reason as in "GrooVim_SearchGuySync()":
+        " these run inside the list, where "d", "i" and friends are mapped to
+        " nothing! By Questor
+        exec "norm! ggdG"
+        exec "put =g:matchedLinesGlobal"
+        exec "norm! ggdd"
+        call setpos(".", l:listPosLinCol)
+        exec "norm! 0i->"
+        set noma
+      endif
+
+      " Note: The file may not be open any more, and it may have moved to another
+      " tab. Notepad++ opens the document again when you click a result of a file
+      " that is not open, and this does the same.
+      "
+      " Note: This used to be a "while" pressing "<C-w>" until the name matched.
+      " With the file closed the name never came and Vim froze! By Questor
+      if !GrooVim_SearchGuyFindFile(l:entryPath)
+        exec "tabnew " . fnameescape(l:entryPath)
+      endif
+
+      call setpos(".", [0, l:entryLine, l:entryColumn])
+      exec "norm \<Left>n"
+
+    finally
+      let g:GrooVim_SearchGuyBusy = 0
+    endtry
 
   endif
 
