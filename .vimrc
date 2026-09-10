@@ -2584,7 +2584,7 @@ func! GrooVim_SearchGuy(mod) range
     let g:grooVimSearchFoward = 1
   endif
 
-  call GrooVim_GrooVimBarMsg("Use Del or double click to navigate!", 4)
+  call GrooVim_GrooVimBarMsg("Use Enter or double click to navigate!", 4)
 
 endfunc
 
@@ -2593,6 +2593,23 @@ autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise()
   " Note: If there is a search list this list is open in the current tab if the
   " functionality is enabled! By Questor
+  "
+  " Note: Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the file
+  " is loaded: building the list right here put it in a window that the file then
+  " landed on top of, and the tab ended up with the file twice and no list. The
+  " timer runs once the tab has settled.
+  "
+  " Note: Not while navigating, which puts the list in place by itself at the
+  " moment it knows the tab is ready! By Questor
+  if g:GrooVim_SearchGuyBusy == 0 &&
+   \ g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
+    call timer_start(0, "GrooVim_SearchGuySyncNow")
+  endif
+endfunc
+
+func! GrooVim_SearchGuySyncNow(timer)
+  " Note: Checked again because the timer runs later and the search may have been
+  " ended in the meantime! By Questor
   if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
     call GrooVim_SearchGuySync()
   endif
@@ -2699,7 +2716,10 @@ func! GrooVim_SearchGuyPanelSetup()
   " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
   " forgot to save: it was showing up as modified and listed in ":ls"! By Questor
   setlocal buftype=nofile
-  setlocal bufhidden=hide
+  " Note: "wipe" so the list dies together with its window. Kept around, the old
+  " buffer made "bufexists()" say there was already a list in a tab that had
+  " none, and no new one was built! By Questor
+  setlocal bufhidden=wipe
   setlocal noswapfile
   setlocal nobuflisted
 
@@ -2829,11 +2849,38 @@ func! GrooVim_SearchGuyCloseNow(timer)
   endif
 endfunc
 
+" Note: The list is not a window you close by itself: quitting from inside it
+" closes the TAB that holds it, the same as quitting from the file. Only a new
+" search ("F3" and then "f") ends the list, and it ends it in every tab.
+"
+" Note: Through a timer for the same reason as above: ":q" is still running and
+" the layout cannot be changed from under it! By Questor
+func! GrooVim_SearchGuyQuitPre()
+  " Note: Only when the list has company. Alone it is the last window of the tab
+  " and quitting it already closes the tab -- and acting here too would chain into
+  " closing a SECOND tab! By Questor
+  if winnr("$") > 1 && bufname("%") =~ "GrooVim_SearchGuyResults"
+    call timer_start(0, "GrooVim_SearchGuyCloseTab")
+  endif
+endfunc
+
+func! GrooVim_SearchGuyCloseTab(timer)
+  if tabpagenr("$") > 1
+    tabclose
+  else
+    " Note: With a single tab, closing the tab IS leaving Vim, which is already
+    " what quitting from the file window does there. Without the "!", so unsaved
+    " work still stops you! By Questor
+    quit
+  endif
+endfunc
+
 " Note: In a group of its own, because there are "autocmd!" for "WinEnter *"
 " further down that would wipe it! By Questor
 augroup GrooVim_SearchGuyGroup
   autocmd!
   autocmd WinEnter * call GrooVim_SearchGuyCloseIfAlone()
+  autocmd QuitPre * call GrooVim_SearchGuyQuitPre()
 augroup END
 
 " Note: Jumps to the occurrence of the line under the cursor! By Questor
@@ -2884,10 +2931,16 @@ func! GrooVim_SearchGuyNavigate() range
       " With the file closed the name never came and Vim froze! By Questor
       if !GrooVim_SearchGuyFindFile(l:entryPath)
         exec "tabnew " . fnameescape(l:entryPath)
-        " Note: The new tab gets its own list, by the same rule that gives one to
-        " every tab you walk into. Reopening a file and landing in a tab without
-        " the results would leave you with no way back to them! By Questor
-        call GrooVim_TabParadise()
+      endif
+
+      " Note: The tab you land on gets its list, whether the file was already open
+      " or had to be opened again: landing without the results would leave you
+      " with no way back to them! By Questor
+      if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
+        call GrooVim_SearchGuySync()
+        " Note: "Sync" leaves you inside the list it has just built, so come back
+        " to the file before placing the cursor on the occurrence! By Questor
+        call GrooVim_SearchGuyFocusWindow(l:entryPath, 1)
       endif
 
       call setpos(".", [0, l:entryLine, l:entryColumn])
