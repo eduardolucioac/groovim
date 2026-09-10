@@ -2026,7 +2026,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   " "[configuration] [replace]", and what an empty answer does is written in the
   " help (F9), so a line repeating it would only crowd the screen! By Questor
 
-  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (SEARCH/REPLACE) [0[default]/1][now: \"" . g:searchReplace_CaseSensitive . "\"]? ", [1,0], g:searchReplace_CaseSensitive)
+  let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
   " value that was just chosen, and every extra line pushes the command area
@@ -2037,18 +2037,18 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
   endif
 
-  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (SEARCH/REPLACE) [0[default]/1][now: \"" . g:searchReplace_InAllOpened . "\"]? ", [1,0], g:searchReplace_InAllOpened)
+  let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_InAllOpened)
   call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
 
   if a:typeOfConfig != "search"
-    let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_Confirmation . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_Confirmation)
+    let g:configureGrooVim_EntertainmentReplace_Confirmation = GrooVim_GetOptions("Replace with confirmation", [0,1], 1, g:configureGrooVim_EntertainmentReplace_Confirmation)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_Confirmation =", "let g:configureGrooVim_EntertainmentReplace_Confirmation = " . g:configureGrooVim_EntertainmentReplace_Confirmation, 0)
-    let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
+    let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = GrooVim_GetOptions("Ask the value to be replaced", [0,1], 1, g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced =", "let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = " . g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced, 0)
-    let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position [0/1[default]][now: \"" . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition . "\"]? ", [1,0], g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
+    let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position", [0,1], 1, g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
   elseif a:typeOfConfig == "search"
-    let g:search_Direction = GrooVim_GetOptions("Search forward/backward [f[default]/b][now: \"" . g:search_Direction . "\"]? ", ["f","b"], g:search_Direction)
+    let g:search_Direction = GrooVim_GetOptions("Search forward/backward", ["f","b"], "f", g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
     " Note: Needed to reverse the search! By Questor
     if g:search_Direction == "b"
@@ -2056,7 +2056,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     elseif g:search_Direction == "f"
       let g:grooVimSearchFoward = 1
     endif
-    let g:search_WithList = GrooVim_GetOptions("Search with list [0[default]/1][now: \"" . g:search_WithList . "\"]? ", [1,0], g:search_WithList)
+    let g:search_WithList = GrooVim_GetOptions("Search with list", [0,1], 0, g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
 
@@ -2064,18 +2064,30 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 endfunc
 
 " Note: Get and validate a givem option! By Questor
-func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
+" Note: Asks a question that only takes certain answers, and keeps asking until it
+" gets one of them. An empty answer keeps what is in force.
+"
+" Note: The prompt is BUILT here, from what the function already receives. Every
+" call site used to spell out "[0[default]/1][now: \"0\"]? " by hand, in eight
+" places, and a change to the list of options would not reach the text. Now it
+" cannot drift.
+"
+" Note: An empty "currentValue" is a question with nothing in force -- the one
+" that asks what to get from a file name is like that. No "now" is shown and an
+" empty answer takes the factory default! By Questor
+func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue)
+
+  let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
+  let l:prompt = a:question . " " .
+   \ GrooVim_OptionsToPrompt(a:possibleOptions, a:factoryDefault, a:currentValue)
+
   let l:stopWhile = 0
   let l:optionReturn = ""
-  let l:typed = ""
   while l:stopWhile == 0
-    let l:optionReturn = input(a:optionToGet)
-    " Note: Kept before the line below turns an empty answer into the current
-    " value, so that what gets shown is what was really typed! By Questor
-    let l:typed = l:optionReturn
-    let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, a:defaultOption)
+    let l:optionReturn = input(l:prompt)
+    let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, l:inForce)
     if ("" . l:optionReturn . "") == ""
-      let l:optionReturn = a:defaultOption
+      let l:optionReturn = l:inForce
     endif
   endwhile
 
@@ -2101,14 +2113,46 @@ func! GrooVim_GetOptions(optionToGet, possibleOptions, defaultOption) range
   return l:optionReturn
 endfunc
 
+" Note: The bracket part of the prompt: the options, which of them is the factory
+" default, and the value in force. In list order, so what you see follows what the
+" caller declared! By Questor
+func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue)
+
+  let l:parts = []
+  for l:option in a:possibleOptions
+    if ("" . l:option . "") == ("" . a:factoryDefault . "")
+      call add(l:parts, l:option . "[default]")
+    else
+      call add(l:parts, l:option)
+    endif
+  endfor
+
+  let l:prompt = "[" . join(l:parts, "/") . "]"
+  if ("" . a:currentValue . "") != ""
+    let l:prompt = l:prompt . "[now: \"" . a:currentValue . "\"]"
+  endif
+
+  return l:prompt . "? "
+endfunc
+
 " Note: Check if a given option is valid! By Questor
-func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) range
+func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption)
+
+  " Note: An empty answer means "keep what is in force", so it is valid exactly
+  " when there IS something in force. Checked BEFORE the loop: it never depended
+  " on the options, and inside the loop it also made an EMPTY list of options
+  " reject an empty answer for ever, with no way out of the question! By Questor
+  if a:optionNow == ""
+    return ("" . a:defaultOption . "") != ""
+  endif
+
   for l:value in a:possibleOptions
     " Note: "("" . l:value . "")" -> To force string compare! By Questor
-    if ("" . l:value . "") == a:optionNow || (a:optionNow == "" && ("" . a:defaultOption . "") != "")
+    if ("" . l:value . "") == a:optionNow
       return 1
     endif
   endfor
+
   return 0
 endfunc
 
@@ -3694,7 +3738,7 @@ func! GrooVim_GetFileNameAndPath() range
 
   let l:filenameOrFilenameAndPath = ""
 
-  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path [0[default]/1]? ", [1,0], 0)
+  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path", [0,1], 0, "")
   if l:getFilenameOrFilenameAndPath == 0
     let l:filenameOrFilenameAndPath = expand('%:t')
     echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
