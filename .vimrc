@@ -2867,30 +2867,49 @@ func! GrooVim_SearchGuyCloseNow(timer)
   endif
 endfunc
 
-" Note: The list is not a window you close by itself: quitting from inside it
-" closes the TAB that holds it, the same as quitting from the file. Only a new
-" search ("F3" and then "f") ends the list, and it ends it in every tab.
+" Note: The list is not a window you close by itself. Quitting from inside it
+" quits the FILE instead: the cursor is moved to the file window before ":q"
+" runs, so it is the file that closes. From there the rule above decides -- with
+" other tabs the list is left alone and the tab goes, and on the last tab the
+" list stays, waiting for you to reopen whatever interests you.
 "
-" Note: Through a timer for the same reason as above: ":q" is still running and
-" the layout cannot be changed from under it! By Questor
+" Note: One rule instead of a list of cases. Quitting from the list and quitting
+" from the file now do exactly the same thing, and ":q" on a list that is alone
+" is a plain last window, which closes Vim as always.
+"
+" Note: Only a new search ("F3" and then "f") ends the list itself, and it ends
+" it in every tab! By Questor
 func! GrooVim_SearchGuyQuitPre()
-  " Note: Only when the list has company. Alone it is the last window of the tab
-  " and quitting it already closes the tab -- and acting here too would chain into
-  " closing a SECOND tab! By Questor
-  if winnr("$") > 1 && bufname("%") =~ "GrooVim_SearchGuyResults"
-    call timer_start(0, "GrooVim_SearchGuyCloseTab")
+  if bufname("%") =~ "GrooVim_SearchGuyResults" && GrooVim_SearchGuyTabHasFile()
+    call timer_start(0, "GrooVim_SearchGuyQuitTheFile")
   endif
 endfunc
 
-func! GrooVim_SearchGuyCloseTab(timer)
-  if tabpagenr("$") > 1
-    tabclose
-  else
-    " Note: With a single tab, closing the tab IS leaving Vim, which is already
-    " what quitting from the file window does there. Without the "!", so unsaved
-    " work still stops you! By Questor
-    quit
+" Note: By the time this runs the ":q" already closed the LIST window -- Vim
+" quits the window that was current when the command was typed, and moving the
+" cursor from inside "QuitPre" does not change that. So the list is put back and
+" the file is closed instead, which is the same as if you had typed ":q" over the
+" file. The list buffer is "wipe", so it really was gone and "Sync" builds a new
+" one! By Questor
+func! GrooVim_SearchGuyQuitTheFile(timer)
+  if GrooVim_SearchGuyTabHasFile()
+    call GrooVim_SearchGuySync()
+    if GrooVim_SearchGuyPutOnFileWindow()
+      quit
+    endif
   endif
+endfunc
+
+" Note: Goes to a window holding a document of yours, if this tab has one.
+" Returns 1 when it got there! By Questor
+func! GrooVim_SearchGuyPutOnFileWindow()
+  for l:window in range(1, winnr("$"))
+    if !GrooVim_IsHelperBuffer(expand('%:t'))
+      return 1
+    endif
+    exec "wincmd w"
+  endfor
+  return 0
 endfunc
 
 " Note: In a group of its own, because there are "autocmd!" for "WinEnter *"
