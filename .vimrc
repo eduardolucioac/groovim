@@ -2808,6 +2808,17 @@ func! GrooVim_SearchGuyFocusWindow(name, byPath)
   return 0
 endfunc
 
+" Note: Whether this tab holds any document of yours, or only accessories! By
+" Questor
+func! GrooVim_SearchGuyTabHasFile()
+  for l:buffer in tabpagebuflist(tabpagenr())
+    if !GrooVim_IsHelperBuffer(bufname(l:buffer))
+      return 1
+    endif
+  endfor
+  return 0
+endfunc
+
 " Note: The same thing across every tab, because a file can be open somewhere
 " else than where it was when the search ran! By Questor
 func! GrooVim_SearchGuyFindFile(path)
@@ -2844,7 +2855,14 @@ endfunc
 func! GrooVim_SearchGuyCloseNow(timer)
   " Note: Checked again because the timer runs later and the window may already
   " have company by then! By Questor
-  if winnr("$") == 1 && bufname("%") =~ "GrooVim_SearchGuyResults"
+  "
+  " Note: Only while there are OTHER tabs. Closing the last file leaves the list
+  " alone on the last tab and it STAYS there, the way the "Search results" panel
+  " of Notepad++ outlives the documents: your results are what you reopen the
+  " interesting files from. To leave, quit from the list itself -- it is the last
+  " window by then, so Vim closes as usual! By Questor
+  if tabpagenr("$") > 1 && winnr("$") == 1 &&
+   \ bufname("%") =~ "GrooVim_SearchGuyResults"
     quit
   endif
 endfunc
@@ -2930,7 +2948,16 @@ func! GrooVim_SearchGuyNavigate() range
       " Note: This used to be a "while" pressing "<C-w>" until the name matched.
       " With the file closed the name never came and Vim froze! By Questor
       if !GrooVim_SearchGuyFindFile(l:entryPath)
-        exec "tabnew " . fnameescape(l:entryPath)
+        if GrooVim_SearchGuyTabHasFile()
+          exec "tabnew " . fnameescape(l:entryPath)
+        else
+          " Note: The tab holds nothing but the list -- you closed everything and
+          " kept the results. The file joins it right here, above the list, so the
+          " results stay where they are instead of being left behind in a tab of
+          " their own! By Questor
+          call GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
+          exec "aboveleft split " . fnameescape(l:entryPath)
+        endif
       endif
 
       " Note: The tab you land on gets its list, whether the file was already open
