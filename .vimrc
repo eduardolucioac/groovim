@@ -2064,6 +2064,21 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 endfunc
 
 " Note: Get and validate a givem option! By Questor
+" Note: Asks until the answer passes the test, ALWAYS with the same question.
+" Repeating the very same line is what tells you the answer did not take, and it
+" is how every question of GrooVim behaves.
+"
+" Note: "IsValid" takes the answer and says whether it serves. A closure carries
+" whatever else the test needs! By Questor
+func! GrooVim_AskUntilValid(prompt, IsValid)
+  while 1
+    let l:answer = input(a:prompt)
+    if call(a:IsValid, [l:answer])
+      return l:answer
+    endif
+  endwhile
+endfunc
+
 " Note: Asks a question that only takes certain answers, and keeps asking until it
 " gets one of them. An empty answer keeps what is in force.
 "
@@ -2081,15 +2096,12 @@ func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue
   let l:prompt = a:question . " " .
    \ GrooVim_OptionsToPrompt(a:possibleOptions, a:factoryDefault, a:currentValue)
 
-  let l:stopWhile = 0
-  let l:optionReturn = ""
-  while l:stopWhile == 0
-    let l:optionReturn = input(l:prompt)
-    let l:stopWhile = GrooVim_ValidateOptions(l:optionReturn, a:possibleOptions, l:inForce)
-    if ("" . l:optionReturn . "") == ""
-      let l:optionReturn = l:inForce
-    endif
-  endwhile
+  let l:optionReturn = GrooVim_AskUntilValid(l:prompt,
+   \ {answer -> GrooVim_ValidateOptions(answer, a:possibleOptions, l:inForce)})
+
+  if ("" . l:optionReturn . "") == ""
+    let l:optionReturn = l:inForce
+  endif
 
   " Note: Shows the value the question ended up with, right after the answer.
   "
@@ -2133,6 +2145,18 @@ func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue)
   endif
 
   return l:prompt . "? "
+endfunc
+
+" Note: What the macro takes as "how many times": the "x" that runs to the
+" last/first line, or a whole number above zero.
+"
+" Note: The digits are checked with a pattern and not with "str2nr()". Vim reads
+" "3abc" as 3, so the old test took it for a valid three! By Questor
+func! GrooVim_IsRepetitionCount(answer)
+  if a:answer ==# "x"
+    return 1
+  endif
+  return a:answer =~ '^\d\+$' && str2nr(a:answer) > 0
 endfunc
 
 " Note: Check if a given option is valid! By Questor
@@ -3774,7 +3798,13 @@ func! GrooVim_XenPlay(repeatExecution) range
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
-    let l:numberOfRepetitions = input("Number of repetitions (use \"x\" to excute to last/first line): ")
+    " Note: Asked ONCE, and repeated as it is until the answer serves. It used to
+    " ask again with another sentence, "use a valid one!", which threw away the
+    " part that tells you about the "x" just when you most needed to read it! By
+    " Questor
+    let l:numberOfRepetitions = GrooVim_AskUntilValid(
+     \ "Number of repetitions (use \"x\" to execute to last/first line): ",
+     \ {answer -> GrooVim_IsRepetitionCount(answer)})
     " Note: Runs up to the last/first row!! By Questor
     if l:numberOfRepetitions == "x"
       " Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
@@ -3854,28 +3884,8 @@ func! GrooVim_XenPlay(repeatExecution) range
       set wrapscan
     else
 
-      " Note: Performs "n" times! By Questor
-
-      " Note: Check for valid numbers! By Questor
-      let l:invalidNumber = 1
-      while l:invalidNumber == 1
-
-        let l:invalidNumber = 0
-
-        if l:numberOfRepetitions != str2nr(l:numberOfRepetitions)
-          let l:invalidNumber = 1
-        endif
-
-        if l:numberOfRepetitions <= 0
-          let l:invalidNumber = 1
-        endif
-
-        if l:invalidNumber == 1
-          let l:numberOfRepetitions = input("Number of repetitions (use a valid one!): ")
-        endif
-
-      endwhile
-
+      " Note: Performs "n" times! The answer was already validated when it was
+      " asked! By Questor
       for i in range(1, l:numberOfRepetitions)
 
         " Note: If there are no more occurrences of a search then stops execution! By Questor
