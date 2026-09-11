@@ -796,6 +796,37 @@ func! SpecificTabConf(tabWidth)
 
 endfun
 
+" Note: The one knob for the indent width of the buffer you are on.
+"
+" Note: In GrooVim a width is THREE Vim options at once -- "tabstop",
+" "shiftwidth" and "softtabstop" -- and they only mean what you expect while they
+" agree. Setting one of them by hand leaves the editor half changed: the guides
+" follow the new width and the Tab key keeps the old one.
+"
+" Note: With the three together, tabbing lands ON the width and then on twice it,
+" from wherever the line already was -- 2 becomes 8, 8 becomes 16 -- which is how
+" Notepad++ walks its tab stops. With ":set shiftwidth=8" alone it would go on
+" walking two by two! By Questor
+com! -nargs=? GrooVimIndent call GrooVim_IndentWidth(<q-args>)
+
+func! GrooVim_IndentWidth(width)
+
+  if a:width == ""
+    call GrooVim_GrooVimBarMsg("The indent is " . &shiftwidth .
+     \ " columns wide here. Use \"GrooVimIndent 4\" to change it!", 5)
+    return
+  endif
+
+  if !GrooVim_IsPositiveNumber(a:width)
+    call GrooVim_GrooVimBarMsg("\"" . a:width . "\" is not a width! Use a whole number above zero!", 5)
+    return
+  endif
+
+  call SpecificTabConf(str2nr(a:width))
+  call GrooVim_GrooVimBarMsg("The indent is " . &shiftwidth . " columns wide now!", 5)
+
+endfunc
+
 " Note: Applies the per file type width, and ONLY for what is listed. The guides
 " are refreshed on window entry because "listchars" is window local.
 "
@@ -2162,6 +2193,14 @@ func! GrooVim_IsRepetitionCount(answer)
   if a:answer ==# "x"
     return 1
   endif
+  return GrooVim_IsPositiveNumber(a:answer)
+endfunc
+
+" Note: A whole number above zero, and nothing else.
+"
+" Note: Checked with a pattern and not with "str2nr()". Vim reads "3abc" as 3, so
+" a test made of "str2nr()" alone takes it for a valid three! By Questor
+func! GrooVim_IsPositiveNumber(answer)
   return a:answer =~ '^\d\+$' && str2nr(a:answer) > 0
 endfunc
 
@@ -4569,6 +4608,10 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n * Indentation!~".
 \"\n".
 \"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
+\"\n".
+\"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
+\"\n     GrooVimIndent 4".
+\"\n< Without an argument it tells you the width in force. Setting|shiftwidth| by hand instead leaves the editor half changed: the guides follow the new width and the Tab key keeps the old one.".
 \"\n".
 \"\n*o*  |g:GrooVim_IndentWidth| - the general width;".
 \"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
