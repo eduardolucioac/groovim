@@ -225,8 +225,6 @@ let g:grooVimVersion = "v2.0.8b"
 
 " ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! Questor
 
-" Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) Questor
-
 " ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc"
 " to work properly! Questor
 
@@ -967,9 +965,14 @@ vnoremap <silent> <C-A-Down> :<C-u>call GrooVim_GroovyMove("v", "d", 0, 1)<cr>
 vnoremap <silent> <C-A-Up> :<C-u>call GrooVim_GroovyMove("v", "u", 0, 1)<cr>
 vnoremap <silent> <C-A-Right> :<C-u>call GrooVim_GroovyMove("v", "r", 0, 1)<cr>
 
+" Note: The vertical ones take note of the column BEFORE the "<C-o>". Going to
+" normal mode and coming back is what loses it -- by the time the function runs it
+" is already gone -- and without it walking down through a SHORT line left the
+" cursor at the end of that line instead of coming back to the column you started
+" from! By Questor
 inoremap <silent> <C-A-Left> <C-o>:call GrooVim_GroovyMove("i", "l", 0, 1)<cr>
-inoremap <silent> <C-A-Down> <C-o>:call GrooVim_GroovyMove("i", "d", 0, 1)<cr>
-inoremap <silent> <C-A-Up> <C-o>:call GrooVim_GroovyMove("i", "u", 0, 1)<cr>
+inoremap <silent> <C-A-Down> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove("i", "d", 0, 1)<cr>
+inoremap <silent> <C-A-Up> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove("i", "u", 0, 1)<cr>
 inoremap <silent> <C-A-Right> <C-o>:call GrooVim_GroovyMove("i", "r", 1, 1)<cr>
 
 " Note: Allows fluid cursor movement on the screen! By Questor
@@ -978,6 +981,14 @@ let g:GrooVim_GroovyMoveType = 0
 let g:cursorHoldVisualExec = ""
 let g:cursorHoldVisual = 0
 let g:GrooVim_GroovyMoveEnabled = 1
+" Note: Where the insert mode mappings leave the column to keep, taken while still
+" in insert mode! By Questor
+let g:GrooVim_GroovyMoveColumn = 0
+func! GrooVim_GroovyMoveMarkColumn()
+  let g:GrooVim_GroovyMoveColumn = getcurpos()[4]
+  return ""
+endfunc
+
 func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range
 
   let g:GrooVim_GroovyMoveEnabled = 0
@@ -985,6 +996,13 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
   if a:blockSmoothness == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0 && a:GrooVim_GroovyMoveType == 0
     call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
   endif
+
+  " Note: "curswant" is the column the cursor TRIES to keep across vertical moves.
+  "
+  " Note: In insert mode it comes from the mapping, which took it before "<C-o>":
+  " here it would already be the column of the SHORT line. Everywhere else, taken
+  " at the very top, because the "virtualedit" below disturbs it too! By Questor
+  let l:columnToKeep = a:mod == "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
 
   if &virtualedit == "onemore"
     set virtualedit=all
@@ -1101,17 +1119,39 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
   let g:onMoveScreen = 1
 
-  " Note: "set virtualedit=onemore" if the area is already valid! By Questor
-  if virtcol('.') <= virtcol('$')
+  " Note: Back to "onemore" ALWAYS, and not only when the cursor happens to be over
+  " a real character.
+  "
+  " Note: Going down onto a SHORTER line leaves the cursor in virtual space -- at
+  " column 24 of a line with 13 characters -- so the old test was false and
+  " "virtualedit=all" stayed behind. The next move came in with it, and the column
+  " the cursor tries to keep ("curswant") lost one each time: walking down through
+  " a short line drifted left, 24, 23, 22.
+  "
+  " Note: This is the "(PRIORITY)" note of 2014 at the top of this file, about
+  " GroovyMove losing "virtualedit" in insert mode on ".py" files. It took a file
+  " with SHORT lines in the middle to show up! By Questor
+  if &virtualedit == "all"
+    set virtualedit=onemore
+  endif
 
-    if &virtualedit == "all"
-      set virtualedit=onemore
-    endif
+  " Note: And the cursor goes back to the column to keep, whatever happened in
+  " between. Without it, walking down through a SHORT line lost the column for
+  " good and the cursor stayed at the end of that line instead of coming back --
+  " which is what "j" does in Vim.
+  "
+  " Note: The column goes in TWICE: as where to put the cursor, which "cursor()"
+  " trims to the line, and as the fourth item, which is the column to keep for the
+  " next move. Only in insert mode -- in normal mode Vim already keeps it by
+  " itself, measured! By Questor
+  if a:mod == "i" && (a:direction == "u" || a:direction == "d")
+    call cursor([line("."), l:columnToKeep, 0, l:columnToKeep])
+  endif
 
-    if a:direction == "r" && a:mod != "v"
-      call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
-    endif
-
+  " Note: The adjuster still only runs over a valid area: it reads the character
+  " under the cursor! By Questor
+  if virtcol('.') <= virtcol('$') && a:direction == "r" && a:mod != "v"
+    call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
   endif
 
 endfunc
@@ -2067,7 +2107,6 @@ endfunc
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
 
-
   " Note: No header line here. The bar already says "[configuration] [search]" or
   " "[configuration] [replace]", and what an empty answer does is written in the
   " help (F9), so a line repeating it would only crowd the screen! By Questor
@@ -2105,7 +2144,6 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     let g:search_WithList = GrooVim_GetOptions("Search with list", [0,1], 0, g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
-
 
 endfunc
 
@@ -3813,7 +3851,6 @@ endfunc
 " Note: Get current filename or filename and path and put on transfer area! By Questor
 func! GrooVim_GetFileNameAndPath() range
 
-
   let l:filenameOrFilenameAndPath = ""
 
   let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path", [0,1], 0, "")
@@ -3828,7 +3865,6 @@ func! GrooVim_GetFileNameAndPath() range
   " Note: Set the clipboard register! By Questor
   call GrooVim_ClipSet(l:filenameOrFilenameAndPath)
 
-
 endfunc
 
 " Note: Record a macro! By Questor
@@ -3841,7 +3877,6 @@ endfunc
 " Note: Run a macro certain number of times or repeatedly until the last line! By Questor
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range
-
 
   if a:repeatExecution == 0
     exec "norm @a"
@@ -3972,7 +4007,6 @@ func! GrooVim_XenPlay(repeatExecution) range
 
   let g:block_GrooVim_HLNext = 0
 
-
 endfunc
 
 " Note: Duplicates the current line/selection! By Questor
@@ -4018,7 +4052,6 @@ endif
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
-
 
     let l:valueToPath = ""
     let l:stopWhile = 0
@@ -4076,7 +4109,6 @@ func! GrooVim_SaveACopy() range
       call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
       redraw!
     endtry
-
 
 endfunc
 
@@ -4221,20 +4253,17 @@ augroup GrooVim_ColorColumn
   autocmd! VimEnter,WinEnter * call matchadd('GrooVim_ColorColumn', '\%81v', 100)
 augroup end
 
-
 " Note: Make trailing whitespace and non-breaking spaces visible! By Questor
 set list
 " Note: The trailing/non breaking space marks AND the indentation guides are all
 " built by this one, so that both always agree on the same "listchars"! By Questor
 call GrooVim_IndentGuideSet()
 
-
 " " Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
 " " Note: Type I! By Questor
 " "exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
 " " Note: Type II! By Questor
 " exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
-
 
 " Note: Switch syntax highlighting on, when the terminal has colors! By Questor
 if &t_Co > 2 || has("gui_running")

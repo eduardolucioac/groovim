@@ -210,8 +210,6 @@ Task List/Bugs List!
 
  * ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! By Questor
 
- * Bug: "GrooVim_GroovyMove()" not working (for *.py files) in insert/visual mode (loss "set virtualedit=all")! (PRIORITY) By Questor
-
  * ToDo: Create a shortcut to moving between matching braces! By Questor
 
  * ToDo: Create a configuration scheme according to the type of file. This scheme must be in the end of ".vimrc" to work properly! By Questor
@@ -376,7 +374,6 @@ let g:enable_all_plugins = 0    " ignore every plugin at once
 **Note:** If you already use **Pathogen** and keep your plugins in
 `~/.vim/bundle`, that keeps working: GrooVim looks in both places and calls
 Pathogen only when it is actually installed.
-
 
 Contact
 -----
