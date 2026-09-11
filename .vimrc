@@ -797,12 +797,18 @@ func! SpecificTabConf(tabWidth)
 endfun
 
 " Note: Applies the per file type width, and ONLY for what is listed. The guides
-" are refreshed on window entry because "listchars" is window local! By Questor
+" are refreshed on window entry because "listchars" is window local.
+"
+" Note: And on "OptionSet", so that typing ":set shiftwidth=8" by hand moves the
+" guides right then. Without it the width was read only when you entered the
+" window, and a changed "shiftwidth" left the guides drawn at the OLD spacing
+" until you walked out and back in! By Questor
 augroup GrooVim_Indent
   autocmd!
   autocmd FileType * if has_key(g:GrooVim_IndentWidthPerType, &filetype) |
         \ call SpecificTabConf(g:GrooVim_IndentWidthPerType[&filetype]) | endif
   autocmd BufWinEnter,WinEnter * call GrooVim_IndentGuideSet()
+  autocmd OptionSet shiftwidth,tabstop call GrooVim_IndentGuideSet()
 augroup end
 
 "  * .inc
