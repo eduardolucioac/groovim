@@ -743,6 +743,15 @@ exec "set softtabstop=" . g:GrooVim_IndentWidth
 " Note: Set tabs to spaces! By Questor
 set expandtab
 
+" Note: Indenting REACHES the next stop instead of adding a width to whatever was
+" already there, which is how Notepad++ walks its tab stops: a line with 2 columns
+" and a width of 8 goes to 8, not to 10. Unindenting comes back the same way.
+"
+" Note: Without it, "Tab" over a line with 2 columns gave 2, 10, 18, 26, because
+" ">>" adds "shiftwidth" to the indent in place. Native to Vim, one option! By
+" Questor
+set shiftround
+
 " Note: Draws the indentation guides with "leadmultispace", which is native to
 " Vim and replaces what a plugin used to do here.
 "
