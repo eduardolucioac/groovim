@@ -231,8 +231,6 @@ let g:grooVimVersion = "v2.0.8b"
 " ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease
 " of maintenance! (EXAMINE THIS POSSIBILITY) Questor
 
-" ToDo: The "GrooVim_GroovyMove()" do not work with "visual block mode"! (PRIORITY) Questor
-
 " ToDo: Improve syntax and lexers (mainly for python)! By Questor
 
 " ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
