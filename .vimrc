@@ -989,6 +989,19 @@ func! GrooVim_GroovyMoveMarkColumn()
   return ""
 endfunc
 
+" Note: Puts the column to keep back WITHOUT moving the cursor: the first three
+" items of "cursor()" are the position as it is, virtual offset included, and only
+" the fourth one changes. Moving the cursor here would drag it out of the areas
+" without character, which is exactly what this function exists to travel over! By
+" Questor
+func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep)
+  if (a:direction != "u" && a:direction != "d") || a:columnToKeep <= 0
+    return
+  endif
+  let l:positionNow = getcurpos()
+  call cursor([l:positionNow[1], l:positionNow[2], l:positionNow[3], a:columnToKeep])
+endfunc
+
 func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range
 
   let g:GrooVim_GroovyMoveEnabled = 0
@@ -1001,12 +1014,22 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
   "
   " Note: In insert mode it comes from the mapping, which took it before "<C-o>":
   " here it would already be the column of the SHORT line. Everywhere else, taken
-  " at the very top, because the "virtualedit" below disturbs it too! By Questor
+  " at the very top, because the "virtualedit" below disturbs it too.
+  "
+  " Note: The mapping leaves a zero behind once it is read, so a value that was
+  " never marked -- or already used -- never moves anything! By Questor
   let l:columnToKeep = a:mod == "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
+  let g:GrooVim_GroovyMoveColumn = 0
 
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
+
+  " Note: The column to keep goes back BEFORE the movement, because it is what
+  "<Up>" and "<Down>" aim at. Putting it back only afterwards fixed the number
+  " and left the cursor one column short: the move had already happened with the
+  " wrong aim! By Questor
+  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
   let l:disableSmoothness = 0
   let l:disableHorizontalSmoothness = 0
@@ -1119,40 +1142,36 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
   let g:onMoveScreen = 1
 
-  " Note: Back to "onemore" ALWAYS, and not only when the cursor happens to be over
-  " a real character.
+  " Note: "set virtualedit=onemore" if the area is already valid! By Questor
   "
-  " Note: Going down onto a SHORTER line leaves the cursor in virtual space -- at
-  " column 24 of a line with 13 characters -- so the old test was false and
-  " "virtualedit=all" stayed behind. The next move came in with it, and the column
-  " the cursor tries to keep ("curswant") lost one each time: walking down through
-  " a short line drifted left, 24, 23, 22.
-  "
-  " Note: This is the "(PRIORITY)" note of 2014 at the top of this file, about
-  " GroovyMove losing "virtualedit" in insert mode on ".py" files. It took a file
-  " with SHORT lines in the middle to show up! By Questor
-  if &virtualedit == "all"
-    set virtualedit=onemore
+  " Note: And ONLY then. Leaving "all" on while the cursor is over an area without
+  " character is what lets it stay there: putting it back unconditionally dragged
+  " the cursor onto the text at the end of every movement! By Questor
+  if virtcol('.') <= virtcol('$')
+
+    if &virtualedit == "all"
+      set virtualedit=onemore
+    endif
+
+    if a:direction == "r" && a:mod != "v"
+      call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
+    endif
+
   endif
 
-  " Note: And the cursor goes back to the column to keep, whatever happened in
-  " between. Without it, walking down through a SHORT line lost the column for
-  " good and the cursor stayed at the end of that line instead of coming back --
-  " which is what "j" does in Vim.
+  " Note: The column the cursor tries to keep goes back, and ONLY it: the cursor
+  " itself is left exactly where the movement put it, virtual space included.
   "
-  " Note: The column goes in TWICE: as where to put the cursor, which "cursor()"
-  " trims to the line, and as the fourth item, which is the column to keep for the
-  " next move. Only in insert mode -- in normal mode Vim already keeps it by
-  " itself, measured! By Questor
-  if a:mod == "i" && (a:direction == "u" || a:direction == "d")
-    call cursor([line("."), l:columnToKeep, 0, l:columnToKeep])
-  endif
-
-  " Note: The adjuster still only runs over a valid area: it reads the character
-  " under the cursor! By Questor
-  if virtcol('.') <= virtcol('$') && a:direction == "r" && a:mod != "v"
-    call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
-  endif
+  " Note: Moving the cursor here was a mistake of mine: it dragged it back onto
+  " the text and took away the whole point of this function, which is travelling
+  " over areas WITHOUT character. The fourth item of "cursor()" is the column to
+  " keep; the first three are the position, and they go back unchanged -- the
+  " third one is the virtual offset, which is what holds the cursor out there.
+  "
+  " Note: And once more AFTER the block above, because coming out of
+  " "virtualedit=all" snaps the cursor onto the text and resets the column. This
+  " one is for the NEXT movement: it is what the mapping will read! By Questor
+  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
 endfunc
 
