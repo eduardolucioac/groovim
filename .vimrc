@@ -942,8 +942,8 @@ vnoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call Gro
 vnoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"r\", 0, 0)<cr>" : "")
 
 inoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"l\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
-inoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"d\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
-inoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"u\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
+inoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? "<C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove(\"i\", \"d\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
+inoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? "<C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove(\"i\", \"u\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
 inoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"r\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
 
 nnoremap <silent> <PageDown> :call GrooVim_GroovyMove("n", "d", 1, 0)<cr>
@@ -965,7 +965,8 @@ vnoremap <silent> <C-A-Down> :<C-u>call GrooVim_GroovyMove("v", "d", 0, 1)<cr>
 vnoremap <silent> <C-A-Up> :<C-u>call GrooVim_GroovyMove("v", "u", 0, 1)<cr>
 vnoremap <silent> <C-A-Right> :<C-u>call GrooVim_GroovyMove("v", "r", 0, 1)<cr>
 
-" Note: The vertical ones take note of the column BEFORE the "<C-o>". Going to
+" Note: The vertical ones, here and in the "Alt" with "Shift" ones above, take
+" note of the column BEFORE the "<C-o>". Going to
 " normal mode and coming back is what loses it -- by the time the function runs it
 " is already gone -- and without it walking down through a SHORT line left the
 " cursor at the end of that line instead of coming back to the column you started
@@ -984,9 +985,33 @@ let g:GrooVim_GroovyMoveEnabled = 1
 " Note: Where the insert mode mappings leave the column to keep, taken while still
 " in insert mode! By Questor
 let g:GrooVim_GroovyMoveColumn = 0
+
+" Note: Raised by those same mappings, and it says that the trip out of insert is
+" ours: while it is up, the cursor is NOT painted with the colour of normal mode!
+" By Questor
+let g:GrooVim_GroovyMoveOnInsert = 0
 func! GrooVim_GroovyMoveMarkColumn()
   let g:GrooVim_GroovyMoveColumn = getcurpos()[4]
+
+  " Note: And the cursor keeps the colour of insert mode for the whole trip. The
+  " "<C-o>" that comes right after steps out of insert, and Vim paints the cursor
+  " with the normal mode colour on the way out: on a long smooth movement it lasts
+  " long enough to SEE it turn green, as if the mode had changed.
+  "
+  " Note: It has to be HERE, before the "<C-o>": from inside the movement it would
+  " already be too late! By Questor
+  let g:GrooVim_GroovyMoveOnInsert = 1
+  let &t_EI = "\<Esc>]12;" . g:cursorColorI . "\x7"
+
   return ""
+endfunc
+
+" Note: Gives the cursor back to the colours of each mode! By Questor
+func! GrooVim_GroovyMoveColorsBack()
+  if g:GrooVim_GroovyMoveOnInsert == 1
+    let g:GrooVim_GroovyMoveOnInsert = 0
+    let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
+  endif
 endfunc
 
 " Note: Puts the column to keep back WITHOUT moving the cursor: the first three
@@ -1172,6 +1197,10 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
   " "virtualedit=all" snaps the cursor onto the text and resets the column. This
   " one is for the NEXT movement: it is what the mapping will read! By Questor
   call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
+
+  " Note: The trip is over, so the cursor goes back to answering to each mode! By
+  " Questor
+  call GrooVim_GroovyMoveColorsBack()
 
 endfunc
 
@@ -4348,6 +4377,13 @@ endfunc
 " visual from normal. The "ModeChanged" event can, and it is what paints visual
 " blue! By Questor
 func! GrooVim_CursorColorForMode()
+  " Note: Not while GroovyMove is travelling out of insert mode: there the cursor
+  " belongs to insert from end to end! By Questor
+  if g:GrooVim_GroovyMoveOnInsert == 1
+    call GrooVim_CursorColorEmit(g:cursorColorI)
+    return
+  endif
+
   let l:mode = mode()
   if l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
         \ || l:mode ==# "s" || l:mode ==# "S" || l:mode ==# "\<C-s>"
@@ -4362,6 +4398,9 @@ endfunc
 " Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
 " insert mode! By Questor
 func! GrooVim_CursorColorNow()
+  if g:GrooVim_GroovyMoveOnInsert == 1
+    return
+  endif
   call GrooVim_CursorColorEmit(g:cursorColorNV)
 endfunc
 
