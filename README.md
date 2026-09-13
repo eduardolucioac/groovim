@@ -262,9 +262,13 @@ Task List/Bugs List!
 How to install Vim!
 -----
 
-GrooVim needs **Vim 7.4 or newer**, and it is developed and tested against the
-current Vim (9.x). Every distribution ships something recent enough today, so
-building from source is no longer necessary:
+GrooVim needs **Vim 9.0 or newer**. That is not a preference, it is what the
+code calls: the indent guides use `leadmultispace`, which arrived in Vim 9.0,
+and the cursor that changes colour with the mode uses `ModeChanged` and
+`echoraw`, from 8.2. Each of those is asked for before being used, so an older
+Vim still loads GrooVim -- it simply goes without them.
+
+The Vim of your distribution usually serves:
 
 [Arch/Manjaro/CachyOS]
 ```
@@ -293,9 +297,9 @@ If it says `-clipboard`, **you do not need to do anything**: GrooVim falls back
 by itself, in this order, to OSC 52 (which carries the clipboard through the
 terminal itself, and works over SSH and on a machine with no graphical session
 at all), then to a file shared between Vim instances, then to the unnamed
-register. Nothing to install. If you would rather have the native clipboard,
-install a Vim built with it (on Arch based systems that is the `gvim` package,
-which provides the same `/usr/bin/vim`).
+register. Nothing to install.
+
+If you would rather have the real thing, see below.
 
 You can see which one is in use from inside Vim with:
 
@@ -303,6 +307,49 @@ You can see which one is in use from inside Vim with:
 :echo v:clipmethod
 :echo GrooVim_ClipReg()
 ```
+
+<a name="ownVim"></a>
+### A Vim of its own
+
+When the Vim you have falls short, `instalar-vim.sh` builds one for GrooVim
+alone and writes a `groovim` command that runs it. The Vim of your system is
+not touched: `vim` goes on being yours.
+
+First, ask whether you need it at all:
+
+```
+./instalar-vim.sh --check
+```
+
+It reads your Vim and says what is missing, if anything. To build:
+
+```
+./instalar-vim.sh
+```
+
+It installs the build dependencies of your distribution (Arch, Debian, Fedora,
+openSUSE, Alpine, Void and Gentoo families are known, and it asks before
+running anything as root), fetches the newest Vim release, and configures it
+with only the flags that release actually offers -- it asks `./configure
+--help` instead of carrying a list that ages.
+
+Everything lands under `~/.local/share/groovim`, and `groovim` goes into
+`~/.local/bin`. Then:
+
+```
+groovim file.txt
+```
+
+On the machine this was written on, the difference is the whole point of the
+script:
+
+| | `v:clipmethod` | `has('clipboard')` |
+|---|---|---|
+| Vim of the distribution | `groovim` (the fallback above) | 0 |
+| Vim built by the script | `wayland` | 1 |
+
+`./instalar-vim.sh --help` lists where to put things, which `.vimrc` the
+command should run, and how to build a specific version.
 
 **Pasting from another application.** OSC 52 carries a copy *out* through the
 terminal, but reading the clipboard *back* would require the terminal to answer
