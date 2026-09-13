@@ -2,9 +2,9 @@
 #
 # Builds a Vim for GrooVim alone, and a "groovim" command that runs it.
 #
-#   ./instalar-vim.sh --check      says whether the Vim you already have serves
-#   ./instalar-vim.sh              builds and installs
-#   ./instalar-vim.sh --help       every option
+#   ./install-vim.sh --check      says whether the Vim you already have serves
+#   ./install-vim.sh              builds and installs
+#   ./install-vim.sh --help       every option
 #
 # Why a Vim of its own: GrooVim leans on things a distribution build often
 # leaves out. The Vim shipped by CachyOS, to name the one this was written on,
@@ -332,7 +332,7 @@ escreve_groovim() {
 #!/usr/bin/env bash
 #
 # Runs the Vim of GrooVim, with the .vimrc of GrooVim. Written by
-# instalar-vim.sh -- run it again to change any of this.
+# install-vim.sh -- run it again to change any of this.
 #
 # The Vim of the system is not involved: "vim" goes on being yours.
 
@@ -341,7 +341,7 @@ GROOVIM_VIMRC="\${GROOVIM_VIMRC:-$VIMRC}"
 
 if [ ! -x "\$GROOVIM_VIM" ]; then
   echo "groovim: I cannot find the Vim at \$GROOVIM_VIM" >&2
-  echo "groovim: run instalar-vim.sh again, or point GROOVIM_VIM at another one." >&2
+  echo "groovim: run install-vim.sh again, or point GROOVIM_VIM at another one." >&2
   exit 1
 fi
 

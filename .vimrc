@@ -2095,6 +2095,14 @@ func! GrooVim_SelectRange(mod) range
 
 endfunc
 
+" Note: Where the options you chose to KEEP are written.
+"
+" Note: Under "GrooVim/" and not under "plugin/", where it used to live: Vim
+" sources everything in "~/.vim/plugin" by itself, so the file was being run by
+" the Vim of the system too. GrooVim is reached through the "groovim" command,
+" and what it saves has to stay on its side of that line! By Questor
+let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", expand("~/.vim/GrooVim/opts.vim"))
+
 " Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
 let g:optsTemp = []
 func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
@@ -2125,8 +2133,11 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 
   else
 
-    if filereadable(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
-      let l:CoolAndVimOptsArrayOriginal = readfile(expand('~/.vim/plugin/CoolAndVimOpts.vim'))
+    " Note: Starts empty. Without this, a first save -- with the file not there
+    " yet -- died on the "for" below with an "E121"! By Questor
+    let l:CoolAndVimOptsArrayOriginal = []
+    if filereadable(g:GrooVim_OptsFile)
+      let l:CoolAndVimOptsArrayOriginal = readfile(g:GrooVim_OptsFile)
     endif
 
     let l:CoolAndVimOptsArrayUpdated = []
@@ -2134,17 +2145,23 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
       if l:value =~ a:valueToSearch
         call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
         let l:thisOptionDoesNotExistInTheConfiguration = 0
-        exec a:valueToSearch . a:valueToReplace
+        " Note: Just the new value. Gluing the search in front of it produced
+        " "let g:x =let g:x = 1", which is an "E121" every time! By Questor
+        exec a:valueToReplace
       else
         call add(l:CoolAndVimOptsArrayUpdated, l:value)
       endif
     endfor
 
     if l:thisOptionDoesNotExistInTheConfiguration == 1
-      call add(l:CoolAndVimOptsArrayUpdated, l:value)
+      " Note: The option that was ASKED for, and not "l:value", which is whatever
+      " the loop above happened to stop on -- an option that was not in the file
+      " yet ended up duplicating the last line instead of being added! By Questor
+      call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
     endif
 
-    call writefile(l:CoolAndVimOptsArrayUpdated, expand('~/.vim/plugin/CoolAndVimOpts.vim'))
+    call mkdir(fnamemodify(g:GrooVim_OptsFile, ":h"), "p")
+    call writefile(l:CoolAndVimOptsArrayUpdated, g:GrooVim_OptsFile)
 
   endif
 
@@ -4829,3 +4846,12 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 
+" Note: The options you chose to KEEP, read here at the END so that they win over
+" the defaults set above.
+"
+" Note: This used to happen by itself, because the file lived in "~/.vim/plugin"
+" and Vim sources everything there -- for the Vim of the system too. Out of that
+" directory it is GrooVim that reads it, and only GrooVim! By Questor
+if filereadable(g:GrooVim_OptsFile)
+  exec "source " . fnameescape(g:GrooVim_OptsFile)
+endif

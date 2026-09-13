@@ -262,13 +262,27 @@ Task List/Bugs List!
 How to install Vim!
 -----
 
-GrooVim needs **Vim 9.0 or newer**. That is not a preference, it is what the
-code calls: the indent guides use `leadmultispace`, which arrived in Vim 9.0,
-and the cursor that changes colour with the mode uses `ModeChanged` and
-`echoraw`, from 8.2. Each of those is asked for before being used, so an older
-Vim still loads GrooVim -- it simply goes without them.
+**The recommended way is a Vim of its own**, built by `install-vim.sh` and
+reached by the `groovim` command:
 
-The Vim of your distribution usually serves:
+```
+./install-vim.sh
+groovim file.txt
+```
+
+That is one command, it does not touch the Vim of your system, and it removes
+every question about what your distribution happened to build. [How it
+works](#ownVim).
+
+### If you would rather use the Vim of your system
+
+You can, and then the version matters. GrooVim needs **Vim 9.0 or newer**: the
+indent guides use `leadmultispace`, which arrived in 9.0, and the cursor that
+changes colour with the mode uses `ModeChanged` and `echoraw`, from 8.2. Each
+of those is asked for before being used, so an older Vim still loads GrooVim --
+it simply goes without them.
+
+What your distribution ships:
 
 [Arch/Manjaro/CachyOS]
 ```
@@ -311,20 +325,29 @@ You can see which one is in use from inside Vim with:
 <a name="ownVim"></a>
 ### A Vim of its own
 
-When the Vim you have falls short, `instalar-vim.sh` builds one for GrooVim
-alone and writes a `groovim` command that runs it. The Vim of your system is
-not touched: `vim` goes on being yours.
+`install-vim.sh` builds a Vim for GrooVim alone and writes a `groovim` command
+that runs it. This is the recommended way.
+
+The two do not mix:
+
+| you type | you get |
+|---|---|
+| `groovim` | the Vim of GrooVim, with the `.vimrc` of GrooVim |
+| `vim` | the Vim of your system, with your own configuration |
+
+Nothing is installed over your `vim`, and GrooVim does not write into your
+`~/.vimrc`.
 
 First, ask whether you need it at all:
 
 ```
-./instalar-vim.sh --check
+./install-vim.sh --check
 ```
 
 It reads your Vim and says what is missing, if anything. To build:
 
 ```
-./instalar-vim.sh
+./install-vim.sh
 ```
 
 It installs the build dependencies of your distribution (Arch, Debian, Fedora,
@@ -348,7 +371,7 @@ script:
 | Vim of the distribution | `groovim` (the fallback above) | 0 |
 | Vim built by the script | `wayland` | 1 |
 
-`./instalar-vim.sh --help` lists where to put things, which `.vimrc` the
+`./install-vim.sh --help` lists where to put things, which `.vimrc` the
 command should run, and how to build a specific version.
 
 **Pasting from another application.** OSC 52 carries a copy *out* through the
