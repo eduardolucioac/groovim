@@ -287,9 +287,22 @@ set nocompatible
 " it. Now each one has its own plugins, and neither sees the other's.
 "
 " Note: The shape of the path is the one Vim builds by itself, with "~/.vim"
-" swapped for ours. Point "g:GrooVim_Home" somewhere else to move everything at
-" once! By Questor
-let g:GrooVim_Home = get(g:, "GrooVim_Home", expand("~/.groovim"))
+" swapped for ours.
+"
+" Note: To keep it somewhere else, set "GROOVIM_HOME" in the environment:
+"
+"     GROOVIM_HOME=/opt/groovim-do-trabalho groovim file.txt
+"
+" and everything moves at once -- plugins, saved options, undo history, the
+" clipboard file and the "viminfo". Two of those, side by side, are two GrooVim
+" that know nothing of each other.
+"
+" Note: The environment and not only "g:GrooVim_Home", because with "-u" there is
+" no file of yours running before this one: overriding the variable would mean
+" typing "--cmd" on every call. It is the same shape as "GROOVIM_VIM" and
+" "GROOVIM_VIMRC", which the "groovim" command already reads! By Questor
+let g:GrooVim_Home = get(g:, "GrooVim_Home",
+ \ $GROOVIM_HOME != "" ? expand($GROOVIM_HOME) : expand("~/.groovim"))
 
 if !isdirectory(g:GrooVim_Home)
   call mkdir(g:GrooVim_Home, "p")

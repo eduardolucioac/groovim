@@ -352,7 +352,16 @@ installed it.
 | plugins | `~/.vim` | `~/.groovim` |
 | `viminfo` | `~/.viminfo` | `~/.groovim/viminfo` |
 
-Set `g:GrooVim_Home` to move that directory somewhere else.
+That directory is not fixed. `GROOVIM_HOME` moves all of it at once:
+
+```
+GROOVIM_HOME=~/.groovim-work groovim file.txt
+```
+
+Plugins, saved options, undo history, the clipboard file and the `viminfo` all
+follow. Two of those, side by side, are two GrooVim that know nothing of each
+other -- one for work and one for home, with different plugins, on the same
+machine.
 
 First, ask whether you need it at all:
 
