@@ -35,7 +35,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with tabs;
  * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
  * The GrooVim was designed to work with the best plugins;
- * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `~/.vim/pack/*/start` by themselves. __Pathogen__ is still recognized if you already use it, but it is not required;
+ * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `pack/*/start` by themselves. GrooVim looks in `~/.groovim`, a directory of its own, so its plugins are not the plugins of the Vim of your system. __Pathogen__ is still recognized if you already use it, but it is not required;
  * GrooVim detects which plugins are installed and enables the mapping of each one by itself. Nothing that is missing causes an error, so the script works alone. You can still force any of them with "let g:enable_tcomment_vim = 0/1", or ignore all at once with "let g:enable_all_plugins = 0". Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
  * The debug plugin support ("F4" and then "d") is disabled by default ("let g:enable_debugger_vim = 0") because no debug plugin is installed by the instructions below;
 
@@ -338,6 +338,22 @@ The two do not mix:
 Nothing is installed over your `vim`, and GrooVim does not write into your
 `~/.vimrc`.
 
+The separation goes all the way down. GrooVim keeps its own directory,
+`~/.groovim`, and that is where its plugins, its saved options, its undo
+history and its `viminfo` live. Leaving `~/.vim` in the runtime path would have
+undone half of it: the plugins of GrooVim would be loaded by the Vim of your
+system as well -- plain `vim` opening with NERDTree because GrooVim had
+installed it.
+
+| | `vim` | `groovim` |
+|---|---|---|
+| binary | the one of your distribution | `~/.local/share/groovim/bin/vim` |
+| configuration | your `~/.vimrc` | the `.vimrc` of GrooVim |
+| plugins | `~/.vim` | `~/.groovim` |
+| `viminfo` | `~/.viminfo` | `~/.groovim/viminfo` |
+
+Set `g:GrooVim_Home` to move that directory somewhere else.
+
 First, ask whether you need it at all:
 
 ```
@@ -420,12 +436,12 @@ quiet, exactly as the "all in one" objective promises.
 
 - **Optional:** the plugins that GrooVim knows how to drive.
 
-Vim 8 and later load anything under `~/.vim/pack/*/start` on their own, so
+Vim 8 and later load anything under `pack/*/start` on their own, so
 there is no plugin manager involved here either:
 
 ```
-mkdir -p ~/.vim/pack/groovim/start
-cd ~/.vim/pack/groovim/start
+mkdir -p ~/.groovim/pack/groovim/start
+cd ~/.groovim/pack/groovim/start
 git clone https://github.com/preservim/nerdtree.git nerdtree
 git clone https://github.com/tomtom/tcomment_vim.git tcomment_vim
 git clone https://github.com/matze/vim-move.git vim-move
@@ -440,7 +456,7 @@ let g:enable_all_plugins = 0    " ignore every plugin at once
 ```
 
 **Note:** If you already use **Pathogen** and keep your plugins in
-`~/.vim/bundle`, that keeps working: GrooVim looks in both places and calls
+`~/.groovim/bundle`, that keeps working: GrooVim looks in both places and calls
 Pathogen only when it is actually installed.
 
 Contact

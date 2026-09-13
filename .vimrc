@@ -277,11 +277,40 @@ let g:grooVimVersion = "v2.0.8b"
 " first, because it changes other options as a side effect! By Questor
 set nocompatible
 
+" Note: GrooVim keeps a directory of its own, and does NOT share the one of the
+" Vim of your system.
+"
+" Note: Reached through the "groovim" command, GrooVim has its own Vim and its
+" own ".vimrc". Leaving "~/.vim" in the runtime path undid half of that: the
+" plugins of GrooVim were being loaded by the Vim of the system as well --
+" measured, plain "vim" was opening with NERDTree because GrooVim had installed
+" it. Now each one has its own plugins, and neither sees the other's.
+"
+" Note: The shape of the path is the one Vim builds by itself, with "~/.vim"
+" swapped for ours. Point "g:GrooVim_Home" somewhere else to move everything at
+" once! By Questor
+let g:GrooVim_Home = get(g:, "GrooVim_Home", expand("~/.groovim"))
+
+if !isdirectory(g:GrooVim_Home)
+  call mkdir(g:GrooVim_Home, "p")
+endif
+
+let &runtimepath = g:GrooVim_Home . "," . $VIM . "/vimfiles," . $VIMRUNTIME .
+ \ "," . $VIM . "/vimfiles/after," . g:GrooVim_Home . "/after"
+let &packpath = &runtimepath
+
+" Note: And a "viminfo" of its own, so the marks, the registers and the history
+" of one do not land on the other! By Questor
+if exists("+viminfofile")
+  let &viminfofile = g:GrooVim_Home . "/viminfo"
+endif
+
 " Note: Force reloading *after* the plugins loaded! Trying avoid override! By Questor
 filetype plugin indent on
 
-" Note: Vim 8 and later load everything under "~/.vim/pack/*/start" on their
-" own, so NO plugin manager is needed. Pathogen is still honoured for whoever
+" Note: Vim 8 and later load everything under "pack/*/start" on their own, so NO
+" plugin manager is needed. For GrooVim that is "~/.groovim/pack/*/start", set
+" above: its plugins are its own, and not the ones of the Vim of your system. Pathogen is still honoured for whoever
 " already uses it, but it is not required anymore: this used to be an
 " unconditional call that raised "E117" twice on a machine without Pathogen,
 " which broke the "all in one" objective of GrooVim. Note that "exists()" does
@@ -395,7 +424,7 @@ let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
 " is your call and your responsibility. Note as well that on a headless server
 " there is no compositor for "wl-copy" to talk to: there the answer is OSC 52,
 " which already crosses SSH by itself! By Questor
-let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", expand("~/.vim/GrooVim/bin"))
+let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", g:GrooVim_Home . "/bin")
 
 " Note: The first tool that is actually there wins, and a hand placed one comes
 " before the one from "$PATH"! By Questor
@@ -559,7 +588,7 @@ endif
 
 " Note: Where the file based "transfer area" lives. The directory is created
 " with 0700 because a clipboard tends to carry private things! By Questor
-let g:GrooVim_ClipFile = expand("~/.vim/GrooVim/clipboard")
+let g:GrooVim_ClipFile = g:GrooVim_Home . "/clipboard"
 
 " Note: Which register answers as clipboard RIGHT NOW. This is not decided once
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
@@ -866,7 +895,7 @@ autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
 " of installing are recognized! By Questor
 func! GrooVim_HasPlugin(name)
   for l:place in ["pack/*/start/", "pack/*/opt/", "bundle/"]
-    if !empty(glob(expand("~/.vim/") . l:place . a:name, 0, 1))
+    if !empty(glob(g:GrooVim_Home . "/" . l:place . a:name, 0, 1))
       return 1
     endif
   endfor
@@ -2101,7 +2130,7 @@ endfunc
 " sources everything in "~/.vim/plugin" by itself, so the file was being run by
 " the Vim of the system too. GrooVim is reached through the "groovim" command,
 " and what it saves has to stay on its side of that line! By Questor
-let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", expand("~/.vim/GrooVim/opts.vim"))
+let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim")
 
 " Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
 let g:optsTemp = []
@@ -4508,7 +4537,7 @@ endif
 " Note: The directory must exist, otherwise "undofile" silently fails to write
 " the undo history! By Questor
 try
-  let g:GrooVim_UndoDir = expand("~/.vim/Temp/Undodir")
+  let g:GrooVim_UndoDir = g:GrooVim_Home . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)
     call mkdir(g:GrooVim_UndoDir, "p", 0700)
   endif
@@ -4534,7 +4563,7 @@ endtry
 "* NERDTree
 
 " Note: Store the bookmarks file! By Questor
-let NERDTreeBookmarksFile = expand("$HOME/.vim/NERDTreeBookmarks")
+let NERDTreeBookmarksFile = g:GrooVim_Home . "/NERDTreeBookmarks"
 
 " Note: Show the bookmarks table on startup! By Questor
 let NERDTreeShowBookmarks = 1
@@ -4668,7 +4697,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
-\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.vim/pack/*/start| by themselves. *Pathogen* is recognized if you already use it, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
+\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves. *Pathogen* is recognized if you already use it, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
 \"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
 \"\n".
 \"\n * The GrooVim solves the following \"problems\"!!~".
@@ -4741,7 +4770,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  |1.| The native clipboard, when your Vim was built with a working |+clipboard| ;".
 \"\n*o*  |2.| A clipboard TOOL (*wl-copy* / *wl-paste* , *xclip* or *xsel* ), used only if one is already there;".
 \"\n*o*  |3.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no X11, no Wayland and no desktop, and it crosses SSH, so a copy made on a remote server lands on the clipboard of the machine you are sitting at. Vim ships this one, there is nothing to install;".
-\"\n*o*  |4.| A file in|~/.vim/GrooVim/clipboard| , which always works and also lets two Vim instances share a copy;".
+\"\n*o*  |4.| A file in|~/.groovim/clipboard| , which always works and also lets two Vim instances share a copy;".
 \"\n".
 \"\n To see which one is in use:|:echo|v:clipmethod| and|:echo|GrooVim_ClipReg()| .".
 \"\n".
@@ -4752,7 +4781,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n      |-|Wayland:|sudo|pacman|-S|wl-clipboard| or|sudo|apt|install|wl-clipboard| ;".
 \"\n      |-|X11:|sudo|pacman|-S|xclip| or|sudo|apt|install|xclip| ;".
 \"\n".
-\"\n GrooVim looks for the tool inside|~/.vim/GrooVim/bin| first (see|g:GrooVim_ClipBinDir| ) and then in your|$PATH| . That first directory is there so you can drop a tool BY HAND on a machine where you cannot use the package manager.".
+\"\n GrooVim looks for the tool inside|~/.groovim/bin| first (see|g:GrooVim_ClipBinDir| ) and then in your|$PATH| . That first directory is there so you can drop a tool BY HAND on a machine where you cannot use the package manager.".
 \"\n".
 \"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is not portable: it is built for one architecture, it is linked against one libc, and|wl-copy|also needs libwayland-client at run time. And on a headless server there is no compositor for it to talk to anyway, which is exactly the case OSC 52 already covers by itself.".
 \"\n".
