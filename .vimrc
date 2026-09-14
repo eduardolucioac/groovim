@@ -3596,6 +3596,67 @@ nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
 inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
 vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
 
+" Note: The session: which files were open, in which tabs, with which layout.
+"
+" Note: Saved by itself when you leave and brought back when you open GrooVim
+" with no file, the way Notepad++ does. Turn it off to do it by hand instead,
+" with "F5" and then "[" and "]".
+"
+" Note: What it does NOT carry is unsaved text: ":mksession" writes down which
+" files were open, not what you had typed into them. So closing with something
+" unsaved still asks, session or no session! By Questor
+let g:GrooVim_SessionAuto = get(g:, "GrooVim_SessionAuto", 1)
+let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_Home . "/session.vim")
+
+" Note: "options" and "folds" are left OUT on purpose: they would bring back the
+" settings of the day the session was saved, overriding the ones GrooVim has just
+" set, and folds of files that may have changed since! By Questor
+set sessionoptions=buffers,curdir,tabpages,winsize,winpos,resize
+
+func! GrooVim_SessionSave()
+  call mkdir(fnamemodify(g:GrooVim_SessionFile, ":h"), "p")
+  exec "mksession! " . fnameescape(g:GrooVim_SessionFile)
+endfunc
+
+func! GrooVim_SessionLoad()
+  if filereadable(g:GrooVim_SessionFile)
+    exec "source " . fnameescape(g:GrooVim_SessionFile)
+  endif
+endfunc
+
+" Note: Only with no file on the command line. Opening "groovim file.txt" means
+" you want THAT file, not everything you had open last time! By Questor
+augroup GrooVim_Session
+  autocmd!
+  autocmd VimLeavePre * if g:GrooVim_SessionAuto == 1 | call GrooVim_SessionSave() | endif
+  autocmd VimEnter * if g:GrooVim_SessionAuto == 1 && argc() == 0 |
+        \ call GrooVim_SessionLoad() | endif
+augroup END
+
+" Note: By hand only when it is not automatic. With the session saving itself,
+" saving it again by hand would be a command that does nothing you can see -- so
+" it says so instead of pretending! By Questor
+func! GrooVim_SessionSaveByHand()
+  if g:GrooVim_SessionAuto == 1
+    call GrooVim_GrooVimBarMsg("The session already saves itself! Turn it off with \"F5\" and then \"c\"!", 6)
+    return
+  endif
+  call GrooVim_SessionSave()
+  call GrooVim_GrooVimBarMsg("Session saved!", 5)
+endfunc
+
+func! GrooVim_SessionLoadByHand()
+  if g:GrooVim_SessionAuto == 1
+    call GrooVim_GrooVimBarMsg("The session comes back by itself! Turn it off with \"F5\" and then \"c\"!", 6)
+    return
+  endif
+  if !filereadable(g:GrooVim_SessionFile)
+    call GrooVim_GrooVimBarMsg("There is no saved session yet! Save one with \"F5\" and then \"[\"!", 6)
+    return
+  endif
+  call GrooVim_SessionLoad()
+endfunc
+
 " Note: Closing, asking about what would be lost.
 "
 " Note: ":confirm" is what turns the refusal of Vim -- "E37: No write since last
@@ -3729,9 +3790,9 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: Control commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: Used keys for F3: n c o v r / f d h j t p y [ ]! By Questor
-      " Note: Saving moved to "F5" and then "s", with the other file commands! By
-      " Questor
+      " Note: Used keys for F3: n c o v r / f d h j t p y! By Questor
+      " Note: Saving moved to "F5" and then "s", and the session to "F5" with "["
+      " and "]", with the other file commands! By Questor
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
@@ -3808,15 +3869,6 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "106"
         call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
       endif
-      " Note: Save session ([)! By Questor
-      if g:GrooVim_CommandZChar == "91"
-        exec "mksession! ~/vim_session"
-        echomsg "Session saved!"
-      endif
-      " Note: Reload session (])! By Questor
-      if g:GrooVim_CommandZChar == "93"
-        exec "source ~/vim_session"
-      endif
       " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
       if g:GrooVim_CommandZChar == "112"
         call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])
@@ -3857,7 +3909,15 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
-      " Note: Used keys for F5: q s a w! By Questor
+      " Note: Used keys for F5: q s a w [ ]! By Questor
+      " Note: Save the session by hand ([)! By Questor
+      if g:GrooVim_CommandZChar == "91"
+        call GrooVim_SessionSaveByHand()
+      endif
+      " Note: Bring the session back by hand (])! By Questor
+      if g:GrooVim_CommandZChar == "93"
+        call GrooVim_SessionLoadByHand()
+      endif
       " Note: Close, asking about anything unsaved (q)! By Questor
       if g:GrooVim_CommandZChar == "113"
         call GrooVim_CloseAsking("q")
