@@ -3664,10 +3664,17 @@ vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
 let g:GrooVim_SessionAuto = get(g:, "GrooVim_SessionAuto", 1)
 let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_Home . "/session.vim")
 
-" Note: "options" and "folds" are left OUT on purpose: they would bring back the
-" settings of the day the session was saved, overriding the ones GrooVim has just
-" set, and folds of files that may have changed since! By Questor
-set sessionoptions=buffers,curdir,tabpages,winsize,winpos,resize
+" Note: What the session carries, and what it deliberately does NOT.
+"
+" Note: Out go "options" and "folds": they would bring back the settings of the
+" day the session was saved, over the ones GrooVim has just set, and folds of
+" files that may have changed since.
+"
+" Note: Out go "winsize", "winpos" and "resize" as well. They write a "set
+" lines=24 columns=80" into the session and FORCE it back on the next start --
+" measured, and it is why the editor opened not fitting the terminal. In a
+" terminal the size belongs to the terminal! By Questor
+set sessionoptions=buffers,curdir,tabpages
 
 func! GrooVim_SessionSave()
   call mkdir(fnamemodify(g:GrooVim_SessionFile, ":h"), "p")
