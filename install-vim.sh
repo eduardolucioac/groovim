@@ -35,7 +35,7 @@ ONLY_CHECK=0
 VIM_TO_CHECK="vim"
 JOBS="$(nproc 2>/dev/null || echo 2)"
 
-AQUI="$(cd "$(dirname "$0")" && pwd)"
+HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # What GrooVim needs from the Vim it runs on. Measured, not guessed: each line
 # is a feature some part of GrooVim calls, with the release that brought it.
@@ -43,28 +43,28 @@ readonly MINIMUM_VERSION=900   # "leadmultispace", used by the indent guides
 
 # ------------------------------------------------------------------ output ---
 
-azul()    { printf '\033[1;34m%s\033[0m\n' "$*"; }
-verde()   { printf '\033[1;32m%s\033[0m\n' "$*"; }
-amarelo() { printf '\033[1;33m%s\033[0m\n' "$*"; }
-vermelho(){ printf '\033[1;31m%s\033[0m\n' "$*" >&2; }
-passo()   { printf '\n\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
+blue()   { printf '\033[1;34m%s\033[0m\n' "$*"; }
+green()  { printf '\033[1;32m%s\033[0m\n' "$*"; }
+yellow() { printf '\033[1;33m%s\033[0m\n' "$*"; }
+red()    { printf '\033[1;31m%s\033[0m\n' "$*" >&2; }
+step()   { printf '\n\033[1;34m==>\033[0m \033[1m%s\033[0m\n' "$*"; }
 
-morre() { vermelho "$*"; exit 1; }
+die() { red "$*"; exit 1; }
 
-pergunta() {
-  # pergunta "texto" -> 0 quando sim
+ask() {
+  # ask "text" -> 0 when yes
   [ "$ASSUME_YES" -eq 1 ] && return 0
-  local resposta
-  printf '%s [s/N] ' "$1"
-  read -r resposta </dev/tty || return 1
-  [[ "$resposta" =~ ^[sSyY]$ ]]
+  local answer
+  printf '%s [y/N] ' "$1"
+  read -r answer </dev/tty || return 1
+  [[ "$answer" =~ ^[yY]$ ]]
 }
 
-ajuda() {
+usage() {
   # The block of comment at the top, and only it: reading up to a fixed line
   # number leaked code into the help the moment the header grew.
   awk 'NR>2 && /^#/ {sub(/^# ?/, ""); print; next} NR>2 {exit}' "$0"
-  cat <<'FIM'
+  cat <<'END'
 
 Options:
   --check [VIM]      only says whether a Vim serves, builds nothing. Without an
@@ -80,7 +80,7 @@ Options:
 
 Environment: GROOVIM_PREFIX, GROOVIM_BINDIR, GROOVIM_SOURCE do the same as the
 options of the same name.
-FIM
+END
 }
 
 # ----------------------------------------------------------------- options ---
@@ -102,31 +102,31 @@ while [ $# -gt 0 ]; do
     --jobs)      JOBS="${2:?--jobs needs a number}"; shift ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
-    --help|-h)   ajuda; exit 0 ;;
-    *)           morre "I do not know the option \"$1\". Try --help." ;;
+    --help|-h)   usage; exit 0 ;;
+    *)           die "I do not know the option \"$1\". Try --help." ;;
   esac
   shift
 done
 
-[ -n "$VIMRC" ] || VIMRC="$AQUI/.vimrc"
+[ -n "$VIMRC" ] || VIMRC="$HERE/.vimrc"
 
 # ------------------------------------------------------- what a Vim is worth ---
 
 # The first line of "vim --version", without a pipe that can kill Vim with
 # SIGPIPE on the way.
-primeira_linha_da_versao() {
+version_first_line() {
   "$1" --version 2>/dev/null | sed -n '1p'
 }
 
 # Every "+feature"/"-feature" of a Vim, one per line.
-features_do_vim() {
+vim_features() {
   "$1" --version 2>/dev/null | tr ' ' '\n' | grep -E '^[+-][a-z_0-9]+$' || true
 }
 
 # Prints what is missing for GrooVim, one per line. Silence means it serves.
-falta_para_groovim() {
+missing_for_groovim() {
   local vim_bin="$1"
-  local versao feature
+  local version feature
 
   if ! "$vim_bin" --version >/dev/null 2>&1; then
     echo "it does not even run"
@@ -135,17 +135,17 @@ falta_para_groovim() {
 
   # 900 is Vim 9.0. "v:versionlong" would be finer, but this is enough and
   # works on the old ones we are refusing anyway.
-  versao="$(primeira_linha_da_versao "$vim_bin" | grep -oE '[0-9]+\.[0-9]+' | sed -n '1p' | tr -d '.')"
-  versao="${versao:-0}"
-  [ "${#versao}" -eq 2 ] && versao="${versao}0"
-  if [ "$versao" -lt "$MINIMUM_VERSION" ]; then
-    echo "Vim $versao, and GrooVim asks for $MINIMUM_VERSION or newer (the indent guides use \"leadmultispace\")"
+  version="$(version_first_line "$vim_bin" | grep -oE '[0-9]+\.[0-9]+' | sed -n '1p' | tr -d '.')"
+  version="${version:-0}"
+  [ "${#version}" -eq 2 ] && version="${version}0"
+  if [ "$version" -lt "$MINIMUM_VERSION" ]; then
+    echo "Vim $version, and GrooVim asks for $MINIMUM_VERSION or newer (the indent guides use \"leadmultispace\")"
   fi
 
-  local todas
-  todas="$(features_do_vim "$vim_bin")"
+  local every_one
+  every_one="$(vim_features "$vim_bin")"
   for feature in clipboard popupwin terminal; do
-    if printf '%s\n' "$todas" | grep -qx -- "-$feature"; then
+    if printf '%s\n' "$every_one" | grep -qx -- "-$feature"; then
       case "$feature" in
         clipboard) echo "-clipboard: copying to the system clipboard depends on workarounds" ;;
         popupwin)  echo "-popupwin: no native menus" ;;
@@ -155,26 +155,26 @@ falta_para_groovim() {
   done
 }
 
-verifica_e_conta() {
+check_and_report() {
   local vim_bin="${1:-vim}"
-  local faltas
+  local missing
 
-  passo "Looking at $vim_bin"
+  step "Looking at $vim_bin"
   if ! command -v "$vim_bin" >/dev/null 2>&1 && [ ! -x "$vim_bin" ]; then
-    amarelo "  there is no $vim_bin here"
+    yellow "  there is no $vim_bin here"
     return 1
   fi
 
-  primeira_linha_da_versao "$vim_bin" | sed 's/^/  /'
-  faltas="$(falta_para_groovim "$vim_bin")"
+  version_first_line "$vim_bin" | sed 's/^/  /'
+  missing="$(missing_for_groovim "$vim_bin")"
 
-  if [ -z "$faltas" ]; then
-    verde "  it serves GrooVim as it is"
+  if [ -z "$missing" ]; then
+    green "  it serves GrooVim as it is"
     return 0
   fi
 
-  amarelo "  it falls short:"
-  printf '%s\n' "$faltas" | sed 's/^/    - /'
+  yellow "  it falls short:"
+  printf '%s\n' "$missing" | sed 's/^/    - /'
   return 1
 }
 
@@ -182,7 +182,7 @@ verifica_e_conta() {
 
 # The build dependencies of Vim, by family. Only the families are listed:
 # derivatives arrive here through ID_LIKE.
-dependencias_da_distro() {
+distro_dependencies() {
   local id like
   id="$(. /etc/os-release 2>/dev/null && echo "${ID:-}")"
   like="$(. /etc/os-release 2>/dev/null && echo "${ID_LIKE:-}")"
@@ -207,54 +207,54 @@ dependencias_da_distro() {
   esac
 }
 
-instala_dependencias() {
-  local receita gerenciador comando pacotes
+install_dependencies() {
+  local recipe manager command packages
 
-  passo "Build dependencies"
+  step "Build dependencies"
 
   if [ "$SKIP_DEPS" -eq 1 ]; then
-    amarelo "  skipped by --no-deps"
+    yellow "  skipped by --no-deps"
     return 0
   fi
 
-  receita="$(dependencias_da_distro)"
-  if [ -z "$receita" ]; then
-    amarelo "  I do not know this distribution. Install by hand:"
+  recipe="$(distro_dependencies)"
+  if [ -z "$recipe" ]; then
+    yellow "  I do not know this distribution. Install by hand:"
     echo "    a C compiler, make, git, and the development headers of"
     echo "    ncurses, libX11, libXt and python3"
-    pergunta "  Go on anyway?" || exit 1
+    ask "  Go on anyway?" || exit 1
     return 0
   fi
 
-  gerenciador="${receita%%|*}"
-  comando="$(echo "$receita" | cut -d'|' -f2)"
-  pacotes="${receita##*|}"
+  manager="${recipe%%|*}"
+  command="$(echo "$recipe" | cut -d'|' -f2)"
+  packages="${recipe##*|}"
 
-  echo "  distribution of the $gerenciador family"
-  echo "  $comando $pacotes"
-  if ! pergunta "  Run it? (it asks for your password)"; then
-    amarelo "  not installing. If the build fails, this is the first place to look."
+  echo "  distribution of the $manager family"
+  echo "  $command $packages"
+  if ! ask "  Run it? (it asks for your password)"; then
+    yellow "  not installing. If the build fails, this is the first place to look."
     return 0
   fi
   # shellcheck disable=SC2086
-  $comando $pacotes
+  $command $packages
 }
 
 # ------------------------------------------------------------------ build ---
 
-ultima_versao() {
+latest_version() {
   git ls-remote --tags --refs https://github.com/vim/vim.git \
     | awk -F/ '{print $NF}' | grep -E '^v?9\.[0-9]+\.[0-9]+$' \
     | sort -V | tail -1
 }
 
-baixa_fonte() {
-  passo "Vim source"
+fetch_source() {
+  step "Vim source"
 
   if [ -z "$VERSION" ]; then
     echo "  looking for the newest release..."
-    VERSION="$(ultima_versao)"
-    [ -n "$VERSION" ] || morre "I could not find the tags of Vim. Is there network?"
+    VERSION="$(latest_version)"
+    [ -n "$VERSION" ] || die "I could not find the tags of Vim. Is there network?"
   fi
   echo "  version $VERSION"
 
@@ -272,8 +272,8 @@ baixa_fonte() {
 # Only the flags this source actually offers. Asking "./configure --help" is
 # what keeps the script from ageing: a flag that is renamed upstream simply
 # stops being used, instead of breaking the build.
-flags_disponiveis() {
-  local ajuda_configure="$1"
+available_flags() {
+  local configure_help="$1"
   local flags=(
     --with-features=huge
     --enable-multibyte
@@ -281,8 +281,8 @@ flags_disponiveis() {
     --enable-cscope
     --enable-fail-if-missing
   )
-  local opcional
-  for opcional in \
+  local optional
+  for optional in \
       --enable-python3interp=dynamic \
       --enable-clipboard \
       --with-x \
@@ -290,23 +290,23 @@ flags_disponiveis() {
       --enable-wayland \
       --enable-waylandclipboard
   do
-    if grep -q -- "${opcional%%=*}" "$ajuda_configure"; then
-      flags+=("$opcional")
+    if grep -q -- "${optional%%=*}" "$configure_help"; then
+      flags+=("$optional")
     fi
   done
   printf '%s\n' "${flags[@]}"
 }
 
-compila() {
-  local ajuda_configure flags
+build_vim() {
+  local configure_help flags
 
-  passo "Building"
+  step "Building"
   cd "$SOURCE"
 
-  ajuda_configure="$(mktemp)"
-  ./configure --help > "$ajuda_configure" 2>&1 || true
-  mapfile -t flags < <(flags_disponiveis "$ajuda_configure")
-  rm -f "$ajuda_configure"
+  configure_help="$(mktemp)"
+  ./configure --help > "$configure_help" 2>&1 || true
+  mapfile -t flags < <(available_flags "$configure_help")
+  rm -f "$configure_help"
 
   echo "  prefix: $PREFIX"
   echo "  flags:"
@@ -322,13 +322,13 @@ compila() {
 
 # ---------------------------------------------------------------- wrapper ---
 
-escreve_groovim() {
-  local destino="$BINDIR/groovim"
+write_groovim() {
+  local target="$BINDIR/groovim"
 
-  passo "The \"groovim\" command"
+  step "The \"groovim\" command"
   mkdir -p "$BINDIR"
 
-  cat > "$destino" <<FIM
+  cat > "$target" <<END
 #!/usr/bin/env bash
 #
 # Runs the Vim of GrooVim, with the .vimrc of GrooVim. Written by
@@ -351,42 +351,42 @@ if [ ! -r "\$GROOVIM_VIMRC" ]; then
 fi
 
 exec "\$GROOVIM_VIM" -u "\$GROOVIM_VIMRC" "\$@"
-FIM
+END
 
-  chmod +x "$destino"
-  echo "  written to $destino"
+  chmod +x "$target"
+  echo "  written to $target"
   echo "  it runs: $PREFIX/bin/vim -u $VIMRC"
 }
 
 # ---------------------------------------------------------------- closing ---
 
-confere_o_resultado() {
+check_the_result() {
   local vim_bin="$PREFIX/bin/vim"
-  passo "What came out"
-  [ -x "$vim_bin" ] || morre "The build said it was fine but there is no $vim_bin."
-  primeira_linha_da_versao "$vim_bin" | sed 's/^/  /'
-  features_do_vim "$vim_bin" \
+  step "What came out"
+  [ -x "$vim_bin" ] || die "The build said it was fine but there is no $vim_bin."
+  version_first_line "$vim_bin" | sed 's/^/  /'
+  vim_features "$vim_bin" \
     | grep -E '^[+-](clipboard|xterm_clipboard|popupwin|terminal|python3|X11|wayland)$' \
     | sort -u | tr '\n' ' ' | sed 's/^/  /'
   echo
 
-  local faltas
-  faltas="$(falta_para_groovim "$vim_bin")"
-  if [ -z "$faltas" ]; then
-    verde "  it serves GrooVim"
+  local missing
+  missing="$(missing_for_groovim "$vim_bin")"
+  if [ -z "$missing" ]; then
+    green "  it serves GrooVim"
   else
-    amarelo "  it came out short:"
-    printf '%s\n' "$faltas" | sed 's/^/    - /'
+    yellow "  it came out short:"
+    printf '%s\n' "$missing" | sed 's/^/    - /'
     echo "    (the headers of the missing library were probably not there when it built)"
   fi
 }
 
-avisa_do_caminho() {
+warn_about_path() {
   case ":$PATH:" in
     *":$BINDIR:"*) return 0 ;;
   esac
-  passo "One more thing"
-  amarelo "  $BINDIR is not in your PATH."
+  step "One more thing"
+  yellow "  $BINDIR is not in your PATH."
   echo "  Add this to your ~/.bashrc (or the file of your shell):"
   echo
   echo "    export PATH=\"$BINDIR:\$PATH\""
@@ -394,32 +394,32 @@ avisa_do_caminho() {
 
 # ------------------------------------------------------------------- main ---
 
-azul "GrooVim -- a Vim of its own"
+blue "GrooVim -- a Vim of its own"
 
 if [ "$ONLY_CHECK" -eq 1 ]; then
-  if verifica_e_conta "$VIM_TO_CHECK"; then
+  if check_and_report "$VIM_TO_CHECK"; then
     echo
-    verde "You do not need to build anything."
+    green "You do not need to build anything."
   else
     echo
-    amarelo "Run this script with no options to build one that does serve."
+    yellow "Run this script with no options to build one that does serve."
   fi
   exit 0
 fi
 
-verifica_e_conta "vim" || true
+check_and_report "vim" || true
 
 echo
 echo "  Going to build Vim into $PREFIX"
 echo "  and write \"groovim\" into $BINDIR."
-pergunta "  Go on?" || { echo "  Nothing done."; exit 0; }
+ask "  Go on?" || { echo "  Nothing done."; exit 0; }
 
-instala_dependencias
-baixa_fonte
-compila
-escreve_groovim
-confere_o_resultado
-avisa_do_caminho
+install_dependencies
+fetch_source
+build_vim
+write_groovim
+check_the_result
+warn_about_path
 
-passo "Done"
-echo "  Use it with:  groovim arquivo.txt"
+step "Done"
+echo "  Use it with:  groovim file.txt"
