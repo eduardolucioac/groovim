@@ -108,6 +108,22 @@ func! GT_Body()
   call GT_Ok("and so does closing the tab you are in",
     \ execute("function GrooVim_CloseAsking") =~ 'confirm', "")
 
+  " ---- F5 w closes the tab you are in
+  tabonly!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  exec "tabnew " . g:GT_FIX . "/b.txt"
+  exec "tabnew " . g:GT_FIX . "/c.txt"
+  call GT_Ok("setup: three tabs, we are in the last",
+    \ GT_TabOrder() ==# ["a.txt", "b.txt", "c.txt"] && tabpagenr() == 3,
+    \ "   " . string(GT_TabOrder()) . " tab " . tabpagenr())
+  call feedkeys("\<F5>w", "x")
+  call GT_Ok("F5 and then w closed the tab we were in",
+    \ GT_TabOrder() ==# ["a.txt", "b.txt"], "   " . string(GT_TabOrder()))
+
+  " ---- and the letters that moved out of the way
+  call GT_Ok("F5 e is the one that saves every changed file",
+    \ execute("function GrooVim_CommandZ") =~ '"101"', "   (a is now close everything)")
+
   call GT_Done()
 endfunc
 

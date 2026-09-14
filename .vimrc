@@ -4048,7 +4048,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
-      " Note: Used keys for F5: q s a w o > < c [ ]! By Questor
+      " Note: Used keys for F5: s e q w o > < a c [ ]! By Questor
       " Note: The general settings (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
         call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
@@ -4073,12 +4073,16 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
           :w
         endif
       endif
-      " Note: Save every changed file (a)! By Questor
-      if g:GrooVim_CommandZChar == "97"
+      " Note: Save every changed file (e)! By Questor
+      if g:GrooVim_CommandZChar == "101"
         :wa
       endif
-      " Note: Close everything, asking about anything unsaved (w)! By Questor
+      " Note: Close the tab you are in, asking about anything unsaved (w)! By Questor
       if g:GrooVim_CommandZChar == "119"
+        call GrooVim_CloseAsking("tabclose")
+      endif
+      " Note: Close everything, asking about anything unsaved (a)! By Questor
+      if g:GrooVim_CommandZChar == "97"
         call GrooVim_CloseAsking("qa")
       endif
       " Note: Close all other tabs (o)! By Questor
@@ -5158,12 +5162,13 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n      Note: Preferably for what happens to the FILE and to what you have open;".
 \"\n        <s> - Save to disk (normal mode/insert/visual);".
 \"\n            Note: In visual mode it writes the SELECTION to a file of its own;".
-\"\n        <a> - Save every changed file (normal mode/insert/visual);".
-\"\n        <q> - Close, asking about anything unsaved (normal mode/insert/visual);".
-\"\n        <w> - Close everything, asking about anything unsaved (normal mode/insert/visual);".
+\"\n        <e> - Save every changed file (normal mode/insert/visual);".
+\"\n        <q> - Close the window (normal mode/insert/visual);".
+\"\n        <w> - Close the tab you are in (normal mode/insert/visual);".
 \"\n        <o> - Close all other tabs (normal mode/insert/visual);".
 \"\n       |<>>|- Close every tab to the RIGHT of this one (normal mode/insert/visual);".
 \"\n       |<<>|- Close every tab to the LEFT of this one (normal mode/insert/visual);".
+\"\n        <a> - Close everything and leave (normal mode/insert/visual);".
 \"\n            Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;".
 \"\n        <c> - Opens the general settings (normal mode/insert/visual);".
 \"\n       |<[>|- Saves the current session (normal mode/insert/visual);".

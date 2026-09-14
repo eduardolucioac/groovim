@@ -31,8 +31,8 @@ func! GT_Body()
   call setline(1, "the first one changed again")
   exec "tabnew " . other
   call setline(1, "the second one")
-  call feedkeys("\<F5>a", "x")
-  call GT_Ok("F5 + a wrote both", filereadable(other) &&
+  call feedkeys("\<F5>e", "x")
+  call GT_Ok("F5 + e wrote both", filereadable(other) &&
     \ readfile(file) ==# ["the first one changed again"] && readfile(other) ==# ["the second one"],
     \ "   " . string(readfile(file)) . " " . string(filereadable(other) ? readfile(other) : []))
   tabonly!
