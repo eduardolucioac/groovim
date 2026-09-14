@@ -1,8 +1,9 @@
-" Navegar pela lista: o Enter, e os links que apontam para lugares que mudaram.
+" Navigating from the list: the Enter, and links that point at places which have
+" changed since the search ran.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
-" ---- Enter leva para a aba, o arquivo e a linha certos
+" ---- Enter goes to the right tab, the right file and the right line
 exec "edit " . g:GT_FIX . "/a.txt"
 exec "tabnew " . g:GT_FIX . "/b.txt"
 sleep 60m
@@ -10,24 +11,24 @@ tabn 1
 call GT_BuildSearch("ALVO", 2, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,24",
   \ "0", "0", "0", "2," . g:GT_FIX . "/b.txt,4,22"])
 call GrooVim_SearchGuySync()
-call GT_Ok("a lista abriu na aba 1", GT_GoToList(), "   " . GT_Layout())
+call GT_Ok("the list opened on tab 1", GT_GoToList(), "   " . GT_Layout())
 call cursor(8, 1)
 call feedkeys("\<Enter>", "x")
-call GT_Ok("Enter foi para a aba certa", tabpagenr() == 2, "   (aba " . tabpagenr() . ")")
-call GT_Ok("Enter foi para o arquivo certo", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
-call GT_Ok("Enter foi para a linha certa", line(".") == 4, "   (linha " . line(".") . ")")
+call GT_Ok("Enter went to the right tab", tabpagenr() == 2, "   (tab " . tabpagenr() . ")")
+call GT_Ok("Enter went to the right file", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
+call GT_Ok("Enter went to the right line", line(".") == 4, "   (line " . line(".") . ")")
 
-" ---- a aba guardada nem existe mais
+" ---- the tab it remembers is not there any more
 tabonly! | exec "edit " . g:GT_FIX . "/a.txt"
 call GT_BuildSearch("ALVO", 1, ["0", "0", "0", "9," . g:GT_FIX . "/b.txt,2,1"])
 call GrooVim_SearchGuySync()
 call GT_GoToList()
 call cursor(4, 1)
 call GrooVim_SearchGuyNavigate()
-call GT_Ok("aba inexistente: abriu sem travar", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
-call GT_Ok("aba inexistente: linha certa", line(".") == 2, "   (linha " . line(".") . ")")
+call GT_Ok("tab gone: opened it again without hanging", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
+call GT_Ok("tab gone: right line", line(".") == 2, "   (line " . line(".") . ")")
 
-" ---- a aba existe, mas com outro arquivo
+" ---- the tab is there, but holding another file
 tabonly! | exec "edit " . g:GT_FIX . "/a.txt"
 exec "tabnew " . g:GT_FIX . "/c.txt"
 sleep 60m
@@ -37,31 +38,31 @@ call GrooVim_SearchGuySync()
 call GT_GoToList()
 call cursor(4, 1)
 call GrooVim_SearchGuyNavigate()
-call GT_Ok("aba com outro arquivo: abriu o certo", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
+call GT_Ok("tab holding another file: opened the right one", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
 
-" ---- o arquivo ja esta aberto em OUTRA aba: nao pode abrir de novo
+" ---- the file is already open in ANOTHER tab: it must not be opened again
 tabonly! | exec "edit " . g:GT_FIX . "/a.txt"
 exec "tabnew " . g:GT_FIX . "/c.txt"
 exec "tabnew " . g:GT_FIX . "/b.txt"
 sleep 60m
-let g:GT_ABAS = tabpagenr("$")
+let g:GT_TABS = tabpagenr("$")
 tabn 1
 call GT_BuildSearch("ALVO", 1, ["0", "0", "0", "2," . g:GT_FIX . "/b.txt,4,1"])
 call GrooVim_SearchGuySync()
 call GT_GoToList()
 call cursor(4, 1)
 call GrooVim_SearchGuyNavigate()
-call GT_Ok("achou o arquivo ja aberto", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
-call GT_Ok("nao abriu uma aba a mais", tabpagenr("$") == g:GT_ABAS, "   (abas " . tabpagenr("$") . ", antes " . g:GT_ABAS . ")")
+call GT_Ok("found the file that was already open", expand('%:t') ==# "b.txt", "   [" . expand('%:t') . "]")
+call GT_Ok("did not open one tab more", tabpagenr("$") == g:GT_TABS, "   (tabs " . tabpagenr("$") . ", before " . g:GT_TABS . ")")
 
-" ---- caminho com virgula: a entrada e lida pelas PONTAS
+" ---- a path with a comma: the entry is read from its ENDS
 tabonly! | exec "edit " . g:GT_FIX . "/a.txt"
 call GT_BuildSearch("achei", 1, ["0", "0", "0", "1," . g:GT_FIX . "/vir,gula.txt,2,1"])
 call GrooVim_SearchGuySync()
 call GT_GoToList()
 call cursor(4, 1)
 call GrooVim_SearchGuyNavigate()
-call GT_Ok("caminho com virgula: abriu o certo", expand('%:t') ==# "vir,gula.txt", "   [" . expand('%:t') . "]")
-call GT_Ok("caminho com virgula: linha certa", line(".") == 2, "   (linha " . line(".") . ")")
+call GT_Ok("path with a comma: opened the right one", expand('%:t') ==# "vir,gula.txt", "   [" . expand('%:t') . "]")
+call GT_Ok("path with a comma: right line", line(".") == 2, "   (line " . line(".") . ")")
 
 call GT_Done()
