@@ -1,34 +1,33 @@
 #!/bin/bash
-# Mostra a TELA que o Vim desenhou, reconstruida a partir do que ele mandou para
-# o terminal.
+# Shows the SCREEN Vim drew, rebuilt out of what it sent to the terminal.
 #
-#   ./screen.sh roteiro.vim [arquivo]
+#   ./screen.sh script.vim [file]
 #
-# O "roteiro.vim" agenda as teclas com timer_start e termina com ":qa!".
-# Exemplo:
+# The "script.vim" schedules the keys with timer_start and ends with ":qa!".
+# For example:
 #   call timer_start(400,  {-> feedkeys("\<F3>f", "t")})
-#   call timer_start(900,  {-> feedkeys("ALVO\<CR>", "t")})
+#   call timer_start(900,  {-> feedkeys("TARGET\<CR>", "t")})
 #   call timer_start(2400, {-> execute("qa!")})
 #
-# Para qualquer pergunta sobre LAYOUT -- onde o prompt caiu, se a barra mudou, o
-# que a aba mostra, se ha uma linha em branco sobrando -- esta e a ferramenta.
-# Inspecionar o estado por dentro (winnr, bufname) responde outra pergunta.
+# For any question about LAYOUT -- where the prompt landed, whether the bar
+# changed, what the tab shows, whether there is a blank line left over -- this is
+# the tool. Looking at the state from the inside (winnr, bufname) answers a
+# different question.
 
 cd "$(dirname "$0")" || exit 1
-ROTEIRO="$1"
-ARQUIVO="${2:-$PWD/fixtures/a.txt}"
+SCRIPT="$1"
+FILE="${2:-$PWD/fixtures/a.txt}"
 VIMRC="${VIMRC:-$PWD/../.vimrc}"
 
-if [ -z "$ROTEIRO" ]; then
-  echo "uso: ./screen.sh roteiro.vim [arquivo]"; exit 1
+if [ -z "$SCRIPT" ]; then
+  echo "usage: ./screen.sh script.vim [file]"; exit 1
 fi
 
-# Uma "casa" do GrooVim descartável, pelo mesmo motivo do run.sh: sem isso o
-# roteiro de tela grava a SUA sessão, com os arquivos temporários dele dentro.
+# A throwaway GrooVim "home", for the same reason as run.sh: without it the
+# screen script saves YOUR session, with its own temporary files inside.
 export GROOVIM_HOME="$(mktemp -d)"
-trap 'rm -rf "$GROOVIM_HOME"' EXIT
-
 LOG="$(mktemp)"
-trap 'rm -f "$LOG"' EXIT
-timeout 20 script -qc "vim -N -u '$VIMRC' -i NONE -n -S '$ROTEIRO' '$ARQUIVO'" /dev/null > "$LOG" 2>&1
+trap 'rm -rf "$GROOVIM_HOME"; rm -f "$LOG"' EXIT
+
+timeout 20 script -qc "vim -N -u '$VIMRC' -i NONE -n -S '$SCRIPT' '$FILE'" /dev/null > "$LOG" 2>&1
 python3 "$PWD/screen.py" "$LOG"
