@@ -32,13 +32,17 @@ rm -f "$BASE/results"/*.txt
 export GROOVIM_TEST_FIXTURES="$WORK"
 export GROOVIM_TEST_OUT="$BASE/results"
 
-# A throwaway GrooVim home, one per run.
+# A throwaway GrooVim home, one per CASE.
 #
 # Without it the cases contaminate each other: each opens Vim with NO file, which
-# is exactly when GrooVim brings the session back -- and it is the session of the
-# previous case, with tabs and buffers already there and wrong. Same trap as the
-# viminfo, by another road.
-export GROOVIM_HOME="$WORK/.groovim"
+# is exactly when GrooVim brings the session back -- and it would be the session
+# of the previous case, with tabs, buffers and CURSORS already there and wrong.
+# Same trap as the viminfo, by another road.
+#
+# One per run was not enough: it kept the cases out of the home of the user, but
+# not out of each other. Measured -- a case passed alone and failed in the
+# battery, because the tab the previous one left had the cursor on another line.
+GROOVIM_HOME_BASE="$WORK/.groovim"
 
 echo "vimrc: $VIMRC"
 echo "vim:   $("$VIM" --version | sed -n '1p')"
@@ -61,6 +65,7 @@ for CASE in "$BASE"/cases/[0-9]*.vim; do
   #
   # "-n" turns off the swap file, or an interrupted case leaves a .swp that
   # stops the next one at a recovery prompt.
+  export GROOVIM_HOME="$GROOVIM_HOME_BASE/$NAME"
   timeout "$TIMEOUT" script -qc "'$VIM' -N -u '$VIMRC' -i NONE -n -S '$CASE'" /dev/null >/dev/null 2>&1
   OUTPUT="$BASE/results/$NAME.txt"
 

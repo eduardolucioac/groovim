@@ -1,0 +1,89 @@
+" Undo and redo, and selecting the whole buffer.
+"
+" Vim undoes with "u" and redoes with "Ctrl-r". GrooVim keeps the redo where Vim
+" put it and moves the undo to "Ctrl-u", so the two sit next to each other and
+" work the same in normal, insert and visual -- which they do not in bare Vim.
+" "Ctrl-z" is deliberately dead: in a terminal it would suspend the editor.
+exec "source " . expand("<sfile>:p:h") . "/_common.vim"
+call GT_Name(expand("<sfile>:t:r"))
+
+func! GT_Body()
+  exec "edit " . g:GT_FIX . "/a.txt"
+  " The cursor, placed on purpose: "A" appends to the line it is ON, and an
+  " earlier case can leave it elsewhere through the session.
+  call cursor(1, 1)
+  let l:original = getline(1, "$")
+
+  " ---- Ctrl-z does nothing, on purpose
+  call GT_Ok("Ctrl-z is dead in normal", maparg("<C-z>", "n") ==# "<Nop>", "   [" . maparg("<C-z>", "n") . "]")
+  call GT_Ok("Ctrl-z is dead in insert", maparg("<C-z>", "i") ==# "<Nop>", "")
+  call GT_Ok("Ctrl-z is dead in visual", maparg("<C-z>", "v") ==# "<Nop>", "")
+  call GT_Ok("nothing was mapped to Ctrl-y", maparg("<C-y>", "n") ==# "",
+    \ "   (insert mode keeps the Ctrl-y of Vim: copy the character above)")
+
+  " ---- normal mode
+  call setline(1, "changed by hand")
+  call GT_Ok("setup: the line changed", getline(1) ==# "changed by hand", "")
+  call feedkeys("\<C-u>", "x")
+  call GT_Ok("normal: Ctrl-u undid it", getline(1, "$") ==# l:original, "   [" . getline(1) . "]")
+  call feedkeys("\<C-r>", "x")
+  call GT_Ok("normal: Ctrl-r brought it back", getline(1) ==# "changed by hand", "   [" . getline(1) . "]")
+  call feedkeys("\<C-u>", "x")
+
+  " ---- insert mode, where bare Vim does something else entirely
+  "
+  " The Ctrl-u of Vim in insert mode wipes what you typed on the line, and its
+  " Ctrl-r asks for a register. Both are remapped here.
+  call GT_Ok("insert: Ctrl-u is remapped", maparg("<C-u>", "i") =~ "GrooVim_InsertUndo",
+    \ "   [" . maparg("<C-u>", "i") . "]   (bare Vim would wipe the line)")
+  call GT_Ok("insert: Ctrl-r is remapped", maparg("<C-r>", "i") =~ "GrooVim_InsertRedo",
+    \ "   (bare Vim would ask for a register)")
+  call cursor(1, 1)
+  call feedkeys("A EXTRA\<Esc>", "x")
+  call GT_Ok("setup: typed at the end", getline(1) =~ "EXTRA$", "   [" . getline(1) . "]")
+  call feedkeys("i\<C-u>\<Esc>", "x")
+  call GT_Ok("insert: Ctrl-u undid the typing", getline(1, "$") ==# l:original, "   [" . getline(1) . "]")
+  call feedkeys("i\<C-r>\<Esc>", "x")
+  call GT_Ok("insert: Ctrl-r brought it back", getline(1) =~ "EXTRA$", "   [" . getline(1) . "]")
+  call feedkeys("i\<C-u>\<Esc>", "x")
+
+  " ---- visual mode
+  call GT_Ok("visual: Ctrl-u is remapped", maparg("<C-u>", "v") =~ "GrooVim_VisualUndo",
+    \ "   (bare Vim would scroll half a page)")
+  call GT_Ok("visual: Ctrl-r is remapped", maparg("<C-r>", "v") =~ "GrooVim_VisualRedo", "")
+  call setline(2, "changed again")
+  call feedkeys("v\<C-u>\<Esc>", "x")
+  call GT_Ok("visual: Ctrl-u undid it", getline(1, "$") ==# l:original, "   [" . getline(2) . "]")
+
+  " ---- the undo survives closing the file, because it is written to disk
+  call GT_Ok("undofile is on", &undofile == 1, "")
+  call GT_Ok("and it lives with GrooVim", &undodir =~ g:GrooVim_Home,
+    \ "   [" . &undodir . "]")
+
+  " ---- selecting the whole buffer: it moved from F2 to F3
+  "
+  " The "'<" and "'>" marks are only written when you LEAVE visual mode, so the
+  " "<Esc>" is part of the measurement, not tidying up.
+  exec "edit " . g:GT_FIX . "/b.txt"
+  call cursor(2, 3)
+  call feedkeys("\<F3>a\<Esc>", "x")
+  call GT_Ok("F3 and then a selected the whole buffer",
+    \ line("'<") == 1 && line("'>") == line("$"),
+    \ "   (from line " . line("'<") . " to " . line("'>") . " of " . line("$") . ")")
+  call GT_Ok("  and it is a LINE selection", visualmode() ==# "V", "   [" . visualmode() . "]")
+
+  " A small selection of its own, so what comes next cannot pass by accident.
+  call feedkeys("2GVj\<Esc>", "x")
+  call GT_Ok("setup: lines 2 to 3 selected", line("'<") == 2 && line("'>") == 3,
+    \ "   (from " . line("'<") . " to " . line("'>") . ")")
+  call feedkeys("\<F2>a\<Esc>", "x")
+  call GT_Ok("F2 and then a selects nothing any more",
+    \ line("'<") == 2 && line("'>") == 3,
+    \ "   (from " . line("'<") . " to " . line("'>") . ")   (it used to be the F2 key)")
+  call GT_Ok("  and it did not type an \"a\" into the file either",
+    \ getline(2) ==# "third occurrence of TARGET here", "   [" . getline(2) . "]")
+
+  call GT_Done()
+endfunc
+
+call GT_AfterStartup("GT_Body")

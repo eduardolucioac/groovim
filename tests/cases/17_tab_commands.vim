@@ -83,15 +83,15 @@ func! GT_Body()
   exec "tabnew " . g:GT_FIX . "/a.txt"
   exec "tabnew " . g:GT_FIX . "/b.txt"
   tabnext 1
-  call feedkeys("\<F5>>", "x")
-  call GT_Ok("F5 and then > closed to the right",
+  call feedkeys("\<F5>.", "x")
+  call GT_Ok("F5 and then . closed to the right",
     \ GT_TabOrder() ==# ["c.txt"], "   " . string(GT_TabOrder()))
 
   exec "tabnew " . g:GT_FIX . "/a.txt"
   exec "tabnew " . g:GT_FIX . "/b.txt"
   tablast
-  call feedkeys("\<F5><", "x")
-  call GT_Ok("F5 and then < closed to the left",
+  call feedkeys("\<F5>,", "x")
+  call GT_Ok("F5 and then , closed to the left",
     \ GT_TabOrder() ==# ["b.txt"], "   " . string(GT_TabOrder()))
 
   " ---- unsaved text is asked about, not refused

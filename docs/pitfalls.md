@@ -43,6 +43,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `15_apply_or_save` | the last question of the screens: just apply, or apply and save |
 | `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
 | `17_tab_commands` | carrying a tab along the tab line, and closing every tab on one side |
+| `18_undo_select` | undo and redo on Ctrl-u/Ctrl-r in the three modes, and selecting the whole buffer |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -94,10 +95,20 @@ consecutive runs. Use `GT_When('condition', "NextStep")`, which waits for the
 condition to become true before going on.
 
 **The automatic session contaminates the same way.** Every case opens Vim with no
-file, which is exactly when GrooVim brings the session back — and it is the
-session of the previous case, with tabs and buffers already there and wrong. The
-runner gives each run a throwaway `GROOVIM_HOME`, which isolates in one go the
-session, the saved options, the undo and the `viminfo` of GrooVim.
+file, which is exactly when GrooVim brings the session back — and it would be the
+session of the previous case, with tabs, buffers and cursors already there and
+wrong. The runner gives each CASE a throwaway `GROOVIM_HOME`, which isolates in
+one go the session, the saved options, the undo and the `viminfo` of GrooVim.
+
+One per run was not enough: it kept the cases out of the home of the user, but
+not out of each other. Measured — a case passed alone and failed in the battery,
+and the reason was the next trap.
+
+**A key that acts where the cursor is needs the cursor placed.** `A` appends to
+the line the cursor is ON; `x` deletes the character it is on. A case that writes
+with `setline()` and then presses a key is measuring two different places unless
+it says `cursor()` first. It reads as "insert mode does not work", which sends
+you looking for a defect in the product that is not there.
 
 **The `viminfo` contaminates everything.** Without `-i NONE`, Vim restores the
 buffer list of the previous run — including a ghost occurrence list, which makes

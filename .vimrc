@@ -3856,7 +3856,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     try
     " Note: Edit commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F2"
-      " Note: Used keys for F2: h k j up down c a d q w e end del! By Questor
+      " Note: Used keys for F2: h k j up down c d q w e end del! By Questor
       " Note: To debug! By Questor
       " Note: Aligns to left (h)! By Questor
       if g:GrooVim_CommandZChar == "104"
@@ -3889,10 +3889,6 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note:  Copy all text in the current buffer (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
         call GrooVim_ClipSet(join(getline(1, "$"), "\n"))
-      endif
-      " Note: Select all text in the current buffer (a)! By Questor
-      if g:GrooVim_CommandZChar == "97"
-        exec "norm ggVG$"
       endif
       " Note: Duplicates the current line/selection (normal) (d)! By Questor
       if g:GrooVim_CommandZChar == "100" && a:modType == "n"
@@ -3935,11 +3931,15 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: Control commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: Used keys for F3: n v r / f d h j t p y! By Questor
+      " Note: Used keys for F3: n a v r / f d h j t p y! By Questor
       " Note: Closing tabs moved to "F5", where the rest of the closing already
       " was! By Questor
       " Note: Saving moved to "F5" and then "s", and the session to "F5" with "["
       " and "]", with the other file commands! By Questor
+      " Note: Select all text in the current buffer (a)! By Questor
+      if g:GrooVim_CommandZChar == "97"
+        exec "norm ggVG$"
+      endif
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
@@ -4048,7 +4048,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
-      " Note: Used keys for F5: s e q w o > < a c [ ]! By Questor
+      " Note: Used keys for F5: s e q w o . , a c [ ]! By Questor
       " Note: The general settings (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
         call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
@@ -4089,12 +4089,17 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "111"
         call GrooVim_CloseAsking("tabonly")
       endif
-      " Note: Close every tab to the right (>)! By Questor
-      if g:GrooVim_CommandZChar == "62"
+      " Note: Close every tab to the right (.)! By Questor
+      "
+      " Note: The keys where "<" and ">" live, but WITHOUT the Shift. The comma
+      " sits to the left of the dot on the keyboard, which is the direction each
+      " one closes. Shift costs a trip of the hand, and the second key of a
+      " CommandZ has 400ms to arrive! By Questor
+      if g:GrooVim_CommandZChar == "46"
         call GrooVim_TabCloseSide(1)
       endif
-      " Note: Close every tab to the left (<)! By Questor
-      if g:GrooVim_CommandZChar == "60"
+      " Note: Close every tab to the left (,)! By Questor
+      if g:GrooVim_CommandZChar == "44"
         call GrooVim_TabCloseSide(-1)
       endif
     endif
@@ -5127,7 +5132,6 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <Up> - Changes to uppercase (normal mode/insert/visual);".
 \"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
 \"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
-\"\n        <a> - Select all text in the current buffer (normal mode/insert/visual);".
 \"\n        <d> - Duplicates the current line/selection (normal mode/insert/visual);".
 \"\n            Note: If in the visual mode can not be replicated;".
 \"\n        <q> - Record a macro (normal mode/insert/visual);".
@@ -5138,6 +5142,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n    <F3> and then...".
 \"\n      Note: Preferably for commands that \"traditionally\" involve|Ctrl|in other editors;".
+\"\n        <a> - Select all text in the current buffer (normal mode/insert/visual);".
 \"\n        <n> - Open a new tab (normal mode/insert/visual);".
 \"\n        <v> - Opens the file|.vimrc|(normal mode/insert/visual);".
 \"\n        <r> - Reloads the file|.vimrc|in all tabs (normal mode/insert/visual);".
@@ -5166,8 +5171,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <q> - Close the window (normal mode/insert/visual);".
 \"\n        <w> - Close the tab you are in (normal mode/insert/visual);".
 \"\n        <o> - Close all other tabs (normal mode/insert/visual);".
-\"\n       |<>>|- Close every tab to the RIGHT of this one (normal mode/insert/visual);".
-\"\n       |<<>|- Close every tab to the LEFT of this one (normal mode/insert/visual);".
+\"\n       |<.>|- Close every tab to the RIGHT of this one (normal mode/insert/visual);".
+\"\n       |<,>|- Close every tab to the LEFT of this one (normal mode/insert/visual);".
+\"\n            Note: The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes;".
 \"\n        <a> - Close everything and leave (normal mode/insert/visual);".
 \"\n            Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;".
 \"\n        <c> - Opens the general settings (normal mode/insert/visual);".
