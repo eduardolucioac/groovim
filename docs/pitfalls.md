@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **14 seconds**.
+whole battery takes about **15 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -41,6 +41,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `13_file` | the `F5` group (save, close) and the macro that stops with the same keys |
 | `14_session` | the automatic session, and the commands by hand saying so when it is on |
 | `15_apply_or_save` | the last question of the screens: just apply, or apply and save |
+| `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -75,6 +76,14 @@ is the screen Vim sees, with nothing in between. The case `10_guides` does that.
 
 Each of these has already produced a wrong diagnosis. They are written down so
 they do not happen twice.
+
+**A command inside an autocmd fires no autocmds of its own.** Not unless the
+autocmd says `++nested`. It is not a trap of the battery, it is a trap of the
+product: GrooVim loads the session from a `VimEnter`, and without `++nested` the
+`:edit` written in the session opened every file with no `BufRead` — no filetype
+detection, no syntax, no indent rules, no guides. The same file named on the
+command line opened right, which is what makes it look like a session defect
+when it is not. `16_session_filetype` holds the line.
 
 **Marking the steps with fixed times makes an unstable case.** `feedkeys` with
 `"t"` only queues the keys, and Vim processes them when it gets back to the main

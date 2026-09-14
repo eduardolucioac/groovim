@@ -3715,11 +3715,18 @@ func! GrooVim_SessionDropGhosts()
 endfunc
 
 " Note: Only with no file on the command line. Opening "groovim file.txt" means
-" you want THAT file, not everything you had open last time! By Questor
+" you want THAT file, not everything you had open last time!
+"
+" Note: "++nested" is what makes the files come back as FILES. A command run from
+" inside an autocmd fires no autocmds of its own unless the autocmd asks for it,
+" so the ":edit" written in the session opened every file with no "BufRead" --
+" and with no "BufRead" there is no filetype detection: measured, "&filetype"
+" empty on a ".py" that opens as "python" when named on the command line. No
+" syntax, no indent rules, no indent guides! By Questor
 augroup GrooVim_Session
   autocmd!
   autocmd VimLeavePre * if g:GrooVim_SessionAuto == 1 | call GrooVim_SessionSave() | endif
-  autocmd VimEnter * if g:GrooVim_SessionAuto == 1 && argc() == 0 |
+  autocmd VimEnter * ++nested if g:GrooVim_SessionAuto == 1 && argc() == 0 |
         \ call GrooVim_SessionLoad() | endif
 augroup END
 
