@@ -1,67 +1,67 @@
-" Guardar uma opção para a próxima sessão.
+" Keeping an option for the next session.
 "
-" O caminho de salvar existe desde 2014 no GrooVim_OptsUpdate, no terceiro
-" parâmetro, e nunca foi chamado -- por isso tinha três defeitos, um em cada
-" situação. Este caso exercita as três.
+" The saving path has been in GrooVim_OptsUpdate since 2014, in the third
+" parameter, and was never called -- which is why it had three defects, one per
+" situation. This case exercises the three.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
 func! GT_Body()
-  " um arquivo de opções só deste teste, para não encostar no do usuário
-  let g:GrooVim_OptsFile = g:GT_OUT . "/opts_do_teste.vim"
+  " an options file of this test alone, so the one of the user is not touched
+  let g:GrooVim_OptsFile = g:GT_OUT . "/test_opts.vim"
   call delete(g:GrooVim_OptsFile)
 
-  call GT_Ok("o arquivo fica FORA de ~/.vim/plugin", g:GrooVim_OptsFile !~ "plugin/",
-    \ "   (senao o Vim do sistema o carregaria sozinho)")
+  call GT_Ok("the file lives OUTSIDE ~/.vim/plugin", g:GrooVim_OptsFile !~ "plugin/",
+    \ "   (or the Vim of the system would load it on its own)")
 
-  " ---- 1: salvar quando o arquivo ainda nao existe
-  let erro = ""
+  " ---- 1: saving when the file does not exist yet
+  let err = ""
   try
-    call GrooVim_OptsUpdate("let g:teste_um =", "let g:teste_um = 7", 1)
+    call GrooVim_OptsUpdate("let g:test_one =", "let g:test_one = 7", 1)
   catch
-    let erro = v:exception
+    let err = v:exception
   endtry
-  call GT_Ok("arquivo inexistente: sem excecao", erro ==# "", "   [" . erro . "]   (era E121)")
-  call GT_Ok("  e a opcao foi escrita", filereadable(g:GrooVim_OptsFile) &&
-    \ index(readfile(g:GrooVim_OptsFile), "let g:teste_um = 7") >= 0,
+  call GT_Ok("no such file: no exception", err ==# "", "   [" . err . "]   (it was E121)")
+  call GT_Ok("  and the option was written", filereadable(g:GrooVim_OptsFile) &&
+    \ index(readfile(g:GrooVim_OptsFile), "let g:test_one = 7") >= 0,
     \ "   " . string(filereadable(g:GrooVim_OptsFile) ? readfile(g:GrooVim_OptsFile) : []))
 
-  " ---- 2: uma opcao NOVA num arquivo que ja tem outra
-  let erro = ""
+  " ---- 2: a NEW option in a file that already holds another
+  let err = ""
   try
-    call GrooVim_OptsUpdate("let g:teste_dois =", "let g:teste_dois = 8", 1)
+    call GrooVim_OptsUpdate("let g:test_two =", "let g:test_two = 8", 1)
   catch
-    let erro = v:exception
+    let err = v:exception
   endtry
-  call GT_Ok("opcao nova: sem excecao", erro ==# "", "   [" . erro . "]")
-  call GT_Ok("  acrescentou a opcao certa",
-    \ readfile(g:GrooVim_OptsFile) ==# ["let g:teste_um = 7", "let g:teste_dois = 8"],
-    \ "   " . string(readfile(g:GrooVim_OptsFile)) . "   (antes duplicava a linha errada)")
+  call GT_Ok("new option: no exception", err ==# "", "   [" . err . "]")
+  call GT_Ok("  added the right option",
+    \ readfile(g:GrooVim_OptsFile) ==# ["let g:test_one = 7", "let g:test_two = 8"],
+    \ "   " . string(readfile(g:GrooVim_OptsFile)) . "   (it used to duplicate the wrong line)")
 
-  " ---- 3: trocar uma opcao que ja esta la
-  let erro = ""
+  " ---- 3: changing an option that is already there
+  let err = ""
   try
-    call GrooVim_OptsUpdate("let g:teste_um =", "let g:teste_um = 9", 1)
+    call GrooVim_OptsUpdate("let g:test_one =", "let g:test_one = 9", 1)
   catch
-    let erro = v:exception
+    let err = v:exception
   endtry
-  call GT_Ok("opcao existente: sem excecao", erro ==# "", "   [" . erro . "]   (era E121 no exec)")
-  call GT_Ok("  trocou no arquivo",
-    \ readfile(g:GrooVim_OptsFile) ==# ["let g:teste_um = 9", "let g:teste_dois = 8"],
+  call GT_Ok("option already there: no exception", err ==# "", "   [" . err . "]   (it was E121 in the exec)")
+  call GT_Ok("  changed it in the file",
+    \ readfile(g:GrooVim_OptsFile) ==# ["let g:test_one = 9", "let g:test_two = 8"],
     \ "   " . string(readfile(g:GrooVim_OptsFile)))
-  call GT_Ok("  e aplicou na sessao", exists("g:teste_um") && g:teste_um == 9,
-    \ "   (g:teste_um = " . (exists("g:teste_um") ? g:teste_um : "nao existe") . ")")
+  call GT_Ok("  and applied it in the session", exists("g:test_one") && g:test_one == 9,
+    \ "   (g:test_one = " . (exists("g:test_one") ? g:test_one : "does not exist") . ")")
 
-  " ---- e o que foi salvo volta numa sessao nova
-  let g:teste_um = 0
+  " ---- and what was saved comes back in a new session
+  let g:test_one = 0
   exec "source " . fnameescape(g:GrooVim_OptsFile)
-  call GT_Ok("o arquivo salvo carrega de volta", g:teste_um == 9, "   (" . g:teste_um . ")")
+  call GT_Ok("the saved file loads back", g:test_one == 9, "   (" . g:test_one . ")")
 
-  " ---- so aplicar nao escreve nada
+  " ---- only applying writes nothing
   call delete(g:GrooVim_OptsFile)
-  call GrooVim_OptsUpdate("let g:teste_tres =", "let g:teste_tres = 3", 0)
-  call GT_Ok("so aplicar NAO cria o arquivo", !filereadable(g:GrooVim_OptsFile), "")
-  call GT_Ok("  mas vale na sessao", exists("g:teste_tres") && g:teste_tres == 3, "")
+  call GrooVim_OptsUpdate("let g:test_three =", "let g:test_three = 3", 0)
+  call GT_Ok("only applying does NOT create the file", !filereadable(g:GrooVim_OptsFile), "")
+  call GT_Ok("  but it holds in the session", exists("g:test_three") && g:test_three == 3, "")
 
   call delete(g:GrooVim_OptsFile)
   call GT_Done()
