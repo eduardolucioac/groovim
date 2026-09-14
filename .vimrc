@@ -2145,6 +2145,38 @@ endfunc
 " and what it saves has to stay on its side of that line! By Questor
 let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim")
 
+" Note: What the screen you are on has changed, so the question at the end can
+" write it all down if you say to keep it.
+"
+" Note: The options are applied as you answer, one by one, and only WRITTEN at
+" the end -- so leaving a screen with "Ctrl-C" changes the session and nothing
+" on disk! By Questor
+let g:GrooVim_OptsPending = []
+
+func! GrooVim_OptsBegin()
+  let g:GrooVim_OptsPending = []
+endfunc
+
+" Note: The last question of every configuration screen.
+"
+" Note: The keeping was written in 2014, in the third argument of
+" "GrooVim_OptsUpdate", and never called from anywhere -- which is why it had a
+" defect in each of its three situations. Now it has a way in! By Questor
+func! GrooVim_OptsEnd()
+
+  let l:answer = GrooVim_GetOptions("Just apply or apply and save", ["a", "s"], "a", "")
+
+  if l:answer ==# "s"
+    for l:pair in g:GrooVim_OptsPending
+      call GrooVim_OptsUpdate(l:pair[0], l:pair[1], 1)
+    endfor
+    call GrooVim_GrooVimBarMsg("Kept for the next time you open GrooVim!", 6)
+  endif
+
+  let g:GrooVim_OptsPending = []
+
+endfunc
+
 " Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
 let g:optsTemp = []
 func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
@@ -2170,6 +2202,10 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
     if l:thisOptionDoesNotExistInTheConfiguration == 1
       call add(g:optsTemp, a:valueToReplace)
     endif
+
+    " Note: Written down so the question at the end of the screen can keep it! By
+    " Questor
+    call add(g:GrooVim_OptsPending, [a:valueToSearch, a:valueToReplace])
 
     exec a:valueToReplace
 
@@ -2216,6 +2252,8 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
   " "[configuration] [replace]", and what an empty answer does is written in the
   " help (F9), so a line repeating it would only crowd the screen! By Questor
 
+  call GrooVim_OptsBegin()
+
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
@@ -2249,6 +2287,24 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
     let g:search_WithList = GrooVim_GetOptions("Search with list", [0,1], 0, g:search_WithList)
     call GrooVim_OptsUpdate("let g:search_WithList =", "let g:search_WithList = \"" . g:search_WithList . "\"", 0)
   endif
+
+  call GrooVim_OptsEnd()
+
+endfunc
+
+" Note: The settings that are not about searching or replacing. The screen is the
+" same shape as the other two: the questions come one after another, and the last
+" one asks whether to keep what you chose! By Questor
+func! GrooVim_ConfigureGeneral() range
+
+  call GrooVim_OptsBegin()
+
+  let g:GrooVim_SessionAuto = GrooVim_GetOptions("Save and restore the session by itself",
+   \ [0,1], 1, g:GrooVim_SessionAuto)
+  call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
+   \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
+
+  call GrooVim_OptsEnd()
 
 endfunc
 
@@ -3909,7 +3965,11 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
-      " Note: Used keys for F5: q s a w [ ]! By Questor
+      " Note: Used keys for F5: q s a w c [ ]! By Questor
+      " Note: The general settings (c)! By Questor
+      if g:GrooVim_CommandZChar == "99"
+        call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
+      endif
       " Note: Save the session by hand ([)! By Questor
       if g:GrooVim_CommandZChar == "91"
         call GrooVim_SessionSaveByHand()
