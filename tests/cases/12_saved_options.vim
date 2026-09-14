@@ -4,9 +4,9 @@
 " parâmetro, e nunca foi chamado -- por isso tinha três defeitos, um em cada
 " situação. Este caso exercita as três.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
-func! GT_Corpo()
+func! GT_Body()
   " um arquivo de opções só deste teste, para não encostar no do usuário
   let g:GrooVim_OptsFile = g:GT_OUT . "/opts_do_teste.vim"
   call delete(g:GrooVim_OptsFile)
@@ -64,7 +64,7 @@ func! GT_Corpo()
   call GT_Ok("  mas vale na sessao", exists("g:teste_tres") && g:teste_tres == 3, "")
 
   call delete(g:GrooVim_OptsFile)
-  call GT_Fim()
+  call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")

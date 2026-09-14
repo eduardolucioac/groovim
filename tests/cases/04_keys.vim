@@ -1,12 +1,12 @@
 " Na lista, nada que mudaria o texto pode fazer nada -- nem produzir um "E21".
 " O que lê, move ou copia continua.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 exec "edit " . g:GT_FIX . "/a.txt"
-call GT_MontaBusca("ALVO", 1, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,24", "1," . g:GT_FIX . "/a.txt,4,23"])
+call GT_BuildSearch("ALVO", 1, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,24", "1," . g:GT_FIX . "/a.txt,4,23"])
 call GrooVim_SearchGuySync()
-call GT_Ok("a lista abriu", GT_VaiParaLista(), "   " . GT_Layout())
+call GT_Ok("a lista abriu", GT_GoToList(), "   " . GT_Layout())
 
 let g:GT_ANTES = getline(1, "$")
 
@@ -57,4 +57,4 @@ call GT_Ok("fora: x apaga normalmente", maparg("x", "n") != "<Nop>", "")
 call GT_Ok("fora: Del apaga normalmente", maparg("<Del>", "n") =~ "NormalDel", "   [" . maparg("<Del>", "n") . "]")
 call GT_Ok("fora: Backspace apaga normalmente", maparg("<BS>", "n") =~ "NormalBackspace", "")
 
-call GT_Fim()
+call GT_Done()

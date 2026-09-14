@@ -1,7 +1,7 @@
 " As perguntas de configuração: o texto do prompt é montado a partir das opções,
 " e só uma resposta válida sai da pergunta.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 " ---- o texto sai das opcoes, e nao de uma frase escrita a mao
 call GT_Ok("numerico, padrao 0, agora 0",
@@ -71,4 +71,4 @@ let g:GT_R = GrooVim_AskUntilValid("Teste: ", {a -> GrooVim_IsRepetitionCount(a)
 call feedkeys("", "x")
 call GT_Ok("invalida e depois o x", g:GT_R ==# "x", "   [" . g:GT_R . "]")
 
-call GT_Fim()
+call GT_Done()

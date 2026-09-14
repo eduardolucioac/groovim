@@ -1,154 +1,154 @@
-" Prelúdio comum a todos os casos.
+" Prelude shared by every case.
 "
-" Cada caso começa com:
+" A case starts with:
 "   exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-"   call GT_Nome(expand("<sfile>:t:r"))
-" e termina com:
-"   call GT_Fim()
+"   call GT_Name(expand("<sfile>:t:r"))
+" and ends with:
+"   call GT_Done()
 "
-" O nome vem do PRÓPRIO arquivo, e não escrito à mão: renomear um caso e
-" esquecer a string lá dentro produzia um caso que roda, grava num nome que
-" ninguém procura, e é acusado de "não chegou ao fim".
+" The name comes from the FILE itself, never written by hand: renaming a case and
+" forgetting the string inside it made 13 cases run, write under a name nobody
+" was looking for, and be reported as "did not reach the end" -- a quiet way of
+" losing coverage.
 
 let g:GT_BASE = expand("<sfile>:p:h:h")
 let g:GT_FIX = $GROOVIM_TEST_FIXTURES != "" ? $GROOVIM_TEST_FIXTURES : g:GT_BASE . "/fixtures"
 let g:GT_OUT = $GROOVIM_TEST_OUT != "" ? $GROOVIM_TEST_OUT : g:GT_BASE . "/results"
-let g:GT_NOME = "sem-nome"
-let g:GT_LINHAS = []
+let g:GT_NAME = "unnamed"
+let g:GT_LINES = []
 
-func! GT_Nome(nome)
-  let g:GT_NOME = a:nome
-  let g:GT_LINHAS = []
+func! GT_Name(name)
+  let g:GT_NAME = a:name
+  let g:GT_LINES = []
 endfunc
 
-" Grava a cada verificação, e não só no fim.
+" Writes after every check, and not only at the end.
 "
-" Motivo: um caso que morre no meio (ou que o Vim encerra por conta própria)
-" deixava o arquivo de resultado vazio, e um teste sem saída é indistinguível de
-" um teste que nunca rodou. Gravando linha a linha, o que passou fica registrado
-" e o ponto exato da parada aparece.
-func! GT_Grava()
-  call writefile(g:GT_LINHAS, g:GT_OUT . "/" . g:GT_NOME . ".txt")
+" A case that dies halfway used to leave an empty file, and a test with no output
+" cannot be told apart from a test that never ran. Line by line, what passed
+" stays on record and the exact point of the stop shows up.
+func! GT_Write()
+  call writefile(g:GT_LINES, g:GT_OUT . "/" . g:GT_NAME . ".txt")
 endfunc
 
-func! GT_Ok(descricao, condicao, extra)
-  call add(g:GT_LINHAS, printf("  %-50s %s%s", a:descricao, (a:condicao ? "ok" : "FALHOU"), a:extra))
-  call GT_Grava()
+func! GT_Ok(description, condition, extra)
+  call add(g:GT_LINES, printf("  %-50s %s%s", a:description, (a:condition ? "ok" : "FAILED"), a:extra))
+  call GT_Write()
 endfunc
 
-" Uma anotação que não é verificação: serve para saber por onde o caso passou.
-func! GT_Nota(texto)
-  call add(g:GT_LINHAS, "  .. " . a:texto)
-  call GT_Grava()
+" A note that is not a check: it says where the case went through.
+func! GT_Note(text)
+  call add(g:GT_LINES, "  .. " . a:text)
+  call GT_Write()
 endfunc
 
-func! GT_Fim()
-  call add(g:GT_LINHAS, "FIM")
-  call GT_Grava()
+func! GT_Done()
+  call add(g:GT_LINES, "END")
+  call GT_Write()
   qa!
 endfunc
 
-" Marca o fim ANTES de um passo que deve fazer o próprio Vim sair.
+" Marks the end BEFORE a step that is meant to make Vim itself quit.
 "
-" Sem isso o executor acusaria "nao chegou ao fim" justamente quando o caso
-" terminou como devia. Se o Vim NÃO sair, o que vier depois é gravado depois do
-" FIM e a falha continua aparecendo.
-func! GT_FimAqui()
-  call add(g:GT_LINHAS, "FIM")
-  call GT_Grava()
+" Without it the runner would report "did not reach the end" exactly when the
+" case ended as it should. If Vim does NOT quit, whatever comes next is written
+" after the END and the failure still shows.
+func! GT_DoneHere()
+  call add(g:GT_LINES, "END")
+  call GT_Write()
 endfunc
 
-" Roda o corpo do caso DEPOIS do arranque do Vim.
+" Runs the body of the case AFTER Vim has started.
 "
-" Motivo: "vim -S caso.vim" sonda o script durante o arranque, e alguns eventos
-" não acontecem lá. O "OptionSet" é um deles: um ":set shiftwidth=8" escrito
-" direto no caso não dispara nada, enquanto o mesmo comando digitado à mão
-" dispara. Um caso que dependa disso mediria o contrário do que acontece de
-" verdade.
+" "vim -S case.vim" sources the script during startup, and some events do not
+" happen there. "OptionSet" is one: a ":set shiftwidth=8" written straight into
+" the case fires nothing, while the same command typed by hand does. A case that
+" depends on it would measure the opposite of what really happens.
 "
-" Uso: ponha o corpo do caso numa função e chame
-"   call GT_DepoisDoArranque("NomeDaFuncao")
-" como última linha do arquivo.
-func! GT_DepoisDoArranque(nomeDaFuncao)
-  call timer_start(50, {-> call(a:nomeDaFuncao, [])})
+" Use: put the body in a function and call
+"   call GT_AfterStartup("FunctionName")
+" as the last line of the file.
+func! GT_AfterStartup(functionName)
+  call timer_start(50, {t -> call(a:functionName, [])})
 endfunc
 
-" Espera uma condição virar verdadeira e SÓ então segue.
+" Waits for a condition to become true and only THEN goes on.
 "
-" Motivo: marcar os passos com tempo fixo produz caso instável. O feedkeys com
-" "t" enfileira as teclas, e o Vim só as processa ao voltar para o laço
-" principal — um timer que dispara antes disso amostra cedo e o caso falha sem
-" que nada esteja errado no produto. Medido: o mesmo caso passando e falhando
-" em execuções seguidas.
+" Marking the steps with fixed times produces an unstable case. "feedkeys" with
+" "t" only queues the keys, and Vim processes them when it returns to the main
+" loop -- a timer that fires before that samples early and the case fails with
+" nothing wrong in the product. Measured: the same case passing and failing in
+" consecutive runs.
 "
-" Uso:
-"   call GT_Quando('reg_recording() != ""', "ProximoPasso")
+" Use:
+"   call GT_When('reg_recording() != ""', "NextStep")
 "
-" Desiste depois de "g:GT_LIMITE_ESPERA" tentativas e chama o próximo passo
-" assim mesmo — um caso que trava é pior que um que falha.
-let g:GT_LIMITE_ESPERA = 60
+" Gives up after "g:GT_WAIT_LIMIT" tries and calls the next step anyway -- a case
+" that hangs is worse than one that fails.
+let g:GT_WAIT_LIMIT = 60
 
-func! GT_Quando(condicao, proximoPasso)
-  call GT_QuandoTenta(a:condicao, a:proximoPasso, 0)
+func! GT_When(condition, nextStep)
+  call GT_WhenTry(a:condition, a:nextStep, 0)
 endfunc
 
-func! GT_QuandoTenta(condicao, proximoPasso, tentativa)
-  if eval(a:condicao) || a:tentativa >= g:GT_LIMITE_ESPERA
-    call call(a:proximoPasso, [])
+func! GT_WhenTry(condition, nextStep, try)
+  if eval(a:condition) || a:try >= g:GT_WAIT_LIMIT
+    call call(a:nextStep, [])
     return
   endif
-  call timer_start(50, {t -> GT_QuandoTenta(a:condicao, a:proximoPasso, a:tentativa + 1)})
+  call timer_start(50, {t -> GT_WhenTry(a:condition, a:nextStep, a:try + 1)})
 endfunc
 
-" ---- ajudantes usados por mais de um caso ----
+" ---- helpers used by more than one case ----
 
-" Quantas janelas de lista de ocorrências existem na aba atual.
-func! GT_PaineisNaAba()
+" How many occurrence-list windows there are in the current tab.
+func! GT_PanelsInTab()
   let l:total = 0
-  for l:janela in range(1, winnr("$"))
-    if bufname(winbufnr(l:janela)) =~ "GrooVim_SearchGuyResults"
+  for l:window in range(1, winnr("$"))
+    if bufname(winbufnr(l:window)) =~ "GrooVim_SearchGuyResults"
       let l:total = l:total + 1
     endif
   endfor
   return l:total
 endfunc
 
-" O layout de todas as abas, como "[a.txt+lista][b.txt+lista]". É o que torna
-" legível a falha de uma aba montada errado.
+" The layout of every tab, as "[a.txt+list][b.txt+list]". It is what makes a
+" wrongly built tab readable in the failure line.
 func! GT_Layout()
-  let l:texto = ""
-  for l:aba in range(1, tabpagenr("$"))
-    let l:texto = l:texto . "[" .
-      \ join(map(tabpagebuflist(l:aba), 'fnamemodify(bufname(v:val), ":t")'), "+") . "]"
+  let l:text = ""
+  for l:tab in range(1, tabpagenr("$"))
+    let l:text = l:text . "[" .
+      \ join(map(tabpagebuflist(l:tab), 'fnamemodify(bufname(v:val), ":t")'), "+") . "]"
   endfor
-  return l:texto
+  return l:text
 endfunc
 
-" Vai para a janela da lista na aba atual. Devolve 1 se achou.
-func! GT_VaiParaLista()
+" Goes to the list window of the current tab. Returns 1 when it got there.
+func! GT_GoToList()
   return GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
 endfunc
 
-" Monta o estado que uma busca com lista deixaria, sem depender das teclas.
+" Builds the state a search with list would leave, without relying on the keys.
 "
-" Motivo: chamar GrooVim_SearchGuy() direto de um script não reproduz o caminho
-" real (que passa pelo F3) e o resultado varia. Para o que estes casos verificam
-" — o painel, as teclas, a navegação — o estado montado à mão é estável e
-" suficiente. O que depende do caminho real é conferido na tela, com screen.sh.
-func! GT_MontaBusca(valor, arquivos, ocorrencias)
-  " O registro de busca faz parte do estado que uma busca deixa. Sem ele o
-  " "norm n" do fim da navegação erra, e um erro dentro de um comando disparado
-  " por feedkeys() abre um "Press ENTER" que trava o caso até o timeout.
-  let @/ = a:valor
-  let g:GrooVim_SearchGuyValue = a:valor
-  let g:GrooVim_SearchGuyFilesSearched = a:arquivos
+" Calling GrooVim_SearchGuy() straight from a script does not reproduce the real
+" path (the one that goes through F3) and the result varies. For what these cases
+" check -- the panel, the keys, the navigation -- state built by hand is stable
+" and enough. What depends on the real path is checked on the screen, with
+" screen.sh.
+func! GT_BuildSearch(value, files, occurrences)
+  " The search register is part of the state a search leaves behind. Without it
+  " the "norm n" at the end of navigation fails, and an error inside a command
+  " fired by feedkeys() opens a "Press ENTER" that hangs the case until timeout.
+  let @/ = a:value
+  let g:GrooVim_SearchGuyValue = a:value
+  let g:GrooVim_SearchGuyFilesSearched = a:files
   let g:GrooVim_SearchGuyEnabled = 1
   let g:search_WithList = 1
   let g:searchReplace_InAllOpened = 1
-  let g:matchedLinesGlobalNavArray = a:ocorrencias
-  let l:corpo = []
-  for l:entrada in a:ocorrencias
-    call add(l:corpo, l:entrada == "0" ? "-----" : "linha de " . l:entrada)
+  let g:matchedLinesGlobalNavArray = a:occurrences
+  let l:body = []
+  for l:entry in a:occurrences
+    call add(l:body, l:entry == "0" ? "-----" : "line of " . l:entry)
   endfor
-  let g:matchedLinesGlobal = join(l:corpo, "\n")
+  let g:matchedLinesGlobal = join(l:body, "\n")
 endfunc

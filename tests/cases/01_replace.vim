@@ -1,6 +1,6 @@
 " Substituição num buffer só: contador, wrap, e o cursor voltando ao lugar.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 let g:searchReplace_InAllOpened = 0
 let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
@@ -80,4 +80,4 @@ call GT_Ok("Ctrl-X recortou", getline(1) ==# "alpha  gamma" && getreg('"') ==# "
 
 call GT_Ok("cmdheight e 1", &cmdheight == 1, "   (" . &cmdheight . ")")
 
-call GT_Fim()
+call GT_Done()

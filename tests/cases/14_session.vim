@@ -4,9 +4,9 @@
 " manuais só valem quando o automático está desligado -- caso contrário eles
 " avisam, em vez de fingir que fizeram algo.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
-func! GT_Corpo()
+func! GT_Body()
   let g:GrooVim_SessionFile = g:GT_OUT . "/sessao_do_teste.vim"
   call delete(g:GrooVim_SessionFile)
 
@@ -59,7 +59,7 @@ func! GT_Corpo()
   call GT_Ok("o salvar automatico escreve direto", filereadable(g:GrooVim_SessionFile), "")
   call delete(g:GrooVim_SessionFile)
 
-  call GT_Fim()
+  call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")

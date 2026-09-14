@@ -1,6 +1,6 @@
 " Substituição em várias abas, e o TabDo devolvendo o cursor de cada uma.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 let g:configureGrooVim_EntertainmentReplace_Confirmation = 0
 let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
@@ -50,4 +50,4 @@ call GT_Ok("com a flag: voltou para a aba de origem", tabpagenr() == 1, "   (aba
 tabn 2
 call GT_Ok("com a flag: aba 2 voltou", line(".") == 3, "   (linha " . line(".") . ")")
 
-call GT_Fim()
+call GT_Done()

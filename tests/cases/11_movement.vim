@@ -5,7 +5,7 @@
 " ficar sobre AREA SEM TEXTO, que e a razao de existir desta funcao. Quem segura
 " a segunda e o "virtualedit=all", ligado durante o movimento.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 let g:GT_POS = []
 
@@ -96,7 +96,7 @@ func! GT_ConcluiLongo(t)
   call timer_start(1400, "GT_ConcluiBloco")
 endfunc
 
-func! GT_Corpo()
+func! GT_Body()
   exec "edit " . g:GT_FIX . "/irregular.py"
   let g:GT_TEXTO = getline(1, "$")
   call cursor(5, 24)
@@ -123,7 +123,7 @@ func! GT_ConcluiBloco(t)
   call GT_Ok("bloco: desceu para a longa, coluna 24", p[2].linha == 7 && p[2].col == 24, GT_Mostra(p[2]))
   call GT_Ok("bloco: continua em visual block", p[2].modo ==# "\<C-v>", "   (modo [" . strtrans(p[2].modo) . "])")
   call GT_Ok("bloco: o texto nao foi tocado", getline(1, "$") ==# g:GT_TEXTO, "")
-  call GT_Fim()
+  call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")

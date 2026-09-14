@@ -1,8 +1,8 @@
 " A última pergunta de toda tela de configuração: só aplicar, ou guardar.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
-func! GT_Corpo()
+func! GT_Body()
   let g:GrooVim_OptsFile = g:GT_OUT . "/opts_do_15.vim"
   call delete(g:GrooVim_OptsFile)
 
@@ -58,7 +58,7 @@ func! GT_Corpo()
     \ "   " . string(readfile(g:GrooVim_OptsFile)))
 
   call delete(g:GrooVim_OptsFile)
-  call GT_Fim()
+  call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")

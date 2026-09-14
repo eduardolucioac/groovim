@@ -1,10 +1,10 @@
 " O grupo "F5" (comandos de arquivo) e a macro que para com as mesmas teclas.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 let g:GT_MACRO = []
 
-func! GT_Corpo()
+func! GT_Body()
   " ---- F5 virou tecla "super", como F2, F3 e F4
   call GT_Ok("F5 chama o CommandZ em normal", maparg("<F5>", "n") =~ 'CommandZ("F5"', "   [" . maparg("<F5>", "n") . "]")
   call GT_Ok("F5 chama o CommandZ em insert", maparg("<F5>", "i") =~ 'CommandZ("F5"', "")
@@ -45,18 +45,18 @@ func! GT_Corpo()
   exec "edit " . g:GT_FIX . "/macro.txt"
   call cursor(1, 1)
   call feedkeys("\<F2>q", "t")
-  call GT_Quando('reg_recording() != ""', "GT_MacroGravando")
+  call GT_When('reg_recording() != ""', "GT_MacroGravando")
 endfunc
 
 func! GT_MacroGravando()
   call GT_Ok("F2 + q comecou a gravar", reg_recording() ==# "a", "   [" . reg_recording() . "]")
   call feedkeys("A;\<Esc>j", "t")
-  call GT_Quando('getline(1) =~ ";$"', "GT_MacroDigitou")
+  call GT_When('getline(1) =~ ";$"', "GT_MacroDigitou")
 endfunc
 
 func! GT_MacroDigitou()
   call feedkeys("\<F2>q", "t")
-  call GT_Quando('reg_recording() == ""', "GT_MacroParou")
+  call GT_When('reg_recording() == ""', "GT_MacroParou")
 endfunc
 
 func! GT_MacroParou()
@@ -64,19 +64,19 @@ func! GT_MacroParou()
   call GT_Ok("o registro nao guardou as teclas que pararam", getreg("a") ==# "A;\<Esc>j",
     \ "   [" . strtrans(getreg("a")) . "]   (o F2 e o q entram na gravacao)")
   call feedkeys("\<F2>w", "t")
-  call GT_Quando('getline(2) =~ ";$"', "GT_MacroRodouUma")
+  call GT_When('getline(2) =~ ";$"', "GT_MacroRodouUma")
 endfunc
 
 func! GT_MacroRodouUma()
   call feedkeys("\<F2>w", "t")
-  call GT_Quando('getline(3) =~ ";$"', "GT_MacroRodouDuas")
+  call GT_When('getline(3) =~ ";$"', "GT_MacroRodouDuas")
 endfunc
 
 func! GT_MacroRodouDuas()
   call GT_Ok("a macro roda, e roda de novo",
     \ getline(1, "$") ==# ["item alpha;", "item beta;", "item gamma;", "item delta", "item epsilon"],
     \ "   " . string(getline(1, "$")))
-  call GT_Fim()
+  call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")

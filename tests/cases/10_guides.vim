@@ -1,6 +1,6 @@
 " As guias de indentação: largura tirada das opções do Vim, na hora de desenhar.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
-call GT_Nome(expand("<sfile>:t:r"))
+call GT_Name(expand("<sfile>:t:r"))
 
 func! GT_Guia()
   " a parte do listchars que desenha as guias, ou "" quando nao ha
@@ -11,8 +11,8 @@ func! GT_Largura()
   return strchars(GT_Guia())
 endfunc
 
-" O corpo roda depois do arranque: ver GT_DepoisDoArranque no _common.vim.
-func! GT_Corpo()
+" O corpo roda depois do arranque: ver GT_AfterStartup no _common.vim.
+func! GT_Body()
 exec "edit " . g:GT_FIX . "/indent.sh"
 
 call GT_Ok("ha guia no listchars", GT_Guia() != "", "   [" . &listchars . "]")
@@ -129,7 +129,7 @@ call GT_Ok("recusa 3abc, mantem a largura", &shiftwidth == 4, "   (sw=" . &shift
 GrooVimIndent
 call GT_Ok("sem argumento nao muda nada", &shiftwidth == 4, "   (sw=" . &shiftwidth . ")")
 
-call GT_Fim()
+call GT_Done()
 endfunc
 
-call GT_DepoisDoArranque("GT_Corpo")
+call GT_AfterStartup("GT_Body")
