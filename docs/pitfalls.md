@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **15 seconds**.
+whole battery takes about **16 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -42,6 +42,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `14_session` | the automatic session, and the commands by hand saying so when it is on |
 | `15_apply_or_save` | the last question of the screens: just apply, or apply and save |
 | `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
+| `17_tab_commands` | carrying a tab along the tab line, and closing every tab on one side |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -113,6 +114,13 @@ the user presses it, use `feedkeys(key, "x")`.
 `p` off with buffer mappings; a `norm ggdG` from inside it turns into something
 else and Vim hangs waiting for a movement for the `>` operator. Inside the panel
 it is always `norm!`.
+
+**The `:confirm` dialog cannot be answered from a script.** It reads the key
+straight from the terminal and never looks at what `feedkeys` queued — measured,
+from a timer and from startup alike, and the case hangs until the timeout. So no
+case may call anything that closes a modified buffer. What the battery checks is
+that the closing goes through the asking route; the question itself is read on
+screen, with `screen.sh`, where it says `Save changes to "..."?`.
 
 **An error inside `feedkeys()` opens a "Press ENTER"** that waits for ever in a
 script. That is what hung `05` before `@/` became part of the state that gets

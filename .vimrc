@@ -1933,6 +1933,30 @@ nnoremap <silent> <C-Down> :tabprevious<cr>
 inoremap <silent> <C-Down> <C-O>:tabprevious<cr>
 vnoremap <silent> <C-Down> :<C-U>tabprevious<cr>v
 
+" Note: Change the POSITION of the current tab, dragging it along the tab line.
+"
+" Note: The same direction as the keys that walk the tabs, plus "Shift": "<C-Up>"
+" goes to the next tab, so "<C-S-Up>" carries the tab THERE. Notepad++ drags the
+" tab with the mouse; in a terminal the keyboard is what there is.
+"
+" Note: At either end nothing happens, the way Notepad++ stops at the edge. A
+" message on every press of a key you hold down would be noise! By Questor
+func! GrooVim_TabMove(step)
+  let l:target = tabpagenr() + a:step
+  if l:target < 1 || l:target > tabpagenr("$")
+    return
+  endif
+  exec "tabmove " . (a:step > 0 ? "+1" : "-1")
+endfunc
+
+nnoremap <silent> <C-S-Up> :call GrooVim_TabMove(1)<cr>
+inoremap <silent> <C-S-Up> <C-O>:call GrooVim_TabMove(1)<cr>
+vnoremap <silent> <C-S-Up> :<C-U>call GrooVim_TabMove(1)<cr>gv
+
+nnoremap <silent> <C-S-Down> :call GrooVim_TabMove(-1)<cr>
+inoremap <silent> <C-S-Down> <C-O>:call GrooVim_TabMove(-1)<cr>
+vnoremap <silent> <C-S-Down> :<C-U>call GrooVim_TabMove(-1)<cr>gv
+
 " Note: Allows "multimode" use of the Del key! By Questor
 func! GrooVim_NormalDel()
 
@@ -1986,7 +2010,7 @@ inoremap <silent> <S-Down> <Esc>v:<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr
 " Note: Exit visual mode! Questor
 vnoremap <silent> <S-Down> <Esc>:call GrooVim_VirtualEditAdjust()<cr>
 
-" Note: Allows exit of the current mode using a second "<C-S-Up>" or "<C-S-Down>"! By Questor
+" Note: Leaves the current mode with "<S-Up>" or "<S-Down>"! By Questor
 inoremap <silent> <S-Up> <Esc>:call GrooVim_VirtualEditAdjust()<cr>
 nnoremap <silent> <S-Down> :call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
@@ -3763,6 +3787,30 @@ func! GrooVim_CloseAsking(command)
   exec "confirm " . a:command
 endfunc
 
+" Note: Closes every tab on ONE SIDE of the one you are in -- the "Close All to
+" the Right" and "Close All to the Left" of the Notepad++ tab menu.
+"
+" Note: One tab at a time, and always the NEIGHBOUR: closing shifts the numbers
+" of every tab after it, so a list of numbers read up front would be wrong by the
+" second one. Asking "who is next to me" again each round cannot go stale.
+"
+" Note: It asks about unsaved text, like every other way of closing in GrooVim.
+" And if you answer "Cancel" the count of tabs does not move -- which is how this
+" knows to stop, instead of asking the same question for ever! By Questor
+func! GrooVim_TabCloseSide(side)
+  while 1
+    let l:target = a:side > 0 ? tabpagenr() + 1 : tabpagenr() - 1
+    if l:target < 1 || l:target > tabpagenr("$")
+      return
+    endif
+    let l:before = tabpagenr("$")
+    exec "confirm " . l:target . "tabclose"
+    if tabpagenr("$") == l:before
+      return
+    endif
+  endwhile
+endfunc
+
 " Tip: Try to "balance" the distribution of the keys to preserve your
 " hands! By Questor
 
@@ -3887,7 +3935,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: Control commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: Used keys for F3: n c o v r / f d h j t p y! By Questor
+      " Note: Used keys for F3: n c o > < v r / f d h j t p y! By Questor
       " Note: Saving moved to "F5" and then "s", and the session to "F5" with "["
       " and "]", with the other file commands! By Questor
       " Note: Open a new tab (n)! By Questor
@@ -3898,11 +3946,19 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Close current tab (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
-        tabc
+        call GrooVim_CloseAsking("tabclose")
       endif
       " Note: Close all other tabs (o)! By Questor
       if g:GrooVim_CommandZChar == "111"
-        tabonly
+        call GrooVim_CloseAsking("tabonly")
+      endif
+      " Note: Close every tab to the right (>)! By Questor
+      if g:GrooVim_CommandZChar == "62"
+        call GrooVim_TabCloseSide(1)
+      endif
+      " Note: Close every tab to the left (<)! By Questor
+      if g:GrooVim_CommandZChar == "60"
+        call GrooVim_TabCloseSide(-1)
       endif
       " Note: Opens the file .vimrc (normal/visual) (v)! By Questor
       if g:GrooVim_CommandZChar == "118" && a:modType != "i"
@@ -5043,13 +5099,18 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Word selection to the right/left;".
 \"\n   |-|<2-leftmouse> (normal mode/insert) - Double click the mouse on a word then press <z> letter. All words with the same content will be highlighted;".
 \"\n".
+\"\n*o*  Tabs".
+\"\n".
+\"\n   |-|<Ctrl-Up>/<Ctrl-Down> (normal mode/insert/visual) - Go to the next/previous tab;".
+\"\n   |-|<Ctrl-Shift-Up>/<Ctrl-Shift-Down> (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line. At either end it stays put;".
+\"\n".
 \"\n*o*  Comment lines".
 \"\n".
 \"\n   |-|<Alt-Up> (normal mode/insert/visual) - Comment lines using *tcomment.vim* ;".
 \"\n".
 \"\n * F\'S Shortcuts (CommandZ)!~".
 \"\n".
-\"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3> or <F4> keys and then another key.".
+\"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3>, <F4> or <F5> keys and then another key.".
 \"\n".
 \"\n*o*  Features".
 \"\n ".
@@ -5078,18 +5139,18 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <n> - Open a new tab (normal mode/insert/visual);".
 \"\n        <c> - Close current tab (normal mode/insert/visual);".
 \"\n        <o> - Close all other tabs (normal mode/insert/visual);".
+\"\n       |<>>|- Close every tab to the RIGHT of this one (normal mode/insert/visual);".
+\"\n       |<<>|- Close every tab to the LEFT of this one (normal mode/insert/visual);".
+\"\n            Note: Closing anything with unsaved text ASKS: save, throw away, or go back;".
 \"\n        <v> - Opens the file|.vimrc|(normal mode/insert/visual);".
 \"\n        <r> - Reloads the file|.vimrc|in all tabs (normal mode/insert/visual);".
 \"\n       |</>|- Removes search highlights (normal mode/insert/visual);".
-\"\n        <s> - Save to disk (normal mode/insert/visual);".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
 \"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
 \"\n            Note: On the configuration screens (this one and <j> below), leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
 \"\n        <h> - Opens to replace (normal mode/insert/visual);".
 \"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with <F3> and then <j>;".
 \"\n        <j> - Opens to configure the replace (normal mode/insert/visual);".
-\"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
-\"\n       |<]>|- Reloads the last saved session (normal mode/insert/visual);".
 \"\n        <p> - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);".
 \"\n        <t> - Allows always returning to a particular tab using <Alt-Down> (normal mode/insert/visual);".
 \"\n        <End> - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);".
@@ -5099,6 +5160,18 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n    <F4> and then...".
 \"\n      Note: Preferably to trigger the installed plugins and their functionalities;".
 \"\n        <n> - Opens/closes the *NERDTree* (normal mode/insert/visual);".
+\"\n".
+\"\n    <F5> and then...".
+\"\n      Note: Preferably for what happens to the FILE and to what you have open;".
+\"\n        <s> - Save to disk (normal mode/insert/visual);".
+\"\n            Note: In visual mode it writes the SELECTION to a file of its own;".
+\"\n        <a> - Save every changed file (normal mode/insert/visual);".
+\"\n        <q> - Close, asking about anything unsaved (normal mode/insert/visual);".
+\"\n        <w> - Close everything, asking about anything unsaved (normal mode/insert/visual);".
+\"\n        <c> - Opens the general settings (normal mode/insert/visual);".
+\"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
+\"\n       |<]>|- Brings the last saved session back (normal mode/insert/visual);".
+\"\n            Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with <F5> and then <c>;".
 \"\n".
 \"\n * Integration with plugins~".
 \"\n".
