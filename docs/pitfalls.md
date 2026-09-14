@@ -1,148 +1,155 @@
-# Bateria automática do GrooVim
+# The automated battery of GrooVim
 
-Testes que rodam sozinhos, para não quebrar o que já funciona. Complementam o
-`_TESTE_GROOVIM/00_ROTEIRO.md`, que é o teste manual — este aqui verifica o
-comportamento por dentro; o roteiro verifica o que se vê.
+Tests that run on their own, so what already works does not break. They go
+alongside `_TESTE_GROOVIM/00_ROTEIRO.md`, which is the manual test — this one
+checks the behaviour from the inside; the manual one checks what you see.
 
-## Rodar
+## Running it
 
 ```bash
-./rodar.sh                    # usa ../groovim/.vimrc
-./rodar.sh ~/.vimrc           # testa o que está instalado
-./rodar.sh '' 03_painel       # um caso só
+./tests/run.sh                    # uses ./.vimrc
+./tests/run.sh ~/.vimrc           # tests what is installed
+./tests/run.sh '' 03_panel        # a single case
 ```
 
-Sai com `0` só se todos os casos chegarem ao fim e nenhuma verificação falhar.
-A bateria inteira leva cerca de **1,5 segundo**.
+It exits with `0` only if every case reaches its end and no check fails. The
+whole battery takes about **14 seconds**.
 
-Um caso que trava é detectado: o executor mata em 90 segundos e avisa
-`o caso nao chegou ao fim`. Para baixar essa espera:
-`GROOVIM_TESTE_TEMPO=15 ./rodar.sh`.
+A case that hangs is caught: the runner kills it after 90 seconds and says
+`the case did not reach its end`. To shorten that wait:
+`GROOVIM_TEST_TIMEOUT=15 ./tests/run.sh`.
 
-## Os casos
+To run the battery inside the Vim that GrooVim builds for itself, instead of the
+one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.sh`.
 
-| caso | o que cobre |
+## The cases
+
+| case | what it covers |
 |---|---|
-| `01_replace` | contador de ocorrências, `gdefault`, wrap com confirmação, cursor e rolagem voltando ao lugar, `Ctrl-C`/`Ctrl-X`, `cmdheight` |
-| `02_abas_replace` | substituição em várias abas, cursor de **cada** aba preservado, as duas semânticas do `TabDo` |
-| `03_painel` | a lista como buffer de leitura (`nofile`, `wipe`, não listado), a barra do Notepad++, `Enter` navega e `Del` não |
-| `04_teclas` | nenhuma tecla de edição faz nada na lista, em normal **e** em visual; `y`, setas, `gg`, `G` e `PageDown` continuam |
-| `05_navegacao` | `Enter` leva ao lugar certo; links para aba inexistente, aba com outro arquivo, arquivo já aberto, caminho com vírgula |
-| `06_ciclo_abas` | `:q` fecha a **aba** (das duas janelas), o buffer da lista morre junto, reabrir traz a lista |
-| `07_tabline` | o rótulo da aba é sempre um arquivo seu, a contagem ignora acessórios, o `+` de modificado |
-| `08_lista_sobrevive` | fechado o último arquivo a lista fica; reabrir a partir dela; a saída pelo `:q` |
-| `09_opcoes` | o texto do prompt montado a partir das opções, e a validação das respostas |
-| `10_guias` | a largura da guia de indentação seguindo `shiftwidth`/`tabstop` |
-| `11_movimento` | `Ctrl-Alt` com as setas andando em linha reta, mesmo por linhas curtas |
-| `12_opcoes_salvas` | guardar uma opção para a próxima sessão, e o "só aplicar" |
-| `13_arquivo` | o grupo `F5` (salvar, fechar) e a macro que para com as mesmas teclas |
-| `14_sessao` | a sessão automática, e os comandos manuais avisando quando ela está ligada |
-| `15_aplicar_guardar` | a pergunta final das telas: só aplicar, ou aplicar e guardar |
+| `01_replace` | the occurrence counter, `gdefault`, the wrap with confirmation, cursor and scrolling coming back, `Ctrl-C`/`Ctrl-X`, `cmdheight` |
+| `02_tabs_replace` | replacing across several tabs, the cursor of **each** tab kept, the two meanings of `TabDo` |
+| `03_panel` | the list as a read-only buffer (`nofile`, `wipe`, unlisted), the bar of Notepad++, `Enter` navigating and `Del` not |
+| `04_keys` | no editing key does anything in the list, in normal **and** in visual; `y`, the arrows, `gg`, `G` and `PageDown` still work |
+| `05_navigation` | `Enter` lands in the right place; links pointing at a tab that is gone, a tab holding another file, a file already open, a path with a comma |
+| `06_tab_lifecycle` | `:q` closes the **tab** (both windows), the buffer of the list dies with it, reopening brings the list back |
+| `07_tabline` | the label of a tab is always a document of yours, the count ignores the accessories, the `+` for modified |
+| `08_list_survives` | with the last file closed the list stays; reopening from it; leaving through `:q` |
+| `09_options` | the text of the prompt built out of the options, and the validation of the answers |
+| `10_guides` | the width of the indent guide following `shiftwidth`/`tabstop`, and where the guides land on screen |
+| `11_movement` | `Ctrl-Alt` and `Shift-Alt` with the arrows walking in a straight line, even across short lines |
+| `12_saved_options` | keeping an option for the next session, and the "just apply" |
+| `13_file` | the `F5` group (save, close) and the macro that stops with the same keys |
+| `14_session` | the automatic session, and the commands by hand saying so when it is on |
+| `15_apply_or_save` | the last question of the screens: just apply, or apply and save |
 
-Cada caso escreve em `resultados/<nome>.txt`, **linha a linha**, e termina
-com `FIM` — o executor cobra essa marca. Um caso que termina fazendo o próprio
-Vim sair usa `GT_FimAqui()` antes do passo que sai.
+Every case writes into `results/<name>.txt`, **line by line**, and ends with
+`END` — the runner demands that mark. A case that ends by making Vim itself quit
+calls `GT_DoneHere()` before the step that leaves.
 
-## Ver a tela
+## Seeing the screen
 
-Para qualquer pergunta de **layout** — onde o prompt caiu, se sobrou linha em
-branco, o que a aba mostra, se a barra mudou — inspecionar o estado por dentro
-não serve. Use:
+For any question of **layout** — where the prompt landed, whether a blank line
+was left over, what the tab shows, whether the bar changed — looking at the state
+from the inside does not answer it. Use:
 
 ```bash
-./tela.sh meu_roteiro.vim [arquivo]
+./tests/screen.sh my_script.vim [file]
 ```
 
-O roteiro agenda teclas e termina saindo:
+The script schedules keys and ends by quitting:
 
 ```vim
 call timer_start(400,  {-> feedkeys("\<F3>f", "t")})
-call timer_start(900,  {-> feedkeys("ALVO\<CR>", "t")})
+call timer_start(900,  {-> feedkeys("TARGET\<CR>", "t")})
 call timer_start(2400, {-> execute("qa!")})
 ```
 
-O `tela.py` reconstrói a tela a partir do que o Vim mandou para o terminal.
+`screen.py` rebuilds the screen out of what Vim sent to the terminal.
 
-**Cuidado:** o Vim redesenha só o que mudou, então a reconstrução pode misturar
-o desenho novo com restos do antigo. Quando a pergunta for *em que coluna está
-tal caractere*, use `screenchar(linha, coluna)` de dentro do próprio Vim — é a
-tela que ele enxerga, sem intermediário. O caso `10_guias` faz isso.
+**Careful:** Vim redraws only what changed, so the rebuild can mix the new
+drawing with leftovers of the old one. When the question is *which column is
+such a character in*, use `screenchar(line, column)` from inside Vim itself — it
+is the screen Vim sees, with nothing in between. The case `10_guides` does that.
 
-## Armadilhas que custaram caro
+## Traps that cost dearly
 
-Cada uma destas já produziu um diagnóstico errado. Estão aqui para não se repetir.
+Each of these has already produced a wrong diagnosis. They are written down so
+they do not happen twice.
 
-**Marcar os passos com tempo fixo produz caso instável.** O `feedkeys` com `"t"`
-enfileira as teclas, e o Vim só as processa ao voltar para o laço principal — um
-timer que dispara antes disso amostra cedo, e o caso falha sem que nada esteja
-errado no produto. Medido: o mesmo caso passando e falhando em execuções
-seguidas. Use `GT_Quando('condição', "ProximoPasso")`, que espera a condição
-virar verdadeira antes de seguir.
+**Marking the steps with fixed times makes an unstable case.** `feedkeys` with
+`"t"` only queues the keys, and Vim processes them when it gets back to the main
+loop — a timer that fires before that samples too early, and the case fails with
+nothing wrong in the product. Measured: the same case passing and failing on
+consecutive runs. Use `GT_When('condition', "NextStep")`, which waits for the
+condition to become true before going on.
 
-**A sessão automática contamina do mesmo jeito.** Cada caso abre o Vim sem
-arquivo, que é justamente quando o GrooVim traz a sessão de volta — e ela é a do
-caso anterior, com abas e buffers já prontos e errados. O executor dá a cada
-execução uma `GROOVIM_HOME` descartável, o que isola de uma vez a sessão, as
-opções salvas, o undo e o `viminfo` do GrooVim.
+**The automatic session contaminates the same way.** Every case opens Vim with no
+file, which is exactly when GrooVim brings the session back — and it is the
+session of the previous case, with tabs and buffers already there and wrong. The
+runner gives each run a throwaway `GROOVIM_HOME`, which isolates in one go the
+session, the saved options, the undo and the `viminfo` of GrooVim.
 
-**O `viminfo` contamina tudo.** Sem `-i NONE`, o Vim restaura a lista de buffers
-da execução anterior — inclusive uma lista de ocorrências fantasma, que faz o
-`bufexists()` do `Sync` desistir de montar a de verdade. Sintoma: resultados que
-mudam sem o código mudar. O executor já passa `-i NONE -n`.
+**The `viminfo` contaminates everything.** Without `-i NONE`, Vim restores the
+buffer list of the previous run — including a ghost occurrence list, which makes
+the `bufexists()` of `Sync` give up on building the real one. Symptom: results
+that change without the code changing. The runner already passes `-i NONE -n`.
 
-**`normal!` NÃO passa pelos mapeamentos — e às vezes é isso que você quer medir.**
-Um teste do `Tab` feito com `normal! i<Tab>` mede o `Tab` nativo do modo insert,
-que é justamente o único que o GrooVim não remapeia: o defeito estava no modo
-normal e o teste passava. Para exercitar a tecla como o usuário a aperta, use
-`feedkeys(tecla, "x")`.
+**`normal!` does NOT go through the mappings — and sometimes that is precisely
+what you meant to measure.** A test of `Tab` written as `normal! i<Tab>` measures
+the native `Tab` of insert mode, which is the only one GrooVim does not remap:
+the defect was in normal mode and the test passed. To exercise the key the way
+the user presses it, use `feedkeys(key, "x")`.
 
-**`:normal` sem `!` passa pelos mapeamentos.** A lista desliga `d`, `i` e `p` com
-mapeamentos de buffer; um `norm ggdG` de dentro dela vira outra coisa e o Vim
-trava esperando um movimento para o operador `>`. Dentro do painel é sempre
-`norm!`.
+**`:normal` without `!` goes through the mappings.** The list turns `d`, `i` and
+`p` off with buffer mappings; a `norm ggdG` from inside it turns into something
+else and Vim hangs waiting for a movement for the `>` operator. Inside the panel
+it is always `norm!`.
 
-**Um erro dentro de `feedkeys()` abre um "Press ENTER"** que espera para sempre
-num script. Foi o que travou o `05` antes de o `@/` fazer parte do estado
-montado.
+**An error inside `feedkeys()` opens a "Press ENTER"** that waits for ever in a
+script. That is what hung `05` before `@/` became part of the state that gets
+built.
 
-**Gravar o resultado só no fim engana.** Um caso que morre no meio deixava o
-arquivo vazio, e teste sem saída é indistinguível de teste que não rodou. O
-`GT_Ok()` grava a cada verificação, e o `GT_Fim()` escreve `FIM` — o executor
-cobra essa marca.
+**Writing the result only at the end fools you.** A case that dies halfway left
+the file empty, and a test with no output is indistinguishable from a test that
+never ran. `GT_Ok()` writes on every check, and `GT_Done()` writes `END` — the
+runner demands that mark.
 
-**`feedkeys(..., "x")` não entra na gravação de macro.** Medido: gravando com
-`"x"`, o registro sai vazio; com `"t"` e timers, sai o que foi digitado. Um caso
-de macro feito com `"x"` mede o contrário do que acontece ao teclar.
+**`feedkeys(..., "x")` does not enter macro recording.** Measured: recording with
+`"x"`, the register comes out empty; with `"t"` and timers, out comes what was
+typed. A macro case written with `"x"` measures the opposite of what happens when
+you press the keys.
 
-**`feedkeys(..., "x")` encerra o modo insert.** Para medir algo *durante* o
-insert, mande as teclas com `"t"` e amostre de um `timer_start` — o `mode()`
-confirma se você está mesmo lá. O caso `11_movimento` encadeia timers por isso.
+**`feedkeys(..., "x")` ends insert mode.** To measure something *during* insert,
+send the keys with `"t"` and sample from a `timer_start` — `mode()` confirms
+whether you really are there. That is why `11_movement` chains timers.
 
-**`feedkeys` com `:` digita no buffer.** O GrooVim remapeia `:`. Para comandos,
-use `execute("...")` dentro do `timer_start`, não `feedkeys(":...")`. Já
-modificou arquivos de fixture por engano.
+**`feedkeys` with `:` types into the buffer.** GrooVim remaps `:`. For commands,
+use `execute("...")` inside the `timer_start`, not `feedkeys(":...")`. It has
+already modified fixture files by accident.
 
-**Chamar `GrooVim_SearchGuy()` direto não reproduz o caminho do `F3`.** Para o
-painel, as teclas e a navegação, o `GT_MontaBusca()` monta o estado à mão e é
-estável. O que depende do caminho real se confere na tela, com o `tela.sh`.
+**Calling `GrooVim_SearchGuy()` directly does not reproduce the path of `F3`.**
+For the panel, the keys and the navigation, `GT_BuildSearch()` builds the state
+by hand and is stable. What depends on the real path is checked on screen, with
+`screen.sh`.
 
-**`vim -S` sonda o caso durante o ARRANQUE, e nem todo evento acontece lá.** O
-`OptionSet` é o exemplo: um `:set shiftwidth=8` escrito direto no caso não
-dispara nada, enquanto o mesmo comando digitado à mão dispara. Um caso que
-dependa disso mede o contrário do que acontece de verdade. Ponha o corpo numa
-função e chame `GT_DepoisDoArranque("NomeDaFuncao")`.
+**`vim -S` reads the case during STARTUP, and not every event happens there.**
+`OptionSet` is the example: a `:set shiftwidth=8` written straight into the case
+fires nothing, while the same command typed by hand fires it. A case that depends
+on this measures the opposite of what really happens. Put the body in a function
+and call `GT_AfterStartup("NameOfTheFunction")`.
 
-**`l:` não existe fora de função.** Num caso solto, `for l:x in [...]` aborta o
-laço inteiro em silêncio — e um laço que não roda não produz falha, produz
-*ausência*. Use um nome simples.
+**`l:` does not exist outside a function.** In a case at the top level,
+`for l:x in [...]` aborts the whole loop in silence — and a loop that does not run
+produces no failure, it produces *absence*. Use a plain name.
 
-**Índice de string conta bytes.** `guia[0]` num caractere como `┊` devolve meio
-caractere. Use `strcharpart()`.
+**A string index counts bytes.** `guide[0]` on a character like `┊` gives back
+half a character. Use `strcharpart()`.
 
-**Filtrar a saída esconde falha.** Rode o executor inteiro e leia o resumo.
+**Filtering the output hides a failure.** Run the whole runner and read the
+summary.
 
 ## Fixtures
 
-Os casos rodam sobre uma **cópia** de `fixtures/`, feita em `/tmp` a cada
-execução, e com uma `GROOVIM_HOME` descartável ao lado dela. Um caso que altere um arquivo em memória nunca chega perto dos
-originais. `resultados/` é descartável e está no `.gitignore`.
+The cases run over a **copy** of `fixtures/`, made in `/tmp` on every run, with a
+throwaway `GROOVIM_HOME` next to it. A case that changes a file in memory never
+gets near the originals. `results/` is throwaway and is in the `.gitignore`.
