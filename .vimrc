@@ -3589,8 +3589,21 @@ nnoremap <silent> <script> <F4> :call GrooVim_CommandZ("F4", "n")<cr>
 inoremap <silent> <script> <F4> <C-o>:call GrooVim_CommandZ("F4", "i")<cr>
 vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
 
-" Note: F5 stops a macro recording started with "F2" and then "q"! By Questor
-nnoremap <silent> <script> <F5> :norm q<cr>
+" Note: File commands. "F5" used to be a single key that stopped a macro
+" recording; that job went back to "F2" and then "q", which now starts and stops
+" with the same keys! By Questor
+nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
+inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
+vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
+
+" Note: Closing, asking about what would be lost.
+"
+" Note: ":confirm" is what turns the refusal of Vim -- "E37: No write since last
+" change" -- into a question you can answer: save, throw away, or go back. Writing
+" that by hand would be repeating what Vim already knows! By Questor
+func! GrooVim_CloseAsking(command)
+  exec "confirm " . a:command
+endfunc
 
 " Tip: Try to "balance" the distribution of the keys to preserve your
 " hands! By Questor
@@ -3716,7 +3729,9 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     endif
     " Note: Control commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: Used keys for F3: n c o v r / s f d h j [ ]! By Questor
+      " Note: Used keys for F3: n c o v r / f d h j t p y [ ]! By Questor
+      " Note: Saving moved to "F5" and then "s", with the other file commands! By
+      " Questor
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
@@ -3838,6 +3853,30 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
         if g:GrooVim_CommandZChar == "100"
           call GrooVim_ToggleDbg()
         endif
+      endif
+    endif
+    " Note: File commands! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F5"
+      " Note: Used keys for F5: q s a w! By Questor
+      " Note: Close, asking about anything unsaved (q)! By Questor
+      if g:GrooVim_CommandZChar == "113"
+        call GrooVim_CloseAsking("q")
+      endif
+      " Note: Save to disk (s)! By Questor
+      if g:GrooVim_CommandZChar == "115"
+        if a:modType == "v"
+          call GrooVim_VisualWrite()
+        else
+          :w
+        endif
+      endif
+      " Note: Save every changed file (a)! By Questor
+      if g:GrooVim_CommandZChar == "97"
+        :wa
+      endif
+      " Note: Close everything, asking about anything unsaved (w)! By Questor
+      if g:GrooVim_CommandZChar == "119"
+        call GrooVim_CloseAsking("qa")
       endif
     endif
     finally
@@ -3974,9 +4013,38 @@ endfunc
 
 " Note: Record a macro! By Questor
 func! GrooVim_XenRec() range
-  call GrooVim_GrooVimBarMsg("Use \"q\" to stop macro recording!", 5)
-  exec "norm qa"
-  echo "Starting a NEW recording!"
+
+  " Note: The same keys start and stop. It used to take "F5", a whole key of its
+  " own for one job, and "F5" is now the file commands! By Questor
+  if reg_recording() != ""
+    exec "norm! q"
+    call GrooVim_XenRecTrimKey()
+    call GrooVim_GrooVimBarMsg("Macro recorded! Use \"F2\" and then \"w\" to run it!", 5)
+    return
+  endif
+
+  call GrooVim_GrooVimBarMsg("Use \"F2\" and then \"q\" again to stop the recording!", 5)
+  exec "norm! qa"
+
+endfunc
+
+" Note: Takes the keys that STOPPED the recording off the end of it.
+"
+" Note: Vim records a key BEFORE the mapping decides what to do with it, so both
+" the "F2" and the "q" pressed to stop land inside the macro -- and running it
+" would fire CommandZ in the middle of your own keys. Measured on the register,
+" the tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
+" modifier mark in front! By Questor
+func! GrooVim_XenRecTrimKey()
+  " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
+  " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
+  " on its own it is not valid UTF-8. The key itself, written as "\<F2>", carries
+  " exactly the bytes to look for! By Questor
+  let l:gravado = getreg("a")
+  let l:onde = strridx(l:gravado, "\<F2>")
+  if l:onde >= 0
+    call setreg("a", strpart(l:gravado, 0, l:onde))
+  endif
 endfunc
 
 " Note: Run a macro certain number of times or repeatedly until the last line! By Questor
