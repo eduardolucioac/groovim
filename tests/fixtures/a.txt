@@ -1,0 +1,4 @@
+=== ABA A ===
+primeira ocorrencia de ALVO aqui
+linha comum
+segunda ocorrencia de ALVO aqui

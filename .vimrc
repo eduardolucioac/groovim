@@ -3675,9 +3675,36 @@ func! GrooVim_SessionSave()
 endfunc
 
 func! GrooVim_SessionLoad()
-  if filereadable(g:GrooVim_SessionFile)
-    exec "source " . fnameescape(g:GrooVim_SessionFile)
+  if !filereadable(g:GrooVim_SessionFile)
+    return
   endif
+  exec "source " . fnameescape(g:GrooVim_SessionFile)
+  call GrooVim_SessionDropGhosts()
+endfunc
+
+" Note: A session written days ago can name files that are not there any more --
+" one that was deleted, or one under "/tmp" after the machine was restarted. Vim
+" brings those back as EMPTY buffers carrying the old name, and it looks like the
+" editor opened something broken.
+"
+" Note: And with nothing left to show, the welcome screen comes back: an empty
+" Vim that hides its own welcome looks like something went wrong! By Questor
+func! GrooVim_SessionDropGhosts()
+
+  for l:buffer in getbufinfo({"buflisted": 1})
+    if l:buffer.name != "" && !filereadable(l:buffer.name)
+      exec "silent! bwipeout! " . l:buffer.bufnr
+    endif
+  endfor
+
+  for l:buffer in getbufinfo({"buflisted": 1})
+    if l:buffer.name != ""
+      return
+    endif
+  endfor
+
+  silent! intro
+
 endfunc
 
 " Note: Only with no file on the command line. Opening "groovim file.txt" means

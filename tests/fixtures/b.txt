@@ -1,0 +1,4 @@
+=== ABA B ===
+terceira ocorrencia de ALVO aqui
+linha comum
+quarta ocorrencia de ALVO e ALVO na mesma linha
