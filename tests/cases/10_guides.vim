@@ -58,7 +58,7 @@ call GT_Ok("turned back on", GT_Guide() != "", "")
 " guide marks every "shiftwidth" columns starting from the FIRST one, and not
 " with a first gap different from the others.
 set nonumber
-exec "edit " . g:GT_FIX . "/fundo.txt"
+exec "edit " . g:GT_FIX . "/spaces.txt"
 for pair in [[2, [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39]],
   \ [4, [1,5,9,13,17,21,25,29,33,37]],
   \ [8, [1,9,17,25,33]]]

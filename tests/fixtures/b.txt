@@ -1,4 +1,4 @@
-=== ABA B ===
-terceira ocorrencia de ALVO aqui
-linha comum
-quarta ocorrencia de ALVO e ALVO na mesma linha
+=== TAB B ===
+third occurrence of TARGET here
+common line
+fourth occurrence: TARGET and TARGET on the same line

@@ -3,7 +3,7 @@ exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
 exec "edit " . g:GT_FIX . "/a.txt"
-call GT_BuildSearch("ALVO", 2, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,1"])
+call GT_BuildSearch("TARGET", 2, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,1"])
 exec "tabnew " . g:GT_FIX . "/b.txt"
 sleep 80m
 

@@ -1,2 +1,2 @@
-outro arquivo
-sem alvo nenhum
+another file
+no target at all

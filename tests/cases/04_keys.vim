@@ -4,7 +4,7 @@ exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
 exec "edit " . g:GT_FIX . "/a.txt"
-call GT_BuildSearch("ALVO", 1, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,24", "1," . g:GT_FIX . "/a.txt,4,23"])
+call GT_BuildSearch("TARGET", 1, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,21", "1," . g:GT_FIX . "/a.txt,4,22"])
 call GrooVim_SearchGuySync()
 call GT_Ok("the list opened", GT_GoToList(), "   " . GT_Layout())
 
