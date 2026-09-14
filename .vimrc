@@ -4194,10 +4194,10 @@ func! GrooVim_XenRecTrimKey()
   " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
   " on its own it is not valid UTF-8. The key itself, written as "\<F2>", carries
   " exactly the bytes to look for! By Questor
-  let l:gravado = getreg("a")
-  let l:onde = strridx(l:gravado, "\<F2>")
-  if l:onde >= 0
-    call setreg("a", strpart(l:gravado, 0, l:onde))
+  let l:recorded = getreg("a")
+  let l:where = strridx(l:recorded, "\<F2>")
+  if l:where >= 0
+    call setreg("a", strpart(l:recorded, 0, l:where))
   endif
 endfunc
 
