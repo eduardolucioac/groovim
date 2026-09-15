@@ -34,6 +34,9 @@ SKIP_DEPS=0
 ONLY_CHECK=0
 VIM_TO_CHECK="vim"
 JOBS="$(nproc 2>/dev/null || echo 2)"
+# Who this build says modified it. Vim prints it on the opening screen and in
+# ":version", under "Modified by".
+MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
@@ -74,12 +77,14 @@ Options:
   --bindir DIR       where "groovim" goes(default: ~/.local/bin)
   --vimrc FILE       which .vimrc it runs(default: the one next to this script)
   --jobs N           parallel compilation (default: as many as you have cores)
+  --modified-by NAME who this build says modified it, shown on the opening
+                     screen and in ":version"
   --no-deps          do not install build dependencies
   --yes              answer yes to everything
   --help             this
 
-Environment: GROOVIM_PREFIX, GROOVIM_BINDIR, GROOVIM_SOURCE do the same as the
-options of the same name.
+Environment: GROOVIM_PREFIX, GROOVIM_BINDIR, GROOVIM_SOURCE, GROOVIM_MODIFIED_BY
+do the same as the options of the same name.
 END
 }
 
@@ -100,6 +105,7 @@ while [ $# -gt 0 ]; do
     --bindir)    BINDIR="${2:?--bindir needs a directory}"; shift ;;
     --vimrc)     VIMRC="${2:?--vimrc needs a file}"; shift ;;
     --jobs)      JOBS="${2:?--jobs needs a number}"; shift ;;
+    --modified-by) MODIFIED_BY="${2:?--modified-by needs a name}"; shift ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
@@ -166,6 +172,7 @@ check_and_report() {
   fi
 
   version_first_line "$vim_bin" | sed 's/^/  /'
+  "$vim_bin" --version 2>/dev/null | grep -m1 "Modified by" | sed 's/^/  /'
   missing="$(missing_for_groovim "$vim_bin")"
 
   if [ -z "$missing" ]; then
@@ -240,6 +247,36 @@ install_dependencies() {
   $command $packages
 }
 
+# ------------------------------------------------------------- our own name ---
+
+# The first line of the screen Vim shows when it opens with no file.
+#
+# A patch on the source, because Vim has no flag for it: "--with-modified-by"
+# ADDS a line, it does not change this one. Applied to a freshly checked-out
+# tree on every build, so it never stacks up.
+readonly SPLASH_FROM='N_("VIM - Vi IMproved"),'
+readonly SPLASH_TO="N_(\"GrooVim - Vi IMproved'n'GrooVIed!\"),"
+
+brand_the_splash() {
+  local file="$SOURCE/src/version.c"
+
+  step "Our name on the opening screen"
+  [ -f "$file" ] || die "There is no $file. Did the download work?"
+
+  if grep -qF "GrooVim - Vi IMproved" "$file"; then
+    green "  already there"
+    return 0
+  fi
+  if ! grep -qF -- "$SPLASH_FROM" "$file"; then
+    die "I cannot find the line to change in src/version.c -- Vim may have reworded it.
+     Looking for: $SPLASH_FROM"
+  fi
+
+  sed -i "s|$SPLASH_FROM|$SPLASH_TO|" "$file"
+  grep -qF "GrooVim - Vi IMproved" "$file" || die "The change to src/version.c did not take."
+  green "  $SPLASH_TO"
+}
+
 # ------------------------------------------------------------------ build ---
 
 latest_version() {
@@ -261,6 +298,9 @@ fetch_source() {
   mkdir -p "$(dirname "$SOURCE")"
   if [ -d "$SOURCE/.git" ]; then
     echo "  reusing $SOURCE"
+    # Throw away what the last build changed -- our own patch to version.c
+    # included -- so every build starts from what upstream actually released.
+    git -C "$SOURCE" checkout -q -- .
     git -C "$SOURCE" fetch --depth 1 origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null || true
     git -C "$SOURCE" checkout -q "$VERSION"
   else
@@ -288,7 +328,8 @@ available_flags() {
       --with-x \
       --enable-xim \
       --enable-wayland \
-      --enable-waylandclipboard
+      --enable-waylandclipboard \
+      "--with-modified-by=$MODIFIED_BY"
   do
     if grep -q -- "${optional%%=*}" "$configure_help"; then
       flags+=("$optional")
@@ -365,6 +406,7 @@ check_the_result() {
   step "What came out"
   [ -x "$vim_bin" ] || die "The build said it was fine but there is no $vim_bin."
   version_first_line "$vim_bin" | sed 's/^/  /'
+  "$vim_bin" --version 2>/dev/null | grep -m1 "Modified by" | sed 's/^/  /'
   vim_features "$vim_bin" \
     | grep -E '^[+-](clipboard|xterm_clipboard|popupwin|terminal|python3|X11|wayland)$' \
     | sort -u | tr '\n' ' ' | sed 's/^/  /'
@@ -416,6 +458,7 @@ ask "  Go on?" || { echo "  Nothing done."; exit 0; }
 
 install_dependencies
 fetch_source
+brand_the_splash
 build_vim
 write_groovim
 check_the_result

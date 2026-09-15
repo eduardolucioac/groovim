@@ -396,6 +396,21 @@ script:
 | Vim of the distribution | `groovim` (the fallback above) | 0 |
 | Vim built by the script | `wayland` | 1 |
 
+The Vim it builds says so when it opens:
+
+```
+                       GrooVim - Vi IMproved'n'GrooVIed!
+
+                                version 9.2.1108
+                            by Bram Moolenaar et al.
+                  Modified by Questor the Elf (eduardolucioac)
+                  Vim is open source and freely distributable
+```
+
+The first line is a one-line patch to `src/version.c`, because Vim has no flag
+for it. The `Modified by` line is Vim's own `--with-modified-by`, and
+`--modified-by NAME` puts your name there instead.
+
 `./install-vim.sh --help` lists where to put things, which `.vimrc` the
 command should run, and how to build a specific version.
 
