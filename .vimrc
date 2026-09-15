@@ -4249,7 +4249,10 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note: Used keys for F5: s e n t q w o . , a v r f h i c [ ]! By Questor
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
-        tabnew
+        " Note: "$tabnew" and not "tabnew": at the END of the tab line, the way
+        " Notepad++ adds a document, and not squeezed in beside the one you are
+        " on. The "$" is the "last tab page" of Vim! By Questor
+        $tabnew
         " Note: A new tab you can type in. This used to be "set ma", which fixed
         " the symptom of a lock that leaked from the help and the occurrence
         " list -- those now use "setlocal" and leak nothing. Kept, local, so a
@@ -4396,24 +4399,60 @@ endfunc
 "
 " Note: The number is handed out the first time the buffer is DRAWN and then kept
 " on the buffer, so it never changes under you, and the tabs get theirs in the
-" order they are drawn -- left to right! By Questor
-let g:GrooVim_NewNameCount = 0
-
+" order they are drawn -- left to right.
+"
+" Note: And it is the LOWEST one nobody is using, not the next of a counter that
+" only grows: close "new 2" of "new 1, new 2, new 3" and the one after it is
+" "new 2" again. That is how Notepad++ hands them out, and a counter would have
+" you at "new 47" on a morning when three documents were ever open at once! By
+" Questor
 func! GrooVim_NewNameOf(buffer)
 
-  if bufname(a:buffer) != "" || getbufvar(a:buffer, "&buftype") != ""
-   \ || !buflisted(a:buffer)
+  if !GrooVim_IsADocument(a:buffer)
     return ""
   endif
 
   let l:name = getbufvar(a:buffer, "GrooVim_NewName", "")
-  if l:name == ""
-    let g:GrooVim_NewNameCount = g:GrooVim_NewNameCount + 1
-    let l:name = "new " . g:GrooVim_NewNameCount
-    call setbufvar(a:buffer, "GrooVim_NewName", l:name)
+  if l:name != ""
+    return l:name
   endif
 
+  " Note: Only what is ON SCREEN holds a slot -- a buffer shown in some window of
+  " some tab.
+  "
+  " Note: Closing a tab does not delete its buffer, it hides it, so counting
+  " everything LISTED would keep the number of a document you closed and hand you
+  " "new 4" right after closing "new 2". A document that was saved has a name of
+  " its own now and stops counting too: both give their number back without
+  " anything having to remember to do it! By Questor
+  let l:taken = {}
+  for l:info in getbufinfo({"buflisted": 1})
+    if l:info.bufnr == a:buffer || empty(l:info.windows)
+     \ || !GrooVim_IsADocument(l:info.bufnr)
+      continue
+    endif
+    let l:other = getbufvar(l:info.bufnr, "GrooVim_NewName", "")
+    if l:other != ""
+      let l:taken[str2nr(matchstr(l:other, '\d\+'))] = 1
+    endif
+  endfor
+
+  let l:slot = 1
+  while has_key(l:taken, l:slot)
+    let l:slot = l:slot + 1
+  endwhile
+
+  let l:name = "new " . l:slot
+  call setbufvar(a:buffer, "GrooVim_NewName", l:name)
   return l:name
+endfunc
+
+" Note: A document of yours that has never been saved -- which is what gets a
+" "new N". Not a file (it has a name), not an accessory of a tab (the occurrence
+" list and the help are not buffers you edit)! By Questor
+func! GrooVim_IsADocument(buffer)
+  return bufname(a:buffer) == "" && getbufvar(a:buffer, "&buftype") == ""
+   \ && buflisted(a:buffer)
 endfunc
 
 " Note: What the bar calls the file of the window being drawn. It is "%f" plus
@@ -5532,6 +5571,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <e> - Save every changed file (normal mode/insert/visual);".
 \"\n        <n> - Open a new tab (normal mode/insert/visual);".
 \"\n            Note: A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be;".
+\"\n            Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again;".
 \"\n        <t> - Allows always returning to a particular tab using <Alt-Down> (normal mode/insert/visual);".
 \"\n        <q> - Close the window (normal mode/insert/visual);".
 \"\n        <w> - Close the tab you are in (normal mode/insert/visual);".

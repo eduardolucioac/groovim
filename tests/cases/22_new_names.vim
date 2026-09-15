@@ -9,7 +9,6 @@ call GT_Name(expand("<sfile>:t:r"))
 
 func! GT_Body()
   tabonly! | enew!
-  let g:GrooVim_NewNameCount = 0
 
   call GT_Ok("setup: one tab, nothing open", tabpagenr("$") == 1 && bufname("%") ==# "", "")
   call GT_Ok("the first one is \"new 1\"", GrooVim_TabLabel(1) ==# "new 1",
@@ -32,16 +31,51 @@ func! GT_Body()
   call GT_Ok("the first one did not change", GrooVim_TabLabel(1) ==# "new 1",
     \ "   [" . GrooVim_TabLabel(1) . "]")
 
+  " ---- the new tab lands at the END of the line, not beside the one you are on
+  tabnext 1
+  call GT_Press("\<F5>n")
+  call GT_Ok("from tab 1, the new one went to the end",
+    \ tabpagenr() == 4 && tabpagenr("$") == 4,
+    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+  call GT_Ok("  and it is \"new 4\"", GrooVim_TabLabel(4) ==# "new 4",
+    \ "   [" . GrooVim_TabLabel(4) . "]")
+  call GT_Ok("  and the ones before it did not move",
+    \ GrooVim_TabLabel(1) ==# "new 1" && GrooVim_TabLabel(2) ==# "new 2" &&
+    \ GrooVim_TabLabel(3) ==# "new 3",
+    \ "   [" . GrooVim_TabLabel(1) . " " . GrooVim_TabLabel(2) . " " . GrooVim_TabLabel(3) . "]")
+
+  " ---- a number that was freed comes back
+  "
+  " A counter that only grows would have you at "new 47" on a morning when three
+  " documents were ever open at once.
+  tabnext 2
+  call GT_Press("\<F5>w")
+  call GT_Ok("closed the middle one",
+    \ tabpagenr("$") == 3 && GrooVim_TabLabel(1) ==# "new 1" &&
+    \ GrooVim_TabLabel(2) ==# "new 3" && GrooVim_TabLabel(3) ==# "new 4",
+    \ "   [" . GrooVim_TabLabel(1) . " " . GrooVim_TabLabel(2) . " " . GrooVim_TabLabel(3) . "]")
+  call GT_Press("\<F5>n")
+  call GT_Ok("the next one takes the free slot, not the next number",
+    \ GrooVim_TabLabel(4) ==# "new 2",
+    \ "   [" . GrooVim_TabLabel(4) . "]   (a counter would have said \"new 5\")")
+  call GT_Ok("  and it is still at the end", tabpagenr() == 4 && tabpagenr("$") == 4,
+    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+
+  " ---- and the next one after that goes on from the top again
+  call GT_Press("\<F5>n")
+  call GT_Ok("with 1, 2, 3 and 4 taken, the next is \"new 5\"",
+    \ GrooVim_TabLabel(5) ==# "new 5", "   [" . GrooVim_TabLabel(5) . "]")
+
   " ---- a file keeps its own name
   exec "tabnew " . g:GT_FIX . "/a.txt"
-  call GT_Ok("a file is called by its name", GrooVim_TabLabel(4) ==# "a.txt",
-    \ "   [" . GrooVim_TabLabel(4) . "]")
+  call GT_Ok("a file is called by its name",
+    \ GrooVim_TabLabel(tabpagenr()) ==# "a.txt",
+    \ "   [" . GrooVim_TabLabel(tabpagenr()) . "]")
   call GT_Ok("  and so says the bar", GrooVim_FileLabel() =~ "a.txt",
     \ "   [" . GrooVim_FileLabel() . "]")
 
   " ---- the buffer is still nameless, which is the whole point
   tabonly! | enew!
-  let g:GrooVim_NewNameCount = 0
   call setline(1, "typed and not saved")
   call GT_Ok("setup: an unsaved document called \"new 1\"",
     \ GrooVim_TabLabel(1) ==# "new 1", "   [" . GrooVim_TabLabel(1) . "]")
