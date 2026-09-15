@@ -900,10 +900,16 @@ func! GrooVim_KeyReport()
    \ "kMultiply", "kDivide", "kPoint", "k0", "k1", "k2", "k3", "k4",
    \ "k5", "k6", "k7", "k8", "k9",
    \ "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]
-    if l:asText ==# eval('"\<' . l:name . '>"')
-      let l:known = "<" . l:name . ">"
-      break
-    endif
+    " Note: "try", because a name Vim does not know is an ERROR and not a
+    " mismatch -- one wrong entry in the list above would take the whole report
+    " down with it! By Questor
+    try
+      if l:asText ==# eval('"\<' . l:name . '>"')
+        let l:known = "<" . l:name . ">"
+        break
+      endif
+    catch
+    endtry
   endfor
 
   echomsg "GrooVim sees: " . string(l:key) .
