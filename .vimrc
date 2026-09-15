@@ -874,6 +874,45 @@ endfun
 " from wherever the line already was -- 2 becomes 8, 8 becomes 16 -- which is how
 " Notepad++ walks its tab stops. With ":set shiftwidth=8" alone it would go on
 " walking two by two! By Questor
+" Note: What a key really delivers, which is the only way to settle an argument
+" about a shortcut that does not fire.
+"
+" Note: A terminal sends an arrow, an F key or a keypad key as a sequence of
+" bytes, and two keys that LOOK the same can arrive as different keys -- the
+" shortcuts of GrooVim compare what "getchar()" hands over, so that is what this
+" prints! By Questor
+com! GrooVimKey call GrooVim_KeyReport()
+
+func! GrooVim_KeyReport()
+
+  echo "GrooVim: press the key you want to look at..."
+  let l:key = getchar()
+  redraw
+
+  " Note: A plain key comes back as a NUMBER and a special one as a String, which
+  " is why the shortcuts compare against "\<Up>" and against "116" alike! By
+  " Questor
+  let l:asText = type(l:key) == type(0) ? nr2char(l:key) : l:key
+  let l:known = ""
+  for l:name in ["Up", "Down", "Left", "Right", "Home", "End", "Del", "Insert",
+   \ "PageUp", "PageDown", "Tab", "Esc", "CR", "Space", "BS",
+   \ "kHome", "kEnd", "kPageUp", "kPageDown", "kPlus", "kMinus", "kEnter",
+   \ "kMultiply", "kDivide", "kPoint", "k0", "k1", "k2", "k3", "k4",
+   \ "k5", "k6", "k7", "k8", "k9",
+   \ "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]
+    if l:asText ==# eval('"\<' . l:name . '>"')
+      let l:known = "<" . l:name . ">"
+      break
+    endif
+  endfor
+
+  echomsg "GrooVim sees: " . string(l:key) .
+   \ "   as text: " . strtrans(l:asText) .
+   \ "   which is: " . (l:known != "" ? l:known :
+   \   (type(l:key) == type(0) ? "the character \"" . nr2char(l:key) . "\"" : "a key GrooVim has no name for"))
+
+endfunc
+
 com! -nargs=? GrooVimIndent call GrooVim_IndentWidth(<q-args>)
 
 " Note: A width EVERYWHERE: the default that new buffers get, and the one you are
@@ -4071,11 +4110,11 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Changes to uppercase (normal/insert) (up)! By Questor
       if g:GrooVim_CommandZChar == "\<Up>" && a:modType != "v"
-        exec "norm gUiwe"
+        call GrooVim_CaseOfTheWord("U")
       endif
       " Note: Changes to lowercase (normal/insert) (down)! By Questor
       if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
-        exec "norm guiwe"
+        call GrooVim_CaseOfTheWord("u")
       endif
       " Note: Title Case (t)! By Questor
       if g:GrooVim_CommandZChar == "116"
@@ -4725,9 +4764,25 @@ endfunc
 "
 " Note: In normal and insert mode it is the word under the cursor, selected here
 " so that the same substitution serves all three modes! By Questor
+" Note: The case of the word under the cursor, with the cursor left WHERE IT WAS.
+"
+" Note: This used to be "norm gUiwe", and the "e" walks to the end of the word --
+" so changing the case of a word you were in the middle of moved you to its last
+" letter. Changing the case of a word is not a movement! By Questor
+func! GrooVim_CaseOfTheWord(which)
+  let l:view = winsaveview()
+  exec "norm! g" . a:which . "iw"
+  call winrestview(l:view)
+endfunc
+
 func! GrooVim_ToTitleCase(modType) range
 
   let l:search = @/
+
+  " Note: Where you were. The substitution below leaves the cursor on the first
+  " column of the line, and selecting the word walks to its end -- neither is a
+  " place you asked to go! By Questor
+  let l:view = winsaveview()
 
   " Note: "norm!" and not "norm": GrooVim remaps "v" in normal mode, and a bare
   " "norm gv" is read through the mappings! By Questor
@@ -4751,6 +4806,8 @@ func! GrooVim_ToTitleCase(modType) range
   if a:modType == "v"
     " Note: Repositioning on final, like the upper and lower above! By Questor
     exec "norm! gv\<Esc>"
+  else
+    call winrestview(l:view)
   endif
 
 endfunc
@@ -5293,6 +5350,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->i . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
 \"\n".
+\"\n".
+\"\n When a shortcut does not fire, |:GrooVimKey| says what the key really delivered. Run it, press the key, and it prints what |getchar()| handed over -- two keys that look the same can arrive as different keys.".
+\"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
 \"\n     GrooVimIndent 4".
 \"\n< Without an argument it tells you the width in force. Setting|shiftwidth| by hand instead leaves the editor half changed: the guides follow the new width and the Tab key keeps the old one.".
@@ -5374,6 +5434,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
 \"\n        <t> - Title Case: the first letter of every word up, the rest down (normal mode/insert/visual);".
 \"\n            Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\";".
+\"\n            Note: The three of them leave the cursor where it was;".
 \"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
 \"\n        <q> - Record a macro (normal mode/insert/visual);".
 \"\n        <w> - Run a macro (normal mode/insert/visual);".

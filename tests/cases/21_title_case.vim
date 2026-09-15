@@ -70,6 +70,21 @@ func! GT_Body()
   call GT_Ok("insert: the word under the cursor", getline(1) ==# "Typing here",
     \ "   [" . getline(1) . "]")
 
+  " ---- the cursor stays where it was
+  "
+  " Changing the case of a word is not a movement. Upper and lower ended with an
+  " "e", which walks to the last letter; Title Case went through ":s", which
+  " leaves the cursor on the first column of the line.
+  call setline(1, "keep this middle word here")
+  for l:pair in [["\<F2>\<Up>", "upper"], ["\<F2>\<Down>", "lower"], ["\<F2>t", "title"]]
+    call setline(1, "keep this middle word here")
+    call cursor(1, 13)
+    call feedkeys(l:pair[0], "x")
+    call GT_Ok(l:pair[1] . ": the cursor did not move",
+      \ line(".") == 1 && col(".") == 13,
+      \ "   (line " . line(".") . " col " . col(".") . ", it was 1/13)   [" . getline(1) . "]")
+  endfor
+
   " ---- nothing locks the buffers that come after it
   "
   " Measured: one ":set noma" and every buffer opened afterwards is locked.
