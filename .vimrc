@@ -778,6 +778,16 @@ let g:GrooVim_IndentWidthPerType = get(g:, "GrooVim_IndentWidthPerType", {"pytho
 " Note: The char that draws the indentation guides. Use "" to turn them off! By Questor
 let g:GrooVim_IndentGuideChar = get(g:, "GrooVim_IndentGuideChar", "\u250A")
 
+" Note: The char to come back to when the guides are turned on again. Without it,
+" turning them off and on would forget the char you had chosen and hand you the
+" factory one! By Questor
+let g:GrooVim_IndentGuideCharLast = get(g:, "GrooVim_IndentGuideCharLast",
+ \ g:GrooVim_IndentGuideChar != "" ? g:GrooVim_IndentGuideChar : "\u250A")
+
+" Note: Whether "Tab" puts spaces or a real tab -- the "Replace by space" of the
+" Tab Settings of Notepad++! By Questor
+let g:GrooVim_IndentExpandTab = get(g:, "GrooVim_IndentExpandTab", 1)
+
 " Note: Size of a hard tabstop! By Questor
 exec "set tabstop=" . g:GrooVim_IndentWidth
 
@@ -789,7 +799,7 @@ exec "set shiftwidth=" . g:GrooVim_IndentWidth
 exec "set softtabstop=" . g:GrooVim_IndentWidth
 
 " Note: Set tabs to spaces! By Questor
-set expandtab
+let &expandtab = g:GrooVim_IndentExpandTab
 
 " Note: Indenting REACHES the next stop instead of adding a width to whatever was
 " already there, which is how Notepad++ walks its tab stops: a line with 2 columns
@@ -865,6 +875,17 @@ endfun
 " Notepad++ walks its tab stops. With ":set shiftwidth=8" alone it would go on
 " walking two by two! By Questor
 com! -nargs=? GrooVimIndent call GrooVim_IndentWidth(<q-args>)
+
+" Note: A width EVERYWHERE: the default that new buffers get, and the one you are
+" on. "SpecificTabConf" alone is "setlocal", which is what the command above
+" wants -- but a screen that says "indent width" and leaves the next file you
+" open on the old one would be lying! By Questor
+func! GrooVim_IndentWidthApply(width)
+  exec "set tabstop=" . a:width
+  exec "set shiftwidth=" . a:width
+  exec "set softtabstop=" . a:width
+  call SpecificTabConf(a:width)
+endfunc
 
 func! GrooVim_IndentWidth(width)
 
@@ -2328,6 +2349,49 @@ endfunc
 " Note: The settings that are not about searching or replacing. The screen is the
 " same shape as the other two: the questions come one after another, and the last
 " one asks whether to keep what you chose! By Questor
+" Note: The "Tab Settings" of Notepad++, as a screen of GrooVim.
+"
+" Note: A width here is THREE options of Vim at once -- "tabstop", "shiftwidth"
+" and "softtabstop" -- and they only mean what you expect while they agree. The
+" question asks ONCE and moves the three together! By Questor
+func! GrooVim_ConfigureIndent() range
+
+  call GrooVim_OptsBegin()
+
+  let l:width = GrooVim_GetNumber("Indent width, in columns",
+   \ g:GrooVim_IndentWidth, &shiftwidth)
+  call GrooVim_OptsUpdate("let g:GrooVim_IndentWidth =",
+   \ "let g:GrooVim_IndentWidth = " . l:width, 0)
+  call GrooVim_IndentWidthApply(str2nr(l:width))
+
+  let l:spaces = GrooVim_GetOptions("Tab puts spaces instead of a real tab",
+   \ [0,1], 1, &expandtab)
+  call GrooVim_OptsUpdate("let g:GrooVim_IndentExpandTab =",
+   \ "let g:GrooVim_IndentExpandTab = " . l:spaces, 0)
+  let &expandtab = g:GrooVim_IndentExpandTab
+
+  " Note: On or off, and not the char itself: the char is what an EMPTY answer
+  " would be, and empty already means "keep what is there" in every question of
+  " GrooVim. Set "g:GrooVim_IndentGuideChar" by hand for another char! By Questor
+  let l:guides = GrooVim_GetOptions("Draw the indent guides",
+   \ [0,1], 1, g:GrooVim_IndentGuideChar != "" ? 1 : 0)
+  if l:guides == 0
+    if g:GrooVim_IndentGuideChar != ""
+      let g:GrooVim_IndentGuideCharLast = g:GrooVim_IndentGuideChar
+    endif
+    let l:char = ""
+  else
+    let l:char = g:GrooVim_IndentGuideChar != ""
+     \ ? g:GrooVim_IndentGuideChar : g:GrooVim_IndentGuideCharLast
+  endif
+  call GrooVim_OptsUpdate("let g:GrooVim_IndentGuideChar =",
+   \ "let g:GrooVim_IndentGuideChar = " . string(l:char), 0)
+  call GrooVim_IndentGuideSet()
+
+  call GrooVim_OptsEnd()
+
+endfunc
+
 func! GrooVim_ConfigureGeneral() range
 
   call GrooVim_OptsBegin()
@@ -2368,6 +2432,40 @@ endfunc
 " Note: An empty "currentValue" is a question with nothing in force -- the one
 " that asks what to get from a file name is like that. No "now" is shown and an
 " empty answer takes the factory default! By Questor
+" Note: The prompt of a question whose answer is a NUMBER and not one of a list.
+" Same shape as the one above, so the screens read alike! By Questor
+func! GrooVim_NumberToPrompt(factoryDefault, currentValue)
+
+  let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
+  if ("" . a:currentValue . "") != ""
+    let l:prompt = l:prompt . "[now: \"" . a:currentValue . "\"]"
+  endif
+
+  return l:prompt . "? "
+endfunc
+
+" Note: Asks for a number the way "GrooVim_GetOptions" asks for an option: empty
+" keeps what is in force, anything that is not a width asks again, and the
+" message at the end is what makes the answers STACK into a summary -- see the
+" long note in "GrooVim_GetOptions"! By Questor
+func! GrooVim_GetNumber(question, factoryDefault, currentValue)
+
+  let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
+  let l:prompt = a:question . " " .
+   \ GrooVim_NumberToPrompt(a:factoryDefault, a:currentValue)
+
+  let l:answer = GrooVim_AskUntilValid(l:prompt,
+   \ {answer -> answer ==# "" ? 1 : GrooVim_IsPositiveNumber(answer)})
+
+  if l:answer ==# ""
+    let l:answer = l:inForce
+  endif
+
+  echomsg "   "
+
+  return l:answer
+endfunc
+
 func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue)
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
@@ -4008,7 +4106,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
       " Note: What acts on the EDITOR -- tabs, leaving -- and the settings.
-      " Note: Used keys for F5: s e n t q w o . , a v r f h c [ ]! By Questor
+      " Note: Used keys for F5: s e n t q w o . , a v r f h i c [ ]! By Questor
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
@@ -4050,6 +4148,10 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note: Opens to configure the replace (h)! By Questor
       if g:GrooVim_CommandZChar == "104"
         call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
+      endif
+      " Note: The indent settings (i)! By Questor
+      if g:GrooVim_CommandZChar == "105"
+        call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
       endif
       " Note: The general settings (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
@@ -5041,6 +5143,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
 \"\n".
+\"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->i . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
 \"\n     GrooVimIndent 4".
 \"\n< Without an argument it tells you the width in force. Setting|shiftwidth| by hand instead leaves the editor half changed: the guides follow the new width and the Tab key keeps the old one.".
@@ -5049,7 +5153,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
 \"\n     let g:GrooVim_IndentWidthPerType = {\"python\": 4, \"javascript\": 2}".
 \"\n<".
-\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off;".
+\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->i turns them off and on, and hands back the char you chose;".
+\"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
 \"\n".
 \"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
 \"\n".
@@ -5164,6 +5269,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
 \"\n            Note: The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up;".
 \"\n            Note: On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
+\"\n        <i> - Opens the indent settings -- the \"Tab Settings\" of Notepad++ (normal mode/insert/visual);".
 \"\n        <c> - Opens the general settings (normal mode/insert/visual);".
 \"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
 \"\n       |<]>|- Brings the last saved session back (normal mode/insert/visual);".
