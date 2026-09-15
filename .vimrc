@@ -4363,6 +4363,119 @@ endfunc
 
 nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
+" Note: The menu, written out of the same list the help is.
+"
+" Note: Two levels and not one: forty entries in a single popup is a wall of
+" text, and the four groups already MEAN something -- what they hold is the
+" classification GrooVim is built on. First the groups, then what is inside one.
+"
+" Note: Choosing an entry PRESSES THE KEYS. Nothing here knows what any shortcut
+" does, only which two keys to send, so the menu can never do something different
+" from the keyboard! By Questor
+let g:GrooVim_MenuEntries = []
+
+" Note: The two keys a shortcut is made of, ready to be pressed: the F key and
+" then the letter -- or the real key code, for the ones that are not letters! By
+" Questor
+func! GrooVim_ShortcutKeys(one)
+  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
+   \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
+  let l:second = has_key(l:named, a:one.key)
+   \ ? eval('"\<' . l:named[a:one.key] . '>"') : a:one.key
+  return eval('"\<' . a:one.group . '>"') . l:second
+endfunc
+
+" Note: The same words without the marks the help syntax of Vim needs. A "|" and
+" a "*" mean "highlight this" in a help file and mean nothing in a popup, where
+" they would just be litter -- "Opens the file|.vimrc|" reads badly enough on a
+" menu line.
+"
+" Note: The bars become a SPACE and not nothing: in the help they are what
+" separates the word from the text around it, so dropping them would glue
+" "file.vimrc" together! By Questor
+func! GrooVim_ShortcutPlain(text)
+  let l:plain = substitute(a:text, '[|*]', " ", "g")
+  return trim(substitute(l:plain, '  \+', " ", "g"))
+endfunc
+
+" Note: One line of the menu of a group: the key, and then what it does! By
+" Questor
+func! GrooVim_MenuLine(one)
+  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
+  return printf("  %-6s %s", get(l:named, a:one.key, a:one.key),
+   \ GrooVim_ShortcutPlain(a:one.what))
+endfunc
+
+func! GrooVim_Menu()
+
+  if !has("popupwin")
+    call GrooVim_GrooVimBarMsg("This Vim has no popup windows! Use F9 for the help!", 6)
+    return
+  endif
+
+  let l:lines = []
+  for l:group in g:GrooVim_ShortcutGroups
+    call add(l:lines, printf("  %-4s %s", l:group[0], l:group[1]))
+  endfor
+
+  call popup_menu(l:lines, {
+   \ "title": " GrooVim ",
+   \ "callback": "GrooVim_MenuGroupChosen",
+   \ "border": [], "padding": [0,1,0,1], "mapping": 0})
+
+endfunc
+
+func! GrooVim_MenuGroupChosen(id, chosen)
+
+  " Note: Vim answers "-1" when the menu was left without choosing! By Questor
+  if a:chosen < 1
+    return
+  endif
+
+  let l:group = g:GrooVim_ShortcutGroups[a:chosen - 1]
+
+  " Note: Kept aside because the callback is handed the NUMBER of the line that
+  " was chosen, and it has to find its way back to the shortcut! By Questor
+  let g:GrooVim_MenuEntries = []
+  let l:lines = []
+  for l:one in g:GrooVim_Shortcuts
+    if l:one.group !=# l:group[0]
+      continue
+    endif
+    call add(g:GrooVim_MenuEntries, l:one)
+    call add(l:lines, GrooVim_MenuLine(l:one))
+  endfor
+
+  if empty(l:lines)
+    return
+  endif
+
+  call popup_menu(l:lines, {
+   \ "title": " " . l:group[0] . " -- " . l:group[1] . " ",
+   \ "callback": "GrooVim_MenuEntryChosen",
+   \ "border": [], "padding": [0,1,0,1], "mapping": 0})
+
+endfunc
+
+func! GrooVim_MenuEntryChosen(id, chosen)
+
+  if a:chosen < 1 || a:chosen > len(g:GrooVim_MenuEntries)
+    return
+  endif
+
+  " Note: "t" and not "x": the keys go into the typeahead and the CommandZ reads
+  " them the way it reads yours. Running the command here would need this to know
+  " what each shortcut does, which is the one thing a menu must not know! By
+  " Questor
+  call feedkeys(GrooVim_ShortcutKeys(g:GrooVim_MenuEntries[a:chosen - 1]), "t")
+
+endfunc
+
+nnoremap <silent> <script> <F10> :call GrooVim_Menu()<cr>
+inoremap <silent> <script> <F10> <C-o>:call GrooVim_Menu()<cr>
+vnoremap <silent> <script> <F10> :<C-u>call GrooVim_Menu()<cr>
+
+
 " Note: The windows that are accessories of a tab and not documents of yours. In
 " one place because more than one thing needs to know it! By Questor
 func! GrooVim_IsHelperBuffer(name)
@@ -5680,6 +5793,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n * F\'S Shortcuts (CommandZ)!~".
 \"\n".
 \"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3>, <F4> or <F5> keys and then another key.".
+\"\n".
+\"\n  You do not have to remember any of them: <F10> opens a MENU with the four groups, and then with what is inside the one you pick. Choosing an entry presses its keys for you, so the menu can never do anything the keyboard would not. The menu and the list below are written from the same place.".
 \"\n".
 \"\n*o*  Features".
 \"\n ".
