@@ -31,6 +31,8 @@ rm -f "$BASE/results"/*.txt
 
 export GROOVIM_TEST_FIXTURES="$WORK"
 export GROOVIM_TEST_OUT="$BASE/results"
+# The cases that read the source of GrooVim itself need to know where it is.
+export GROOVIM_TEST_VIMRC="$VIMRC"
 
 # A throwaway GrooVim home, one per CASE.
 #

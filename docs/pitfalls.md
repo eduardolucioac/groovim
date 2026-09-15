@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **16 seconds**.
+whole battery takes about **17 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -44,6 +44,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
 | `17_tab_commands` | carrying a tab along the tab line, and closing every tab on one side |
 | `18_undo_select` | undo and redo on Ctrl-u/Ctrl-r in the three modes, and selecting the whole buffer |
+| `19_key_groups` | each F key is a group with a meaning: no letter answering twice, and the "Used keys" note telling the truth |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
