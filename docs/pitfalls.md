@@ -42,7 +42,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `14_session` | the automatic session, and the commands by hand saying so when it is on |
 | `15_apply_or_save` | the last question of the screens: just apply, or apply and save |
 | `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
-| `17_tab_commands` | carrying a tab along the tab line, and closing every tab on one side |
+| `17_tab_commands` | carrying a tab along the tab line, closing every tab on one side, and closing the last one |
 | `18_undo_select` | undo and redo on Ctrl-u/Ctrl-r in the three modes, and selecting the whole buffer |
 | `19_key_groups` | each F key is a group with a meaning: no letter answering twice, the "Used keys" note telling the truth, and every shortcut a message names really existing |
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |

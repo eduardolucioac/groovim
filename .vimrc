@@ -3904,6 +3904,50 @@ endfunc
 " Note: It asks about unsaved text, like every other way of closing in GrooVim.
 " And if you answer "Cancel" the count of tabs does not move -- which is how this
 " knows to stop, instead of asking the same question for ever! By Questor
+" Note: Closing the tab you are in.
+"
+" Note: Vim REFUSES to close the last tab -- "E784: Cannot close last tab page"
+" -- so on that one what closes is the DOCUMENT instead, leaving the empty one
+" Notepad++ calls "new 1".
+"
+" Note: ":enew" for the empty one, and then wiping the document that was there.
+" ":bdelete" on its own reads better and is WRONG here: it hands you a fresh
+" empty buffer only when there is no other buffer around, and after a few tabs
+" have been closed there always is -- measured, closing the last tab showed a
+" file closed three tabs ago instead of an empty page. ":enew" always opens an
+" empty one, and the wipe is what keeps the closed file from lingering in the
+" buffer list.
+"
+" Note: The "confirm" is on the ":enew", which is what abandons the document, so
+" unsaved text is asked about before anything happens. Answering "Cancel" leaves
+" the buffer where it was, and the "if" below sees that nothing moved and wipes
+" nothing! By Questor
+func! GrooVim_TabClose()
+
+  if tabpagenr("$") > 1
+    confirm tabclose
+    return
+  endif
+
+  " Note: The accessories of a tab -- the occurrence list, the tree -- are not
+  " documents of yours, so the closing lands on the document beside them! By
+  " Questor
+  if GrooVim_IsHelperBuffer(expand("%:t"))
+    call GrooVim_PutOnEditWindow()
+    if GrooVim_IsHelperBuffer(expand("%:t"))
+      call GrooVim_GrooVimBarMsg("There is no document here to close!", 5)
+      return
+    endif
+  endif
+
+  let l:document = bufnr("%")
+  confirm enew
+  if bufnr("%") != l:document
+    exec "silent! bwipeout " . l:document
+  endif
+
+endfunc
+
 func! GrooVim_TabCloseSide(side)
   while 1
     let l:target = a:side > 0 ? tabpagenr() + 1 : tabpagenr() - 1
@@ -4183,7 +4227,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       endif
       " Note: Close the tab you are in, asking about anything unsaved (w)! By Questor
       if g:GrooVim_CommandZChar == "119"
-        call GrooVim_CloseAsking("tabclose")
+        call GrooVim_TabClose()
       endif
       " Note: Close everything, asking about anything unsaved (a)! By Questor
       if g:GrooVim_CommandZChar == "97"

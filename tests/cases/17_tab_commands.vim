@@ -120,6 +120,29 @@ func! GT_Body()
   call GT_Ok("F5 and then w closed the tab we were in",
     \ GT_TabOrder() ==# ["a.txt", "b.txt"], "   " . string(GT_TabOrder()))
 
+  " ---- and on the LAST tab, which Vim refuses to close
+  "
+  " ":tabclose" answers "E784: Cannot close last tab page" and closes nothing.
+  " What has to close there is the document, leaving the empty one Notepad++
+  " calls "new 1". Note that b.txt is still a listed buffer at this point, left
+  " over from the tabs above -- which is exactly the case where a bare
+  " ":bdelete" shows you that old file instead of an empty page.
+  tabonly!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  call GT_Ok("setup: one tab, one file", tabpagenr("$") == 1 && expand("%:t") ==# "a.txt",
+    \ "   " . string(GT_TabOrder()))
+  let v:errmsg = ""
+  call feedkeys("\<F5>w", "x")
+  call GT_Ok("last tab: no E784", v:errmsg !~ "E784", "   [" . v:errmsg . "]")
+  call GT_Ok("last tab: the tab is still there", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")")
+  call GT_Ok("last tab: the document was closed", expand("%:t") ==# "",
+    \ "   [" . expand("%:t") . "]   (an empty one, the \"new 1\" of Notepad++)")
+  call GT_Ok("last tab: and it is empty and writable",
+    \ line("$") == 1 && getline(1) ==# "" && &modifiable == 1, "")
+  call GT_Ok("last tab: the file is gone from the buffer list",
+    \ len(filter(getbufinfo({"buflisted": 1}), 'v:val.name =~ "a.txt"')) == 0,
+    \ "   (the wipe after the :enew is what removes it)")
+
   " ---- and the letters that moved out of the way
   call GT_Ok("F5 e is the one that saves every changed file",
     \ execute("function GrooVim_CommandZ") =~ '"101"', "   (a is now close everything)")
