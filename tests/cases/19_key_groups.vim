@@ -150,9 +150,54 @@ func! GT_Body()
   call feedkeys("\<F3>v\<Esc>", "x")
   call GT_Ok("F3 v reselects the area (the gv of Vim)",
     \ line("'<") == 1 && line("'>") == l:before + 1, "   (from " . line("'<") . " to " . line("'>") . ")")
-  call GT_Ok("F3 g is the one that configures the search",
-    \ index(l:groups["F3"].claimed, "g") >= 0 && index(l:groups["F3"].claimed, "d") >= 0,
+  " ---- doing it and setting it up: same letter, one group apart
+  call GT_Ok("F3 runs the search and the replace",
+    \ index(l:groups["F3"].claimed, "f") >= 0 && index(l:groups["F3"].claimed, "h") >= 0,
     \ "   " . string(l:groups["F3"].claimed))
+  call GT_Ok("F5 sets up the search and the replace, on the SAME letters",
+    \ index(l:groups["F5"].claimed, "f") >= 0 && index(l:groups["F5"].claimed, "h") >= 0,
+    \ "   " . string(l:groups["F5"].claimed))
+  call GT_Ok("and F3 no longer holds either settings screen",
+    \ index(l:groups["F3"].claimed, "g") < 0 && index(l:groups["F3"].claimed, "j") < 0, "")
+
+  " ---- what the messages tell you to press has to exist
+  "
+  " A shortcut named in a message is written "F5->c". When a command changes
+  " group or letter the message is easy to forget: the one that pointed at the
+  " search settings still said "F3" and then "d" two moves after the fact. Here
+  " every shortcut any message or help line names is looked up in the group that
+  " really answers for it.
+  "
+  " It checks that the key EXISTS, not that it means the right thing: a message
+  " pointing at a letter that is still in the group but now does something else
+  " gets through. Only reading the message can catch that one.
+  let l:named = []
+  let l:wrong = []
+  for l:line in readfile(l:path)
+    " An F key closed by a quote or a ">", then " and then ", then another
+    " quoted key -- the old way of writing a shortcut. Written this tightly so
+    " that prose which merely says "and then" is left alone.
+    if l:line =~ 'F[2-5]\\\=[">] and then \\\=["<]'
+      call add(l:wrong, "old notation: " . trim(l:line)[0:55])
+    endif
+    let l:at = 0
+    while 1
+      let l:at = match(l:line, 'F[2-5]->', l:at)
+      if l:at < 0 | break | endif
+      let l:shortcut = strpart(l:line, l:at, 5)
+      let l:at = l:at + 4
+      if len(l:shortcut) < 5 | continue | endif
+      let l:which = strpart(l:shortcut, 0, 2)
+      let l:key = tolower(strpart(l:shortcut, 4, 1))
+      if index(l:named, l:shortcut) < 0 | call add(l:named, l:shortcut) | endif
+      if index(l:groups[l:which].claimed, l:key) < 0
+        call add(l:wrong, l:shortcut . " -- no such key in " . l:which)
+      endif
+    endwhile
+  endfor
+  call GT_Ok("every shortcut a message names really exists", empty(l:wrong),
+    \ empty(l:wrong) ? "   " . string(sort(copy(l:named))) : "   " . string(l:wrong))
+  call GT_Ok("  and there are some to check", len(l:named) >= 8, "   (" . len(l:named) . ")")
 
   call GT_Done()
 endfunc

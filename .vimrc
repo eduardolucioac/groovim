@@ -1641,7 +1641,7 @@ func! GrooVim_CapsLockPoll(timerId)
   call GrooVim_GrooVimBarMsgExpire()
 endfunc
 
-" Note: Reloading the ".vimrc" ("F3" and then "r") would otherwise pile up one
+" Note: Reloading the ".vimrc" (F5->r) would otherwise pile up one
 " timer per reload! By Questor
 if exists("g:GrooVim_CapsLockTimer")
   try
@@ -2816,7 +2816,7 @@ func! GrooVim_EasySearch(mod) range
     call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
   endif
 
-  call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"d\"!", 4)
+  call GrooVim_GrooVimBarMsg("You could set me using F5->f!", 4)
 
   finally
     " Note: Safety net: an interruption must not leave the text painted! By Questor
@@ -3231,7 +3231,7 @@ endfunc
 " from the file now do exactly the same thing, and ":q" on a list that is alone
 " is a plain last window, which closes Vim as always.
 "
-" Note: Only a new search ("F3" and then "f") ends the list itself, and it ends
+" Note: Only a new search (F3->f) ends the list itself, and it ends
 " it in every tab! By Questor
 func! GrooVim_SearchGuyQuitPre()
   if bufname("%") =~ "GrooVim_SearchGuyResults" && GrooVim_SearchGuyTabHasFile()
@@ -3591,7 +3591,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     " Note: What actually happened matters more than the hint below! By Questor
     call GrooVim_GrooVimBarMsg("Reached the end of the file: " . l:wrapped . " occurrence(s) replaced from the top!", 6)
   else
-    call GrooVim_GrooVimBarMsg("You could set me using \"F3\" and then \"j\"!", 4)
+    call GrooVim_GrooVimBarMsg("You could set me using F5->h!", 4)
   endif
 
   finally
@@ -3679,7 +3679,7 @@ inoremap <silent> <script> <F4> <C-o>:call GrooVim_CommandZ("F4", "i")<cr>
 vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
 
 " Note: File commands. "F5" used to be a single key that stopped a macro
-" recording; that job went back to "F2" and then "q", which now starts and stops
+" recording; that job went back to F2->q, which now starts and stops
 " with the same keys! By Questor
 nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
 inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
@@ -3689,7 +3689,7 @@ vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
 "
 " Note: Saved by itself when you leave and brought back when you open GrooVim
 " with no file, the way Notepad++ does. Turn it off to do it by hand instead,
-" with "F5" and then "[" and "]".
+" with F5->[ and F5->].
 "
 " Note: What it does NOT carry is unsaved text: ":mksession" writes down which
 " files were open, not what you had typed into them. So closing with something
@@ -3768,7 +3768,7 @@ augroup END
 " it says so instead of pretending! By Questor
 func! GrooVim_SessionSaveByHand()
   if g:GrooVim_SessionAuto == 1
-    call GrooVim_GrooVimBarMsg("The session already saves itself! Turn it off with \"F5\" and then \"c\"!", 6)
+    call GrooVim_GrooVimBarMsg("The session already saves itself! Turn it off with F5->c!", 6)
     return
   endif
   call GrooVim_SessionSave()
@@ -3777,11 +3777,11 @@ endfunc
 
 func! GrooVim_SessionLoadByHand()
   if g:GrooVim_SessionAuto == 1
-    call GrooVim_GrooVimBarMsg("The session comes back by itself! Turn it off with \"F5\" and then \"c\"!", 6)
+    call GrooVim_GrooVimBarMsg("The session comes back by itself! Turn it off with F5->c!", 6)
     return
   endif
   if !filereadable(g:GrooVim_SessionFile)
-    call GrooVim_GrooVimBarMsg("There is no saved session yet! Save one with \"F5\" and then \"[\"!", 6)
+    call GrooVim_GrooVimBarMsg("There is no saved session yet! Save one with F5->[!", 6)
     return
   endif
   call GrooVim_SessionLoad()
@@ -3928,7 +3928,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     " Note: Control commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F3"
       " Note: The editing you reach for most, and searching.
-      " Note: Used keys for F3: a d v / f g h j end del! By Questor
+      " Note: Used keys for F3: a d v / f h end del! By Questor
       " Note: Select all text in the current buffer (a)! By Questor
       if g:GrooVim_CommandZChar == "97"
         exec "norm ggVG$"
@@ -3973,15 +3973,6 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "102" && a:modType == "v"
         call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])
       endif
-      " Note: Opens to configure the search (g)! By Questor
-      "
-      " Note: On the letter after the one that searches. With the replace on "h"
-      " and its settings on "j", the four sit side by side on the home row:
-      " f g h j -- search, its settings, replace, its settings. The "d" it used
-      " to be went to duplicating, which came up from "F2"! By Questor
-      if g:GrooVim_CommandZChar == "103"
-        call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
-      endif
       " Note: Opens to replace (normal/insert) (h)! By Questor
       if g:GrooVim_CommandZChar == "104" && a:modType != "v"
         call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])
@@ -3989,10 +3980,6 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note: '' (visual) (h)! By Questor
       if g:GrooVim_CommandZChar == "104" && a:modType == "v"
         call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])
-      endif
-      " Note: Opens to configure the replace (j)! By Questor
-      if g:GrooVim_CommandZChar == "106"
-        call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
       endif
       " Note: Select and search the word under the cursor (case sensitive) (End)! By Questor
       if g:GrooVim_CommandZChar == "\<End>"
@@ -4021,7 +4008,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     " Note: File commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F5"
       " Note: What acts on the EDITOR -- tabs, leaving -- and the settings.
-      " Note: Used keys for F5: s e n t q w o . , a v r c [ ]! By Questor
+      " Note: Used keys for F5: s e n t q w o . , a v r f h c [ ]! By Questor
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
@@ -4051,6 +4038,18 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "114" && a:modType != "i"
         " Note: Workaround to avoid incompatibility! By Questor
         call feedkeys("\\zvv")
+      endif
+      " Note: Opens to configure the search (f)! By Questor
+      "
+      " Note: The SAME letter that runs it, one group up: "F3" and the letter
+      " does the thing, "F5" and the letter sets it up. The settings live in
+      " "F5" because that is where the settings live! By Questor
+      if g:GrooVim_CommandZChar == "102"
+        call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
+      endif
+      " Note: Opens to configure the replace (h)! By Questor
+      if g:GrooVim_CommandZChar == "104"
+        call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
       endif
       " Note: The general settings (c)! By Questor
       if g:GrooVim_CommandZChar == "99"
@@ -4246,11 +4245,11 @@ func! GrooVim_XenRec() range
   if reg_recording() != ""
     exec "norm! q"
     call GrooVim_XenRecTrimKey()
-    call GrooVim_GrooVimBarMsg("Macro recorded! Use \"F2\" and then \"w\" to run it!", 5)
+    call GrooVim_GrooVimBarMsg("Macro recorded! Use F2->w to run it!", 5)
     return
   endif
 
-  call GrooVim_GrooVimBarMsg("Use \"F2\" and then \"q\" again to stop the recording!", 5)
+  call GrooVim_GrooVimBarMsg("Use F2->q again to stop the recording!", 5)
   exec "norm! qa"
 
 endfunc
@@ -5135,12 +5134,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <Del> - Selects an area (normal mode/insert);".
 \"\n       |</>|- Removes search highlights (normal mode/insert/visual);".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
-\"\n        <g> - Opens to configure the search (normal mode/insert/visual);".
-\"\n            Note: On the configuration screens (this one and <j> below), leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
 \"\n        <h> - Opens to replace (normal mode/insert/visual);".
-\"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with <F3> and then <j>;".
-\"\n        <j> - Opens to configure the replace (normal mode/insert/visual);".
-\"\n            Note: |f| |g| |h| |j| sit side by side on the home row: search, its settings, replace, its settings;".
+\"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h;".
 \"\n        <End> - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);".
 \"\n        <v> - Reselect area, the |gv| of Vim (normal mode/insert/visual);".
 \"\n".
@@ -5165,10 +5160,14 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n            Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;".
 \"\n        <v> - Opens the file|.vimrc|(normal mode/insert/visual);".
 \"\n        <r> - Reloads the file|.vimrc|in all tabs (normal mode/insert/visual);".
+\"\n        <f> - Opens to configure the search (normal mode/insert/visual);".
+\"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
+\"\n            Note: The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up;".
+\"\n            Note: On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
 \"\n        <c> - Opens the general settings (normal mode/insert/visual);".
 \"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
 \"\n       |<]>|- Brings the last saved session back (normal mode/insert/visual);".
-\"\n            Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with <F5> and then <c>;".
+\"\n            Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c;".
 \"\n".
 \"\n * Integration with plugins~".
 \"\n".
