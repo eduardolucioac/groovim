@@ -4385,6 +4385,44 @@ endfunc
 " standing on the occurrences list renamed the tab to "GrooVim_SearchGuyResults1"
 " and your file was no longer findable among many tabs. Here the label is always
 " a document of yours: the accessories are skipped! By Questor
+" Note: A document you have not saved yet shows as "new 1", "new 2"... the way
+" Notepad++ names them, instead of the "[No Name]" of Vim.
+"
+" Note: A name ON SCREEN and not a name on the buffer. ":file new 1" would have
+" been one line, and it would make ":w" write a file called "new 1" into whatever
+" directory you happen to be in. Nameless, Vim goes on asking you where to save
+" -- which is the Save As of Notepad++, and the reason its "new 1" is not a file
+" either.
+"
+" Note: The number is handed out the first time the buffer is DRAWN and then kept
+" on the buffer, so it never changes under you, and the tabs get theirs in the
+" order they are drawn -- left to right! By Questor
+let g:GrooVim_NewNameCount = 0
+
+func! GrooVim_NewNameOf(buffer)
+
+  if bufname(a:buffer) != "" || getbufvar(a:buffer, "&buftype") != ""
+   \ || !buflisted(a:buffer)
+    return ""
+  endif
+
+  let l:name = getbufvar(a:buffer, "GrooVim_NewName", "")
+  if l:name == ""
+    let g:GrooVim_NewNameCount = g:GrooVim_NewNameCount + 1
+    let l:name = "new " . g:GrooVim_NewNameCount
+    call setbufvar(a:buffer, "GrooVim_NewName", l:name)
+  endif
+
+  return l:name
+endfunc
+
+" Note: What the bar calls the file of the window being drawn. It is "%f" plus
+" the "new N" above! By Questor
+func! GrooVim_FileLabel()
+  let l:name = GrooVim_NewNameOf(bufnr("%"))
+  return l:name != "" ? l:name : expand("%")
+endfunc
+
 func! GrooVim_TabLabel(tab)
   let l:buffers = tabpagebuflist(a:tab)
   let l:chosen = l:buffers[tabpagewinnr(a:tab) - 1]
@@ -4406,7 +4444,12 @@ func! GrooVim_TabLabel(tab)
   endif
 
   let l:name = fnamemodify(bufname(l:chosen), ":t")
-  return l:name == "" ? "[No Name]" : l:name
+  if l:name != ""
+    return l:name
+  endif
+
+  let l:new = GrooVim_NewNameOf(l:chosen)
+  return l:new != "" ? l:new : "[No Name]"
 endfunc
 
 " Note: Like the tab line Vim draws by itself, with the same window count and the
@@ -4947,7 +4990,7 @@ set laststatus=2
 " By Questor
 func! GrooVim_GrooVimBar()
 
-  let l:barContents = '%f [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  let l:barContents = '%{GrooVim_FileLabel()} [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 
   if g:GrooVim_GrooVimBarContext != ""
     return l:barContents . " " . g:GrooVim_GrooVimBarContext . g:GrooVim_GrooVimBarMsgValue
@@ -5488,6 +5531,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n            Note: In visual mode it writes the SELECTION to a file of its own;".
 \"\n        <e> - Save every changed file (normal mode/insert/visual);".
 \"\n        <n> - Open a new tab (normal mode/insert/visual);".
+\"\n            Note: A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be;".
 \"\n        <t> - Allows always returning to a particular tab using <Alt-Down> (normal mode/insert/visual);".
 \"\n        <q> - Close the window (normal mode/insert/visual);".
 \"\n        <w> - Close the tab you are in (normal mode/insert/visual);".

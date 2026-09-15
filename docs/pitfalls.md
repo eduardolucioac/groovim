@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **21 seconds**.
+whole battery takes about **22 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -47,6 +47,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `19_key_groups` | each F key is a group with a meaning: no letter answering twice, the "Used keys" note telling the truth, and every shortcut a message names really existing |
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |
 | `21_title_case` | Title Case in the three modes, and a copy that does not demand a writable buffer |
+| `22_new_names` | a document you have not saved yet is called "new 1", on screen only |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
