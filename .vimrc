@@ -3976,6 +3976,20 @@ endfunc
 " Tip: Try to "balance" the distribution of the keys to preserve your
 " hands! By Questor
 
+" Note: How long GrooVim waits for the SECOND key of a shortcut, in
+" milliseconds. Raise it if a shortcut of yours is being lost between the F key
+" and the letter! By Questor
+let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 1000)
+
+" Note: How long it waits before LOOKING for that key the first time. A terminal
+" sends an arrow or an F key as an escape sequence, and reading before it has all
+" landed reads nothing! By Questor
+let g:GrooVim_CommandZSettle = get(g:, "GrooVim_CommandZSettle", 400)
+
+" Note: How close together the SAME F key has to be pressed to mean "do that
+" again", in milliseconds! By Questor
+let g:GrooVim_CommandZRepeat = get(g:, "GrooVim_CommandZRepeat", 400)
+
 let g:GrooVim_CommandZMoment = 0
 let g:GrooVim_CommandZChar = ""
 let g:GrooVim_CommandZUnblock = 1
@@ -3995,9 +4009,31 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
   " Note: Clears the screen before reading the next key of the combination! By Questor
   redraw!
 
-  if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > 400 || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
-    exec "sleep 400m"
+  if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > g:GrooVim_CommandZRepeat || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
+
+    " Note: Waits for the second key, and goes on waiting in small slices.
+    "
+    " Note: The first sleep is what lets the key ARRIVE -- a terminal sends an
+    " arrow as an escape sequence, and reading before it has all landed reads
+    " nothing. It is also what settles whatever the mapping itself left behind:
+    " asking "getchar" straight away, with no sleep at all, picked up the wrong
+    " key and the real one then ran as itself. Measured, and the whole battery
+    " said so.
+    "
+    " Note: What is NEW is everything after it. One flat sleep gave up on anyone
+    " slower than itself, and the second key then ran as itself: "F2" and then
+    " the Up arrow -- the longest trip on this keyboard -- was lost past 400ms
+    " while the arrow went on to move the cursor, and the tab closers went the
+    " same way back when they lived on the Shifted keys. Now the waiting goes on
+    " in 20ms slices until the key comes or the patience runs out! By Questor
+    exec "sleep " . g:GrooVim_CommandZSettle . "m"
     let l:GrooVim_CommandZNowChar = getchar(0)
+    let l:waited = g:GrooVim_CommandZSettle
+    while l:GrooVim_CommandZNowChar == "" && l:waited < g:GrooVim_CommandZWait
+      exec "sleep 20m"
+      let l:waited = l:waited + 20
+      let l:GrooVim_CommandZNowChar = getchar(0)
+    endwhile
     if l:GrooVim_CommandZNowChar != "" && l:GrooVim_CommandZNowChar != "\<f2>" && l:GrooVim_CommandZNowChar != "\<f3>" && l:GrooVim_CommandZNowChar != "\<f4>" && l:GrooVim_CommandZNowChar != "\<f5>"
       let g:GrooVim_CommandZChar = l:GrooVim_CommandZNowChar
     endif
@@ -5327,6 +5363,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n ".
 \"\n |-|Allows replication of the last command just by pressing the last |F| used. If in a given interval a key combination is not informed the last command is repeated;".
 \"\n |-|If |F| is hold down the command is replicated several times;".
+\"\n |-|You have a whole second to press the second key. GrooVim waits for it instead of giving up, which matters on the long trips of the keyboard -- an |F| key at one corner and an arrow at the other. Change it with|let|g:GrooVim_CommandZWait|=|1500| ;".
 \"\n".
 \"\n    <F2> and then...".
 \"\n      Note: Editing, and what acts on the FILE itself;".
