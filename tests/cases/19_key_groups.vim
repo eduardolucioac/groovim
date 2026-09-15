@@ -20,6 +20,32 @@ func! GT_KeyName(code)
   return tolower(matchstr(a:code, '<\zs\w\+\ze>'))
 endfunc
 
+" The modes a single "if" of the CommandZ answers in, from its condition.
+"
+" No condition at all means all three; "== \"v\"" means visual alone; "!= \"v\""
+" means the other two. Several ifs for the same key add up.
+func! GT_ModesOf(condition)
+  if a:condition ==# ""
+    return "niv"
+  endif
+  let l:which = matchstr(a:condition, '"\zs\w\ze"')
+  if a:condition =~ "=="
+    return l:which
+  endif
+  return substitute("niv", l:which, "", "g")
+endfunc
+
+" Puts a mode set back in the n, i, v order the list is written in.
+func! GT_ModesSorted(modes)
+  let l:out = ""
+  for l:one in ["n", "i", "v"]
+    if stridx(a:modes, l:one) >= 0
+      let l:out = l:out . l:one
+    endif
+  endfor
+  return l:out
+endfunc
+
 " Reads the CommandZ of GrooVim and returns, per group, the list of
 " [key, mode condition] it answers to and the keys its note claims.
 func! GT_ReadGroups(path)
@@ -29,7 +55,7 @@ func! GT_ReadGroups(path)
     let l:which = matchstr(l:line, 'GrooVim_CommandZFCallerNow == "\zsF\d\ze"')
     if l:which != ""
       let l:group = l:which
-      let l:groups[l:group] = {"handled": [], "claimed": []}
+      let l:groups[l:group] = {"handled": [], "claimed": [], "modes": {}}
       continue
     endif
     if l:group == "" | continue | endif
@@ -41,7 +67,10 @@ func! GT_ReadGroups(path)
     let l:code = matchstr(l:line, 'g:GrooVim_CommandZChar == "\zs[^"]\+\ze"')
     if l:code != ""
       let l:mode = matchstr(l:line, 'a:modType [=!]= "\w"')
-      call add(l:groups[l:group].handled, [GT_KeyName(l:code), l:mode])
+      let l:key = GT_KeyName(l:code)
+      call add(l:groups[l:group].handled, [l:key, l:mode])
+      let l:groups[l:group].modes[l:key] =
+        \ get(l:groups[l:group].modes, l:key, "") . GT_ModesOf(l:mode)
     endif
   endfor
   return l:groups
@@ -74,6 +103,46 @@ func! GT_Body()
     call GT_Ok(l:name . ": the \"Used keys\" note is right", l:real ==# l:said,
       \ "   note " . string(l:said) . (l:real ==# l:said ? "" : "   really " . string(l:real)))
   endfor
+
+  " ---- the list the help is written from says what the code really does
+  "
+  " This is the whole point of having one list: the help of F9 and the menu are
+  " written OUT of "g:GrooVim_Shortcuts", so a key that moves group, changes
+  " letter or stops answering in a mode has to be changed here as well -- and
+  " these checks are what makes that so.
+  call GT_Ok("the list of shortcuts is there",
+    \ exists("g:GrooVim_Shortcuts") && len(g:GrooVim_Shortcuts) > 20,
+    \ "   (" . len(g:GrooVim_Shortcuts) . " shortcuts)")
+  call GT_Ok("and every group has its heading",
+    \ len(g:GrooVim_ShortcutGroups) == 4, "   (" . len(g:GrooVim_ShortcutGroups) . ")")
+
+  for l:name in ["F2", "F3", "F4", "F5"]
+    let l:listed = []
+    let l:wrongMode = []
+    for l:one in g:GrooVim_Shortcuts
+      if l:one.group !=# l:name | continue | endif
+      call add(l:listed, l:one.key)
+      let l:real = GT_ModesSorted(get(l:groups[l:name].modes, l:one.key, ""))
+      if l:real !=# GT_ModesSorted(l:one.modes)
+        call add(l:wrongMode, l:one.key . ": the list says " . l:one.modes .
+          \ ", the code answers in " . l:real)
+      endif
+    endfor
+    let l:real = sort(uniq(sort(map(copy(l:groups[l:name].handled), 'v:val[0]'))))
+    call GT_Ok(l:name . ": the list holds exactly the keys the code answers",
+      \ sort(copy(l:listed)) ==# l:real,
+      \ "   list " . string(sort(copy(l:listed))) .
+      \ (sort(copy(l:listed)) ==# l:real ? "" : "   code " . string(l:real)))
+    call GT_Ok(l:name . ": and the modes it claims are the real ones",
+      \ empty(l:wrongMode), "   " . (empty(l:wrongMode) ? "" : string(l:wrongMode)))
+  endfor
+
+  " ---- and the help really is written from it
+  call GT_Ok("the help of F9 is written from the list",
+    \ g:GrooVimHelp =~ "Aligns to left" &&
+    \ GrooVim_ShortcutsHelp() =~ "Aligns to left" &&
+    \ stridx(g:GrooVimHelp, GrooVim_ShortcutsHelp()) >= 0,
+    \ "   (the F group sections of the help are the rendering of it)")
 
   " ---- and where the moved commands now live
   exec "edit " . g:GT_FIX . "/a.txt"

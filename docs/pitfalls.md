@@ -44,7 +44,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `16_session_filetype` | a file coming back from the session comes back as itself: filetype, syntax, width and guides |
 | `17_tab_commands` | carrying a tab along the tab line, closing every tab on one side, and closing the last one |
 | `18_undo_select` | undo and redo on Ctrl-u/Ctrl-r in the three modes, and selecting the whole buffer |
-| `19_key_groups` | each F key is a group with a meaning: no letter answering twice, the "Used keys" note telling the truth, and every shortcut a message names really existing |
+| `19_key_groups` | each F key is a group with a meaning: no letter answering twice, the list the help is written from holding exactly the keys the code answers and in the right modes, and every shortcut a message names really existing |
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |
 | `21_title_case` | Title Case in the three modes, and a copy that does not demand a writable buffer |
 | `22_new_names` | a document you have not saved yet is called "new 1", on screen only |

@@ -5337,6 +5337,164 @@ endfun
 " Note: To facilitate and avoid performance problems that text should always be
 " the last! By Questor
 
+" Note: Every shortcut of the F groups, in ONE place.
+"
+" Note: The help of "F9" is WRITTEN from this list, and so is the menu. It used
+" to be two hundred lines of prose kept by hand beside the block of code that
+" answers the keys, and the two drifted every time anything moved: keys that
+" changed group and were still listed under the old one, a whole "<F5>" block
+" that did not exist at all, messages sending you to letters that had been
+" retired. One list, and the drift has nowhere left to happen.
+"
+" Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
+" It is not decoration: the case that checks this list against the code reads it,
+" and writing it wrong is a failure! By Questor
+let g:GrooVim_ShortcutGroups = [
+ \ ["F2", "Editing, and what acts on the FILE itself"],
+ \ ["F3", "The editing you reach for most, and searching"],
+ \ ["F4", "The installed plugins and what they do"],
+ \ ["F5", "What acts on the EDITOR -- tabs, leaving -- and the settings"]
+ \ ]
+
+let g:GrooVim_Shortcuts = [
+ \ {"group": "F2", "key": "h", "modes": "niv", "what": "Aligns to left"},
+ \ {"group": "F2", "key": "k", "modes": "niv", "what": "Aligns to right"},
+ \ {"group": "F2", "key": "j", "modes": "niv", "what": "Aligns to center"},
+ \ {"group": "F2", "key": "up", "modes": "niv", "what": "Changes to uppercase"},
+ \ {"group": "F2", "key": "down", "modes": "niv", "what": "Changes to lowercase"},
+ \ {"group": "F2", "key": "t", "modes": "niv",
+ \  "what": "Title Case: the first letter of every word up, the rest down",
+ \  "notes": [
+ \   "In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\"",
+ \   "The three of them leave the cursor where it was"
+ \  ]},
+ \ {"group": "F2", "key": "c", "modes": "niv", "what": "Copy all text in the current buffer"},
+ \ {"group": "F2", "key": "q", "modes": "niv", "what": "Record a macro"},
+ \ {"group": "F2", "key": "w", "modes": "niv", "what": "Run a macro"},
+ \ {"group": "F2", "key": "e", "modes": "niv", "what": "Run a macro certain number of times or repeatedly until the last line"},
+ \ {"group": "F2", "key": "end", "modes": "niv", "what": "Selects the word under the cursor"},
+ \ {"group": "F2", "key": "p", "modes": "niv", "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
+ \ {"group": "F2", "key": "y", "modes": "niv", "what": "Save to disk and open in a new tab a copy of the current file"},
+ \ {"group": "F3", "key": "a", "modes": "niv", "what": "Select all text in the current buffer"},
+ \ {"group": "F3", "key": "d", "modes": "niv",
+ \  "what": "Duplicates the current line/selection",
+ \  "notes": [
+ \   "If in the visual mode can not be replicated"
+ \  ]},
+ \ {"group": "F3", "key": "del", "modes": "ni", "what": "Selects an area"},
+ \ {"group": "F3", "key": "/", "modes": "niv", "what": "Removes search highlights"},
+ \ {"group": "F3", "key": "f", "modes": "niv", "what": "Opens for search"},
+ \ {"group": "F3", "key": "h", "modes": "niv",
+ \  "what": "Opens to replace",
+ \  "notes": [
+ \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h"
+ \  ]},
+ \ {"group": "F3", "key": "end", "modes": "niv", "what": "Select and search the word under the cursor (case sensitive)"},
+ \ {"group": "F3", "key": "v", "modes": "ni", "what": "Reselect area, the |gv| of Vim"},
+ \ {"group": "F4", "key": "n", "modes": "niv", "what": "Opens/closes the *NERDTree*"},
+ \ {"group": "F5", "key": "s", "modes": "niv",
+ \  "what": "Save to disk",
+ \  "notes": [
+ \   "In visual mode it writes the SELECTION to a file of its own"
+ \  ]},
+ \ {"group": "F5", "key": "e", "modes": "niv", "what": "Save every changed file"},
+ \ {"group": "F5", "key": "n", "modes": "niv",
+ \  "what": "Open a new tab",
+ \  "notes": [
+ \   "A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
+ \   "The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again"
+ \  ]},
+ \ {"group": "F5", "key": "t", "modes": "niv", "what": "Allows always returning to a particular tab using <Alt-Down>"},
+ \ {"group": "F5", "key": "q", "modes": "niv", "what": "Close the window"},
+ \ {"group": "F5", "key": "w", "modes": "niv",
+ \  "what": "Close the tab you are in",
+ \  "notes": [
+ \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls |new|1|"
+ \  ]},
+ \ {"group": "F5", "key": "o", "modes": "niv", "what": "Close all other tabs"},
+ \ {"group": "F5", "key": ".", "modes": "niv", "what": "Close every tab to the RIGHT of this one"},
+ \ {"group": "F5", "key": ",", "modes": "niv",
+ \  "what": "Close every tab to the LEFT of this one",
+ \  "notes": [
+ \   "The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes"
+ \  ]},
+ \ {"group": "F5", "key": "a", "modes": "niv",
+ \  "what": "Close everything and leave",
+ \  "notes": [
+ \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"
+ \  ]},
+ \ {"group": "F5", "key": "v", "modes": "niv", "what": "Opens the file|.vimrc|"},
+ \ {"group": "F5", "key": "r", "modes": "niv", "what": "Reloads the file|.vimrc|in all tabs"},
+ \ {"group": "F5", "key": "f", "modes": "niv", "what": "Opens to configure the search"},
+ \ {"group": "F5", "key": "h", "modes": "niv",
+ \  "what": "Opens to configure the replace",
+ \  "notes": [
+ \   "The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up",
+ \   "On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>"
+ \  ]},
+ \ {"group": "F5", "key": "i", "modes": "niv", "what": "Opens the indent settings -- the \"Tab Settings\" of Notepad++"},
+ \ {"group": "F5", "key": "c", "modes": "niv", "what": "Opens the general settings"},
+ \ {"group": "F5", "key": "[", "modes": "niv", "what": "Saves the current session"},
+ \ {"group": "F5", "key": "]", "modes": "niv",
+ \  "what": "Brings the last saved session back",
+ \  "notes": [
+ \   "The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
+ \  ]}
+ \ ]
+
+" Note: How a key is written on screen. A letter goes in plain angle brackets; a
+" named key gets its capital back; punctuation is wrapped in bars, because the
+" help syntax of Vim would otherwise eat a "/" or a "[" ! By Questor
+func! GrooVim_ShortcutKeyShown(key)
+  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
+   \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
+  let l:name = get(l:named, a:key, a:key)
+  if a:key =~ '^\w\+$'
+    return "        <" . l:name . "> - "
+  endif
+  return "       |<" . l:name . ">|- "
+endfunc
+
+" Note: Which modes a key answers in, spelled the way the help spells it! By
+" Questor
+func! GrooVim_ShortcutModes(modes)
+  let l:spelled = []
+  for l:pair in [["n", "normal mode"], ["i", "insert"], ["v", "visual"]]
+    if stridx(a:modes, l:pair[0]) >= 0
+      call add(l:spelled, l:pair[1])
+    endif
+  endfor
+  return "(" . join(l:spelled, "/") . ")"
+endfunc
+
+" Note: The F group sections of the help, written out of the list above! By
+" Questor
+func! GrooVim_ShortcutsHelp()
+
+  let l:out = []
+
+  for l:group in g:GrooVim_ShortcutGroups
+    call add(l:out, "")
+    call add(l:out, "    <" . l:group[0] . "> and then...")
+    call add(l:out, "      Note: " . l:group[1] . ";")
+
+    for l:one in g:GrooVim_Shortcuts
+      if l:one.group !=# l:group[0]
+        continue
+      endif
+      call add(l:out, GrooVim_ShortcutKeyShown(l:one.key) . l:one.what .
+       \ " " . GrooVim_ShortcutModes(l:one.modes) . ";")
+      for l:note in get(l:one, "notes", [])
+        call add(l:out, "            Note: " . l:note . ";")
+      endfor
+    endfor
+  endfor
+
+  return join(l:out, "\n")
+endfunc
+
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n|GrooVim|=D|2.0.8b|-|Vi|IMproved\'n\'GrooVIed!|".
 \"\n Last change: 2026 September 4".
@@ -5529,69 +5687,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n |-|If |F| is hold down the command is replicated several times;".
 \"\n |-|You have a whole second to press the second key. GrooVim waits for it instead of giving up, which matters on the long trips of the keyboard -- an |F| key at one corner and an arrow at the other. Change it with|let|g:GrooVim_CommandZWait|=|1500| ;".
 \"\n".
-\"\n    <F2> and then...".
-\"\n      Note: Editing, and what acts on the FILE itself;".
-\"\n        <h> - Aligns to left (normal mode/insert/visual);".
-\"\n        <k> - Aligns to right (normal mode/insert/visual);".
-\"\n        <j> - Aligns to center (normal mode/insert/visual);".
-\"\n        <Up> - Changes to uppercase (normal mode/insert/visual);".
-\"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
-\"\n        <t> - Title Case: the first letter of every word up, the rest down (normal mode/insert/visual);".
-\"\n            Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\";".
-\"\n            Note: The three of them leave the cursor where it was;".
-\"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
-\"\n        <q> - Record a macro (normal mode/insert/visual);".
-\"\n        <w> - Run a macro (normal mode/insert/visual);".
-\"\n        <e> - Run a macro certain number of times or repeatedly until the last line (normal mode/insert/visual);".
-\"\n        <End> - Selects the word under the cursor (normal mode/insert/visual);".
-\"\n        <p> - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);".
-\"\n        <y> - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);".
-\"\n".
-\"\n    <F3> and then...".
-\"\n      Note: The editing you reach for most, and searching;".
-\"\n        <a> - Select all text in the current buffer (normal mode/insert/visual);".
-\"\n        <d> - Duplicates the current line/selection (normal mode/insert/visual);".
-\"\n            Note: If in the visual mode can not be replicated;".
-\"\n        <Del> - Selects an area (normal mode/insert);".
-\"\n       |</>|- Removes search highlights (normal mode/insert/visual);".
-\"\n        <f> - Opens for search (normal mode/insert/visual);".
-\"\n        <h> - Opens to replace (normal mode/insert/visual);".
-\"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h;".
-\"\n        <End> - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);".
-\"\n        <v> - Reselect area, the |gv| of Vim (normal mode/insert/visual);".
-\"\n".
-\"\n    <F4> and then...".
-\"\n      Note: The installed plugins and what they do;".
-\"\n        <n> - Opens/closes the *NERDTree* (normal mode/insert/visual);".
-\"\n".
-\"\n    <F5> and then...".
-\"\n      Note: What acts on the EDITOR -- tabs, leaving -- and the settings;".
-\"\n        <s> - Save to disk (normal mode/insert/visual);".
-\"\n            Note: In visual mode it writes the SELECTION to a file of its own;".
-\"\n        <e> - Save every changed file (normal mode/insert/visual);".
-\"\n        <n> - Open a new tab (normal mode/insert/visual);".
-\"\n            Note: A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be;".
-\"\n            Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again;".
-\"\n        <t> - Allows always returning to a particular tab using <Alt-Down> (normal mode/insert/visual);".
-\"\n        <q> - Close the window (normal mode/insert/visual);".
-\"\n        <w> - Close the tab you are in (normal mode/insert/visual);".
-\"\n        <o> - Close all other tabs (normal mode/insert/visual);".
-\"\n       |<.>|- Close every tab to the RIGHT of this one (normal mode/insert/visual);".
-\"\n       |<,>|- Close every tab to the LEFT of this one (normal mode/insert/visual);".
-\"\n            Note: The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes;".
-\"\n        <a> - Close everything and leave (normal mode/insert/visual);".
-\"\n            Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;".
-\"\n        <v> - Opens the file|.vimrc|(normal mode/insert/visual);".
-\"\n        <r> - Reloads the file|.vimrc|in all tabs (normal mode/insert/visual);".
-\"\n        <f> - Opens to configure the search (normal mode/insert/visual);".
-\"\n        <h> - Opens to configure the replace (normal mode/insert/visual);".
-\"\n            Note: The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up;".
-\"\n            Note: On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
-\"\n        <i> - Opens the indent settings -- the \"Tab Settings\" of Notepad++ (normal mode/insert/visual);".
-\"\n        <c> - Opens the general settings (normal mode/insert/visual);".
-\"\n       |<[>|- Saves the current session (normal mode/insert/visual);".
-\"\n       |<]>|- Brings the last saved session back (normal mode/insert/visual);".
-\"\n            Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c;".
+\ GrooVim_ShortcutsHelp() .
 \"\n".
 \"\n * Integration with plugins~".
 \"\n".
