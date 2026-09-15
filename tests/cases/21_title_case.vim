@@ -85,6 +85,39 @@ func! GT_Body()
       \ "   (line " . line(".") . " col " . col(".") . ", it was 1/13)   [" . getline(1) . "]")
   endfor
 
+  " ---- the cursor sitting PAST the end of the line
+  "
+  " GrooVim runs with "virtualedit=onemore", so the cursor can be one column
+  " beyond the last character -- which is where you are after typing to the end
+  " of a line. There is no word there, and "iw" took only the last letter:
+  " "total" came back as "totaL".
+  "
+  " GT_Press and not feedkeys: pressing the same F key twice in a row this fast
+  " means "do that again" to GrooVim, and the second shortcut would repeat the
+  " first instead of running.
+  let l:line = "    return total"
+  for l:case in [["\<F2>\<Up>", "upper", "    return TOTAL"],
+    \ ["\<F2>\<Down>", "lower", "    return total"],
+    \ ["\<F2>t", "title", "    return Total"]]
+    for l:col in [13, 16, 17]
+      call setline(1, l:case[1] ==# "lower" ? "    return TOTAL" : l:line)
+      call cursor(1, l:col)
+      call GT_Press(l:case[0])
+      call GT_Ok(l:case[1] . ": from column " . l:col . " of a 16 column line",
+        \ getline(1) ==# l:case[2] && col(".") == l:col,
+        \ "   [" . getline(1) . "] cursor " . col(".") .
+        \ (l:col > 16 ? "   (past the end of the line)" : ""))
+    endfor
+  endfor
+
+  " ---- and an empty line is not an error
+  call setline(1, "")
+  call cursor(1, 1)
+  let v:errmsg = ""
+  call GT_Press("\<F2>\<Up>")
+  call GT_Ok("an empty line: nothing happens and nothing breaks",
+    \ getline(1) ==# "" && v:errmsg ==# "", "   [" . v:errmsg . "]")
+
   " ---- nothing locks the buffers that come after it
   "
   " Measured: one ":set noma" and every buffer opened afterwards is locked.

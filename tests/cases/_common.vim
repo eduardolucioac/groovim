@@ -99,6 +99,18 @@ func! GT_WhenTry(condition, nextStep, try)
   call timer_start(50, {t -> GT_WhenTry(a:condition, a:nextStep, a:try + 1)})
 endfunc
 
+" Presses an F-key shortcut, with the "do that again" logic kept out of the way.
+"
+" Pressing the same F key twice within "g:GrooVim_CommandZRepeat" means "repeat
+" the last command", and two feedkeys() calls in a row from a case are
+" milliseconds apart -- so the second shortcut silently repeated the first.
+" Measured: a Title Case that followed a lowercase left the word lowercase, and
+" the case was accusing the product of a defect that was in the test.
+func! GT_Press(keys)
+  let g:GrooVim_CommandZMoment = 0
+  call feedkeys(a:keys, "x")
+endfunc
+
 " ---- helpers used by more than one case ----
 
 " How many occurrence-list windows there are in the current tab.

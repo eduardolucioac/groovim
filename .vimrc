@@ -4770,6 +4770,20 @@ endfunc
 "
 " Note: In normal and insert mode it is the word under the cursor, selected here
 " so that the same substitution serves all three modes! By Questor
+" Note: Puts the cursor ON the text of the line when it is sitting PAST it.
+"
+" Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one column
+" beyond the last character -- which is exactly where you are after typing to the
+" end of a line. There is no word there, and "iw" then took only the last letter:
+" changing the case of "total" gave back "totaL". Anything that works on "the
+" word under the cursor" has to step onto the text first! By Questor
+func! GrooVim_StepOntoTheText()
+  let l:width = strlen(getline("."))
+  if col(".") > l:width
+    call cursor(line("."), max([1, l:width]))
+  endif
+endfunc
+
 " Note: The case of the word under the cursor, with the cursor left WHERE IT WAS.
 "
 " Note: This used to be "norm gUiwe", and the "e" walks to the end of the word --
@@ -4777,6 +4791,7 @@ endfunc
 " letter. Changing the case of a word is not a movement! By Questor
 func! GrooVim_CaseOfTheWord(which)
   let l:view = winsaveview()
+  call GrooVim_StepOntoTheText()
   exec "norm! g" . a:which . "iw"
   call winrestview(l:view)
 endfunc
@@ -4795,6 +4810,7 @@ func! GrooVim_ToTitleCase(modType) range
   if a:modType == "v"
     exec "norm! gv\<Esc>"
   else
+    call GrooVim_StepOntoTheText()
     exec "norm! viw\<Esc>"
   endif
 

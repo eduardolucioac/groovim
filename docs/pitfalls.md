@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **20 seconds**.
+whole battery takes about **21 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -179,6 +179,13 @@ half a character. Use `strcharpart()`.
 **`=~` is case-insensitive here.** GrooVim sets `ignorecase`, so a check written
 `getline(1) =~ "^O'Brien"` passes over the very text it was meant to reject —
 `o'brien` matches. Use `==#` with the exact string, or `=~#`.
+
+**Two F-key shortcuts in a row repeat instead of running.** Pressing the same F
+key twice within `g:GrooVim_CommandZRepeat` means "do that again" in GrooVim, and
+two `feedkeys()` calls from a case are milliseconds apart. Measured: a Title Case
+that followed a lowercase left the word lowercase, and the case was accusing the
+product of a defect that was in the test. Use `GT_Press()`, which clears the
+moment first.
 
 **`gdefault` inverts the `g` flag of `:s`.** GrooVim has it on, so a substitution
 written `:s/.../.../g` replaces the FIRST match of each line and no more.
