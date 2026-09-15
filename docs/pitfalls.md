@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **19 seconds**.
+whole battery takes about **20 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -46,6 +46,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `18_undo_select` | undo and redo on Ctrl-u/Ctrl-r in the three modes, and selecting the whole buffer |
 | `19_key_groups` | each F key is a group with a meaning: no letter answering twice, the "Used keys" note telling the truth, and every shortcut a message names really existing |
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |
+| `21_title_case` | Title Case in the three modes, and a copy that does not demand a writable buffer |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -174,6 +175,15 @@ produces no failure, it produces *absence*. Use a plain name.
 
 **A string index counts bytes.** `guide[0]` on a character like `┊` gives back
 half a character. Use `strcharpart()`.
+
+**`=~` is case-insensitive here.** GrooVim sets `ignorecase`, so a check written
+`getline(1) =~ "^O'Brien"` passes over the very text it was meant to reject —
+`o'brien` matches. Use `==#` with the exact string, or `=~#`.
+
+**`gdefault` inverts the `g` flag of `:s`.** GrooVim has it on, so a substitution
+written `:s/.../.../g` replaces the FIRST match of each line and no more.
+Measured: a Title Case over a selection changed only the first word. Turn it off
+around the substitution and put it back, the way the occurrence counter does.
 
 **Filtering the output hides a failure.** Run the whole runner and read the
 summary.

@@ -1896,7 +1896,13 @@ vnoremap <silent> <C-x> di
 " Note: Same shape as the Ctrl-x above on purpose: in an editor without modes you
 " simply keep typing after copying or cutting, and landing on insert is what
 " comes closest to that! By Questor
-vnoremap <silent> <C-c> yi
+" Note: Copies and comes back to typing, which is what a conventional editor
+" leaves you able to do after a copy.
+"
+" Note: The "i" only where typing is POSSIBLE. On a buffer you cannot change --
+" the help, the occurrence list -- it answered "E21: Cannot make changes,
+" 'modifiable' is off" over a command that changes nothing! By Questor
+vnoremap <silent> <expr> <C-c> &modifiable ? "yi" : "y"
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d
@@ -3145,18 +3151,23 @@ func! GrooVim_SearchGuySync()
 
     call GrooVim_PutOnEditWindow()
 
-    " Note: The "set ma" and "set noma" open and lock the editing of the
-    " buffer! By Questor
-    set ma
+    " Note: "setlocal" and NOT "set": on an option that belongs to a buffer or a
+    " window, ":set" writes the local value AND the global default, so a "set
+    " noma" here would lock EVERY buffer opened afterwards. Measured: open the
+    " help once and the next empty buffer answers "E21: Cannot make changes,
+    " 'modifiable' is off" over a command that was not changing anything. The
+    " "set cursorline" leaked the same way, over the "set nocursorline" GrooVim
+    " sets on purpose! By Questor
+    setlocal ma
     exec "set splitbelow"
     silent exec "split GrooVim_SearchGuyResults" . tabpagenr()
     exec "put =g:matchedLinesGlobal"
-    set cursorline
+    setlocal cursorline
     " Note: "norm!" and not "norm": the list turns off the editing keys with
     " buffer mappings, and without the "!" this code would run through them and
     " do something else entirely! By Questor
     exec "norm! ggdd"
-    set noma
+    setlocal noma nomodified
     call GrooVim_SearchGuyPanelSetup()
   endif
 endfunc
@@ -3400,7 +3411,7 @@ func! GrooVim_SearchGuyNavigate() range
       " Note: Only if this tab still has a list. Rebuilding it is what puts the
       " "->" on the line you are jumping from! By Questor
       if GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
-        set ma
+        setlocal ma
         " Note: "norm!" for the same reason as in "GrooVim_SearchGuySync()":
         " these run inside the list, where "d", "i" and friends are mapped to
         " nothing! By Questor
@@ -3409,7 +3420,7 @@ func! GrooVim_SearchGuyNavigate() range
         exec "norm! ggdd"
         call setpos(".", l:listPosLinCol)
         exec "norm! 0i->"
-        set noma
+        setlocal noma nomodified
       endif
 
       " Note: The file may not be open any more, and it may have moved to another
@@ -4008,7 +4019,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     " Note: Edit commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F2"
       " Note: Editing, and what acts on the FILE itself.
-      " Note: Used keys for F2: h k j up down c q w e p y end! By Questor
+      " Note: Used keys for F2: h k j up down t c q w e p y end! By Questor
       " Note: To debug! By Questor
       " Note: Aligns to left (h)! By Questor
       if g:GrooVim_CommandZChar == "104"
@@ -4029,6 +4040,10 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note: Changes to lowercase (normal/insert) (down)! By Questor
       if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
         exec "norm guiwe"
+      endif
+      " Note: Title Case (t)! By Questor
+      if g:GrooVim_CommandZChar == "116"
+        call GrooVim_ToTitleCase(a:modType)
       endif
       " Note: Changes to uppercase (visual) (up)! By Questor
       if g:GrooVim_CommandZChar == "\<Up>" && a:modType == "v"
@@ -4154,8 +4169,11 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       " Note: Open a new tab (n)! By Questor
       if g:GrooVim_CommandZChar == "110"
         tabnew
-        " Note: Solve read only problem! By Questor
-        set ma
+        " Note: A new tab you can type in. This used to be "set ma", which fixed
+        " the symptom of a lock that leaked from the help and the occurrence
+        " list -- those now use "setlocal" and leak nothing. Kept, local, so a
+        " new tab is writable whatever anything else may have done! By Questor
+        setlocal ma
       endif
       " Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
       if g:GrooVim_CommandZChar == "116"
@@ -4349,13 +4367,19 @@ func! GrooVim_ToogleGrooVimHelp() range
 
     call GrooVim_PutOnEditWindow()
 
-    " Note: The "set ma" and "set noma" opens and locks the buffer editing! By Questor
-    set ma
+    " Note: "setlocal" and NOT "set" -- see the long note in
+    " "GrooVim_SearchGuySync()". This one was the loudest: opening the help
+    " locked the global "modifiable", and from then on every new buffer of the
+    " session answered "E21" to anything, a copy included! By Questor
+    setlocal ma
     silent exec "split GrooVimHelp"
     exec "put =g:GrooVimHelp"
     exec "norm ggdd"
-    exec "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapmargin=0 | set formatoptions+=l | set syntax=help"
-    set noma
+    setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
+    setlocal syntax=help
+    " Note: The help was WRITTEN into, so Vim marks it changed and the bar shows
+    " a "+" on a buffer nobody can change! By Questor
+    setlocal noma nomodified
   else
     " Note: With this approach I can effectively "destroy" the "buffer" not
     " returning false "positives" in "bufexists()" above! By Questor
@@ -4651,6 +4675,50 @@ func! GrooVim_VisualWrite() range
 endfunc
 
 " Note: Changes to uppercase/lowercase! By Questor
+" Note: Title Case: the first letter of every word up, the rest down.
+"
+" Note: A substitution and not an operator, because Vim has "gU" and "gu" and
+" nothing for this. "\u" raises the character that follows it and "\L" lowers
+" everything after, so one pass does both halves of each word.
+"
+" Note: "\%V" is what keeps it INSIDE the selection. A plain ":s" works on whole
+" LINES, and a selection of half a line would have taken the other half with it.
+" It reads the area "gv" would bring back, which is why the "<Esc>" below comes
+" BEFORE the substitution and not after: the area is only written down when
+" visual mode ends.
+"
+" Note: In normal and insert mode it is the word under the cursor, selected here
+" so that the same substitution serves all three modes! By Questor
+func! GrooVim_ToTitleCase(modType) range
+
+  let l:search = @/
+
+  " Note: "norm!" and not "norm": GrooVim remaps "v" in normal mode, and a bare
+  " "norm gv" is read through the mappings! By Questor
+  if a:modType == "v"
+    exec "norm! gv\<Esc>"
+  else
+    exec "norm! viw\<Esc>"
+  endif
+
+  " Note: "gdefault" INVERTS the "g" flag, and GrooVim has it on -- so the "/g"
+  " below would have meant "the first word and no more". Measured: only the first
+  " word of the selection changed. The counter of occurrences turns it off for
+  " the same reason, and puts it back the same way! By Questor
+  let l:gdefault = &gdefault
+  set nogdefault
+  silent! exec "'<,'>s/\\%V\\<\\(\\w\\)\\(\\w*\\)/\\u\\1\\L\\2/g"
+  let &gdefault = l:gdefault
+
+  let @/ = l:search
+
+  if a:modType == "v"
+    " Note: Repositioning on final, like the upper and lower above! By Questor
+    exec "norm! gv\<Esc>"
+  endif
+
+endfunc
+
 func! GrooVim_ToUpperLower(modType) range
   " Note: Reselect area! By Questor
   exec "norm gv"
@@ -5267,6 +5335,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <j> - Aligns to center (normal mode/insert/visual);".
 \"\n        <Up> - Changes to uppercase (normal mode/insert/visual);".
 \"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
+\"\n        <t> - Title Case: the first letter of every word up, the rest down (normal mode/insert/visual);".
+\"\n            Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\";".
 \"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
 \"\n        <q> - Record a macro (normal mode/insert/visual);".
 \"\n        <w> - Run a macro (normal mode/insert/visual);".
