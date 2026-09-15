@@ -97,6 +97,63 @@ func! GT_Body()
   call GT_Ok("  and F5 s does write", filereadable(l:file), "")
   call delete(l:file)
 
+  " ---- GrooVim knows where its own .vimrc is
+  "
+  " "$MYVIMRC" is empty when Vim is handed the file with "-u", which is how the
+  " "groovim" command runs it -- and ":tabedit $MYVIMRC" then opened a new, empty
+  " file NAMED after the variable.
+  call GT_Ok("GrooVim knows its own .vimrc", filereadable(g:GrooVim_Vimrc),
+    \ "   [" . g:GrooVim_Vimrc . "]")
+  " simplify(): the runner says "tests/../.vimrc", which is the same file
+  call GT_Ok("  and it is the one being run",
+    \ simplify(fnamemodify(g:GrooVim_Vimrc, ":p")) ==# simplify(fnamemodify(l:path, ":p")),
+    \ "   (-u said " . simplify(fnamemodify(l:path, ":p")) . ")")
+  call GT_Ok("the mapping that opens it carries the path, not the variable",
+    \ maparg("\\zv", "n") !~ "MYVIMRC" && maparg("\\zv", "n") =~ "tabedit",
+    \ "   [" . maparg("\\zv", "n") . "]")
+  call GT_Ok("and so does the one that reloads it",
+    \ maparg("\\zvv", "n") !~ "MYVIMRC" && maparg("\\zvv", "n") =~ "source",
+    \ "   [" . maparg("\\zvv", "n") . "]")
+  call GT_Ok("neither goes through a function of its own",
+    \ maparg("\\zvv", "n") !~ "call ",
+    \ "   (sourcing redefines every function, and Vim refuses one that is RUNNING: E127)")
+
+  tabonly!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  call feedkeys("\<F5>v", "x")
+  call GT_Ok("F5 v opened the real .vimrc", expand("%:p") ==# g:GrooVim_Vimrc && line("$") > 100,
+    \ "   [" . expand("%:t") . "] " . line("$") . " lines")
+  tabonly!
+
+  " ---- the debugger of 2014 is gone
+  call GT_Ok("no debugger left in the source",
+    \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
+  call GT_Ok("F4 answers for the tree alone", l:groups["F4"].claimed ==# ["n"],
+    \ "   " . string(l:groups["F4"].claimed))
+
+  " ---- what came up from F2 to F3
+  exec "edit " . g:GT_FIX . "/a.txt"
+  call cursor(2, 1)
+  let l:before = line("$")
+  call feedkeys("\<F3>d", "x")
+  call GT_Ok("F3 d duplicates the line", line("$") == l:before + 1 &&
+    \ getline(2) ==# getline(3), "   [" . getline(2) . "] [" . getline(3) . "]")
+  call feedkeys("\<F2>d", "x")
+  call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
+    \ "   (" . line("$") . " lines)")
+
+  " ---- and the letters the collisions forced
+  call cursor(1, 1)
+  call feedkeys("VG\<Esc>", "x")
+  call GT_Ok("setup: a selection to come back to", line("'<") == 1 && line("'>") == line("$"), "")
+  call cursor(2, 1)
+  call feedkeys("\<F3>v\<Esc>", "x")
+  call GT_Ok("F3 v reselects the area (the gv of Vim)",
+    \ line("'<") == 1 && line("'>") == l:before + 1, "   (from " . line("'<") . " to " . line("'>") . ")")
+  call GT_Ok("F3 g is the one that configures the search",
+    \ index(l:groups["F3"].claimed, "g") >= 0 && index(l:groups["F3"].claimed, "d") >= 0,
+    \ "   " . string(l:groups["F3"].claimed))
+
   call GT_Done()
 endfunc
 

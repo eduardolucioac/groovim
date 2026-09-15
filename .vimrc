@@ -304,6 +304,16 @@ set nocompatible
 let g:GrooVim_Home = get(g:, "GrooVim_Home",
  \ $GROOVIM_HOME != "" ? expand($GROOVIM_HOME) : expand("~/.groovim"))
 
+" Note: Where THIS file is, so that GrooVim can open and reload itself.
+"
+" Note: Not "$MYVIMRC": Vim only fills that in when it finds the vimrc on its
+" own, and the "groovim" command hands it over with "-u <path>" -- so it comes
+" out EMPTY, and ":tabedit $MYVIMRC" opened a new, empty file whose name was the
+" four letters of the variable. Measured. "<sfile>" is the file being sourced,
+" which is exactly this one, wherever it lives! By Questor
+let g:GrooVim_Vimrc = get(g:, "GrooVim_Vimrc",
+ \ expand("<sfile>:p") != "" ? expand("<sfile>:p") : $MYVIMRC)
+
 if !isdirectory(g:GrooVim_Home)
   call mkdir(g:GrooVim_Home, "p")
 endif
@@ -931,7 +941,6 @@ let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("ne
 
 " Note: debugger.vim! No debug plugin is installed by the README instructions,
 " so this one stays off unless you ask for it! By Questor
-let g:enable_debugger_vim = get(g:, "enable_debugger_vim", 0)
 
 " Note: move.vim! By Questor
 let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move"))
@@ -3857,7 +3866,7 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
     " Note: Edit commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F2"
       " Note: Editing, and what acts on the FILE itself.
-      " Note: Used keys for F2: h k j up down c d q w e p y end del! By Questor
+      " Note: Used keys for F2: h k j up down c q w e p y end! By Questor
       " Note: To debug! By Questor
       " Note: Aligns to left (h)! By Questor
       if g:GrooVim_CommandZChar == "104"
@@ -3891,6 +3900,39 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "99"
         call GrooVim_ClipSet(join(getline(1, "$"), "\n"))
       endif
+      " Note: Record a macro (q)! By Questor
+      if g:GrooVim_CommandZChar == "113"
+        call GrooVim_XenRec()
+      endif
+      " Note: Run a macro (w)! By Questor
+      if g:GrooVim_CommandZChar == "119"
+        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])
+      endif
+      " Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
+      if g:GrooVim_CommandZChar == "101"
+        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])
+      endif
+      " Note: Selects the word under the cursor (End)! By Questor
+      if g:GrooVim_CommandZChar == "\<End>"
+        exec "norm viw"
+      endif
+      " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
+      if g:GrooVim_CommandZChar == "112"
+        call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])
+      endif
+      " Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
+      if g:GrooVim_CommandZChar == "121"
+        call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])
+      endif
+    endif
+    " Note: Control commands! By Questor
+    if a:GrooVim_CommandZFCallerNow == "F3"
+      " Note: The editing you reach for most, and searching.
+      " Note: Used keys for F3: a d v / f g h j end del! By Questor
+      " Note: Select all text in the current buffer (a)! By Questor
+      if g:GrooVim_CommandZChar == "97"
+        exec "norm ggVG$"
+      endif
       " Note: Duplicates the current line/selection (normal) (d)! By Questor
       if g:GrooVim_CommandZChar == "100" && a:modType == "n"
         let l:saved_reg = GrooVim_ClipGet()
@@ -3909,42 +3951,9 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
         " Note: If in the visual mode this command can not be replicated hold F key! By Questor
         let g:GrooVim_CommandZChar = ""
       endif
-      " Note: Record a macro (q)! By Questor
-      if g:GrooVim_CommandZChar == "113"
-        call GrooVim_XenRec()
-      endif
-      " Note: Run a macro (w)! By Questor
-      if g:GrooVim_CommandZChar == "119"
-        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])
-      endif
-      " Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
-      if g:GrooVim_CommandZChar == "101"
-        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])
-      endif
-      " Note: Selects the word under the cursor (End)! By Questor
-      if g:GrooVim_CommandZChar == "\<End>"
-        exec "norm viw"
-      endif
       " Note: Selects an area (Del)! By Questor
       if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
         call GrooVim_SelectRange(a:modType)
-      endif
-      " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
-      if g:GrooVim_CommandZChar == "112"
-        call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])
-      endif
-      " Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
-      if g:GrooVim_CommandZChar == "121"
-        call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])
-      endif
-    endif
-    " Note: Control commands! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: The editing you reach for most, and searching.
-      " Note: Used keys for F3: a / f d h j end del! By Questor
-      " Note: Select all text in the current buffer (a)! By Questor
-      if g:GrooVim_CommandZChar == "97"
-        exec "norm ggVG$"
       endif
       " Note: Removes search highlights (visual/normal) (/)! By Questor
       if g:GrooVim_CommandZChar == "47" && a:modType != "i"
@@ -3964,8 +3973,13 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "102" && a:modType == "v"
         call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])
       endif
-      " Note: Opens to configure the search (d)! By Questor
-      if g:GrooVim_CommandZChar == "100"
+      " Note: Opens to configure the search (g)! By Questor
+      "
+      " Note: On the letter after the one that searches. With the replace on "h"
+      " and its settings on "j", the four sit side by side on the home row:
+      " f g h j -- search, its settings, replace, its settings. The "d" it used
+      " to be went to duplicating, which came up from "F2"! By Questor
+      if g:GrooVim_CommandZChar == "103"
         call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
       endif
       " Note: Opens to replace (normal/insert) (h)! By Questor
@@ -3984,26 +3998,23 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
       if g:GrooVim_CommandZChar == "\<End>"
         call GrooVim_SelectNSearch(1, a:modType)
       endif
-      " Note: Reselect area (Del)! By Questor
-      if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
+      " Note: Reselect area (v)! By Questor
+      "
+      " Note: The "v" of the "gv" of Vim, which is what this runs. The "Del" it
+      " used to be now selects an area, which came up from "F2"! By Questor
+      if g:GrooVim_CommandZChar == "118" && a:modType != "v"
         exec "norm gv"
       endif
     endif
     " Note: Plugin commands! By Questor
     if a:GrooVim_CommandZFCallerNow == "F4"
       " Note: The installed plugins and what they do.
-      " Note: Used keys for F4: n d! By Questor
+      " Note: Used keys for F4: n! By Questor
       " Note: Opens/closes the "NerdTree" (n)! By Questor
       if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
         if g:GrooVim_CommandZChar == "110"
           " call ToggleNERDTree()
           call GrooVim_ToggleNERDTreeTabs()
-        endif
-      endif
-      " Note: Opens/closes the "Vim Debug" (d)! By Questor
-      if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
-        if g:GrooVim_CommandZChar == "100"
-          call GrooVim_ToggleDbg()
         endif
       endif
     endif
@@ -4408,36 +4419,21 @@ func! GrooVim_DuplicateVisualSelection() range
   call GrooVim_ClipSet(l:saved_reg)
 endfunc
 
-" Note: Reloads the .vimrc file! By Questor
-nnoremap <silent> <leader>zv :tabedit $MYVIMRC<cr>
-" Note: Opens the .vimrc file! By Questor
-nnoremap <silent> <leader>zvv :tabdo source $MYVIMRC<cr><bar>:tabfirst<cr>
+" Note: Opens the .vimrc of GrooVim in a tab of its own! By Questor
+exec "nnoremap <silent> <leader>zv :tabedit " . fnameescape(g:GrooVim_Vimrc) . "<cr>"
+
+" Note: Reads the .vimrc again, in every tab.
+"
+" Note: Plain mappings with the path written in at load time, and NOT a function
+" that does the work: sourcing the .vimrc redefines every function it holds, and
+" Vim refuses to redefine one that is RUNNING -- "E127: Cannot redefine function
+" ...: It is in use". Measured, with the reload wrapped in a function of its
+" own! By Questor
+exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
 " Note: Clears the search register! By Questor
 nnoremap <silent> <leader>z/ :nohlsearch<cr>
 
-if g:enable_debugger_vim == 1 && g:enable_all_plugins == 1
-  " Note: Opens and closes the "VIM Debug" depending on if it is open or closed! By Questor
-  func! GrooVim_ToggleDbg()
-    if exists("g:Dbg")
-      unlet g:Dbg
-      Dbg quit
-    else
-      try
-        " Note: The debugger wants the room, so the tree steps aside. The
-        " "exists()" is because this block and the NERDTree one are enabled by
-        " different variables, so the tree helper may not be defined! By Questor
-        if exists("*GrooVim_NERDTreeIsOpen") && GrooVim_NERDTreeIsOpen()
-          silent! NERDTreeClose
-        endif
-          Dbg .
-        let g:Dbg = 1
-      catch
-        echo "No Errors found!"
-      endtry
-    endif
-  endfunc
-endif
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range
@@ -5124,28 +5120,29 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n        <Up> - Changes to uppercase (normal mode/insert/visual);".
 \"\n        <Down> - Changes to lowercase (normal mode/insert/visual);".
 \"\n        <c> - Copy all text in the current buffer (normal mode/insert/visual);".
-\"\n        <d> - Duplicates the current line/selection (normal mode/insert/visual);".
-\"\n            Note: If in the visual mode can not be replicated;".
 \"\n        <q> - Record a macro (normal mode/insert/visual);".
 \"\n        <w> - Run a macro (normal mode/insert/visual);".
 \"\n        <e> - Run a macro certain number of times or repeatedly until the last line (normal mode/insert/visual);".
 \"\n        <End> - Selects the word under the cursor (normal mode/insert/visual);".
-\"\n        <Del> - Selects an area (normal mode/insert);".
 \"\n        <p> - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);".
 \"\n        <y> - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);".
 \"\n".
 \"\n    <F3> and then...".
 \"\n      Note: The editing you reach for most, and searching;".
 \"\n        <a> - Select all text in the current buffer (normal mode/insert/visual);".
+\"\n        <d> - Duplicates the current line/selection (normal mode/insert/visual);".
+\"\n            Note: If in the visual mode can not be replicated;".
+\"\n        <Del> - Selects an area (normal mode/insert);".
 \"\n       |</>|- Removes search highlights (normal mode/insert/visual);".
 \"\n        <f> - Opens for search (normal mode/insert/visual);".
-\"\n        <d> - Opens to configure the search (normal mode/insert/visual);".
+\"\n        <g> - Opens to configure the search (normal mode/insert/visual);".
 \"\n            Note: On the configuration screens (this one and <j> below), leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>;".
 \"\n        <h> - Opens to replace (normal mode/insert/visual);".
 \"\n            Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with <F3> and then <j>;".
 \"\n        <j> - Opens to configure the replace (normal mode/insert/visual);".
+\"\n            Note: |f| |g| |h| |j| sit side by side on the home row: search, its settings, replace, its settings;".
 \"\n        <End> - Select and search the word under the cursor (case sensitive) (normal mode/insert/visual);".
-\"\n        <Del> - Reselect area (normal mode/insert/visual);".
+\"\n        <v> - Reselect area, the |gv| of Vim (normal mode/insert/visual);".
 \"\n".
 \"\n    <F4> and then...".
 \"\n      Note: The installed plugins and what they do;".
