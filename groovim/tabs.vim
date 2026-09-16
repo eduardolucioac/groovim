@@ -113,8 +113,12 @@ func! GrooVim_TabLabel(tab) abort
     endfor
   endif
 
+  " Note: A tab holding nothing but an accessory is named after the accessory --
+  " the help is a tab of its own now, and "[GrooVim]" would tell you nothing
+  " about which of your tabs it is! By Questor
   if l:chosen == 0
-    return "[GrooVim]"
+    let l:only = bufname(l:buffers[tabpagewinnr(a:tab) - 1])
+    return l:only != "" ? fnamemodify(l:only, ":t") : "[GrooVim]"
   endif
 
   let l:name = fnamemodify(bufname(l:chosen), ":t")
@@ -159,18 +163,35 @@ endfunc
 set tabline=%!GrooVim_TabLine()
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
+" Note: Which tab you were reading when you asked for the help, so that asking
+" again puts you back there. A toggle that leaves you somewhere else is not a
+" toggle.
+"
+" Note: The number is enough and does not go stale: the help opens at the END of
+" the tab line, so no tab in front of it ever changes number while it is up! By
+" Questor
+let s:helpCameFrom = 0
+
 func! GrooVim_ToogleGrooVimHelp() range abort
 
   if bufexists("GrooVimHelp") == 0
 
-    call GrooVim_PutOnEditWindow()
+    let s:helpCameFrom = tabpagenr()
+
+    " Note: A TAB of its own and not a split of the one you are in. The help is
+    " two hundred and seventy lines of reading, and half a screen is not where
+    " you read it -- and it does not belong on top of the document you opened it
+    " to ask about.
+    "
+    " Note: At the END of the tab line, where a new tab goes! By Questor
+    $tabnew
 
     " Note: "setlocal" and NOT "set" -- see the long note in
     " "GrooVim_SearchGuySync()". This one was the loudest: opening the help
     " locked the global "modifiable", and from then on every new buffer of the
     " session answered "E21" to anything, a copy included! By Questor
     setlocal ma
-    silent exec "split GrooVimHelp"
+    silent exec "file GrooVimHelp"
     exec "put =g:GrooVimHelp"
     exec "norm ggdd"
     setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
@@ -190,9 +211,15 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " a "+" on a buffer nobody can change! By Questor
     setlocal noma nomodified
   else
-    " Note: With this approach I can effectively "destroy" the "buffer" not
-    " returning false "positives" in "bufexists()" above! By Questor
+    " Note: Wiping the buffer takes its tab with it, there being nothing else in
+    " that tab. And wiping and not closing, so that "bufexists()" above answers
+    " honestly the next time! By Questor
     exec "bwipeout! GrooVimHelp"
+
+    if s:helpCameFrom > 0 && s:helpCameFrom <= tabpagenr("$")
+      exec "tabnext " . s:helpCameFrom
+    endif
+    let s:helpCameFrom = 0
   endif
 
 endfunc

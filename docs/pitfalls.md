@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **27 seconds**.
+whole battery takes about **28 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -51,6 +51,7 @@ To try another: `GROOVIM_TEST_VIM=/usr/bin/vim ./tests/run.sh`.
 | `22_new_names` | a document you have not saved yet is called "new 1", on screen only |
 | `23_menu` | the F10 menu bar: walking it sideways, the rules between blocks, the mouse, and choosing an entry pressing its keys |
 | `24_home_and_state` | where GrooVim is installed, and where a run writes what it leaves behind |
+| `25_help_tab` | the help of F9 in a tab of its own, and coming back to where you asked from |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
