@@ -130,6 +130,29 @@ func! GT_Body()
     \ execute("function GrooVim_SearchGuySync") =~ "setlocal noma" &&
     \ execute("function GrooVim_SearchGuySync") !~ '\\s\\zsset noma', "")
 
+  " ---- the bar of the help is not the bar of a document
+  "
+  " "edit!" and not "edit": the buffer above is unsaved, and opening a file over
+  " it answers E37 -- which inside a timer opens a "Press ENTER" and hangs.
+  exec "edit! " . g:GT_FIX . "/a.txt"
+  call GrooVim_ToogleGrooVimHelp()
+  call GT_Ok("F9 opened the help", bufname("%") =~ "GrooVimHelp",
+    \ "   [" . bufname("%") . "]")
+  call GT_Ok("it has a bar of its own",
+    \ &l:statusline ==# "%!GrooVim_GrooVimHelpBar()",
+    \ "   [" . &l:statusline . "]   (empty would pass a \"does not contain\" check for nothing)")
+  call GT_Ok("which does not repeat the name of the buffer",
+    \ GrooVim_GrooVimHelpBar() !~ "GrooVim_FileLabel",
+    \ "   (it is filling the window)")
+  call GT_Ok("nor does it carry the \"Powered by\" of a document",
+    \ GrooVim_GrooVimHelpBar() !~ "Powered by",
+    \ "   [" . GrooVim_GrooVimHelpBar() . "]")
+  call GT_Ok("but it still says where in it you are",
+    \ GrooVim_GrooVimHelpBar() =~ "%l/%L" && GrooVim_GrooVimHelpBar() =~ "%p%%", "")
+  call GT_Ok("and a document keeps both",
+    \ GrooVim_GrooVimBar() =~ "GrooVim_FileLabel" && GrooVim_GrooVimBar() =~ "Powered by", "")
+  exec "bwipeout! GrooVimHelp"
+
   " ---- and the copy that used to demand a writable buffer
   call GT_Ok("Ctrl-C asks whether the buffer can be changed",
     \ maparg("<C-c>", "v") =~ "modifiable",

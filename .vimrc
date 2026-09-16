@@ -5022,6 +5022,7 @@ func! GrooVim_ToogleGrooVimHelp() range
     exec "norm ggdd"
     setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
     setlocal syntax=help
+    let &l:statusline = "%!GrooVim_GrooVimHelpBar()"
     " Note: The help was WRITTEN into, so Vim marks it changed and the bar shows
     " a "+" on a buffer nobody can change! By Questor
     setlocal noma nomodified
@@ -5509,9 +5510,15 @@ set laststatus=2
 " "Powered by" on the bar, and the bar goes back to normal when it is over. The
 " prompt itself stays clean: the context lives here, not glued to the question!
 " By Questor
+" Note: Where you are: the encoding, the flags of the buffer, the type, the line
+" and the column. The half of the bar that every window wants! By Questor
+func! GrooVim_GrooVimBarWhere()
+  return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+endfunc
+
 func! GrooVim_GrooVimBar()
 
-  let l:barContents = '%{GrooVim_FileLabel()} [%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  let l:barContents = '%{GrooVim_FileLabel()} ' . GrooVim_GrooVimBarWhere()
 
   if g:GrooVim_GrooVimBarContext != ""
     return l:barContents . " " . g:GrooVim_GrooVimBarContext . g:GrooVim_GrooVimBarMsgValue
@@ -5520,6 +5527,15 @@ func! GrooVim_GrooVimBar()
   return l:barContents . " Powered by [GrooVim =D " . g:grooVimVersion . "]!" . g:GrooVim_GrooVimBarMsgValue
 
 endfun
+
+" Note: The bar of the help says where you are in it, and nothing else.
+"
+" Note: No name -- you know which buffer this is, it is filling the window -- and
+" no "Powered by", which is the banner of a DOCUMENT of yours. The occurrence
+" list has a bar of its own for the same reason! By Questor
+func! GrooVim_GrooVimHelpBar()
+  return GrooVim_GrooVimBarWhere() . g:GrooVim_GrooVimBarMsgValue
+endfunc
 set stl=%!GrooVim_GrooVimBar()
 " Note: Displays a message on the initial run! By Questor
 call GrooVim_GrooVimBarMsg("To see GrooVim help use F9!", 10)
