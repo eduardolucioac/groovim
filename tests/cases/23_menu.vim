@@ -12,6 +12,13 @@ func! GT_MenuSection()
   return empty(g:GrooVim_MenuEntries) ? "" : g:GrooVim_MenuEntries[0].group
 endfunc
 
+" Which line of the list the cursor is on. A popup is a window of its own, so it
+" has to be asked from the inside.
+func! GT_MenuAt()
+  call win_execute(GT_MenuDrop(), 'let g:GT_MENU_AT = line(".")')
+  return g:GT_MENU_AT
+endfunc
+
 func! GT_MenuDrop()
   for l:id in popup_list()
     if popup_getpos(l:id).height > 1
@@ -78,10 +85,20 @@ func! GT_Body()
     \ "   (line " . popup_getpos(l:drop).line . ")")
   call GT_Ok("it opens on the first section", GT_MenuSection() ==# "F2",
     \ "   [" . GT_MenuSection() . "]")
-  call GT_Ok("with one line per key of that section, plus the border",
-    \ popup_getpos(l:drop).height ==
-    \ len(filter(copy(g:GrooVim_Shortcuts), 'v:val.group ==# "F2"')) + 2,
+  call GT_Ok("with one line per key of that section, its rules and the border",
+    \ popup_getpos(l:drop).height == len(g:GrooVim_MenuEntries) + 2,
     \ "   (" . popup_getpos(l:drop).height . " lines)")
+
+  " ---- the rules between blocks
+  let l:rules = len(filter(copy(g:GrooVim_MenuEntries), 'get(v:val, "rule", 0)'))
+  call GT_Ok("the section is broken into blocks by rules", l:rules > 0,
+    \ "   (" . l:rules . " rules)")
+  let l:drawn = getbufline(winbufnr(l:drop), 1, "$")
+  call GT_Ok("  and a rule is a line of its own, not an entry",
+    \ l:drawn[3] =~ "^─\\+$" && get(g:GrooVim_MenuEntries[3], "rule", 0),
+    \ "   [" . l:drawn[3][0:20] . "]")
+  call GT_Ok("  no rule is the first line", !get(g:GrooVim_MenuEntries[0], "rule", 0),
+    \ "   (a menu does not open with a line across it)")
 
   " ---- Right and Left walk the bar, and it wraps round
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Right>")
@@ -119,16 +136,25 @@ func! GT_Body()
   call GT_Ok("setup: one tab", tabpagenr("$") == 1, "")
   call GrooVim_Menu()
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<F5>")
+  " A rule between blocks has no key of its own, so anything that walks this list
+  " has to ask before it reads.
   let l:which = 0
   for l:i in range(len(g:GrooVim_MenuEntries))
-    if g:GrooVim_MenuEntries[l:i].key ==# "n"
+    if get(g:GrooVim_MenuEntries[l:i], "key", "") ==# "n"
       let l:which = l:i + 1
     endif
   endfor
   call GT_Ok("found \"open a new tab\" in the F5 section", l:which > 0, "   (line " . l:which . ")")
-  for l:step in range(l:which - 1)
+
+  " Down one at a time until the cursor is on it -- counting the steps would be
+  " wrong, because Down STEPS OVER the rules.
+  let l:tries = 0
+  while GT_MenuAt() != l:which && l:tries < 40
     call GrooVim_MenuFilter(GT_MenuDrop(), "\<Down>")
-  endfor
+    let l:tries = l:tries + 1
+  endwhile
+  call GT_Ok("Down walked to it, stepping over the rules", GT_MenuAt() == l:which,
+    \ "   (line " . GT_MenuAt() . " of " . l:which . " in " . l:tries . " steps)")
   let g:GrooVim_CommandZMoment = 0
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<CR>")
   call feedkeys("", "x")
@@ -136,6 +162,54 @@ func! GT_Body()
     \ tabpagenr("$") == 2, "   (tabs " . tabpagenr("$") . ")")
   call GT_Ok("  and the menu took itself down", empty(popup_list()),
     \ "   (" . len(popup_list()) . " popups)")
+
+  " ---- the mouse
+  "
+  " "test_setmouse" is what lets a case click: it puts the mouse where it says,
+  " and "getmousepos()" -- which is what the menu reads -- answers from there.
+  call GrooVim_Menu()
+  call GT_Ok("setup: the menu is up on F2", GT_MenuSection() ==# "F2", "")
+
+  let [l:text, l:at] = GrooVim_MenuBarText()
+  call test_setmouse(1, l:at[2][0] + 2)
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
+  call GT_Ok("a click on the bar opens that section", GT_MenuSection() ==# "F4",
+    \ "   [" . GT_MenuSection() . "]   (clicked column " . (l:at[2][0] + 2) . ", where F4 is)")
+
+  call test_setmouse(1, l:at[3][0] + 2)
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
+  call GT_Ok("  and another click, another section", GT_MenuSection() ==# "F5",
+    \ "   [" . GT_MenuSection() . "]")
+
+  " a click on a rule chooses nothing and leaves the menu up
+  let l:rule = 0
+  for l:i in range(len(g:GrooVim_MenuEntries))
+    if get(g:GrooVim_MenuEntries[l:i], "rule", 0) && l:rule == 0
+      let l:rule = l:i + 1
+    endif
+  endfor
+  call test_setmouse(popup_getpos(GT_MenuDrop()).core_line + l:rule - 1,
+    \ popup_getpos(GT_MenuDrop()).core_col + 2)
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
+  call GT_Ok("a click on a rule does nothing", len(popup_list()) == 2,
+    \ "   (" . len(popup_list()) . " popups)   (a line across is not a choice)")
+
+  " and a click on an entry runs it
+  tabonly!
+  let l:which = 0
+  for l:i in range(len(g:GrooVim_MenuEntries))
+    if get(g:GrooVim_MenuEntries[l:i], "key", "") ==# "n"
+      let l:which = l:i + 1
+    endif
+  endfor
+  call test_setmouse(popup_getpos(GT_MenuDrop()).core_line + l:which - 1,
+    \ popup_getpos(GT_MenuDrop()).core_col + 2)
+  let g:GrooVim_CommandZMoment = 0
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
+  call feedkeys("", "x")
+  call GT_Ok("a click on a line runs it", tabpagenr("$") == 2,
+    \ "   (tabs " . tabpagenr("$") . ")")
+  call GT_Ok("  and the menu took itself down", empty(popup_list()), "")
 
   " ---- Esc leaves, and takes the bar with it
   call GrooVim_Menu()

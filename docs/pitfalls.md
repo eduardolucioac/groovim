@@ -48,7 +48,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |
 | `21_title_case` | Title Case in the three modes, and a copy that does not demand a writable buffer |
 | `22_new_names` | a document you have not saved yet is called "new 1", on screen only |
-| `23_menu` | the F10 menu bar: walking it sideways, the lines built from the shortcut list, and choosing an entry pressing its keys |
+| `23_menu` | the F10 menu bar: walking it sideways, the rules between blocks, the mouse, and choosing an entry pressing its keys |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -193,6 +193,10 @@ moment first.
 written `:s/.../.../g` replaces the FIRST match of each line and no more.
 Measured: a Title Case over a selection changed only the first word. Turn it off
 around the substitution and put it back, the way the occurrence counter does.
+
+**The mouse can be clicked from a case.** `test_setmouse(row, col)` puts it
+where you say and `getmousepos()` answers from there, so a menu that reads the
+mouse is as testable as one that reads keys.
 
 **Filtering the output hides a failure.** Run the whole runner and read the
 summary.
