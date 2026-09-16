@@ -19,8 +19,9 @@ A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
 `GROOVIM_TEST_TIMEOUT=15 ./tests/run.sh`.
 
-To run the battery inside the Vim that GrooVim builds for itself, instead of the
-one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.sh`.
+It runs inside the Vim that GrooVim builds for itself, which is the only one the
+`groovim` command reaches and the only one with the features GrooVim asks for.
+To try another: `GROOVIM_TEST_VIM=/usr/bin/vim ./tests/run.sh`.
 
 ## The cases
 
@@ -199,7 +200,7 @@ where you say and `getmousepos()` answers from there, so a menu that reads the
 mouse is as testable as one that reads keys.
 
 **GrooVim is a directory now, not a file.** A case that reads the source and
-stops at the `.vimrc` reads the loader and nothing else — 375 lines out of six
+stops at the `.vimrc` reads the loader and nothing else — 405 lines out of six
 thousand — and every check it makes comes back empty and PASSES, which is the
 worst way for a check to be wrong. Use `GT_SourceLines()`, which reads the
 `.vimrc` and the parts it loads.

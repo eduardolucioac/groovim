@@ -11,9 +11,18 @@ cd "$(dirname "$0")" || exit 1
 BASE="$PWD"
 VIMRC="${1:-$BASE/../.vimrc}"
 FILTER="${2:-}"
-# Which Vim binary. Lets the battery run inside the Vim that GrooVim builds for
-# itself with install-vim.sh, and not only the one of the system.
-VIM="${GROOVIM_TEST_VIM:-vim}"
+# Which Vim binary.
+#
+# The one GrooVim builds for itself, and not the one of the system: that is the
+# Vim GrooVim is meant to run on, the only one reached by the "groovim" command,
+# and the only one with the features it asks for. Point GROOVIM_TEST_VIM
+# somewhere else to try another.
+VIM="${GROOVIM_TEST_VIM:-$HOME/.local/share/groovim/bin/vim}"
+if [ ! -x "$VIM" ] && command -v "$VIM" >/dev/null 2>&1; then :; elif [ ! -x "$VIM" ]; then
+  echo "I cannot find the Vim of GrooVim at: $VIM"
+  echo "Build it with ./install-vim.sh, or point GROOVIM_TEST_VIM at another one."
+  exit 1
+fi
 TIMEOUT="${GROOVIM_TEST_TIMEOUT:-90}"
 
 if [ ! -f "$VIMRC" ]; then

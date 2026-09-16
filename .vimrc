@@ -354,43 +354,52 @@ set mouse=a
 " back together the parts ARE the file that was here, line for line, and that is
 " checked and not hoped for.
 "
-" Note: What is in each part:
+" Note: And the rest of GrooVim, which lives beside this file.
 "
-"   parts/01-behaviour.vim how Vim behaves: the options that are not about a key
-"   parts/02-indent.vim    the indent width, per file type, and the guides
-"   parts/03-plugins.vim   which plugins are there, and how hard Vim works
-"   parts/04-movement.vim  moving the cursor and the text: GroovyMove, word selection
-"   parts/05-state.vim     what GrooVim knows about itself: messages, Caps Lock, the bar
-"   parts/06-editing.vim   the keys that edit: undo, delete, Tab, entering visual mode
-"   parts/07-options.vim   the questions the configuration screens ask, and the answers
-"   parts/08-search.vim    searching, and the highlight that follows it
-"   parts/09-occurrences.vim the occurrence list: the panel of Notepad++
-"   parts/10-replace.vim   replacing, with and without confirmation
-"   parts/11-session.vim   the session, and every way of closing
-"   parts/12-shortcuts.vim the F keys: CommandZ, and the list every shortcut is written in
-"   parts/13-menu.vim      the menu of F10
-"   parts/14-tabs.vim      the tab line, the names of what is open, the help window
-"   parts/15-macro.vim     macros, saving a copy, and the case of a word
-"   parts/16-appearance.vim colours, the cursor, the status bar
-"   parts/17-usability.vim small comforts, and the encoding
-"   parts/18-help.vim      the help of F9, written out of the list of shortcuts
+" Note: Six thousand lines in one file was one file too many. The parts hold the
+" SAME code in the SAME order, each named for what it keeps.
+"
+" Note: Named here one by one, and NOT gathered with a wildcard. A list you can
+" read is the map of GrooVim: it says what there is and what each one is for, and
+" it says it in the order they load -- which matters, because "runtimepath" has
+" to be set before anything reads it, the plugins have to be looked for before
+" the keys that ask whether they are there, and the colours have to be named
+" before "syntax on" wants them. A wildcard would have needed numbers glued to
+" the front of every name to keep that order, and a second list somewhere else to
+" say what they were for.
 "
 " Note: Beside THIS file and not beside your working directory: "g:GrooVim_Vimrc"
 " is where GrooVim was loaded from, so the parts are found wherever the project
-" happens to sit.
-"
-" Note: In the order their names put them. The number in front of each is not
-" decoration: "runtimepath" has to be set before anything reads it, the plugins
-" have to be looked for before the keys that ask whether they are there, and the
-" colours have to be named before "syntax on" wants them! By Questor
-let s:GrooVim_Parts = fnamemodify(g:GrooVim_Vimrc, ":h") . "/parts"
-let s:GrooVim_Found = sort(glob(s:GrooVim_Parts . "/*.vim", 0, 1))
+" happens to sit! By Questor
+let s:GrooVim_Parts = [
+ \ ["behaviour",   "how Vim behaves: the options that are not about a key"],
+ \ ["indent",      "the indent width, per file type, and the guides"],
+ \ ["plugins",     "which plugins are there, and how hard Vim works"],
+ \ ["movement",    "moving the cursor and the text: GroovyMove, word selection"],
+ \ ["state",       "what GrooVim knows about itself: messages, Caps Lock, the bar"],
+ \ ["editing",     "the keys that edit: undo, delete, Tab, entering visual mode"],
+ \ ["options",     "the questions the configuration screens ask, and the answers"],
+ \ ["search",      "searching, and the highlight that follows it"],
+ \ ["occurrences", "the occurrence list: the panel of Notepad++"],
+ \ ["replace",     "replacing, with and without confirmation"],
+ \ ["session",     "the session, and every way of closing"],
+ \ ["shortcuts",   "the F keys: CommandZ, and the list every shortcut is written in"],
+ \ ["menu",        "the menu of F10"],
+ \ ["tabs",        "the tab line, the names of what is open, the help window"],
+ \ ["macro",       "macros, saving a copy, and the case of a word"],
+ \ ["appearance",  "colours, the cursor, the status bar"],
+ \ ["usability",   "small comforts, and the encoding"],
+ \ ["help",        "the help of F9, written out of the list of shortcuts"],
+ \ ]
 
-if empty(s:GrooVim_Found)
-  echomsg "GrooVim: I cannot find my parts at " . s:GrooVim_Parts . "!"
-  echomsg "GrooVim: the \".vimrc\" needs the \"parts\" directory beside it!"
-else
-  for s:GrooVim_Part in s:GrooVim_Found
-    exec "source " . fnameescape(s:GrooVim_Part)
-  endfor
-endif
+let s:GrooVim_PartsDir = fnamemodify(g:GrooVim_Vimrc, ":h") . "/parts"
+
+for s:GrooVim_Part in s:GrooVim_Parts
+  let s:GrooVim_File = s:GrooVim_PartsDir . "/" . s:GrooVim_Part[0] . ".vim"
+  if filereadable(s:GrooVim_File)
+    exec "source " . fnameescape(s:GrooVim_File)
+  else
+    echomsg "GrooVim: I cannot find the part \"" . s:GrooVim_Part[0] .
+     \ "\" at " . s:GrooVim_File . "!"
+  endif
+endfor

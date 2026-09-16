@@ -37,6 +37,12 @@ JOBS="$(nproc 2>/dev/null || echo 2)"
 # Who this build says modified it. Vim prints it on the opening screen and in
 # ":version", under "Modified by".
 MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
+# The home of GrooVim: where its code is installed, and where it keeps its
+# plugins, its session, its saved options, its undo and its viminfo.
+GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
+# Linking instead of copying is for working ON GrooVim: the installed copy IS the
+# checkout, so an edit takes effect on the next run.
+LINK_CODE=0
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
@@ -79,12 +85,15 @@ Options:
   --jobs N           parallel compilation (default: as many as you have cores)
   --modified-by NAME who this build says modified it, shown on the opening
                      screen and in ":version"
+  --home DIR         where GrooVim lives      (default: ~/.groovim)
+  --link             link the code into that directory instead of copying it,
+                     so that editing this checkout takes effect at once
   --no-deps          do not install build dependencies
   --yes              answer yes to everything
   --help             this
 
 Environment: GROOVIM_PREFIX, GROOVIM_BINDIR, GROOVIM_SOURCE, GROOVIM_MODIFIED_BY
-do the same as the options of the same name.
+and GROOVIM_HOME do the same as the options of the same name.
 END
 }
 
@@ -106,6 +115,8 @@ while [ $# -gt 0 ]; do
     --vimrc)     VIMRC="${2:?--vimrc needs a file}"; shift ;;
     --jobs)      JOBS="${2:?--jobs needs a number}"; shift ;;
     --modified-by) MODIFIED_BY="${2:?--modified-by needs a name}"; shift ;;
+    --home)      GROOVIM_HOME_DIR="${2:?--home needs a directory}"; shift ;;
+    --link)      LINK_CODE=1 ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
@@ -361,6 +372,40 @@ build_vim() {
   make install
 }
 
+# ------------------------------------------------------------ the GrooVim ---
+
+# Note: The code of GrooVim goes where GrooVim lives, beside the things it keeps
+# there already -- its plugins, its session, its saved options, its undo. After
+# this the "groovim" command needs to know ONE path, and it is a short one that
+# does not move when the checkout does.
+install_groovim() {
+
+  local from="$(cd "$(dirname "$VIMRC")" && pwd)"
+  local to="$GROOVIM_HOME_DIR"
+
+  step "GrooVim itself"
+
+  if [ ! -d "$from/parts" ]; then
+    die "There is no \"parts\" directory beside $VIMRC -- is this a GrooVim checkout?"
+  fi
+
+  mkdir -p "$to"
+  rm -rf "$to/parts" "$to/.vimrc"
+
+  if [ "$LINK_CODE" -eq 1 ]; then
+    ln -s "$from/.vimrc" "$to/.vimrc"
+    ln -s "$from/parts"  "$to/parts"
+    echo "  linked to $from"
+    yellow "  editing that checkout changes GrooVim at once"
+  else
+    cp "$from/.vimrc" "$to/.vimrc"
+    cp -r "$from/parts" "$to/parts"
+    echo "  copied to $to"
+  fi
+
+  green "  $(ls "$to/parts" | wc -l) parts"
+}
+
 # ---------------------------------------------------------------- wrapper ---
 
 write_groovim() {
@@ -378,7 +423,7 @@ write_groovim() {
 # The Vim of the system is not involved: "vim" goes on being yours.
 
 GROOVIM_VIM="\${GROOVIM_VIM:-$PREFIX/bin/vim}"
-GROOVIM_VIMRC="\${GROOVIM_VIMRC:-$VIMRC}"
+GROOVIM_VIMRC="\${GROOVIM_VIMRC:-$GROOVIM_HOME_DIR/.vimrc}"
 
 if [ ! -x "\$GROOVIM_VIM" ]; then
   echo "groovim: I cannot find the Vim at \$GROOVIM_VIM" >&2
@@ -396,7 +441,7 @@ END
 
   chmod +x "$target"
   echo "  written to $target"
-  echo "  it runs: $PREFIX/bin/vim -u $VIMRC"
+  echo "  it runs: $PREFIX/bin/vim -u $GROOVIM_HOME_DIR/.vimrc"
 }
 
 # ---------------------------------------------------------------- closing ---
@@ -460,6 +505,7 @@ install_dependencies
 fetch_source
 brand_the_splash
 build_vim
+install_groovim
 write_groovim
 check_the_result
 warn_about_path
