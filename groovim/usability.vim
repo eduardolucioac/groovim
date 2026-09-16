@@ -51,7 +51,7 @@ endif
 " Note: The directory must exist, otherwise "undofile" silently fails to write
 " the undo history! By Questor
 try
-  let g:GrooVim_UndoDir = g:GrooVim_Home . "/undo"
+  let g:GrooVim_UndoDir = g:GrooVim_State . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)
     call mkdir(g:GrooVim_UndoDir, "p", 0700)
   endif
@@ -77,7 +77,7 @@ endtry
 "* NERDTree
 
 " Note: Store the bookmarks file! By Questor
-let NERDTreeBookmarksFile = g:GrooVim_Home . "/NERDTreeBookmarks"
+let NERDTreeBookmarksFile = g:GrooVim_State . "/NERDTreeBookmarks"
 
 " Note: Show the bookmarks table on startup! By Questor
 let NERDTreeShowBookmarks = 1

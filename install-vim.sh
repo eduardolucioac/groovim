@@ -414,6 +414,21 @@ write_groovim() {
 
 GROOVIM_VIM="\${GROOVIM_VIM:-$PREFIX/bin/vim}"
 GROOVIM_VIMRC="\${GROOVIM_VIMRC:-$GROOVIM_HOME_DIR/.vimrc}"
+GROOVIM_HOME="\${GROOVIM_HOME:-$GROOVIM_HOME_DIR}"
+export GROOVIM_HOME
+
+# Under "sudo" -- or as anyone who is not the user this was installed for -- the
+# code, the plugins and the settings go on coming from the one installation.
+# That is the point of having one.
+#
+# What must NOT come from there is what this run WRITES. Root writing a session
+# into that directory leaves it owned by root, and the next time its owner opened
+# GrooVim they could not write it any more. So the session, the undo, the viminfo
+# and the clipboard file go to a GrooVim directory of whoever is running.
+if [ "\$(id -u)" != "$(id -u)" ]; then
+  GROOVIM_STATE="\${GROOVIM_STATE:-\$(getent passwd "\$(id -u)" | cut -d: -f6)/.groovim}"
+  export GROOVIM_STATE
+fi
 
 if [ ! -x "\$GROOVIM_VIM" ]; then
   echo "groovim: I cannot find the Vim at \$GROOVIM_VIM" >&2
@@ -432,6 +447,7 @@ END
   chmod +x "$target"
   echo "  written to $target"
   echo "  it runs: $PREFIX/bin/vim -u $GROOVIM_HOME_DIR/.vimrc"
+  echo "  under sudo it reads the same GrooVim and writes its own session apart"
 }
 
 # ---------------------------------------------------------------- closing ---

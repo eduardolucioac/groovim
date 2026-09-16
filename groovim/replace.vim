@@ -298,7 +298,7 @@ vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
 " files were open, not what you had typed into them. So closing with something
 " unsaved still asks, session or no session! By Questor
 let g:GrooVim_SessionAuto = get(g:, "GrooVim_SessionAuto", 1)
-let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_Home . "/session.vim")
+let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_State . "/session.vim")
 
 " Note: What the session carries, and what it deliberately does NOT.
 "

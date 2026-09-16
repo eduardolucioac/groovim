@@ -314,9 +314,26 @@ let g:GrooVim_Home = get(g:, "GrooVim_Home",
 let g:GrooVim_Vimrc = get(g:, "GrooVim_Vimrc",
  \ expand("<sfile>:p") != "" ? expand("<sfile>:p") : $MYVIMRC)
 
-if !isdirectory(g:GrooVim_Home)
-  call mkdir(g:GrooVim_Home, "p")
-endif
+" Note: And where THIS RUN writes what it leaves behind: the session, the undo,
+" the viminfo, the clipboard file. Normally the same place -- there is only one
+" of you.
+"
+" Note: Under "sudo" it is not. The code, the plugins and the settings go on
+" coming from the GrooVim that was installed, which is the whole point of having
+" one installation. What must NOT come from there is what gets WRITTEN: root
+" writing a session into your directory leaves it owned by root, and the next
+" time you opened GrooVim as yourself you could not write it any more.
+"
+" Note: The "groovim" command sets "GROOVIM_STATE" when whoever is running is not
+" whoever installed! By Questor
+let g:GrooVim_State = get(g:, "GrooVim_State",
+ \ $GROOVIM_STATE != "" ? expand($GROOVIM_STATE) : g:GrooVim_Home)
+
+for s:GrooVim_Dir in [g:GrooVim_Home, g:GrooVim_State]
+  if !isdirectory(s:GrooVim_Dir)
+    call mkdir(s:GrooVim_Dir, "p")
+  endif
+endfor
 
 let &runtimepath = g:GrooVim_Home . "," . $VIM . "/vimfiles," . $VIMRUNTIME .
  \ "," . $VIM . "/vimfiles/after," . g:GrooVim_Home . "/after"
@@ -325,7 +342,7 @@ let &packpath = &runtimepath
 " Note: And a "viminfo" of its own, so the marks, the registers and the history
 " of one do not land on the other! By Questor
 if exists("+viminfofile")
-  let &viminfofile = g:GrooVim_Home . "/viminfo"
+  let &viminfofile = g:GrooVim_State . "/viminfo"
 endif
 
 " Note: Force reloading *after* the plugins loaded! Trying avoid override! By Questor

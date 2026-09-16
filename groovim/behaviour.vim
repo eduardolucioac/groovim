@@ -281,7 +281,7 @@ endif
 
 " Note: Where the file based "transfer area" lives. The directory is created
 " with 0700 because a clipboard tends to carry private things! By Questor
-let g:GrooVim_ClipFile = g:GrooVim_Home . "/clipboard"
+let g:GrooVim_ClipFile = g:GrooVim_State . "/clipboard"
 
 " Note: Which register answers as clipboard RIGHT NOW. This is not decided once
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
