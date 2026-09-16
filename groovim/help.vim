@@ -52,6 +52,12 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F3", "key": "del", "modes": "ni", "run": 'call GrooVim_SelectRange(l:mode)', "what": "Selects an area"},
  \ {"group": "F3", "key": "v", "modes": "ni", "run": 'exec "norm gv"', "what": "Reselect area, the |gv| of Vim"},
  \ {"group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "what": "Removes search highlights"},
+ \ {"group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord(l:mode)',
+ \  "what": "Mark every occurrence of the word under the cursor",
+ \  "notes": [
+ \   "In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
+ \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the \"Style all occurrences of token\" of Notepad++"
+ \  ]},
  \ {"group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "what": "Opens for search"},
  \ {"group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
  \  "what": "Opens to replace",

@@ -213,7 +213,10 @@ exec "nnoremap <silent> <leader>zv :tabedit " . fnameescape(g:GrooVim_Vimrc) . "
 exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
 " Note: Clears the search register! By Questor
-nnoremap <silent> <leader>z/ :nohlsearch<cr>
+" Note: And the marks with them. "Take the highlighting off" is one idea to a
+" reader, not two, and having to remember which key clears which half would be a
+" poor way of saying so! By Questor
+nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor

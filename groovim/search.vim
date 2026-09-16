@@ -488,3 +488,96 @@ func! GrooVim_TabParadise() abort
   endif
 endfunc
 
+
+" Note: Every occurrence of a word, marked -- the "Style all occurrences of
+" token" of Notepad++.
+"
+" Note: "matchadd" and NOT the search register: this does not move the cursor,
+" does not touch what "n" would find next, and does not turn the search
+" highlight on. You can mark a name and go on searching for something else, which
+" is the whole point of marking it.
+"
+" Note: A match belongs to a WINDOW, so it is put up again whenever you enter
+" one. Otherwise splitting, or walking to another tab, would lose it -- and a
+" mark you have to make again in every window is not worth making! By Questor
+let g:GrooVim_MarkedWord = ""
+let s:markIds = {}
+
+highlight GrooVimMark ctermbg=148 ctermfg=232 guibg=#afd700 guifg=#080808
+if &t_Co < 256 && !has("gui_running")
+  highlight GrooVimMark ctermbg=green ctermfg=black
+endif
+
+" Note: What to mark: the selection if there is one, the word under the cursor
+" otherwise -- the same two things every other command of GrooVim works on! By
+" Questor
+func! GrooVim_MarkWhat(mode) abort
+  if a:mode ==# "v"
+    let l:saved = GrooVim_ClipGet()
+    exec "norm! gvy"
+    let l:what = @"
+    call GrooVim_ClipSet(l:saved)
+    return l:what
+  endif
+  call GrooVim_StepOntoTheText()
+  return expand("<cword>")
+endfunc
+
+func! GrooVim_MarkClear() abort
+  for l:window in range(1, winnr("$"))
+    let l:id = get(s:markIds, win_getid(l:window), 0)
+    if l:id > 0
+      silent! call matchdelete(l:id, win_getid(l:window))
+    endif
+  endfor
+  let s:markIds = {}
+  let g:GrooVim_MarkedWord = ""
+endfunc
+
+" Note: Puts the mark up in THIS window, if there is a word marked and it is not
+" up here already! By Questor
+func! GrooVim_MarkHere() abort
+
+  if g:GrooVim_MarkedWord ==# "" || has_key(s:markIds, win_getid())
+    return
+  endif
+
+  " Note: "\V" and every backslash escaped: a word with a "." or a "*" in it is
+  " text and not a pattern. "\<" and "\>" so that "total" does not light up
+  " inside "subtotal"! By Questor
+  let l:pattern = '\V\<' . escape(g:GrooVim_MarkedWord, '\') . '\>'
+  let l:pattern = (g:searchReplace_CaseSensitive == 1 ? '\C' : '\c') . l:pattern
+
+  try
+    let s:markIds[win_getid()] = matchadd("GrooVimMark", l:pattern, -1)
+  catch
+  endtry
+endfunc
+
+func! GrooVim_MarkWord(mode) abort
+
+  let l:what = GrooVim_MarkWhat(a:mode)
+
+  if l:what ==# "" || l:what =~ "\n"
+    call GrooVim_GrooVimBarMsg("There is no word here to mark!", 5)
+    return
+  endif
+
+  " Note: The same word again takes the marks down. One key that marks and
+  " unmarks, the way one key opens and closes the help! By Questor
+  if g:GrooVim_MarkedWord ==# l:what
+    call GrooVim_MarkClear()
+    call GrooVim_GrooVimBarMsg("Marks cleared!", 4)
+    return
+  endif
+
+  call GrooVim_MarkClear()
+  let g:GrooVim_MarkedWord = l:what
+  call GrooVim_MarkHere()
+  call GrooVim_GrooVimBarMsg("Marked every \"" . l:what . "\"! Press again to clear!", 5)
+endfunc
+
+augroup GrooVim_Mark
+  autocmd!
+  autocmd WinEnter,BufWinEnter * call GrooVim_MarkHere()
+augroup END

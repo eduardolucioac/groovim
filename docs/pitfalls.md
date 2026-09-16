@@ -13,7 +13,7 @@ checks the behaviour from the inside; the manual one checks what you see.
 ```
 
 It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **28 seconds**.
+whole battery takes about **29 seconds**.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -52,6 +52,7 @@ To try another: `GROOVIM_TEST_VIM=/usr/bin/vim ./tests/run.sh`.
 | `23_menu` | the F10 menu bar: walking it sideways, the rules between blocks, the mouse, and choosing an entry pressing its keys |
 | `24_home_and_state` | where GrooVim is installed, and where a run writes what it leaves behind |
 | `25_help_tab` | the help of F9 in a tab of its own, and coming back to where you asked from |
+| `26_mark_word` | marking every occurrence of a word, checked with screenattr |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
@@ -196,6 +197,12 @@ moment first.
 written `:s/.../.../g` replaces the FIRST match of each line and no more.
 Measured: a Title Case over a selection changed only the first word. Turn it off
 around the substitution and put it back, the way the occurrence counter does.
+
+**Paint is not text and not syntax.** A match put up with `matchadd()` is
+neither in the buffer nor in the syntax stack: `synstack()` says nothing about
+it. `screenattr(line, col)` is what can see it — and the plain attribute to
+compare against has to come from a line with nothing marked in it, or the mark
+itself becomes the baseline and the answer comes back inverted.
 
 **The mouse can be clicked from a case.** `test_setmouse(row, col)` puts it
 where you say and `getmousepos()` answers from there, so a menu that reads the
