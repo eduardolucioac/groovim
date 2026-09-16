@@ -47,6 +47,21 @@ GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
 # distribution keeps this directory in its "secure_path" -- CentOS 7 does not.
 SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
 SYSTEM_LINK=1
+PLUGINS=1
+
+# The plugins GrooVim uses, and what each one is for. They were never installed
+# by this script, and the README asked you to clone them by hand -- so a machine
+# that had only run install.sh had a F4->n that called into nothing.
+#
+# Only these names are touched. Anything else of yours in the same directory is
+# left where it is.
+#
+# Each line: name|where it comes from|what it is for
+GROOVIM_PLUGINS="
+nerdtree|https://github.com/preservim/nerdtree.git|the file tree of F4->n
+tcomment_vim|https://github.com/tomtom/tcomment_vim.git|the comment toggle, which Vim has no command of its own for
+vim-move|https://github.com/matze/vim-move.git|moving a line or a selection up and down
+"
 # Building takes minutes. An installation that is already there and serves is not
 # built again unless you say so.
 REBUILD=0
@@ -95,6 +110,8 @@ Options:
                      is what makes "sudo groovim" find it
   --rebuild          build the Vim again even if the one installed already serves
   --no-deps          do not install build dependencies
+  --no-plugins       do not install the plugins GrooVim uses. What depends on
+                     one then says so instead of running
   --yes              answer yes to everything
   --help             this
 
@@ -118,6 +135,7 @@ while [ $# -gt 0 ]; do
     --no-system-link) SYSTEM_LINK=0 ;;
     --rebuild)   REBUILD=1 ;;
     --no-deps)   SKIP_DEPS=1 ;;
+    --no-plugins) PLUGINS=0 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
     *)           die "I do not know the option \"$1\". Try --help." ;;
@@ -639,7 +657,43 @@ if [ "$NEED_BUILD" -eq 1 ]; then
   build_vim
 fi
 
+# The three plugins, into the package directory GrooVim looks in. Not being able
+# to fetch one is not a failure: GrooVim works without every one of them, and a
+# shortcut whose plugin is missing now says which one instead of breaking.
+install_plugins() {
+  local where name url what
+
+  step "Plugins"
+
+  if [ "$PLUGINS" -eq 0 ]; then
+    yellow "  skipped by --no-plugins"
+    return 0
+  fi
+  if ! command -v git >/dev/null 2>&1; then
+    yellow "  there is no git here, so there are no plugins."
+    return 0
+  fi
+
+  where="$GROOVIM_HOME_DIR/pack/groovim/start"
+  mkdir -p "$where"
+
+  printf '%s\n' "$GROOVIM_PLUGINS" | while IFS='|' read -r name url what; do
+    [ -n "$name" ] || continue
+    if [ -d "$where/$name/.git" ]; then
+      if ( cd "$where/$name" && git pull --quiet --ff-only ) >/dev/null 2>&1; then
+        green "  $name -- up to date"
+      else
+        yellow "  $name -- there already, could not update it"
+      fi
+    elif git clone --quiet --depth 1 "$url" "$where/$name" >/dev/null 2>&1; then
+      green "  $name -- $what"
+    else
+      yellow "  $name -- could not fetch it. What needs it will say so."
+    fi
+  done
+}
 install_groovim
+install_plugins
 write_groovim
 offer_system_link
 check_the_result

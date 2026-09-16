@@ -77,6 +77,18 @@ for CASE in "$BASE"/cases/[0-9]*.vim; do
   # "-n" turns off the swap file, or an interrupted case leaves a .swp that
   # stops the next one at a recovery prompt.
   export GROOVIM_HOME="$GROOVIM_HOME_BASE/$NAME"
+
+  # GrooVim finds a plugin by looking for its DIRECTORY, so an empty one named
+  # "nerdtree" is enough to make the battery run the arrangement a real install
+  # has: the tree switched on, its shortcut in the list, and its section in the
+  # menu. Without it every case here tested a GrooVim nobody runs -- and that is
+  # how F4->n went out into the world with no guard on it, calling a function
+  # that only exists when the plugin does.
+  #
+  # Only this one, because it is the only plugin with an entry in the list of
+  # shortcuts. Every command of the tree itself is called through "silent!", so
+  # nothing here needs the plugin to really be there.
+  mkdir -p "$GROOVIM_HOME/pack/groovim/start/nerdtree"
   timeout "$TIMEOUT" script -qc "'$VIM' -N -u '$VIMRC' -i NONE -n -S '$CASE'" /dev/null >/dev/null 2>&1
   OUTPUT="$BASE/results/$NAME.txt"
 

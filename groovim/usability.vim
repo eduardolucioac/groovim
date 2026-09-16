@@ -101,7 +101,7 @@ let NERDTreeWinPos = "right"
 "* move-vim
 
 " Note: Mapping to move-vim! By Questor
-if g:enable_move_vim == 1 && g:enable_all_plugins == 1
+if g:enable_move_vim
   let g:move_key_modifier = "C"
   inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
   inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>

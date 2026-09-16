@@ -80,6 +80,36 @@ func! GrooVim_ShortcutIsKey(pressed, key) abort
   return ("" . a:pressed . "") ==# ("" . char2nr(a:key) . "")
 endfunc
 
+" Note: Is this shortcut something this GrooVim can actually do?
+"
+" Note: A shortcut whose work belongs to a plugin only exists when the plugin
+" does. The entry says which switch answers for it, and everything that reads
+" the list -- the menu, the help of F9 and the dispatch -- asks here first.
+"
+" Note: This is what a machine with no plugins taught: the entry for the
+" NERDTree was written down with no condition on it, while the function behind
+" it lives inside "if g:enable_nerdtree_vim". Pressing F4->n there did not say
+" the plugin was missing, it said "E117: Unknown function"! By Questor
+func! GrooVim_ShortcutAvailable(one) abort
+  return !has_key(a:one, "needs") || get(g:, a:one.needs.switch, 0)
+endfunc
+
+" Note: The F groups that have anything left in them here. A group whose every
+" shortcut belongs to a plugin that is not installed would otherwise be a
+" heading over nothing in the help, and an empty menu to open! By Questor
+func! GrooVim_ShortcutGroupsHere() abort
+  let l:out = []
+  for l:group in g:GrooVim_ShortcutGroups
+    for l:one in g:GrooVim_Shortcuts
+      if l:one.group ==# l:group[0] && GrooVim_ShortcutAvailable(l:one)
+        call add(l:out, l:group)
+        break
+      endif
+    endfor
+  endfor
+  return l:out
+endfunc
+
 " Note: Runs what the shortcut says to run.
 "
 " Note: "run" is one line of VimScript, or a handful of them keyed by the modes
@@ -159,7 +189,7 @@ func! GrooVim_MenuOf(group, startColumn) abort
   let l:what = 0
   let l:keys = 0
   for l:one in g:GrooVim_Shortcuts
-    if l:one.group ==# a:group
+    if l:one.group ==# a:group && GrooVim_ShortcutAvailable(l:one)
       call add(l:entries, l:one)
       let l:what = max([l:what, strchars(GrooVim_ShortcutPlain(l:one.what))])
       let l:keys = max([l:keys, strchars(GrooVim_ShortcutShown(l:one))])
@@ -178,7 +208,7 @@ endfunc
 func! GrooVim_MenuBarText() abort
   let l:text = ""
   let l:at = []
-  for l:group in g:GrooVim_ShortcutGroups
+  for l:group in GrooVim_ShortcutGroupsHere()
     let l:piece = " " . l:group[0] . " " . l:group[2] . " "
     call add(l:at, [strchars(l:text) + 1, strchars(l:piece)])
     let l:text = l:text . l:piece
@@ -275,9 +305,10 @@ augroup END
 " By Questor
 func! GrooVim_MenuOpen(section) abort
 
-  let l:count = len(g:GrooVim_ShortcutGroups)
+  let l:groups = GrooVim_ShortcutGroupsHere()
+  let l:count = len(l:groups)
   let s:menuSection = (a:section + l:count) % l:count
-  let l:group = g:GrooVim_ShortcutGroups[s:menuSection]
+  let l:group = l:groups[s:menuSection]
 
   let [l:barText, l:at] = GrooVim_MenuBarText()
   let l:startColumn = l:at[s:menuSection][0]
@@ -406,7 +437,7 @@ func! GrooVim_MenuFilter(id, key) abort
   endif
 
   let l:which = 0
-  for l:group in g:GrooVim_ShortcutGroups
+  for l:group in GrooVim_ShortcutGroupsHere()
     if a:key ==# eval('"\<' . l:group[0] . '>"')
       call GrooVim_MenuOpen(l:which)
       return 1

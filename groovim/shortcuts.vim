@@ -80,6 +80,15 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
         continue
       endif
 
+      " Note: The key is ours, but what it does is not here. Saying so beats
+      " what it used to do, which was to call a function that was never defined
+      " and show "E117: Unknown function" over the bar! By Questor
+      if !GrooVim_ShortcutAvailable(l:one)
+        call GrooVim_GrooVimBarMsg(l:one.group . "->" . l:one.key . " needs " .
+         \ l:one.needs.name . ", which is not installed here!", 6)
+        break
+      endif
+
       call GrooVim_ShortcutRun(l:one, a:modType)
       break
 

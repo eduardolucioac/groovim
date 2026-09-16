@@ -17,22 +17,28 @@ endfunc
 " Note: Master switch: set it to 0 to ignore every plugin! By Questor
 let g:enable_all_plugins = get(g:, "enable_all_plugins", 1)
 
+" Note: The master switch is folded into each of the three below, so that every
+" one of them is the ONE answer about its plugin. It used to be asked again at
+" each place that used them -- "if g:enable_nerdtree_vim == 1 &&
+" g:enable_all_plugins == 1" -- and a fourth reader that forgot the second half
+" would see a plugin that is off as on! By Questor
+
 " Note: Each plugin is now DETECTED instead of assumed. GrooVim promises to work
 " depending only on the contents of this ".vimrc" (the "no plugin scenario"), so
 " whatever is not installed simply stays quiet instead of failing. Set any of
 " these before sourcing GrooVim to force a value! By Questor
 
 " Note: tcomment.vim! By Questor
-let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tcomment_vim"))
+let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tcomment_vim")) && g:enable_all_plugins
 
 " Note: nerdtree.vim! By Questor
-let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree"))
+let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree")) && g:enable_all_plugins
 
 " Note: debugger.vim! No debug plugin is installed by the README instructions,
 " so this one stays off unless you ask for it! By Questor
 
 " Note: move.vim! By Questor
-let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move"))
+let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move")) && g:enable_all_plugins
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$
 

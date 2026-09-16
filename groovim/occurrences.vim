@@ -6,7 +6,7 @@ func! GrooVim_SearchGuySyncNow(timer) abort
   endif
 endfunc
 
-if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
+if g:enable_nerdtree_vim
   " Note: Opens and closes the "Nerd Tree", sharing the SAME tree between the
   " tabs. "NERDTreeMirror" is what brings the tree of another tab into this one,
   " and it complains when there is none to mirror, hence the "silent!".

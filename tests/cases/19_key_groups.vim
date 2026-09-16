@@ -194,6 +194,78 @@ func! GT_Body()
   call GT_Ok("F4 answers for the tree alone",
     \ map(GT_Of("F4"), 'v:val.key') ==# ["n"], "   " . string(map(GT_Of("F4"), 'v:val.key')))
 
+  " ---- a shortcut whose work belongs to a plugin says so
+  "
+  " This is the whole of what went wrong on a machine with no plugins: the entry
+  " for the tree was written with no condition on it, while the function behind
+  " it lives inside "if g:enable_nerdtree_vim". F4->n there did not say the
+  " plugin was missing. It said "E117: Unknown function".
+  let l:tree = GT_Of("F4")[0]
+  call GT_Ok("the tree's shortcut says which plugin it needs",
+    \ has_key(l:tree, "needs") && has_key(l:tree.needs, "switch") &&
+    \ has_key(l:tree.needs, "name"), "   " . string(get(l:tree, "needs", {})))
+
+  " ---- and every shortcut on offer calls something that is really there
+  "
+  " The general form of the same defect: an entry may only name functions this
+  " Vim has. It is the check that would have caught it without a CentOS to find
+  " it for us.
+  let l:gone = []
+  for l:one in g:GrooVim_Shortcuts
+    if !GrooVim_ShortcutAvailable(l:one) | continue | endif
+    let l:runs = type(l:one.run) == type({}) ? values(l:one.run) : [l:one.run]
+    for l:line in l:runs
+      let l:at = 0
+      while 1
+        let l:name = matchstr(l:line, 'GrooVim_\w\+\ze(', l:at)
+        if l:name ==# "" | break | endif
+        let l:at = match(l:line, 'GrooVim_\w\+\ze(', l:at) + len(l:name)
+        if !exists("*" . l:name)
+          call add(l:gone, l:one.group . "->" . l:one.key . " calls " . l:name)
+        endif
+      endwhile
+    endfor
+  endfor
+  call GT_Ok("every shortcut on offer calls a function that exists", empty(l:gone),
+    \ "   " . (empty(l:gone) ? "(all of them)" : string(l:gone)))
+
+  " ---- with the plugin off, the shortcut goes quiet instead of breaking
+  call GT_Ok("setup: the battery runs with the tree on", g:enable_nerdtree_vim == 1,
+    \ "   (run.sh puts a pack directory in the throwaway GROOVIM_HOME)")
+  call GT_Ok("  so F4 is one of the groups on offer",
+    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0,
+    \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')))
+  call GT_Ok("  and F9 writes it down",
+    \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") >= 0, "")
+
+  let g:enable_nerdtree_vim = 0
+  call GT_Ok("with the plugin off, the shortcut is not on offer",
+    \ !GrooVim_ShortcutAvailable(l:tree), "")
+  call GT_Ok("  F9 does not write down what cannot be done",
+    \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") < 0, "")
+  call GT_Ok("  and the group goes with its last shortcut",
+    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") < 0,
+    \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')) .
+    \ "   (a heading over nothing, and a menu that opens empty)")
+  call GT_Ok("  the menu offers nothing under F4",
+    \ empty(GrooVim_MenuOf("F4", 1)[0]), "")
+
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call GT_Press("\<F4>n")
+  call GT_Ok("  pressing it says WHICH plugin is missing",
+    \ g:GrooVim_GrooVimBarMsgValue =~ "NERDTree" &&
+    \ g:GrooVim_GrooVimBarMsgValue =~ "not installed",
+    \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]   (it used to be E117)")
+
+  " ---- and the README goes on naming it, because it describes the PROJECT
+  call GT_Ok("  the README still lists it, plugin or no plugin",
+    \ !empty(filter(copy(GrooVim_ShortcutsMarkdown()), 'v:val =~ "NERDTree"')),
+    \ "   (F9 is this machine; the README is the project)")
+
+  let g:enable_nerdtree_vim = 1
+  call GT_Ok("back on, and it is on offer again", GrooVim_ShortcutAvailable(l:tree) &&
+    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0, "")
+
   " ---- doing it and setting it up: same letter, one group apart
   call GT_Ok("F3 runs the search and the replace",
     \ !empty(filter(GT_Of("F3"), 'v:val.key ==# "f"')) &&

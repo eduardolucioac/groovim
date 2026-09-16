@@ -65,7 +65,9 @@ let g:GrooVim_Shortcuts = [
  \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h"
  \  ]},
  \ {"group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
- \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()', "what": "Opens/closes the *NERDTree*"},
+ \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
+ \  "what": "Opens/closes the *NERDTree*",
+ \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
  \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",
  \  "notes": [
@@ -185,13 +187,18 @@ func! GrooVim_ShortcutsHelp() abort
 
   let l:out = []
 
-  for l:group in g:GrooVim_ShortcutGroups
+  " Note: What is written here is what THIS GrooVim can do: a shortcut whose
+  " plugin is not installed is not on the list, and neither is a group left
+  " empty by that. The README is the other way round -- see the Markdown above,
+  " which writes every one of them, because it describes the project and not
+  " one machine! By Questor
+  for l:group in GrooVim_ShortcutGroupsHere()
     call add(l:out, "")
     call add(l:out, "    <" . l:group[0] . "> and then...")
     call add(l:out, "      Note: " . l:group[1] . ";")
 
     for l:one in g:GrooVim_Shortcuts
-      if l:one.group !=# l:group[0]
+      if l:one.group !=# l:group[0] || !GrooVim_ShortcutAvailable(l:one)
         continue
       endif
       call add(l:out, GrooVim_ShortcutKeyShown(l:one.key) . l:one.what .

@@ -408,7 +408,7 @@ func! GrooVim_TabToReturnSet() abort
   endif
 endfunc
 
-if g:enable_tcomment_vim == 1 && g:enable_all_plugins == 1
+if g:enable_tcomment_vim
   nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
   inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
   vnoremap <silent> <A-Up> :<C-u>call GrooVim_VisualComment()<cr>

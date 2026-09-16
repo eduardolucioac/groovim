@@ -513,20 +513,20 @@ That is the whole installation. What it leaves on your machine:
 The checkout is not needed afterwards -- everything is **copied**, so you can move
 it or throw it away. To update, pull and run `./install.sh` again.
 
-Whatever plugin you do not have simply stays quiet: nothing GrooVim promises
-rests on one.
+The three plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**
+and **vim-move** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
+`./install.sh` again updates them. Use `--no-plugins` to leave them out: nothing
+GrooVim promises rests on one, and a shortcut whose plugin is not there says
+which one is missing instead of running.
 
-- **Optional:** the plugins that GrooVim knows how to drive.
-
-Vim 8 and later load anything under `pack/*/start` on their own, so
-there is no plugin manager involved here either:
+To put one in by hand, or to add one of your own, nothing else is needed -- Vim 8
+and later load anything under `pack/*/start` on their own, so there is no plugin
+manager involved here either:
 
 ```
 mkdir -p ~/.groovim/pack/groovim/start
 cd ~/.groovim/pack/groovim/start
 git clone https://github.com/preservim/nerdtree.git nerdtree
-git clone https://github.com/tomtom/tcomment_vim.git tcomment_vim
-git clone https://github.com/matze/vim-move.git vim-move
 ```
 
 GrooVim detects each one and enables its mapping by itself. To force a plugin
