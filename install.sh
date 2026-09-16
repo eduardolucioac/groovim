@@ -42,8 +42,9 @@ MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
 # The home of GrooVim: where its code is installed, and where it keeps its
 # plugins, its session, its saved options, its undo and its viminfo.
 GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
-# Where a link goes so that "sudo groovim" finds the command. Every distribution
-# I know of has this directory in the "secure_path" of its sudoers.
+# Where a link goes so that "sudo groovim" finds the command. This is the first
+# choice, not the answer: sudo is asked where it really looks, because not every
+# distribution keeps this directory in its "secure_path" -- CentOS 7 does not.
 SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
 SYSTEM_LINK=1
 # Building takes minutes. An installation that is already there and serves is not
@@ -90,7 +91,7 @@ Options:
   --modified-by NAME who this build says modified it, shown on the opening
                      screen and in ":version"
   --home DIR         where GrooVim lives      (default: ~/.groovim)
-  --no-system-link   do not offer to link the command into /usr/local/bin, which
+  --no-system-link   do not offer to link the command where sudo looks, which
                      is what makes "sudo groovim" find it
   --rebuild          build the Vim again even if the one installed already serves
   --no-deps          do not install build dependencies
@@ -174,35 +175,45 @@ missing_for_groovim() {
 
 # --------------------------------------------------------------- distros ---
 
-# The build dependencies of Vim, by family. Only the families are listed:
-# derivatives arrive here through ID_LIKE.
+# The build dependencies of Vim, by package manager.
+#
+# The manager is whichever one is INSTALLED, and not whichever one the name of
+# the distribution suggests. This used to read /etc/os-release and map the
+# family to a command: CentOS 7 calls itself "centos" with a family of "rhel
+# fedora", has no dnf at all, and the install died on its first step with
+# "sudo: dnf: command not found". Asking the machine what it has cannot be
+# wrong that way, and it needs no list of distribution names to keep up to
+# date -- a derivative nobody has heard of works by itself.
+#
+# The manager also decides the NAMES of the packages, because each one carries
+# exactly one naming scheme. So this single question answers both.
+#
+# Each line: manager|command to install|packages
 distro_dependencies() {
-  local id like
-  id="$(. /etc/os-release 2>/dev/null && echo "${ID:-}")"
-  like="$(. /etc/os-release 2>/dev/null && echo "${ID_LIKE:-}")"
-
-  case " $id $like " in
-    *" arch "*|*" cachyos "*|*" manjaro "*)
-      echo "pacman|sudo pacman -S --needed --noconfirm|base-devel ncurses libx11 libxt python git" ;;
-    *" debian "*|*" ubuntu "*)
-      echo "apt|sudo apt-get install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git" ;;
-    *" fedora "*|*" rhel "*|*" centos "*)
-      echo "dnf|sudo dnf install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" ;;
-    *" suse "*|*" opensuse "*)
-      echo "zypper|sudo zypper install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" ;;
-    *" alpine "*)
-      echo "apk|sudo apk add|build-base ncurses-dev libx11-dev libxt-dev python3-dev git" ;;
-    *" void "*)
-      echo "xbps|sudo xbps-install -Sy|base-devel ncurses-devel libX11-devel libXt-devel python3-devel git" ;;
-    *" gentoo "*)
-      echo "emerge|sudo emerge -n|sys-libs/ncurses x11-libs/libX11 x11-libs/libXt dev-lang/python dev-vcs/git" ;;
-    *)
-      echo "" ;;
-  esac
+  local recipe
+  # The order matters only inside a family: CentOS 8 keeps a "yum" that is
+  # really dnf, and Debian has both "apt" and "apt-get". First one wins.
+  for recipe in \
+    "pacman|sudo pacman -S --needed --noconfirm|base-devel ncurses libx11 libxt python git" \
+    "apt-get|sudo apt-get install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git" \
+    "apt|sudo apt install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git" \
+    "dnf|sudo dnf install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" \
+    "yum|sudo yum install -y|gcc make ncurses-devel libX11-devel libXt-devel python-devel git" \
+    "zypper|sudo zypper install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" \
+    "apk|sudo apk add|build-base ncurses-dev libx11-dev libxt-dev python3-dev git" \
+    "xbps-install|sudo xbps-install -Sy|base-devel ncurses-devel libX11-devel libXt-devel python3-devel git" \
+    "emerge|sudo emerge -n|sys-libs/ncurses x11-libs/libX11 x11-libs/libXt dev-lang/python dev-vcs/git" \
+  ; do
+    if command -v "${recipe%%|*}" >/dev/null 2>&1; then
+      echo "$recipe"
+      return 0
+    fi
+  done
+  echo ""
 }
 
 install_dependencies() {
-  local recipe manager command packages
+  local recipe manager command packages package missing
 
   step "Build dependencies"
 
@@ -224,14 +235,48 @@ install_dependencies() {
   command="$(echo "$recipe" | cut -d'|' -f2)"
   packages="${recipe##*|}"
 
-  echo "  distribution of the $manager family"
+  echo "  this machine installs things with $manager"
   echo "  $command $packages"
   if ! ask "  Run it? (it asks for your password)"; then
     yellow "  not installing. If the build fails, this is the first place to look."
     return 0
   fi
+
+  # A package step that fails does NOT end the install. The packages are a
+  # convenience: the machine may have the headers already, and what is really
+  # missing says so a minute later in the words of configure, which are far
+  # more precise than the ones of a package manager. A CentOS 7 that has
+  # outlived its repositories -- every one of them empty -- reached the build
+  # this way and only then said what it could not find.
   # shellcheck disable=SC2086
-  $command $packages
+  if $command $packages; then
+    return 0
+  fi
+
+  # One name that does not exist must not take the other five with it. Old
+  # distributions are where this happens: CentOS 7 has python-devel, but a
+  # list written for it still misses whatever its dead repositories no longer
+  # carry.
+  yellow "  the whole list did not go in. Trying one at a time:"
+  missing=""
+  for package in $packages; do
+    # shellcheck disable=SC2086
+    if $command $package >/dev/null 2>&1; then
+      green "    $package"
+    else
+      missing="$missing $package"
+      yellow "    $package -- no"
+    fi
+  done
+
+  if [ -n "$missing" ]; then
+    echo
+    yellow "  these did not go in:$missing"
+    echo "    Of them, only the headers of ncurses stop the build; the rest just"
+    echo "    take features away. Going on is worth it -- configure names exactly"
+    echo "    what it cannot find, and it may find everything."
+    ask "  Go on?" || exit 1
+  fi
 }
 
 # ------------------------------------------------------------- our own name ---
@@ -287,9 +332,16 @@ fetch_source() {
     echo "  reusing $SOURCE"
     # Throw away what the last build changed -- our own patch to version.c
     # included -- so every build starts from what upstream actually released.
-    git -C "$SOURCE" checkout -q -- .
-    git -C "$SOURCE" fetch --depth 1 origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null || true
-    git -C "$SOURCE" checkout -q "$VERSION"
+    #
+    # In a subshell with "cd" and not with "git -C": that option is from git
+    # 1.8.5, and CentOS 7 ships 1.8.3.1, where it fails with "Unknown option:
+    # -C" and takes the install with it. "cd" is as old as the shell.
+    (
+      cd "$SOURCE" || exit 1
+      git checkout -q -- .
+      git fetch --depth 1 origin "refs/tags/$VERSION:refs/tags/$VERSION" 2>/dev/null || true
+      git checkout -q "$VERSION"
+    ) || die "I could not put $SOURCE on $VERSION."
   else
     echo "  cloning into $SOURCE"
     git clone --depth 1 --branch "$VERSION" https://github.com/vim/vim.git "$SOURCE"
@@ -306,8 +358,18 @@ available_flags() {
     --enable-multibyte
     --enable-terminal
     --enable-cscope
-    --enable-fail-if-missing
   )
+  # No "--enable-fail-if-missing". It contradicts the list below: it turns
+  # every one of these into a requirement, and the whole point of them is that
+  # GrooVim takes what the machine has. A CentOS 7 with python 2.7 and no
+  # python3 stopped here with "could not configure python3" -- on a headless
+  # server, where there is no X and no Wayland either, and none of that should
+  # stop a terminal Vim from being built.
+  #
+  # Nothing is lost by dropping it: "What came out" at the end reads the
+  # features out of the Vim that was actually built and names every one that
+  # is short. The report tells the truth either way; this only decides whether
+  # there is a Vim to report on.
   local optional
   for optional in \
       --enable-python3interp=dynamic \
@@ -441,7 +503,31 @@ END
 # the system.
 #
 # Note: A link from a directory that IS in that path is the whole fix! By Questor
+# The directory to link into: one that sudo really searches. secure_path lives
+# in the sudoers file, which a normal user cannot read, so it is not parsed --
+# sudo is simply run, and the PATH it hands its command IS the answer. Guessing
+# is what went wrong before: the secure_path of CentOS 7 is
+# "/sbin:/bin:/usr/sbin:/usr/bin", with no /usr/local/bin in it, so the link
+# landed somewhere sudo would never look.
+sudo_bindir() {
+  local sudo_path candidate
+  sudo_path="$(sudo sh -c 'printf "%s" "$PATH"' 2>/dev/null || true)"
+  [ -n "$sudo_path" ] || { echo "$SYSTEM_LINK_DIR"; return 0; }
+
+  for candidate in "$SYSTEM_LINK_DIR" /usr/local/bin /usr/bin /bin; do
+    case ":$sudo_path:" in
+      *":$candidate:"*)
+        if [ -d "$candidate" ]; then
+          echo "$candidate"
+          return 0
+        fi ;;
+    esac
+  done
+  echo ""
+}
+
 offer_system_link() {
+  local candidate dir
 
   step "Reaching GrooVim through sudo"
 
@@ -453,10 +539,13 @@ offer_system_link() {
     echo "  installed by root, so the command is already where sudo looks"
     return 0
   fi
-  if [ -e "$SYSTEM_LINK_DIR/groovim" ]; then
-    green "  already there: $SYSTEM_LINK_DIR/groovim"
-    return 0
-  fi
+  # Asked before sudo is, so that running this again costs no password.
+  for candidate in "$SYSTEM_LINK_DIR" /usr/local/bin /usr/bin /bin; do
+    if [ -e "$candidate/groovim" ]; then
+      green "  already there: $candidate/groovim"
+      return 0
+    fi
+  done
   if ! command -v sudo >/dev/null 2>&1; then
     yellow "  there is no sudo here. Nothing to do."
     return 0
@@ -465,13 +554,20 @@ offer_system_link() {
   echo "  \"sudo groovim\" will not find $BINDIR/groovim: sudo replaces your PATH"
   echo "  with the secure_path of the sudoers file, and a directory of yours is"
   echo "  not in it."
-  if ! ask "  Link it into $SYSTEM_LINK_DIR? (it asks for your password)"; then
+  if ! ask "  Link it where sudo looks? (it asks for your password)"; then
     yellow "  not linking. To edit files of the system: sudo $BINDIR/groovim <file>"
     return 0
   fi
 
-  if sudo ln -s "$BINDIR/groovim" "$SYSTEM_LINK_DIR/groovim"; then
-    green "  linked: $SYSTEM_LINK_DIR/groovim -> $BINDIR/groovim"
+  dir="$(sudo_bindir)"
+  if [ -z "$dir" ]; then
+    red "  sudo searches none of /usr/local/bin, /usr/bin or /bin here."
+    echo "    To edit files of the system: sudo $BINDIR/groovim <file>"
+    return 0
+  fi
+
+  if sudo ln -s "$BINDIR/groovim" "$dir/groovim"; then
+    green "  linked: $dir/groovim -> $BINDIR/groovim"
   else
     red "  could not link. To edit files of the system: sudo $BINDIR/groovim <file>"
   fi
