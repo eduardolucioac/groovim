@@ -141,16 +141,23 @@ func! GT_Body()
   call GT_Ok("it has a bar of its own",
     \ &l:statusline ==# "%!GrooVim_GrooVimHelpBar()",
     \ "   [" . &l:statusline . "]   (empty would pass a \"does not contain\" check for nothing)")
-  call GT_Ok("which does not repeat the name of the buffer",
-    \ GrooVim_GrooVimHelpBar() !~ "GrooVim_FileLabel",
-    \ "   (it is filling the window)")
-  call GT_Ok("nor does it carry the \"Powered by\" of a document",
-    \ GrooVim_GrooVimHelpBar() !~ "Powered by",
-    \ "   [" . GrooVim_GrooVimHelpBar() . "]")
-  call GT_Ok("but it still says where in it you are",
+  call GT_Ok("which says WHAT you are reading",
+    \ GrooVim_GrooVimHelpBar() =~ "%f", "   [" . GrooVim_GrooVimHelpBar() . "]")
+  call GT_Ok("  and WHERE in it you are",
     \ GrooVim_GrooVimHelpBar() =~ "%l/%L" && GrooVim_GrooVimHelpBar() =~ "%p%%", "")
-  call GT_Ok("and a document keeps both",
-    \ GrooVim_GrooVimBar() =~ "GrooVim_FileLabel" && GrooVim_GrooVimBar() =~ "Powered by", "")
+  call GT_Ok("and nothing else: no encoding, no flags",
+    \ GrooVim_GrooVimHelpBar() !~ "fenc" && GrooVim_GrooVimHelpBar() !~ "%M" &&
+    \ GrooVim_GrooVimHelpBar() !~ "%y", "")
+  call GT_Ok("  no \"Powered by\" of a document",
+    \ GrooVim_GrooVimHelpBar() !~ "Powered by", "")
+  call GT_Ok("  and no messages",
+    \ GrooVim_GrooVimHelpBar() !~ "Hey" &&
+    \ stridx(GrooVim_GrooVimHelpBar(), g:GrooVim_GrooVimBarMsgValue) < 0
+    \ || g:GrooVim_GrooVimBarMsgValue ==# "",
+    \ "   (an invitation to press F9 does not belong on what F9 opened)")
+  call GT_Ok("and a document keeps all of it",
+    \ GrooVim_GrooVimBar() =~ "GrooVim_FileLabel" && GrooVim_GrooVimBar() =~ "Powered by" &&
+    \ GrooVim_GrooVimBar() =~ "fenc", "")
   exec "bwipeout! GrooVimHelp"
 
   " ---- and the copy that used to demand a writable buffer

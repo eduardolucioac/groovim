@@ -5528,13 +5528,15 @@ func! GrooVim_GrooVimBar()
 
 endfun
 
-" Note: The bar of the help says where you are in it, and nothing else.
+" Note: The bar of the help: WHAT you are reading and WHERE in it you are.
 "
-" Note: No name -- you know which buffer this is, it is filling the window -- and
-" no "Powered by", which is the banner of a DOCUMENT of yours. The occurrence
-" list has a bar of its own for the same reason! By Questor
+" Note: Nothing else. No encoding and no flags -- the help is not a file you are
+" going to save, and it is the same every time. No "Powered by", which is the
+" banner of a DOCUMENT of yours. And no messages: an invitation to press F9 does
+" not belong on the bar of the thing F9 opened. The occurrence list has a bar of
+" its own for the same reasons! By Questor
 func! GrooVim_GrooVimHelpBar()
-  return GrooVim_GrooVimBarWhere() . g:GrooVim_GrooVimBarMsgValue
+  return "%f [%l/%L,%v] [%p%%]"
 endfunc
 set stl=%!GrooVim_GrooVimBar()
 " Note: Displays a message on the initial run! By Questor
