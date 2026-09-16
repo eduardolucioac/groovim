@@ -40,6 +40,10 @@ MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
 # The home of GrooVim: where its code is installed, and where it keeps its
 # plugins, its session, its saved options, its undo and its viminfo.
 GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
+# Where a link goes so that "sudo groovim" finds the command. Every distribution
+# I know of has this directory in the "secure_path" of its sudoers.
+SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
+SYSTEM_LINK=1
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
@@ -83,12 +87,15 @@ Options:
   --modified-by NAME who this build says modified it, shown on the opening
                      screen and in ":version"
   --home DIR         where GrooVim lives      (default: ~/.groovim)
+  --no-system-link   do not offer to link the command into /usr/local/bin, which
+                     is what makes "sudo groovim" find it
   --no-deps          do not install build dependencies
   --yes              answer yes to everything
   --help             this
 
 Environment: GROOVIM_PREFIX, GROOVIM_BINDIR, GROOVIM_SOURCE, GROOVIM_MODIFIED_BY
-and GROOVIM_HOME do the same as the options of the same name.
+GROOVIM_HOME and GROOVIM_SYSTEM_BINDIR do the same as the options of the same
+name.
 END
 }
 
@@ -111,6 +118,7 @@ while [ $# -gt 0 ]; do
     --jobs)      JOBS="${2:?--jobs needs a number}"; shift ;;
     --modified-by) MODIFIED_BY="${2:?--modified-by needs a name}"; shift ;;
     --home)      GROOVIM_HOME_DIR="${2:?--home needs a directory}"; shift ;;
+    --no-system-link) SYSTEM_LINK=0 ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
@@ -450,6 +458,51 @@ END
   echo "  under sudo it reads the same GrooVim and writes its own session apart"
 }
 
+# ------------------------------------------------------------ sudo groovim ---
+
+# Note: "sudo" throws your PATH away and uses the "secure_path" of the sudoers
+# file instead, and that almost never holds a directory belonging to a user. So
+# "sudo groovim" answers "command not found" however well GrooVim is installed --
+# measured, and it is the first thing anybody hits who wants to edit a file of
+# the system.
+#
+# Note: A link from a directory that IS in that path is the whole fix! By Questor
+offer_system_link() {
+
+  step "Reaching GrooVim through sudo"
+
+  if [ "$SYSTEM_LINK" -eq 0 ]; then
+    yellow "  skipped by --no-system-link"
+    return 0
+  fi
+  if [ "$(id -u)" = "0" ]; then
+    echo "  installed by root, so the command is already where sudo looks"
+    return 0
+  fi
+  if [ -e "$SYSTEM_LINK_DIR/groovim" ]; then
+    green "  already there: $SYSTEM_LINK_DIR/groovim"
+    return 0
+  fi
+  if ! command -v sudo >/dev/null 2>&1; then
+    yellow "  there is no sudo here. Nothing to do."
+    return 0
+  fi
+
+  echo "  \"sudo groovim\" will not find $BINDIR/groovim: sudo replaces your PATH"
+  echo "  with the secure_path of the sudoers file, and a directory of yours is"
+  echo "  not in it."
+  if ! ask "  Link it into $SYSTEM_LINK_DIR? (it asks for your password)"; then
+    yellow "  not linking. To edit files of the system: sudo $BINDIR/groovim <file>"
+    return 0
+  fi
+
+  if sudo ln -s "$BINDIR/groovim" "$SYSTEM_LINK_DIR/groovim"; then
+    green "  linked: $SYSTEM_LINK_DIR/groovim -> $BINDIR/groovim"
+  else
+    red "  could not link. To edit files of the system: sudo $BINDIR/groovim <file>"
+  fi
+}
+
 # ---------------------------------------------------------------- closing ---
 
 check_the_result() {
@@ -513,6 +566,7 @@ brand_the_splash
 build_vim
 install_groovim
 write_groovim
+offer_system_link
 check_the_result
 warn_about_path
 
