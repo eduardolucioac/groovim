@@ -3910,6 +3910,14 @@ endfunc
 " Note: It asks about unsaved text, like every other way of closing in GrooVim.
 " And if you answer "Cancel" the count of tabs does not move -- which is how this
 " knows to stop, instead of asking the same question for ever! By Questor
+" Note: A new tab, at the END of the tab line, and one you can type in. See the
+" long notes on "$tabnew" and on the lock that used to leak, in
+" "GrooVim_TabClose" and in the help toggle! By Questor
+func! GrooVim_TabNew() abort
+  $tabnew
+  setlocal ma
+endfunc
+
 " Note: Closing the tab you are in.
 "
 " Note: Vim REFUSES to close the last tab -- "E784: Cannot close last tab page"
@@ -4047,262 +4055,31 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
     " anymore! By Questor
     let g:GrooVim_CommandZUnblock = 0
     try
-    " Note: Edit commands! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F2"
-      " Note: Editing, and what acts on the FILE itself.
-      " Note: Used keys for F2: h k j up down t c q w e p y end! By Questor
-      " Note: To debug! By Questor
-      " Note: Aligns to left (h)! By Questor
-      if g:GrooVim_CommandZChar == "104"
-        :left
+
+    " Note: The shortcut is LOOKED UP, not spelled out.
+    "
+    " Note: This was three hundred lines of "if the key is this, do that" -- fifty
+    " of them, in four blocks, one per F key. Every shortcut lived in two places
+    " at once: an "if" here and an entry in the list the help is written from, and
+    " the two drifted. A key that moved group stayed answering under the old one;
+    " a key the list claimed did not answer at all.
+    "
+    " Note: Now the list is the only place. What a shortcut IS -- its group, its
+    " key, the modes it answers in, what it does and how to say so -- is written
+    " once, and the help, the menu and this all read it! By Questor
+    for l:one in g:GrooVim_Shortcuts
+
+      if l:one.group !=# a:GrooVim_CommandZFCallerNow
+       \ || !GrooVim_ShortcutIsKey(g:GrooVim_CommandZChar, l:one.key)
+       \ || stridx(l:one.modes, a:modType) < 0
+        continue
       endif
-      " Note: Aligns to right (k)! By Questor
-      if g:GrooVim_CommandZChar == "107"
-        :right
-      endif
-      " Note: Aligns to center (j)! By Questor
-      if g:GrooVim_CommandZChar == "106"
-        :center
-      endif
-      " Note: Changes to uppercase (normal/insert) (up)! By Questor
-      if g:GrooVim_CommandZChar == "\<Up>" && a:modType != "v"
-        call GrooVim_CaseOfTheWord("U")
-      endif
-      " Note: Changes to lowercase (normal/insert) (down)! By Questor
-      if g:GrooVim_CommandZChar == "\<Down>" && a:modType != "v"
-        call GrooVim_CaseOfTheWord("u")
-      endif
-      " Note: Title Case (t)! By Questor
-      if g:GrooVim_CommandZChar == "116"
-        call GrooVim_ToTitleCase(a:modType)
-      endif
-      " Note: Changes to uppercase (visual) (up)! By Questor
-      if g:GrooVim_CommandZChar == "\<Up>" && a:modType == "v"
-        call GrooVim_ToUpperLower("Upper")
-      endif
-      " Note: Changes to lowercase (visual) (down)! By Questor
-      if g:GrooVim_CommandZChar == "\<Down>" && a:modType == "v"
-        call GrooVim_ToUpperLower("Lower")
-      endif
-      " Note:  Copy all text in the current buffer (c)! By Questor
-      if g:GrooVim_CommandZChar == "99"
-        call GrooVim_ClipSet(join(getline(1, "$"), "\n"))
-      endif
-      " Note: Record a macro (q)! By Questor
-      if g:GrooVim_CommandZChar == "113"
-        call GrooVim_XenRec()
-      endif
-      " Note: Run a macro (w)! By Questor
-      if g:GrooVim_CommandZChar == "119"
-        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])
-      endif
-      " Note: Run a macro certain number of times or repeatedly until the last line (e)! By Questor
-      if g:GrooVim_CommandZChar == "101"
-        call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])
-      endif
-      " Note: Selects the word under the cursor (End)! By Questor
-      if g:GrooVim_CommandZChar == "\<End>"
-        exec "norm viw"
-      endif
-      " Note: Get current filename or filename and path and put on transfer area (p)! By Questor
-      if g:GrooVim_CommandZChar == "112"
-        call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])
-      endif
-      " Note: Save to disk and open in a new tab a copy of the current file (y)! By Questor
-      if g:GrooVim_CommandZChar == "121"
-        call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])
-      endif
-    endif
-    " Note: Control commands! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F3"
-      " Note: The editing you reach for most, and searching.
-      " Note: Used keys for F3: a d v / f h end del! By Questor
-      " Note: Select all text in the current buffer (a)! By Questor
-      if g:GrooVim_CommandZChar == "97"
-        exec "norm ggVG$"
-      endif
-      " Note: Duplicates the current line/selection (normal) (d)! By Questor
-      if g:GrooVim_CommandZChar == "100" && a:modType == "n"
-        let l:saved_reg = GrooVim_ClipGet()
-        exec "norm yyo\<Esc>p"
-        call GrooVim_ClipSet(l:saved_reg)
-      endif
-      " Note: Duplicates the current line/selection (insert) (d)! By Questor
-      if g:GrooVim_CommandZChar == "100" && a:modType == "i"
-        let l:saved_reg = GrooVim_ClipGet()
-        exec "norm yyo\<Esc>p"
-        call GrooVim_ClipSet(l:saved_reg)
-      endif
-      " Note: Duplicates the current line/selection (visual) (d)! By Questor
-      if g:GrooVim_CommandZChar == "100" && a:modType == "v"
-        call GrooVim_DuplicateVisualSelection()
-        " Note: If in the visual mode this command can not be replicated hold F key! By Questor
-        let g:GrooVim_CommandZChar = ""
-      endif
-      " Note: Selects an area (Del)! By Questor
-      if g:GrooVim_CommandZChar == "\<Del>" && a:modType != "v"
-        call GrooVim_SelectRange(a:modType)
-      endif
-      " Note: Removes search highlights (visual/normal) (/)! By Questor
-      if g:GrooVim_CommandZChar == "47" && a:modType != "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\\z/")
-      endif
-      " Note: '' (insert)(/)! By Questor
-      if g:GrooVim_CommandZChar == "47" && a:modType == "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\<Esc>\\z/i")
-      endif
-      " Note: Opens for search (insert/normal) (f)! By Questor
-      if g:GrooVim_CommandZChar == "102" && a:modType != "v"
-        call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])
-      endif
-      " Note: '' (visual) (f)! By Questor
-      if g:GrooVim_CommandZChar == "102" && a:modType == "v"
-        call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])
-      endif
-      " Note: Opens to replace (normal/insert) (h)! By Questor
-      if g:GrooVim_CommandZChar == "104" && a:modType != "v"
-        call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])
-      endif
-      " Note: '' (visual) (h)! By Questor
-      if g:GrooVim_CommandZChar == "104" && a:modType == "v"
-        call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])
-      endif
-      " Note: Select and search the word under the cursor (case sensitive) (End)! By Questor
-      if g:GrooVim_CommandZChar == "\<End>"
-        call GrooVim_SelectNSearch(1, a:modType)
-      endif
-      " Note: Reselect area (v)! By Questor
-      "
-      " Note: The "v" of the "gv" of Vim, which is what this runs. The "Del" it
-      " used to be now selects an area, which came up from "F2"! By Questor
-      if g:GrooVim_CommandZChar == "118" && a:modType != "v"
-        exec "norm gv"
-      endif
-    endif
-    " Note: Plugin commands! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F4"
-      " Note: The installed plugins and what they do.
-      " Note: Used keys for F4: n! By Questor
-      " Note: Opens/closes the "NerdTree" (n)! By Questor
-      if g:enable_nerdtree_vim == 1 && g:enable_all_plugins == 1
-        if g:GrooVim_CommandZChar == "110"
-          " call ToggleNERDTree()
-          call GrooVim_ToggleNERDTreeTabs()
-        endif
-      endif
-    endif
-    " Note: File commands! By Questor
-    if a:GrooVim_CommandZFCallerNow == "F5"
-      " Note: What acts on the EDITOR -- tabs, leaving -- and the settings.
-      " Note: Used keys for F5: s e n t q w o . , a v r f h i c [ ]! By Questor
-      " Note: Open a new tab (n)! By Questor
-      if g:GrooVim_CommandZChar == "110"
-        " Note: "$tabnew" and not "tabnew": at the END of the tab line, the way
-        " Notepad++ adds a document, and not squeezed in beside the one you are
-        " on. The "$" is the "last tab page" of Vim! By Questor
-        $tabnew
-        " Note: A new tab you can type in. This used to be "set ma", which fixed
-        " the symptom of a lock that leaked from the help and the occurrence
-        " list -- those now use "setlocal" and leak nothing. Kept, local, so a
-        " new tab is writable whatever anything else may have done! By Questor
-        setlocal ma
-      endif
-      " Note: Allows always returning to a particular tab using <Alt-Down> (t)! By Questor
-      if g:GrooVim_CommandZChar == "116"
-        call GrooVim_TabToReturnSet()
-      endif
-      " Note: Opens the file .vimrc (normal/visual) (v)! By Questor
-      if g:GrooVim_CommandZChar == "118" && a:modType != "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\\zv")
-      endif
-      " Note: '' (insert) (v)! By Questor
-      if g:GrooVim_CommandZChar == "118" && a:modType == "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\<Esc>\\zvi")
-      endif
-      " Note: Reloads the file .vimrc in all tabs (r)! By Questor
-      if g:GrooVim_CommandZChar == "114" && a:modType == "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\<Esc>\\zvvi")
-      endif
-      " Note: '' (normal/visual) (r)! By Questor
-      if g:GrooVim_CommandZChar == "114" && a:modType != "i"
-        " Note: Workaround to avoid incompatibility! By Questor
-        call feedkeys("\\zvv")
-      endif
-      " Note: Opens to configure the search (f)! By Questor
-      "
-      " Note: The SAME letter that runs it, one group up: "F3" and the letter
-      " does the thing, "F5" and the letter sets it up. The settings live in
-      " "F5" because that is where the settings live! By Questor
-      if g:GrooVim_CommandZChar == "102"
-        call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
-      endif
-      " Note: Opens to configure the replace (h)! By Questor
-      if g:GrooVim_CommandZChar == "104"
-        call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
-      endif
-      " Note: The indent settings (i)! By Questor
-      if g:GrooVim_CommandZChar == "105"
-        call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
-      endif
-      " Note: The general settings (c)! By Questor
-      if g:GrooVim_CommandZChar == "99"
-        call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
-      endif
-      " Note: Save the session by hand ([)! By Questor
-      if g:GrooVim_CommandZChar == "91"
-        call GrooVim_SessionSaveByHand()
-      endif
-      " Note: Bring the session back by hand (])! By Questor
-      if g:GrooVim_CommandZChar == "93"
-        call GrooVim_SessionLoadByHand()
-      endif
-      " Note: Close, asking about anything unsaved (q)! By Questor
-      if g:GrooVim_CommandZChar == "113"
-        call GrooVim_CloseAsking("q")
-      endif
-      " Note: Save to disk (s)! By Questor
-      if g:GrooVim_CommandZChar == "115"
-        if a:modType == "v"
-          call GrooVim_VisualWrite()
-        else
-          :w
-        endif
-      endif
-      " Note: Save every changed file (e)! By Questor
-      if g:GrooVim_CommandZChar == "101"
-        :wa
-      endif
-      " Note: Close the tab you are in, asking about anything unsaved (w)! By Questor
-      if g:GrooVim_CommandZChar == "119"
-        call GrooVim_TabClose()
-      endif
-      " Note: Close everything, asking about anything unsaved (a)! By Questor
-      if g:GrooVim_CommandZChar == "97"
-        call GrooVim_CloseAsking("qa")
-      endif
-      " Note: Close all other tabs (o)! By Questor
-      if g:GrooVim_CommandZChar == "111"
-        call GrooVim_CloseAsking("tabonly")
-      endif
-      " Note: Close every tab to the right (.)! By Questor
-      "
-      " Note: The keys where "<" and ">" live, but WITHOUT the Shift. The comma
-      " sits to the left of the dot on the keyboard, which is the direction each
-      " one closes. Shift costs a trip of the hand, and the second key of a
-      " CommandZ has 400ms to arrive! By Questor
-      if g:GrooVim_CommandZChar == "46"
-        call GrooVim_TabCloseSide(1)
-      endif
-      " Note: Close every tab to the left (,)! By Questor
-      if g:GrooVim_CommandZChar == "44"
-        call GrooVim_TabCloseSide(-1)
-      endif
-    endif
+
+      call GrooVim_ShortcutRun(l:one, a:modType)
+      break
+
+    endfor
+
     finally
       let g:GrooVim_CommandZUnblock = 1
     endtry
@@ -4376,6 +4153,48 @@ else
   highlight GrooVimMenuRule ctermbg=white ctermfg=black
   highlight PopupSelected ctermbg=blue ctermfg=white cterm=bold
 endif
+
+" Note: Whether the key that was pressed is the key of this shortcut.
+"
+" Note: "getchar()" hands over a NUMBER for a plain key and a STRING for a named
+" one, which is why the two are asked about differently. It is the same split the
+" list itself carries: "h" against "up"! By Questor
+func! GrooVim_ShortcutIsKey(pressed, key) abort
+
+  let l:named = {"up": "\<Up>", "down": "\<Down>", "end": "\<End>",
+   \ "del": "\<Del>", "left": "\<Left>", "right": "\<Right>",
+   \ "home": "\<Home>", "insert": "\<Insert>"}
+
+  if has_key(l:named, a:key)
+    return ("" . a:pressed . "") ==# l:named[a:key]
+  endif
+
+  return ("" . a:pressed . "") ==# ("" . char2nr(a:key) . "")
+endfunc
+
+" Note: Runs what the shortcut says to run.
+"
+" Note: "run" is one line of VimScript, or a handful of them keyed by the modes
+" each belongs to -- uppercase is one thing on a word and another on a selection.
+" Inside them "l:mode" is the mode you are in, which is why it is a name and not
+" an argument! By Questor
+func! GrooVim_ShortcutRun(one, mode) abort
+
+  let l:mode = a:mode
+
+  if type(a:one.run) != type({})
+    exec a:one.run
+    return
+  endif
+
+  for l:where in keys(a:one.run)
+    if stridx(l:where, a:mode) >= 0
+      exec a:one.run[l:where]
+      return
+    endif
+  endfor
+
+endfunc
 
 " Note: The two keys a shortcut is made of, ready to be pressed: the F key and
 " then the letter -- or the real key code, for the ones that are not letters! By
@@ -5170,6 +4989,27 @@ endfunc
 " Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
 " BEFORE the cursor. Going through the mappings here made the copy land one
 " character too early, turning "DUPLICAR" into "DUPLICADUPLICARR"! By Questor
+" Note: The line the cursor is on, copied under itself, with the clipboard given
+" back afterwards -- copying is how it is done, and it should not cost you what
+" you had there.
+"
+" Note: A function because the dispatch spelled these three lines out TWICE, once
+" for normal mode and once for insert, letter for letter! By Questor
+func! GrooVim_DuplicateLine() abort
+  let l:saved_reg = GrooVim_ClipGet()
+  exec "norm yyo\<Esc>p"
+  call GrooVim_ClipSet(l:saved_reg)
+endfunc
+
+" Note: The selection, copied under itself -- and then the key of the last command
+" is FORGOTTEN, so holding the F key down does not replicate this one. A selection
+" duplicated again and again, from a selection that has moved each time, is not
+" what anybody means by "do that again"! By Questor
+func! GrooVim_DuplicateSelection() abort
+  call GrooVim_DuplicateVisualSelection()
+  let g:GrooVim_CommandZChar = ""
+endfunc
+
 func! GrooVim_DuplicateVisualSelection() range abort
   let l:saved_reg = GrooVim_ClipGet()
   exec "norm! gvygv\<Esc>p"
@@ -5255,6 +5095,16 @@ func! GrooVim_SaveACopy() range abort
 endfunc
 
 " Note: Saves to disk! By Questor
+" Note: Saving. In visual mode what is written is the SELECTION, to a file of its
+" own; anywhere else it is the file you are in! By Questor
+func! GrooVim_Save(mode) abort
+  if a:mode ==# "v"
+    call GrooVim_VisualWrite()
+  else
+    write
+  endif
+endfunc
+
 func! GrooVim_VisualWrite() range abort
   " Note: Write! By Questor
   exec "w"
@@ -5799,85 +5649,85 @@ let g:GrooVim_ShortcutGroups = [
  \ ]
 
 let g:GrooVim_Shortcuts = [
- \ {"group": "F2", "key": "h", "modes": "niv", "what": "Aligns to left"},
- \ {"group": "F2", "key": "k", "modes": "niv", "what": "Aligns to right"},
- \ {"group": "F2", "key": "j", "modes": "niv", "what": "Aligns to center"},
- \ {"group": "F2", "key": "up", "break": 1, "modes": "niv", "what": "Changes to uppercase"},
- \ {"group": "F2", "key": "down", "modes": "niv", "what": "Changes to lowercase"},
- \ {"group": "F2", "key": "t", "modes": "niv",
+ \ {"group": "F2", "key": "h", "modes": "niv", "run": ':left', "what": "Aligns to left"},
+ \ {"group": "F2", "key": "k", "modes": "niv", "run": ':right', "what": "Aligns to right"},
+ \ {"group": "F2", "key": "j", "modes": "niv", "run": ':center', "what": "Aligns to center"},
+ \ {"group": "F2", "key": "up", "break": 1, "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("U")', "v": 'call GrooVim_ToUpperLower("Upper")'}, "what": "Changes to uppercase"},
+ \ {"group": "F2", "key": "down", "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("u")', "v": 'call GrooVim_ToUpperLower("Lower")'}, "what": "Changes to lowercase"},
+ \ {"group": "F2", "key": "t", "modes": "niv", "run": 'call GrooVim_ToTitleCase(l:mode)',
  \  "what": "Title Case: the first letter of every word up, the rest down",
  \  "notes": [
  \   "In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\"",
  \   "The three of them leave the cursor where it was"
  \  ]},
- \ {"group": "F2", "key": "c", "break": 1, "modes": "niv", "what": "Copy all text in the current buffer"},
- \ {"group": "F2", "key": "end", "modes": "niv", "what": "Selects the word under the cursor"},
- \ {"group": "F2", "key": "q", "break": 1, "modes": "niv", "what": "Record a macro"},
- \ {"group": "F2", "key": "w", "modes": "niv", "what": "Run a macro"},
- \ {"group": "F2", "key": "e", "modes": "niv", "what": "Run a macro certain number of times or repeatedly until the last line"},
- \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
- \ {"group": "F2", "key": "y", "modes": "niv", "what": "Save to disk and open in a new tab a copy of the current file"},
- \ {"group": "F3", "key": "a", "modes": "niv", "what": "Select all text in the current buffer"},
- \ {"group": "F3", "key": "d", "modes": "niv",
+ \ {"group": "F2", "key": "c", "break": 1, "modes": "niv", "run": 'call GrooVim_ClipSet(join(getline(1, "$"), "\n"))', "what": "Copy all text in the current buffer"},
+ \ {"group": "F2", "key": "end", "modes": "niv", "run": 'exec "norm viw"', "what": "Selects the word under the cursor"},
+ \ {"group": "F2", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_XenRec()', "what": "Record a macro"},
+ \ {"group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
+ \ {"group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
+ \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
+ \ {"group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "what": "Save to disk and open in a new tab a copy of the current file"},
+ \ {"group": "F3", "key": "a", "modes": "niv", "run": 'exec "norm ggVG$"', "what": "Select all text in the current buffer"},
+ \ {"group": "F3", "key": "d", "modes": "niv", "run": {"n": 'call GrooVim_DuplicateLine()', "i": 'call GrooVim_DuplicateLine()', "v": 'call GrooVim_DuplicateSelection()'},
  \  "what": "Duplicates the current line/selection",
  \  "notes": [
  \   "If in the visual mode can not be replicated"
  \  ]},
- \ {"group": "F3", "key": "del", "modes": "ni", "what": "Selects an area"},
- \ {"group": "F3", "key": "v", "modes": "ni", "what": "Reselect area, the |gv| of Vim"},
- \ {"group": "F3", "key": "/", "break": 1, "modes": "niv", "what": "Removes search highlights"},
- \ {"group": "F3", "key": "f", "modes": "niv", "what": "Opens for search"},
- \ {"group": "F3", "key": "h", "modes": "niv",
+ \ {"group": "F3", "key": "del", "modes": "ni", "run": 'call GrooVim_SelectRange(l:mode)', "what": "Selects an area"},
+ \ {"group": "F3", "key": "v", "modes": "ni", "run": 'exec "norm gv"', "what": "Reselect area, the |gv| of Vim"},
+ \ {"group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "what": "Removes search highlights"},
+ \ {"group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "what": "Opens for search"},
+ \ {"group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
  \  "what": "Opens to replace",
  \  "notes": [
  \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h"
  \  ]},
- \ {"group": "F3", "key": "end", "modes": "niv", "what": "Select and search the word under the cursor (case sensitive)"},
- \ {"group": "F4", "key": "n", "modes": "niv", "what": "Opens/closes the *NERDTree*"},
- \ {"group": "F5", "key": "s", "modes": "niv",
+ \ {"group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
+ \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()', "what": "Opens/closes the *NERDTree*"},
+ \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",
  \  "notes": [
  \   "In visual mode it writes the SELECTION to a file of its own"
  \  ]},
- \ {"group": "F5", "key": "e", "modes": "niv", "what": "Save every changed file"},
- \ {"group": "F5", "key": "n", "break": 1, "modes": "niv",
+ \ {"group": "F5", "key": "e", "modes": "niv", "run": ':wa', "what": "Save every changed file"},
+ \ {"group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "what": "Open a new tab",
  \  "notes": [
  \   "A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
  \   "The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again"
  \  ]},
- \ {"group": "F5", "key": "t", "modes": "niv", "what": "Allows always returning to a particular tab using <Alt-Down>"},
- \ {"group": "F5", "key": "q", "break": 1, "modes": "niv", "what": "Close the window"},
- \ {"group": "F5", "key": "w", "modes": "niv",
+ \ {"group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()', "what": "Allows always returning to a particular tab using <Alt-Down>"},
+ \ {"group": "F5", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_CloseAsking("q")', "what": "Close the window"},
+ \ {"group": "F5", "key": "w", "modes": "niv", "run": 'call GrooVim_TabClose()',
  \  "what": "Close the tab you are in",
  \  "notes": [
  \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls |new|1|"
  \  ]},
- \ {"group": "F5", "key": "o", "modes": "niv", "what": "Close all other tabs"},
- \ {"group": "F5", "key": ".", "modes": "niv", "what": "Close every tab to the RIGHT of this one"},
- \ {"group": "F5", "key": ",", "modes": "niv",
+ \ {"group": "F5", "key": "o", "modes": "niv", "run": 'call GrooVim_CloseAsking("tabonly")', "what": "Close all other tabs"},
+ \ {"group": "F5", "key": ".", "modes": "niv", "run": 'call GrooVim_TabCloseSide(1)', "what": "Close every tab to the RIGHT of this one"},
+ \ {"group": "F5", "key": ",", "modes": "niv", "run": 'call GrooVim_TabCloseSide(-1)',
  \  "what": "Close every tab to the LEFT of this one",
  \  "notes": [
  \   "The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes"
  \  ]},
- \ {"group": "F5", "key": "a", "modes": "niv",
+ \ {"group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
  \  "what": "Close everything and leave",
  \  "notes": [
  \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"
  \  ]},
- \ {"group": "F5", "key": "v", "break": 1, "modes": "niv", "what": "Opens the file|.vimrc|"},
- \ {"group": "F5", "key": "r", "modes": "niv", "what": "Reloads the file|.vimrc|in all tabs"},
- \ {"group": "F5", "key": "f", "modes": "niv", "what": "Opens to configure the search"},
- \ {"group": "F5", "key": "h", "modes": "niv",
+ \ {"group": "F5", "key": "v", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\zv")', "i": 'call feedkeys("\<Esc>\\zvi")'}, "what": "Opens the file|.vimrc|"},
+ \ {"group": "F5", "key": "r", "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
+ \ {"group": "F5", "key": "f", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])', "what": "Opens to configure the search"},
+ \ {"group": "F5", "key": "h", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])',
  \  "what": "Opens to configure the replace",
  \  "notes": [
  \   "The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up",
  \   "On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>"
  \  ]},
- \ {"group": "F5", "key": "i", "modes": "niv", "what": "Opens the indent settings -- the \"Tab Settings\" of Notepad++"},
- \ {"group": "F5", "key": "c", "modes": "niv", "what": "Opens the general settings"},
- \ {"group": "F5", "key": "[", "break": 1, "modes": "niv", "what": "Saves the current session"},
- \ {"group": "F5", "key": "]", "modes": "niv",
+ \ {"group": "F5", "key": "i", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])', "what": "Opens the indent settings -- the \"Tab Settings\" of Notepad++"},
+ \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])', "what": "Opens the general settings"},
+ \ {"group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "what": "Saves the current session"},
+ \ {"group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
  \  "what": "Brings the last saved session back",
  \  "notes": [
  \   "The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"

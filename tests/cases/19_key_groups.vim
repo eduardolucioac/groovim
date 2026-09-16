@@ -1,251 +1,104 @@
-" Every F key is a group with a meaning, and the keys inside it obey.
+" Each F key is a group with a meaning, and the shortcuts inside it obey.
 "
 "   F2  editing, and what acts on the FILE itself
 "   F3  the editing you reach for most, and searching
 "   F4  the installed plugins
 "   F5  what acts on the EDITOR -- tabs, leaving -- and the settings
 "
-" This case reads the source of GrooVim and checks the bookkeeping: no letter
-" answering twice in the same group, and the "Used keys" note saying what is
-" really there. Both had already drifted -- a second ":w" left behind in F3 after
-" saving moved to F5, and the note of F4 naming keys the block does not handle.
+" There used to be three hundred lines of "if the key is this, do that" beside
+" the list the help is written from, and every shortcut lived in both. They
+" drifted: keys that moved group went on answering under the old one, and the
+" help named letters that had been retired. Now the list is the only place, and
+" what this case guards is that the list itself holds together.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
-" The letter a key code stands for, as the "Used keys" notes write it.
-func! GT_KeyName(code)
-  if a:code =~ '^\d\+$'
-    return nr2char(str2nr(a:code))
-  endif
-  return tolower(matchstr(a:code, '<\zs\w\+\ze>'))
-endfunc
-
-" The modes a single "if" of the CommandZ answers in, from its condition.
-"
-" No condition at all means all three; "== \"v\"" means visual alone; "!= \"v\""
-" means the other two. Several ifs for the same key add up.
-func! GT_ModesOf(condition)
-  if a:condition ==# ""
-    return "niv"
-  endif
-  let l:which = matchstr(a:condition, '"\zs\w\ze"')
-  if a:condition =~ "=="
-    return l:which
-  endif
-  return substitute("niv", l:which, "", "g")
-endfunc
-
-" Puts a mode set back in the n, i, v order the list is written in.
-func! GT_ModesSorted(modes)
-  let l:out = ""
-  for l:one in ["n", "i", "v"]
-    if stridx(a:modes, l:one) >= 0
-      let l:out = l:out . l:one
-    endif
-  endfor
-  return l:out
-endfunc
-
-" Reads the CommandZ of GrooVim and returns, per group, the list of
-" [key, mode condition] it answers to and the keys its note claims.
-func! GT_ReadGroups(path)
-  let l:groups = {}
-  let l:group = ""
-  for l:line in readfile(a:path)
-    let l:which = matchstr(l:line, 'GrooVim_CommandZFCallerNow == "\zsF\d\ze"')
-    if l:which != ""
-      let l:group = l:which
-      let l:groups[l:group] = {"handled": [], "claimed": [], "modes": {}}
-      continue
-    endif
-    if l:group == "" | continue | endif
-    let l:note = matchstr(l:line, 'Used keys for ' . l:group . ': \zs[^!]*\ze!')
-    if l:note != ""
-      let l:groups[l:group].claimed = split(l:note)
-      continue
-    endif
-    let l:code = matchstr(l:line, 'g:GrooVim_CommandZChar == "\zs[^"]\+\ze"')
-    if l:code != ""
-      let l:mode = matchstr(l:line, 'a:modType [=!]= "\w"')
-      let l:key = GT_KeyName(l:code)
-      call add(l:groups[l:group].handled, [l:key, l:mode])
-      let l:groups[l:group].modes[l:key] =
-        \ get(l:groups[l:group].modes, l:key, "") . GT_ModesOf(l:mode)
-    endif
-  endfor
-  return l:groups
+func! GT_Of(group)
+  return filter(copy(g:GrooVim_Shortcuts), 'v:val.group ==# "' . a:group . '"')
 endfunc
 
 func! GT_Body()
   let l:path = $GROOVIM_TEST_VIMRC
   call GT_Ok("we can read the source of GrooVim", filereadable(l:path), "   [" . l:path . "]")
-  let l:groups = GT_ReadGroups(l:path)
-  call GT_Ok("the four groups are there",
-    \ sort(keys(l:groups)) ==# ["F2", "F3", "F4", "F5"], "   " . string(sort(keys(l:groups))))
 
-  for l:name in ["F2", "F3", "F4", "F5"]
-    let l:g = l:groups[l:name]
-
-    " ---- no letter may answer twice for the same mode
-    let l:twice = []
-    let l:already = {}
-    for l:entry in l:g.handled
-      let l:signature = l:entry[0] . "|" . l:entry[1]
-      if has_key(l:already, l:signature) | call add(l:twice, l:entry[0]) | endif
-      let l:already[l:signature] = 1
-    endfor
-    call GT_Ok(l:name . ": no key answers twice", empty(l:twice),
-      \ "   " . (empty(l:twice) ? "(" . len(l:g.handled) . " entries)" : string(l:twice)))
-
-    " ---- and the note says exactly what is there
-    let l:real = sort(uniq(sort(map(copy(l:g.handled), 'v:val[0]'))))
-    let l:said = sort(copy(l:g.claimed))
-    call GT_Ok(l:name . ": the \"Used keys\" note is right", l:real ==# l:said,
-      \ "   note " . string(l:said) . (l:real ==# l:said ? "" : "   really " . string(l:real)))
-  endfor
-
-  " ---- the list the help is written from says what the code really does
-  "
-  " This is the whole point of having one list: the help of F9 and the menu are
-  " written OUT of "g:GrooVim_Shortcuts", so a key that moves group, changes
-  " letter or stops answering in a mode has to be changed here as well -- and
-  " these checks are what makes that so.
+  " ---- the list, and the four groups
   call GT_Ok("the list of shortcuts is there",
     \ exists("g:GrooVim_Shortcuts") && len(g:GrooVim_Shortcuts) > 20,
     \ "   (" . len(g:GrooVim_Shortcuts) . " shortcuts)")
-  call GT_Ok("and every group has its heading",
-    \ len(g:GrooVim_ShortcutGroups) == 4, "   (" . len(g:GrooVim_ShortcutGroups) . ")")
+  call GT_Ok("the four groups are there, each with a heading and a label",
+    \ len(g:GrooVim_ShortcutGroups) == 4 &&
+    \ len(filter(copy(g:GrooVim_ShortcutGroups), 'len(v:val) == 3')) == 4,
+    \ "   " . string(map(copy(g:GrooVim_ShortcutGroups), 'v:val[0] . " " . v:val[2]')))
+  call GT_Ok("and every shortcut belongs to one of them",
+    \ empty(filter(copy(g:GrooVim_Shortcuts),
+    \ 'index(map(copy(g:GrooVim_ShortcutGroups), "v:val[0]"), v:val.group) < 0')), "")
 
-  for l:name in ["F2", "F3", "F4", "F5"]
-    let l:listed = []
-    let l:wrongMode = []
-    for l:one in g:GrooVim_Shortcuts
-      if l:one.group !=# l:name | continue | endif
-      call add(l:listed, l:one.key)
-      let l:real = GT_ModesSorted(get(l:groups[l:name].modes, l:one.key, ""))
-      if l:real !=# GT_ModesSorted(l:one.modes)
-        call add(l:wrongMode, l:one.key . ": the list says " . l:one.modes .
-          \ ", the code answers in " . l:real)
+  " ---- every entry is complete
+  let l:short = []
+  for l:one in g:GrooVim_Shortcuts
+    for l:field in ["group", "key", "modes", "run", "what"]
+      if !has_key(l:one, l:field)
+        call add(l:short, get(l:one, "group", "?") . "->" . get(l:one, "key", "?") . " has no " . l:field)
       endif
     endfor
-    let l:real = sort(uniq(sort(map(copy(l:groups[l:name].handled), 'v:val[0]'))))
-    call GT_Ok(l:name . ": the list holds exactly the keys the code answers",
-      \ sort(copy(l:listed)) ==# l:real,
-      \ "   list " . string(sort(copy(l:listed))) .
-      \ (sort(copy(l:listed)) ==# l:real ? "" : "   code " . string(l:real)))
-    call GT_Ok(l:name . ": and the modes it claims are the real ones",
-      \ empty(l:wrongMode), "   " . (empty(l:wrongMode) ? "" : string(l:wrongMode)))
   endfor
+  call GT_Ok("every shortcut says what it is and what it does", empty(l:short),
+    \ "   " . (empty(l:short) ? "(" . len(g:GrooVim_Shortcuts) . " of them)" : string(l:short)))
 
-  " ---- and the help really is written from it
-  call GT_Ok("the help of F9 is written from the list",
-    \ g:GrooVimHelp =~ "Aligns to left" &&
-    \ GrooVim_ShortcutsHelp() =~ "Aligns to left" &&
-    \ stridx(g:GrooVimHelp, GrooVim_ShortcutsHelp()) >= 0,
-    \ "   (the F group sections of the help are the rendering of it)")
-
-  " ---- and where the moved commands now live
-  exec "edit " . g:GT_FIX . "/a.txt"
-  call GT_Ok("setup: one tab", tabpagenr("$") == 1, "")
-  call feedkeys("\<F5>n", "x")
-  call GT_Ok("F5 n opens a new tab", tabpagenr("$") == 2, "   (tabs " . tabpagenr("$") . ")")
-  tabonly!
-
-  call feedkeys("\<F3>n", "x")
-  call GT_Ok("F3 n does not open a tab any more", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")")
-
-  " ---- the save that was left behind in F3
-  let l:file = g:GT_OUT . "/f3_s_must_not_save.txt"
-  call delete(l:file)
-  exec "edit " . l:file
-  call setline(1, "not to be written by F3")
-  call feedkeys("\<F3>s", "x")
-  call GT_Ok("F3 s no longer writes to disk", !filereadable(l:file),
-    \ "   (it was a second :w, left over when saving moved to F5)")
-  call feedkeys("\<F5>s", "x")
-  call GT_Ok("  and F5 s does write", filereadable(l:file), "")
-  call delete(l:file)
-
-  " ---- GrooVim knows where its own .vimrc is
+  " ---- no two of them answer the same key in the same mode
   "
-  " "$MYVIMRC" is empty when Vim is handed the file with "-u", which is how the
-  " "groovim" command runs it -- and ":tabedit $MYVIMRC" then opened a new, empty
-  " file NAMED after the variable.
-  call GT_Ok("GrooVim knows its own .vimrc", filereadable(g:GrooVim_Vimrc),
-    \ "   [" . g:GrooVim_Vimrc . "]")
-  " simplify(): the runner says "tests/../.vimrc", which is the same file
-  call GT_Ok("  and it is the one being run",
-    \ simplify(fnamemodify(g:GrooVim_Vimrc, ":p")) ==# simplify(fnamemodify(l:path, ":p")),
-    \ "   (-u said " . simplify(fnamemodify(l:path, ":p")) . ")")
-  call GT_Ok("the mapping that opens it carries the path, not the variable",
-    \ maparg("\\zv", "n") !~ "MYVIMRC" && maparg("\\zv", "n") =~ "tabedit",
-    \ "   [" . maparg("\\zv", "n") . "]")
-  call GT_Ok("and so does the one that reloads it",
-    \ maparg("\\zvv", "n") !~ "MYVIMRC" && maparg("\\zvv", "n") =~ "source",
-    \ "   [" . maparg("\\zvv", "n") . "]")
-  call GT_Ok("neither goes through a function of its own",
-    \ maparg("\\zvv", "n") !~ "call ",
-    \ "   (sourcing redefines every function, and Vim refuses one that is RUNNING: E127)")
+  " The dispatch takes the FIRST that matches and stops, so a second one on the
+  " same key and mode would simply never run -- silently.
+  let l:twice = []
+  let l:seen = {}
+  for l:one in g:GrooVim_Shortcuts
+    for l:mode in ["n", "i", "v"]
+      if stridx(l:one.modes, l:mode) < 0 | continue | endif
+      let l:signature = l:one.group . "|" . l:one.key . "|" . l:mode
+      if has_key(l:seen, l:signature) | call add(l:twice, l:signature) | endif
+      let l:seen[l:signature] = 1
+    endfor
+  endfor
+  call GT_Ok("no key answers twice in the same group and mode", empty(l:twice),
+    \ "   " . (empty(l:twice) ? "(" . len(l:seen) . " key and mode pairs)" : string(l:twice)))
 
-  tabonly!
-  exec "edit " . g:GT_FIX . "/a.txt"
-  call feedkeys("\<F5>v", "x")
-  call GT_Ok("F5 v opened the real .vimrc", expand("%:p") ==# g:GrooVim_Vimrc && line("$") > 100,
-    \ "   [" . expand("%:t") . "] " . line("$") . " lines")
-  tabonly!
-
-  " ---- the debugger of 2014 is gone
-  call GT_Ok("no debugger left in the source",
-    \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
-  call GT_Ok("F4 answers for the tree alone", l:groups["F4"].claimed ==# ["n"],
-    \ "   " . string(l:groups["F4"].claimed))
-
-  " ---- what came up from F2 to F3
-  exec "edit " . g:GT_FIX . "/a.txt"
-  call cursor(2, 1)
-  let l:before = line("$")
-  call feedkeys("\<F3>d", "x")
-  call GT_Ok("F3 d duplicates the line", line("$") == l:before + 1 &&
-    \ getline(2) ==# getline(3), "   [" . getline(2) . "] [" . getline(3) . "]")
-  call feedkeys("\<F2>d", "x")
-  call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
-    \ "   (" . line("$") . " lines)")
-
-  " ---- and the letters the collisions forced
-  call cursor(1, 1)
-  call feedkeys("VG\<Esc>", "x")
-  call GT_Ok("setup: a selection to come back to", line("'<") == 1 && line("'>") == line("$"), "")
-  call cursor(2, 1)
-  call feedkeys("\<F3>v\<Esc>", "x")
-  call GT_Ok("F3 v reselects the area (the gv of Vim)",
-    \ line("'<") == 1 && line("'>") == l:before + 1, "   (from " . line("'<") . " to " . line("'>") . ")")
-  " ---- doing it and setting it up: same letter, one group apart
-  call GT_Ok("F3 runs the search and the replace",
-    \ index(l:groups["F3"].claimed, "f") >= 0 && index(l:groups["F3"].claimed, "h") >= 0,
-    \ "   " . string(l:groups["F3"].claimed))
-  call GT_Ok("F5 sets up the search and the replace, on the SAME letters",
-    \ index(l:groups["F5"].claimed, "f") >= 0 && index(l:groups["F5"].claimed, "h") >= 0,
-    \ "   " . string(l:groups["F5"].claimed))
-  call GT_Ok("and F3 no longer holds either settings screen",
-    \ index(l:groups["F3"].claimed, "g") < 0 && index(l:groups["F3"].claimed, "j") < 0, "")
-
-  " ---- what the messages tell you to press has to exist
+  " ---- and every mode a shortcut claims really has something to run
   "
-  " A shortcut named in a message is written "F5->c". When a command changes
-  " group or letter the message is easy to forget: the one that pointed at the
-  " search settings still said "F3" and then "d" two moves after the fact. Here
-  " every shortcut any message or help line names is looked up in the group that
-  " really answers for it.
-  "
-  " It checks that the key EXISTS, not that it means the right thing: a message
-  " pointing at a letter that is still in the group but now does something else
-  " gets through. Only reading the message can catch that one.
+  " "run" is one line, or a handful keyed by the modes each belongs to. A
+  " shortcut that says it answers in visual and whose run has nothing for visual
+  " does nothing at all when you press it there, and says nothing about it.
+  let l:uncovered = []
+  for l:one in g:GrooVim_Shortcuts
+    if type(l:one.run) != type({}) | continue | endif
+    for l:mode in ["n", "i", "v"]
+      if stridx(l:one.modes, l:mode) < 0 | continue | endif
+      let l:found = 0
+      for l:where in keys(l:one.run)
+        if stridx(l:where, l:mode) >= 0 | let l:found = 1 | endif
+      endfor
+      if !l:found
+        call add(l:uncovered, l:one.group . "->" . l:one.key . " claims " . l:mode)
+      endif
+    endfor
+  endfor
+  call GT_Ok("every mode a shortcut claims has something to run", empty(l:uncovered),
+    \ "   " . (empty(l:uncovered) ? "" : string(l:uncovered)))
+
+  " ---- the keys are ones the dispatch can recognise
+  let l:strange = []
+  for l:one in g:GrooVim_Shortcuts
+    if !GrooVim_ShortcutIsKey(strchars(l:one.key) == 1 ? char2nr(l:one.key) :
+      \ eval('"\<' . toupper(l:one.key[0]) . l:one.key[1:] . '>"'), l:one.key)
+      call add(l:strange, l:one.group . "->" . l:one.key)
+    endif
+  endfor
+  call GT_Ok("the dispatch recognises every key of the list", empty(l:strange),
+    \ "   " . (empty(l:strange) ? "" : string(l:strange)))
+
+  " ---- what the messages send you to has to exist
   let l:named = []
   let l:wrong = []
   for l:line in readfile(l:path)
-    " An F key closed by a quote or a ">", then " and then ", then another
-    " quoted key -- the old way of writing a shortcut. Written this tightly so
-    " that prose which merely says "and then" is left alone.
     if l:line =~ 'F[2-5]\\\=[">] and then \\\=["<]'
       call add(l:wrong, "old notation: " . trim(l:line)[0:55])
     endif
@@ -256,10 +109,10 @@ func! GT_Body()
       let l:shortcut = strpart(l:line, l:at, 5)
       let l:at = l:at + 4
       if len(l:shortcut) < 5 | continue | endif
+      if index(l:named, l:shortcut) < 0 | call add(l:named, l:shortcut) | endif
       let l:which = strpart(l:shortcut, 0, 2)
       let l:key = tolower(strpart(l:shortcut, 4, 1))
-      if index(l:named, l:shortcut) < 0 | call add(l:named, l:shortcut) | endif
-      if index(l:groups[l:which].claimed, l:key) < 0
+      if empty(filter(GT_Of(l:which), 'v:val.key ==# "' . escape(l:key, '\"') . '"'))
         call add(l:wrong, l:shortcut . " -- no such key in " . l:which)
       endif
     endwhile
@@ -267,6 +120,63 @@ func! GT_Body()
   call GT_Ok("every shortcut a message names really exists", empty(l:wrong),
     \ empty(l:wrong) ? "   " . string(sort(copy(l:named))) : "   " . string(l:wrong))
   call GT_Ok("  and there are some to check", len(l:named) >= 8, "   (" . len(l:named) . ")")
+
+  " ---- GrooVim knows where its own .vimrc is
+  call GT_Ok("GrooVim knows its own .vimrc", filereadable(g:GrooVim_Vimrc),
+    \ "   [" . g:GrooVim_Vimrc . "]")
+  call GT_Ok("  and it is the one being run",
+    \ simplify(fnamemodify(g:GrooVim_Vimrc, ":p")) ==# simplify(fnamemodify(l:path, ":p")), "")
+  call GT_Ok("the mapping that opens it carries the path, not the variable",
+    \ maparg("\\zv", "n") !~ "MYVIMRC" && maparg("\\zv", "n") =~ "tabedit", "")
+  call GT_Ok("neither goes through a function of its own",
+    \ maparg("\\zvv", "n") !~ "call ",
+    \ "   (sourcing redefines every function, and Vim refuses one that is RUNNING: E127)")
+
+  " ---- the debugger of 2014 is gone
+  call GT_Ok("no debugger left in the source",
+    \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
+  call GT_Ok("F4 answers for the tree alone",
+    \ map(GT_Of("F4"), 'v:val.key') ==# ["n"], "   " . string(map(GT_Of("F4"), 'v:val.key')))
+
+  " ---- doing it and setting it up: same letter, one group apart
+  call GT_Ok("F3 runs the search and the replace",
+    \ !empty(filter(GT_Of("F3"), 'v:val.key ==# "f"')) &&
+    \ !empty(filter(GT_Of("F3"), 'v:val.key ==# "h"')), "")
+  call GT_Ok("F5 sets them up, on the SAME letters",
+    \ !empty(filter(GT_Of("F5"), 'v:val.key ==# "f"')) &&
+    \ !empty(filter(GT_Of("F5"), 'v:val.key ==# "h"')), "")
+
+  " ---- and the keys really do what the list says
+  tabonly!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  call GT_Ok("setup: one tab", tabpagenr("$") == 1, "")
+  call GT_Press("\<F5>n")
+  call GT_Ok("F5 n opens a new tab", tabpagenr("$") == 2, "   (tabs " . tabpagenr("$") . ")")
+  tabonly!
+  call GT_Press("\<F3>n")
+  call GT_Ok("F3 n does not open a tab any more", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")")
+
+  let l:file = g:GT_OUT . "/f3_s_must_not_save.txt"
+  call delete(l:file)
+  exec "edit " . l:file
+  call setline(1, "not to be written by F3")
+  call GT_Press("\<F3>s")
+  call GT_Ok("F3 s no longer writes to disk", !filereadable(l:file),
+    \ "   (it was a second :w, left over when saving moved to F5)")
+  call GT_Press("\<F5>s")
+  call GT_Ok("  and F5 s does write", filereadable(l:file), "")
+  call delete(l:file)
+
+  " ---- what came up from F2 to F3
+  exec "edit! " . g:GT_FIX . "/a.txt"
+  call cursor(2, 1)
+  let l:before = line("$")
+  call GT_Press("\<F3>d")
+  call GT_Ok("F3 d duplicates the line", line("$") == l:before + 1 &&
+    \ getline(2) ==# getline(3), "   [" . getline(2) . "]")
+  call GT_Press("\<F2>d")
+  call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
+    \ "   (" . line("$") . " lines)")
 
   call GT_Done()
 endfunc

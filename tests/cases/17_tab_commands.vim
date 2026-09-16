@@ -145,7 +145,9 @@ func! GT_Body()
 
   " ---- and the letters that moved out of the way
   call GT_Ok("F5 e is the one that saves every changed file",
-    \ execute("function GrooVim_CommandZ") =~ '"101"', "   (a is now close everything)")
+    \ !empty(filter(copy(g:GrooVim_Shortcuts),
+    \ 'v:val.group ==# "F5" && v:val.key ==# "e" && v:val.run =~ "wa"')),
+    \ "   (a is now close everything)")
 
   call GT_Done()
 endfunc
