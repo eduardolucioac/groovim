@@ -4365,14 +4365,31 @@ nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
 " Note: The menu, written out of the same list the help is.
 "
-" Note: Two levels and not one: forty entries in a single popup is a wall of
-" text, and the four groups already MEAN something -- what they hold is the
-" classification GrooVim is built on. First the groups, then what is inside one.
+" Note: A BAR across the top with the four groups on it, and under the one you
+" are on, what it holds -- the shape of the menu of Notepad++ and of the
+" "vim-quickui" plugin. Left and Right walk the bar, Up and Down the list, Enter
+" picks and Esc leaves. Pressing the F key of a section jumps straight to it,
+" which is the same key that would run its shortcuts.
+"
+" Note: Two popups and not one: the bar stays put while the list under it is
+" thrown away and built again at every step sideways.
 "
 " Note: Choosing an entry PRESSES THE KEYS. Nothing here knows what any shortcut
 " does, only which two keys to send, so the menu can never do something different
-" from the keyboard! By Questor
+" from the keyboard -- and the shortcut shown on the right of every line is the
+" one it will press! By Questor
 let g:GrooVim_MenuEntries = []
+let s:menuBar = 0
+let s:menuDrop = 0
+let s:menuSection = 0
+
+" Note: Raised while a step sideways throws the old list away.
+"
+" Note: Closing a popup makes Vim call its callback, and a list closed to make
+" room for the next one answers "-1" -- which is the very same answer as leaving
+" the menu with Esc. Without this flag, walking sideways would take the bar down
+" with it! By Questor
+let s:menuSwitching = 0
 
 " Note: The two keys a shortcut is made of, ready to be pressed: the F key and
 " then the letter -- or the real key code, for the ones that are not letters! By
@@ -4383,6 +4400,13 @@ func! GrooVim_ShortcutKeys(one)
   let l:second = has_key(l:named, a:one.key)
    \ ? eval('"\<' . l:named[a:one.key] . '>"') : a:one.key
   return eval('"\<' . a:one.group . '>"') . l:second
+endfunc
+
+" Note: How a shortcut is written for a human: "F5->n", the notation every
+" message of GrooVim uses! By Questor
+func! GrooVim_ShortcutShown(one)
+  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
+  return a:one.group . "->" . get(l:named, a:one.key, a:one.key)
 endfunc
 
 " Note: The same words without the marks the help syntax of Vim needs. A "|" and
@@ -4398,70 +4422,203 @@ func! GrooVim_ShortcutPlain(text)
   return trim(substitute(l:plain, '  \+', " ", "g"))
 endfunc
 
-" Note: One line of the menu of a group: the key, and then what it does! By
+" Note: One line of a section: what it does on the left, the keys that do it on
+" the right, the way a menu of a conventional editor shows them.
+"
+" Note: "room" is how much the description may take. On a narrow terminal the
+" line would otherwise run past the edge and it is the RIGHT side that is lost --
+" which is the shortcut, the one thing a menu of a keyboard editor is for! By
 " Questor
-func! GrooVim_MenuLine(one)
-  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
-  return printf("  %-6s %s", get(l:named, a:one.key, a:one.key),
-   \ GrooVim_ShortcutPlain(a:one.what))
+func! GrooVim_MenuLine(one, room)
+  let l:what = GrooVim_ShortcutPlain(a:one.what)
+  if strchars(l:what) > a:room
+    let l:what = strcharpart(l:what, 0, a:room - 1) . "…"
+  endif
+  return "  " . l:what . repeat(" ", a:room - strchars(l:what) + 4) .
+   \ GrooVim_ShortcutShown(a:one) . "  "
+endfunc
+
+" Note: The shortcuts of one section, how much room the descriptions may take,
+" and how wide the whole thing comes out! By Questor
+func! GrooVim_MenuOf(group, startColumn)
+
+  let l:entries = []
+  let l:what = 0
+  let l:keys = 0
+  for l:one in g:GrooVim_Shortcuts
+    if l:one.group ==# a:group
+      call add(l:entries, l:one)
+      let l:what = max([l:what, strchars(GrooVim_ShortcutPlain(l:one.what))])
+      let l:keys = max([l:keys, strchars(GrooVim_ShortcutShown(l:one))])
+    endif
+  endfor
+
+  " Note: 2 borders, 2 in front, 4 between the two columns, 2 behind! By Questor
+  let l:around = 10 + l:keys
+  let l:room = min([l:what, &columns - a:startColumn - l:around + 1])
+  return [l:entries, max([l:room, 10]), l:room + l:around]
+endfunc
+
+" Note: The bar, and where on it each section begins -- the popup needs the
+" column to paint the one you are on! By Questor
+func! GrooVim_MenuBarText()
+  let l:text = ""
+  let l:at = []
+  for l:group in g:GrooVim_ShortcutGroups
+    let l:piece = " " . l:group[0] . " " . l:group[2] . " "
+    call add(l:at, [strchars(l:text) + 1, strchars(l:piece)])
+    let l:text = l:text . l:piece
+  endfor
+  return [l:text, l:at]
+endfunc
+
+func! GrooVim_MenuPaintBar()
+  let [l:text, l:at] = GrooVim_MenuBarText()
+  let l:here = l:at[s:menuSection]
+  call popup_settext(s:menuBar, [{"text": l:text,
+   \ "props": [{"col": l:here[0], "length": l:here[1], "type": "GrooVimMenuOn"}]}])
+endfunc
+
+" Note: The two colours the menu paints with. "prop_type_add" throws when the
+" name is already there, which it is the second time you open the menu! By
+" Questor
+func! GrooVim_MenuColours()
+  for l:pair in [["GrooVimMenuOn", "PmenuSel"], ["GrooVimMenuKey", "Special"]]
+    try
+      call prop_type_add(l:pair[0], {"highlight": l:pair[1]})
+    catch
+    endtry
+  endfor
 endfunc
 
 func! GrooVim_Menu()
 
-  if !has("popupwin")
+  if !has("popupwin") || !exists("*prop_type_add")
     call GrooVim_GrooVimBarMsg("This Vim has no popup windows! Use F9 for the help!", 6)
     return
   endif
 
-  let l:lines = []
-  for l:group in g:GrooVim_ShortcutGroups
-    call add(l:lines, printf("  %-4s %s", l:group[0], l:group[1]))
-  endfor
+  call GrooVim_MenuColours()
+  call GrooVim_MenuClose()
 
-  call popup_menu(l:lines, {
-   \ "title": " GrooVim ",
-   \ "callback": "GrooVim_MenuGroupChosen",
-   \ "border": [], "padding": [0,1,0,1], "mapping": 0})
+  let [l:text, l:at] = GrooVim_MenuBarText()
+  let s:menuBar = popup_create([l:text], {"line": 1, "col": 1,
+   \ "highlight": "Pmenu", "zindex": 100})
+
+  let s:menuSection = 0
+  call GrooVim_MenuOpen(0)
 
 endfunc
 
-func! GrooVim_MenuGroupChosen(id, chosen)
+" Note: Opens the section, wrapping round at either end the way a menu bar does!
+" By Questor
+func! GrooVim_MenuOpen(section)
 
-  " Note: Vim answers "-1" when the menu was left without choosing! By Questor
-  if a:chosen < 1
-    return
-  endif
+  let l:count = len(g:GrooVim_ShortcutGroups)
+  let s:menuSection = (a:section + l:count) % l:count
+  let l:group = g:GrooVim_ShortcutGroups[s:menuSection]
 
-  let l:group = g:GrooVim_ShortcutGroups[a:chosen - 1]
+  let [l:barText, l:at] = GrooVim_MenuBarText()
+  let l:startColumn = l:at[s:menuSection][0]
 
-  " Note: Kept aside because the callback is handed the NUMBER of the line that
-  " was chosen, and it has to find its way back to the shortcut! By Questor
-  let g:GrooVim_MenuEntries = []
+  let [g:GrooVim_MenuEntries, l:room, l:width] = GrooVim_MenuOf(l:group[0], l:startColumn)
+
+  " Note: Pulled left when it would hang off the edge of the screen, which is
+  " what a menu bar does with its last section! By Questor
+  let l:column = min([l:startColumn, max([1, &columns - l:width + 1])])
+
   let l:lines = []
-  for l:one in g:GrooVim_Shortcuts
-    if l:one.group !=# l:group[0]
-      continue
-    endif
-    call add(g:GrooVim_MenuEntries, l:one)
-    call add(l:lines, GrooVim_MenuLine(l:one))
+  for l:one in g:GrooVim_MenuEntries
+    let l:line = GrooVim_MenuLine(l:one, l:room)
+    let l:shown = GrooVim_ShortcutShown(l:one)
+    call add(l:lines, {"text": l:line, "props": [{
+     \ "col": strchars(l:line) - strchars(l:shown) - 1,
+     \ "length": strchars(l:shown), "type": "GrooVimMenuKey"}]})
   endfor
 
-  if empty(l:lines)
-    return
+  call GrooVim_MenuPaintBar()
+
+  if s:menuDrop > 0
+    let s:menuSwitching = 1
+    call popup_close(s:menuDrop, -1)
+    let s:menuSwitching = 0
   endif
 
-  call popup_menu(l:lines, {
-   \ "title": " " . l:group[0] . " -- " . l:group[1] . " ",
-   \ "callback": "GrooVim_MenuEntryChosen",
-   \ "border": [], "padding": [0,1,0,1], "mapping": 0})
+  " Note: "popup_create" and not "popup_menu": the second one puts itself in the
+  " MIDDLE of the screen and ignores where it was told to go -- measured, asked
+  " for line 2 and it came out on line 5. What "popup_menu" adds over
+  " "popup_create" is a filter, a cursorline and a border, and all three are here!
+  " By Questor
+  let s:menuDrop = popup_create(l:lines, {
+   \ "line": 2, "col": l:column, "pos": "topleft",
+   \ "title": " " . l:group[0] . " ",
+   \ "border": [], "padding": [0,0,0,0], "cursorline": 1,
+   \ "highlight": "Pmenu", "zindex": 101, "mapping": 0,
+   \ "filter": "GrooVim_MenuFilter", "callback": "GrooVim_MenuEntryChosen"})
 
+  " Note: A step sideways throws a list away and puts a narrower one up, and Vim
+  " redraws only what changed -- so the right hand side of the old one could stay
+  " on the screen! By Questor
+  redraw
+
+endfunc
+
+" Note: Left and Right walk the bar, an F key jumps to its own section, and
+" everything else is the menu filter of Vim -- Up, Down, Enter and Esc for free!
+" By Questor
+func! GrooVim_MenuFilter(id, key)
+
+  if a:key ==# "\<Left>"
+    call GrooVim_MenuOpen(s:menuSection - 1)
+    return 1
+  endif
+  if a:key ==# "\<Right>"
+    call GrooVim_MenuOpen(s:menuSection + 1)
+    return 1
+  endif
+
+  let l:which = 0
+  for l:group in g:GrooVim_ShortcutGroups
+    if a:key ==# eval('"\<' . l:group[0] . '>"')
+      call GrooVim_MenuOpen(l:which)
+      return 1
+    endif
+    let l:which = l:which + 1
+  endfor
+
+  return popup_filter_menu(a:id, a:key)
+endfunc
+
+func! GrooVim_MenuClose()
+  if s:menuDrop > 0
+    call popup_close(s:menuDrop, -1)
+    let s:menuDrop = 0
+  endif
+  if s:menuBar > 0
+    call popup_close(s:menuBar)
+    let s:menuBar = 0
+  endif
 endfunc
 
 func! GrooVim_MenuEntryChosen(id, chosen)
 
-  if a:chosen < 1 || a:chosen > len(g:GrooVim_MenuEntries)
+  " Note: A step sideways closed the old list, and this is only its echo! By
+  " Questor
+  if s:menuSwitching
     return
   endif
+
+  let s:menuDrop = 0
+
+  " Note: Vim answers "-1" when the menu was left without choosing. The bar has
+  " to come down too, or Esc would leave it sitting on the first line with
+  " nothing under it! By Questor
+  if a:chosen < 1 || a:chosen > len(g:GrooVim_MenuEntries)
+    call GrooVim_MenuClose()
+    return
+  endif
+
+  call GrooVim_MenuClose()
 
   " Note: "t" and not "x": the keys go into the typeahead and the CommandZ reads
   " them the way it reads yours. Running the command here would need this to know
@@ -5463,10 +5620,10 @@ endfun
 " It is not decoration: the case that checks this list against the code reads it,
 " and writing it wrong is a failure! By Questor
 let g:GrooVim_ShortcutGroups = [
- \ ["F2", "Editing, and what acts on the FILE itself"],
- \ ["F3", "The editing you reach for most, and searching"],
- \ ["F4", "The installed plugins and what they do"],
- \ ["F5", "What acts on the EDITOR -- tabs, leaving -- and the settings"]
+ \ ["F2", "Editing, and what acts on the FILE itself", "Edit"],
+ \ ["F3", "The editing you reach for most, and searching", "Search"],
+ \ ["F4", "The installed plugins and what they do", "Plugins"],
+ \ ["F5", "What acts on the EDITOR -- tabs, leaving -- and the settings", "Editor"]
  \ ]
 
 let g:GrooVim_Shortcuts = [
@@ -5794,7 +5951,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3>, <F4> or <F5> keys and then another key.".
 \"\n".
-\"\n  You do not have to remember any of them: <F10> opens a MENU with the four groups, and then with what is inside the one you pick. Choosing an entry presses its keys for you, so the menu can never do anything the keyboard would not. The menu and the list below are written from the same place.".
+\"\n  You do not have to remember any of them: <F10> puts a BAR across the top with the four groups on it, and under the one you are on, what it holds. |<Left>| and |<Right>| walk the bar, |<Up>| and |<Down>| the list, <Enter> picks and <Esc> leaves -- and pressing the <F> key of a section jumps straight to it, which is the same key that runs its shortcuts.".
+\"\n  Every line shows the keys that do it, on the right. Choosing one PRESSES those keys, so the menu can never do anything the keyboard would not. The menu and the list below are written from the same place.".
 \"\n".
 \"\n*o*  Features".
 \"\n ".

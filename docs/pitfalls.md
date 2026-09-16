@@ -48,7 +48,7 @@ one of the system: `GROOVIM_TEST_VIM=~/.local/share/groovim/bin/vim ./tests/run.
 | `20_indent_screen` | the indent settings as a screen: width, spaces or a real tab, the guides, and keeping it all |
 | `21_title_case` | Title Case in the three modes, and a copy that does not demand a writable buffer |
 | `22_new_names` | a document you have not saved yet is called "new 1", on screen only |
-| `23_menu` | the F10 menu: its two levels, the lines built from the shortcut list, and choosing an entry pressing its keys |
+| `23_menu` | the F10 menu bar: walking it sideways, the lines built from the shortcut list, and choosing an entry pressing its keys |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
