@@ -8,7 +8,7 @@ What is GrooVim?
 
 **Note:** If you want to start using GrooVim immediately go to section: <a href="#installGrooVim">**"I do not want to know anything about GrooVim and want to start using it now and with all the features!"**</a>.
 
-The GrooVim is an extensive script (__it's a .vimrc__) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
+The GrooVim is an extensive script -- a `.vimrc` and the parts it loads -- that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
  * Allow use with just a few instructions by a public accustomed to editors/IDEs default;
  * Facilitate and accelerate widely the use, being also a integrated "UI";
  * Preserving always that possible the default behavior of Vim;
@@ -17,7 +17,7 @@ The GrooVim is an extensive script (__it's a .vimrc__) that modifies the behavio
  * Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;
  * Enhancing Vim project as a free alternative (this script is __Apache License - Version 2.0__), independent and community-supported initiative;
  * Encourage the use of shell Vim;
- * Being a "all in one" package, ie, depend only on the contents of the file .vimrc to work (no plugin scenario);
+ * Working on its own, with no plugin needed for anything it does. Plugins are welcome and each one is found by itself, but nothing GrooVim promises rests on one;
  * Being a script for all types of terminals;
 
 Before you start with the GrooVim!
@@ -37,7 +37,6 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with the best plugins;
  * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `pack/*/start` by themselves. GrooVim looks in `~/.groovim`, a directory of its own, so its plugins are not the plugins of the Vim of your system. __Pathogen__ is still recognized if you already use it, but it is not required;
  * GrooVim detects which plugins are installed and enables the mapping of each one by itself. Nothing that is missing causes an error, so the script works alone. You can still force any of them with "let g:enable_tcomment_vim = 0/1", or ignore all at once with "let g:enable_all_plugins = 0". Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
- * The debug plugin support ("F4" and then "d") is disabled by default ("let g:enable_debugger_vim = 0") because no debug plugin is installed by the instructions below;
 
 The GrooVim solves the following "problems"!
 -----
@@ -65,7 +64,7 @@ Some editor features!
     - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
 
  * Text selection:
-    - Alt-Right/Alt-Left (normal mode/insert) - Word selection to the right/left;
+    - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
     - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
 
  * Conventional text editors commands:
@@ -94,6 +93,10 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
 ```
 
  * `g:GrooVim_IndentGuideChar` - the char of the guide, or `""` to turn the guides off;
+ * `g:GrooVim_IndentExpandTab` - 1 for spaces, 0 for a real tab;
+
+The width, whether Tab puts spaces, and whether the guides are drawn are asked on
+a screen of their own, with **F5 i**. It is the "Tab Settings" of Notepad++.
 
 Only the file types you list are touched. Vim already ships file type plugins that
 know what they are doing, and some of them are not a matter of taste: **make** needs
@@ -118,13 +121,13 @@ Script features!
 
     - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen (including invalid areas) with long movements;
     - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (including invalid areas) using short movements;
-    - Alt-Down (normal mode/insert/visual) - Returns to the previous tab;
-    - Ctrl-Down/Ctrl-Up (normal mode/insert/visual) - Access tabs on left/right;
+    - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
+    - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
+    - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
 
- * Word selection
+ * Marking
 
-    - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
-    - 2-leftmouse (normal mode/insert) - (Double click the mouse on a word then press z letter) All words with the same content will be highlighted;
+    - F3 m - Mark every occurrence of the word under the cursor, or of the selection. See the shortcuts below;
 
  * Comment lines
 
@@ -133,55 +136,113 @@ Script features!
 F'S Shortcuts (CommandZ)!
 -----
 
-The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing F2, F3 or F4 keys and then another key.
+The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing **F2**, **F3**, **F4** or **F5** and then another key.
 
  * Features
  
   - Allows replication of the last command just by pressing the last F used. If in a given interval a new key combination is not informed the last command is repeated;
   - If F is hold down the command is replicated several times;
+  - You have a whole second to press the second key. GrooVim waits for it instead of giving up, which matters on the long trips of the keyboard -- an F key at one corner and an arrow at the other. Change it with `let g:GrooVim_CommandZWait = 1500`;
 
- * F2 and then...
-    - Note: Preferably for editing commands;
-       - h - Aligns to left (normal mode/insert/visual);
-       - k - Aligns to right (normal mode/insert/visual);
-       - j - Aligns to center (normal mode/insert/visual);
-       - Up - Changes to uppercase (normal mode/insert/visual);
-       - Down - Changes to lowercase (normal mode/insert/visual);
-       - c - Copy all text in the current buffer (normal mode/insert/visual);
-       - a - Select all text in the current buffer (normal mode/insert/visual);
-       - d - Duplicates the current line/selection (normal mode/insert/visual);
-              - Note: If in the visual mode can not be replicated;
-       - q - Record a macro (normal mode/insert/visual);
-       - w - Run a macro (normal mode/insert/visual);
-       - e - Run a macro certain number of times or repeatedly until the last line (normal mode/insert/visual);
-       - d - Selects the word under the cursor (normal mode/insert/visual);
-       - Del - Selects an area (normal mode/insert);
+<!-- shortcuts: written by tools/sync-readme.sh, do not edit by hand -->
 
- * F3 and then...
-    - Note: Preferably for commands that "traditionally" involve Ctrl in other editors;
-       - n - Open a new tab (normal mode/insert/visual);
-       - c - Close current tab (normal mode/insert/visual);
-       - o - Close all other tabs (normal mode/insert/visual);
-       - v - Opens the file .vimrc (normal mode/insert/visual);
-       - r - Reloads the file .vimrc in all tabs (normal mode/insert/visual);
-       - / - Removes search highlights (normal mode/insert/visual);
-       - s - Save to disk (normal mode/insert/visual);
-       - f - Opens to search (normal mode/insert/visual);
-       - d - Opens to configure the search (normal mode/insert/visual);
-           - Note: On the configuration screens (this one and "j" below), leaving an answer EMPTY keeps the value shown as "now". At the end a summary of what you chose is held on screen until you press Enter;
-       - h - Opens to replace (normal mode/insert/visual). The replace begins at the CURSOR; with confirmation it continues from the top of the file if occurrences were left behind, and says so;
-       - j - Opens to configure the replace (normal mode/insert/visual);
-       - [ - Saves the current session (normal mode/insert/visual);
-       - ] - Reloads the last saved session (normal mode/insert/visual);
-       - p - Copies to the clipboard the name or path and name of the current buffer/file (normal mode/insert/visual);
-       - t - Allows always returning to a particular tab using Alt-Down (normal mode/insert/visual);
-       - d - Select and search (case sensitive) the word under the cursor (normal mode/insert/visual);
-       - Del - Reselect area (normal mode/insert/visual);
-       - y - Save to disk and open in a new tab a copy of the current file (normal mode/insert/visual);
+ * **F2** and then... *(Editing, and what acts on the FILE itself)*
 
- * F4 and then...
-    - Note: Preferably to trigger the installed plugins and their functionalities;
-       - n - Opens/closes the NERDTree (normal mode/insert/visual);
+    - `h` - Aligns to left *(normal mode/insert/visual)*;
+    - `k` - Aligns to right *(normal mode/insert/visual)*;
+    - `j` - Aligns to center *(normal mode/insert/visual)*;
+    - `Up` - Changes to uppercase *(normal mode/insert/visual)*;
+    - `Down` - Changes to lowercase *(normal mode/insert/visual)*;
+    - `t` - Title Case: the first letter of every word up, the rest down *(normal mode/insert/visual)*;
+        - Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so "don't" becomes "Don'T";
+        - Note: The three of them leave the cursor where it was;
+    - `c` - Copy all text in the current buffer *(normal mode/insert/visual)*;
+    - `End` - Selects the word under the cursor *(normal mode/insert/visual)*;
+    - `q` - Record a macro *(normal mode/insert/visual)*;
+    - `w` - Run a macro *(normal mode/insert/visual)*;
+    - `e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
+    - `p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
+    - `y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
+
+ * **F3** and then... *(The editing you reach for most, and searching)*
+
+    - `a` - Select all text in the current buffer *(normal mode/insert/visual)*;
+    - `d` - Duplicates the current line/selection *(normal mode/insert/visual)*;
+        - Note: If in the visual mode can not be replicated;
+    - `Del` - Selects an area *(normal mode/insert)*;
+    - `v` - Reselect area, the gv of Vim *(normal mode/insert)*;
+    - `/` - Removes search highlights *(normal mode/insert/visual)*;
+    - `m` - Mark every occurrence of the word under the cursor *(normal mode/insert/visual)*;
+        - Note: In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
+        - Note: It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the "Style all occurrences of token" of Notepad++;
+    - `f` - Opens for search *(normal mode/insert/visual)*;
+    - `h` - Opens to replace *(normal mode/insert/visual)*;
+        - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h;
+    - `End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
+
+ * **F4** and then... *(The installed plugins and what they do)*
+
+    - `n` - Opens/closes the NERDTree *(normal mode/insert/visual)*;
+
+ * **F5** and then... *(What acts on the EDITOR -- tabs, leaving -- and the settings)*
+
+    - `s` - Save to disk *(normal mode/insert/visual)*;
+        - Note: In visual mode it writes the SELECTION to a file of its own;
+    - `e` - Save every changed file *(normal mode/insert/visual)*;
+    - `n` - Open a new tab *(normal mode/insert/visual)*;
+        - Note: A document you have not saved yet is called new 1 , new 2 ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
+        - Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
+    - `t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
+    - `q` - Close the window *(normal mode/insert/visual)*;
+    - `w` - Close the tab you are in *(normal mode/insert/visual)*;
+        - Note: On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls new 1;
+    - `o` - Close all other tabs *(normal mode/insert/visual)*;
+    - `.` - Close every tab to the RIGHT of this one *(normal mode/insert/visual)*;
+    - `,` - Close every tab to the LEFT of this one *(normal mode/insert/visual)*;
+        - Note: The keys of <<> and <>> without the Shift: the comma is to the left of the dot, which is the way each one closes;
+    - `a` - Close everything and leave *(normal mode/insert/visual)*;
+        - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
+    - `v` - Opens the file .vimrc *(normal mode/insert/visual)*;
+    - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
+    - `f` - Opens to configure the search *(normal mode/insert/visual)*;
+    - `h` - Opens to configure the replace *(normal mode/insert/visual)*;
+        - Note: The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up;
+        - Note: On these two screens, leaving an answer EMPTY keeps the value shown as "now". At the end a summary of what you chose is held on screen until you press <Enter>;
+    - `i` - Opens the indent settings -- the "Tab Settings" of Notepad++ *(normal mode/insert/visual)*;
+    - `c` - Opens the general settings *(normal mode/insert/visual)*;
+    - `[` - Saves the current session *(normal mode/insert/visual)*;
+    - `]` - Brings the last saved session back *(normal mode/insert/visual)*;
+        - Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;
+
+<!-- shortcuts: end -->
+
+You do not have to remember any of them: **F10** puts a bar across the top with
+the four groups on it, and under the one you are on, what it holds. Left and
+Right walk the bar, Up and Down the list, Enter picks and Esc leaves. The mouse
+works everywhere. Every line shows the keys that do it, and choosing one presses
+those keys -- so the menu can never do anything the keyboard would not.
+
+When one of them does not fire, `:GrooVimKey` says what the key really
+delivered: run it, press the key, and it prints what `getchar()` handed over.
+
+Is it working?
+-----
+
+GrooVim has a battery of tests that runs on its own:
+
+```
+./tests/run.sh
+```
+
+It opens a real Vim for each case, presses real keys and reads what happened --
+the occurrence list, the tabs, the replace, the session, the menu. It exits `0`
+only if every case reaches its end and no check fails, and it takes about half a
+minute. `docs/pitfalls.md` says what each case covers, and carries the traps that
+cost the most to find.
+
+If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
+shortcuts above is written from the same place the F9 help and the F10 menu are,
+and the battery refuses to pass while this file disagrees with it.
 
 If you liked it, consider helping the project!
 -----
@@ -199,14 +260,10 @@ Task List/Bugs List!
  
  * TODO: In "visual mode" "End" key must go "have to go" one column less! By Questor
  
- * TODO: Create instalation scripts for RHEL, Debian and Arch or based on these! By Questor
- 
  * TODO: Try to use wombat256 color scheme! By Questor
     https://raw.githubusercontent.com/Lucidyan/vpyde3/master/data/wombat256mod.vim
 
  * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! By Questor
-
- * Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! By Questor
 
  * ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! By Questor
 
@@ -238,13 +295,11 @@ Task List/Bugs List!
 
  * ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
 
- * ToDo: Mark lines and navigate to these (bookmarks). Use "mark.vim"? By Questor
+ * ToDo: Mark LINES and navigate between them (bookmarks). Marking every occurrence of a WORD is done, with "F3 m"! By Questor
 
  * ToDo: Create "expand/collapse an area" ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
 
  * ToDo: Test GrooVim for multiple distributions! By Questor
-
- * ToDo: Get the number of occurrences of a particular text (optional case sensitive)! By Questor
 
  * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
@@ -252,50 +307,49 @@ Task List/Bugs List!
 
  * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
 
- * ToDo: When we do text replace in multiple tabs the GrooVim makes replacement of the first occurrence only on each tab! By Questor
-
  * ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
 
  * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
 
 <a name="buildInstallVIM"></a>
-How to install Vim!
+How GrooVim is installed!
 -----
 
-**The recommended way is a Vim of its own**, built by `install.sh` and
-reached by the `groovim` command:
+One command, from a checkout of this repository:
 
 ```
 ./install.sh
 groovim file.txt
 ```
 
-That is one command, it does not touch the Vim of your system, and it removes
-every question about what your distribution happened to build. [How it
-works](#ownVim).
+It builds a Vim of its own, installs GrooVim into `~/.groovim`, and writes a
+`groovim` command that reaches the two. Run it again whenever you like: it builds
+the Vim only when the one it finds does not serve, so a second run costs nothing.
 
-### If you would rather use the Vim of your system
+**The Vim of your system is not touched and is not used.** GrooVim is reached
+through `groovim` and runs on the Vim this script builds; your `vim` stays
+exactly as it was, with its own configuration and its own plugins. [Why a Vim of
+its own](#ownVim).
 
-You can, and then the version matters. GrooVim needs **Vim 9.0 or newer**: the
-indent guides use `leadmultispace`, which arrived in 9.0, and the cursor that
-changes colour with the mode uses `ModeChanged` and `echoraw`, from 8.2. Each
-of those is asked for before being used, so an older Vim still loads GrooVim --
-it simply goes without them.
+### Editing files of the system
 
-What your distribution ships:
+```
+sudo groovim /etc/hosts
+```
 
-[Arch/Manjaro/CachyOS]
+`sudo` replaces your `PATH` with the `secure_path` of the sudoers file, and a
+directory of yours is not in it -- so `sudo groovim` answers "command not found"
+until the command is reachable from a directory that IS. `install.sh` offers to
+link it into `/usr/local/bin` for you, and you can always do it by hand:
+
 ```
-sudo pacman -S vim
+sudo ln -s ~/.local/bin/groovim /usr/local/bin/groovim
 ```
-[RHEL/CentOS/Fedora]
-```
-sudo dnf install vim-enhanced
-```
-[Ubuntu/Debian]
-```
-sudo apt install vim
-```
+
+Under `sudo`, GrooVim reads the one installation -- the same code, the same
+plugins, the same saved options -- and writes what it leaves behind (the session,
+the undo, the `viminfo`) into a directory of whoever is running, so nothing in
+your home ends up owned by root.
 
 <a name="clipboard"></a>
 ### About the clipboard
@@ -441,16 +495,26 @@ sitting at.
 [Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
 -----
 
-**GrooVim is a single file and needs nothing else.** No plugin manager, no
-external package. Copy it and you are done:
-
 ```
-git clone https://github.com/eduardolucioac/groovim.git ~/Downloads/groovim
-cp ~/Downloads/groovim/.vimrc ~/.vimrc
+git clone https://github.com/eduardolucioac/groovim.git
+cd groovim
+./install.sh
+groovim file.txt
 ```
 
-That is the whole installation. Whatever plugin you do not have simply stays
-quiet, exactly as the "all in one" objective promises.
+That is the whole installation. What it leaves on your machine:
+
+| where | what |
+|---|---|
+| `~/.local/share/groovim` | the Vim it built, used by nothing else |
+| `~/.groovim` | GrooVim itself, its plugins, its session, its saved options |
+| `~/.local/bin/groovim` | the command that runs the one on the other |
+
+The checkout is not needed afterwards -- everything is **copied**, so you can move
+it or throw it away. To update, pull and run `./install.sh` again.
+
+Whatever plugin you do not have simply stays quiet: nothing GrooVim promises
+rests on one.
 
 - **Optional:** the plugins that GrooVim knows how to drive.
 

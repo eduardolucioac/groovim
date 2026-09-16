@@ -152,6 +152,31 @@ func! GT_Body()
     \ empty(filter(copy(l:onDisk), 'v:val =~ "^[0-9]"')),
     \ "   (the order is in the list, not in the file names)")
 
+  " ---- and the README says what the list says
+  "
+  " The README kept its own copy of every shortcut and drifted the furthest of
+  " all of them: it still listed a layout of three groups, with no F5 at all, and
+  " the same letter three times over in one of them. It is written from the list
+  " now, and this refuses to pass while the two disagree.
+  let l:readme = fnamemodify(l:path, ":h") . "/README.md"
+  call GT_Ok("there is a README to check", filereadable(l:readme), "   [" . l:readme . "]")
+  if filereadable(l:readme)
+    let l:lines = readfile(l:readme)
+    let l:from = match(l:lines, "shortcuts: written by")
+    let l:to = match(l:lines, "shortcuts: end")
+    call GT_Ok("  with a block written from the list",
+      \ l:from >= 0 && l:to > l:from, "   (lines " . l:from . ".." . l:to . ")")
+    if l:from >= 0 && l:to > l:from
+      let l:inFile = l:lines[l:from + 1 : l:to - 1]
+      let l:fromList = GrooVim_ShortcutsMarkdown()
+      call GT_Ok("  and it says exactly what the list says",
+        \ l:inFile ==# l:fromList,
+        \ l:inFile ==# l:fromList ? "   (" . len(l:inFile) . " lines)"
+        \ : "   (" . len(l:inFile) . " lines in the file, " . len(l:fromList) .
+        \ " from the list -- run ./tools/sync-readme.sh)")
+    endif
+  endif
+
   " ---- GrooVim knows where its own .vimrc is
   call GT_Ok("GrooVim knows its own .vimrc", filereadable(g:GrooVim_Vimrc),
     \ "   [" . g:GrooVim_Vimrc . "]")

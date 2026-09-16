@@ -141,6 +141,44 @@ func! GrooVim_ShortcutModes(modes) abort
   return "(" . join(l:spelled, "/") . ")"
 endfunc
 
+" Note: The same list, written as Markdown for the README.
+"
+" Note: The README used to keep its own copy of every shortcut, and it drifted
+" the furthest of all of them: it still listed the layout of three groups, with
+" no "F5" at all, and the same letter three times over in one of them. It is
+" written from here now, and a case of the battery refuses to pass while the file
+" and this disagree.
+"
+" Note: The marks the help syntax needs are taken out -- "|" is a link in a help
+" file and a table in Markdown! By Questor
+func! GrooVim_ShortcutsMarkdown() abort
+
+  let l:out = []
+
+  for l:group in g:GrooVim_ShortcutGroups
+    call add(l:out, "")
+    call add(l:out, " * **" . l:group[0] . "** and then... *(" .
+     \ GrooVim_ShortcutPlain(l:group[1]) . ")*")
+    call add(l:out, "")
+
+    for l:one in g:GrooVim_Shortcuts
+      if l:one.group !=# l:group[0]
+        continue
+      endif
+      let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
+      call add(l:out, "    - `" . get(l:named, l:one.key, l:one.key) . "` - " .
+       \ GrooVim_ShortcutPlain(l:one.what) . " *" .
+       \ GrooVim_ShortcutModes(l:one.modes) . "*;")
+      for l:note in get(l:one, "notes", [])
+        call add(l:out, "        - Note: " . GrooVim_ShortcutPlain(l:note) . ";")
+      endfor
+    endfor
+  endfor
+
+  call add(l:out, "")
+  return l:out
+endfunc
+
 " Note: The F group sections of the help, written out of the list above! By
 " Questor
 func! GrooVim_ShortcutsHelp() abort
