@@ -20,7 +20,7 @@ FILTER="${2:-}"
 VIM="${GROOVIM_TEST_VIM:-$HOME/.local/share/groovim/bin/vim}"
 if [ ! -x "$VIM" ] && command -v "$VIM" >/dev/null 2>&1; then :; elif [ ! -x "$VIM" ]; then
   echo "I cannot find the Vim of GrooVim at: $VIM"
-  echo "Build it with ./install-vim.sh, or point GROOVIM_TEST_VIM at another one."
+  echo "Build it with ./install.sh, or point GROOVIM_TEST_VIM at another one."
   exit 1
 fi
 TIMEOUT="${GROOVIM_TEST_TIMEOUT:-90}"

@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 #
-# Builds a Vim for GrooVim alone, and a "groovim" command that runs it.
+# Installs GrooVim: a Vim of its own, the GrooVim that runs on it, and the
+# "groovim" command that reaches the two.
 #
-#   ./install-vim.sh --check      says whether the Vim you already have serves
-#   ./install-vim.sh              builds and installs
-#   ./install-vim.sh --help       every option
+#   ./install.sh                installs, or brings an installation up to date
+#   ./install.sh --rebuild      builds the Vim again even if the one there serves
+#   ./install.sh --check [VIM]  says whether a Vim would serve GrooVim
+#   ./install.sh --help         every option
+#
+# Run it again whenever you want: it builds the Vim only if the one it finds does
+# not serve, and everything else it does is simply done again.
 #
 # Why a Vim of its own: GrooVim leans on things a distribution build often
 # leaves out. The Vim shipped by CachyOS, to name the one this was written on,
@@ -44,6 +49,9 @@ GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
 # I know of has this directory in the "secure_path" of its sudoers.
 SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
 SYSTEM_LINK=1
+# Building takes minutes. An installation that is already there and serves is not
+# built again unless you say so.
+REBUILD=0
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
@@ -89,6 +97,7 @@ Options:
   --home DIR         where GrooVim lives      (default: ~/.groovim)
   --no-system-link   do not offer to link the command into /usr/local/bin, which
                      is what makes "sudo groovim" find it
+  --rebuild          build the Vim again even if the one installed already serves
   --no-deps          do not install build dependencies
   --yes              answer yes to everything
   --help             this
@@ -119,6 +128,7 @@ while [ $# -gt 0 ]; do
     --modified-by) MODIFIED_BY="${2:?--modified-by needs a name}"; shift ;;
     --home)      GROOVIM_HOME_DIR="${2:?--home needs a directory}"; shift ;;
     --no-system-link) SYSTEM_LINK=0 ;;
+    --rebuild)   REBUILD=1 ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
@@ -416,7 +426,7 @@ write_groovim() {
 #!/usr/bin/env bash
 #
 # Runs the Vim of GrooVim, with the .vimrc of GrooVim. Written by
-# install-vim.sh -- run it again to change any of this.
+# install.sh -- run it again to change any of this.
 #
 # The Vim of the system is not involved: "vim" goes on being yours.
 
@@ -440,7 +450,7 @@ fi
 
 if [ ! -x "\$GROOVIM_VIM" ]; then
   echo "groovim: I cannot find the Vim at \$GROOVIM_VIM" >&2
-  echo "groovim: run install-vim.sh again, or point GROOVIM_VIM at another one." >&2
+  echo "groovim: run install.sh again, or point GROOVIM_VIM at another one." >&2
   exit 1
 fi
 
@@ -545,25 +555,41 @@ blue "GrooVim -- a Vim of its own"
 if [ "$ONLY_CHECK" -eq 1 ]; then
   if check_and_report "$VIM_TO_CHECK"; then
     echo
-    green "You do not need to build anything."
+    green "That Vim would serve GrooVim."
   else
     echo
-    yellow "Run this script with no options to build one that does serve."
+    yellow "Run this script with no options to build one that does."
   fi
   exit 0
 fi
 
-check_and_report "vim" || true
+# Note: OUR Vim and not the one of the system. GrooVim is reached through the
+# "groovim" command and runs on the Vim this script builds; what your
+# distribution ships is none of its business, and looking at it here only ever
+# told people about a Vim GrooVim was never going to use! By Questor
+NEED_BUILD=1
+if [ "$REBUILD" -eq 1 ]; then
+  step "The Vim of GrooVim"
+  echo "  building again, as asked"
+elif [ -x "$PREFIX/bin/vim" ] && [ -z "$(missing_for_groovim "$PREFIX/bin/vim")" ]; then
+  step "The Vim of GrooVim"
+  version_first_line "$PREFIX/bin/vim" | sed 's/^/  /'
+  green "  already built and serving. Use --rebuild to build it again."
+  NEED_BUILD=0
+fi
 
-echo
-echo "  Going to build Vim into $PREFIX"
-echo "  and write \"groovim\" into $BINDIR."
-ask "  Go on?" || { echo "  Nothing done."; exit 0; }
+if [ "$NEED_BUILD" -eq 1 ]; then
+  echo
+  echo "  Going to build Vim into $PREFIX,"
+  echo "  install GrooVim into $GROOVIM_HOME_DIR,"
+  echo "  and write \"groovim\" into $BINDIR."
+  ask "  Go on?" || { echo "  Nothing done."; exit 0; }
+  install_dependencies
+  fetch_source
+  brand_the_splash
+  build_vim
+fi
 
-install_dependencies
-fetch_source
-brand_the_splash
-build_vim
 install_groovim
 write_groovim
 offer_system_link

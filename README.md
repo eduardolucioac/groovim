@@ -262,11 +262,11 @@ Task List/Bugs List!
 How to install Vim!
 -----
 
-**The recommended way is a Vim of its own**, built by `install-vim.sh` and
+**The recommended way is a Vim of its own**, built by `install.sh` and
 reached by the `groovim` command:
 
 ```
-./install-vim.sh
+./install.sh
 groovim file.txt
 ```
 
@@ -325,7 +325,7 @@ You can see which one is in use from inside Vim with:
 <a name="ownVim"></a>
 ### A Vim of its own
 
-`install-vim.sh` builds a Vim for GrooVim alone and writes a `groovim` command
+`install.sh` builds a Vim for GrooVim alone and writes a `groovim` command
 that runs it. This is the recommended way.
 
 The two do not mix:
@@ -366,13 +366,13 @@ machine.
 First, ask whether you need it at all:
 
 ```
-./install-vim.sh --check
+./install.sh --check
 ```
 
 It reads your Vim and says what is missing, if anything. To build:
 
 ```
-./install-vim.sh
+./install.sh
 ```
 
 It installs the build dependencies of your distribution (Arch, Debian, Fedora,
@@ -411,7 +411,7 @@ The first line is a one-line patch to `src/version.c`, because Vim has no flag
 for it. The `Modified by` line is Vim's own `--with-modified-by`, and
 `--modified-by NAME` puts your name there instead.
 
-`./install-vim.sh --help` lists where to put things, which `.vimrc` the
+`./install.sh --help` lists where to put things, which `.vimrc` the
 command should run, and how to build a specific version.
 
 **Pasting from another application.** OSC 52 carries a copy *out* through the
