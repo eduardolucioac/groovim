@@ -211,6 +211,38 @@ func! GT_Body()
     \ "   (tabs " . tabpagenr("$") . ")")
   call GT_Ok("  and the menu took itself down", empty(popup_list()), "")
 
+  " ---- F10 closes it as well as opens it
+  "
+  " While the menu is up every key goes to the filter and the mapping never runs,
+  " so the toggle has to be handled there.
+  call GrooVim_Menu()
+  call GT_Ok("setup: the menu is up", len(popup_list()) == 2, "   (" . len(popup_list()) . ")")
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<F10>")
+  call GT_Ok("F10 again closes it", empty(popup_list()), "   (" . len(popup_list()) . " popups)")
+
+  " ---- Esc does not wait for a whole second
+  "
+  " A terminal sends an arrow or an F key beginning with the very same "Esc", so
+  " Vim waits to see whether more is coming. With no "ttimeoutlen" set that wait
+  " is "timeoutlen" -- a second, with "^[" sitting in the corner.
+  call GT_Ok("the wait for the rest of a key is short", &ttimeout && &ttimeoutlen <= 200,
+    \ "   (ttimeout=" . &ttimeout . " ttimeoutlen=" . &ttimeoutlen . ")")
+  call GT_Ok("  and it is not the wait for the second key of a shortcut",
+    \ g:GrooVim_CommandZWait >= 1000,
+    \ "   (" . g:GrooVim_CommandZWait . "ms, a hand travelling)")
+
+  " ---- the colours
+  call GT_Ok("the menu is painted dark, not a field of blue",
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg") !=# "" &&
+    \ synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg") !=#
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "fg"),
+    \ "   (menu bg " . synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg") .
+    \ ", keys fg " . synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg") . ")")
+  call GT_Ok("the line you are on is the blue one",
+    \ synIDattr(synIDtrans(hlID("PopupSelected")), "bg") !=#
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg"),
+    \ "   (selected bg " . synIDattr(synIDtrans(hlID("PopupSelected")), "bg") . ")")
+
   " ---- Esc leaves, and takes the bar with it
   call GrooVim_Menu()
   let l:before = tabpagenr("$")

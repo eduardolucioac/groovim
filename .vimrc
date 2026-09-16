@@ -346,6 +346,24 @@ endif
 " Note: Enable mouse! By Questor
 set mouse=a
 
+" Note: "Esc" answers AT ONCE.
+"
+" Note: A terminal sends an arrow or an F key as a run of bytes that begins with
+" the very same "Esc", so Vim waits to see whether more is coming -- and with no
+" "ttimeoutlen" set it waits "timeoutlen", a whole second. Pressing Esc showed
+" "^[" in the corner and nothing happened until the second was up. This is the
+" wait for the REST OF A KEY, which a keyboard sends in one go; it is not the
+" wait for the second key of a shortcut, which is a hand travelling and has its
+" own patience in "g:GrooVim_CommandZWait".
+"
+" Note: 150 and not less, measured by feeding an arrow one byte at a time: at 50
+" the key falls apart as soon as its bytes arrive 80ms apart, at 100 it goes at
+" 120ms, at 150 it holds. A keyboard sends the whole run in one go, but a slow
+" link does not -- and 150ms of waiting for an Esc is nothing beside the second
+" it was! By Questor
+set ttimeout
+set ttimeoutlen=150
+
 " Note: The "transfer area" (clipboard) is reached through a cascade, so that
 " GrooVim depends on NO external package and works with no graphical session at
 " all (think of a headless server reached by SSH)! By Questor
@@ -4393,15 +4411,28 @@ let s:menuLine = 1
 " with it! By Questor
 let s:menuSwitching = 0
 
-" Note: The blue of the menu. Four groups and not one: the menu itself, the line
-" you are on, the keys on the right, and the rules between blocks.
+" Note: The colours of the menu. Four and not one: the menu itself, the line you
+" are on, the keys on the right, and the rules between blocks.
+"
+" Note: DARK, like the editor under it, and not a field of blue. Blue is kept for
+" the one line you are on, where it says something; painting all of it blue left
+" the keys on the right with almost no contrast against their own background.
+" The keys are cyan, the colour of the indent guides.
 "
 " Note: "PopupSelected" is the name VIM reads for the line you are on inside a
 " popup -- there is no per popup option for it! By Questor
-highlight GrooVimMenu ctermbg=darkblue ctermfg=white guibg=#16325c guifg=#eaf2ff
-highlight GrooVimMenuKey ctermbg=darkblue ctermfg=cyan guibg=#16325c guifg=#7fc8ff
-highlight GrooVimMenuRule ctermbg=darkblue ctermfg=blue guibg=#16325c guifg=#3a6ea5
-highlight PopupSelected ctermbg=blue ctermfg=white cterm=bold guibg=#2e6bb8 guifg=#ffffff gui=bold
+if &t_Co >= 256 || has("gui_running")
+  highlight GrooVimMenu ctermbg=236 ctermfg=254 guibg=#303030 guifg=#e4e4e4
+  highlight GrooVimMenuKey ctermbg=236 ctermfg=81 guibg=#303030 guifg=#5fd7ff
+  highlight GrooVimMenuRule ctermbg=236 ctermfg=240 guibg=#303030 guifg=#585858
+  highlight PopupSelected ctermbg=25 ctermfg=231 cterm=bold
+   \ guibg=#005faf guifg=#ffffff gui=bold
+else
+  highlight GrooVimMenu ctermbg=darkgray ctermfg=white
+  highlight GrooVimMenuKey ctermbg=darkgray ctermfg=cyan
+  highlight GrooVimMenuRule ctermbg=darkgray ctermfg=gray
+  highlight PopupSelected ctermbg=blue ctermfg=white cterm=bold
+endif
 
 " Note: The two keys a shortcut is made of, ready to be pressed: the F key and
 " then the letter -- or the real key code, for the ones that are not letters! By
@@ -4650,7 +4681,10 @@ func! GrooVim_MenuFilter(id, key)
     call popup_close(a:id, s:menuLine)
     return 1
   endif
-  if a:key ==# "\<Esc>" || a:key ==# "x" || a:key ==# "q"
+  " Note: "F10" closes it as well as opens it. While the menu is up every key
+  " comes HERE and the mapping never runs, so the toggle has to live in the
+  " filter! By Questor
+  if a:key ==# "\<Esc>" || a:key ==# "x" || a:key ==# "q" || a:key ==# "\<F10>"
     call popup_close(a:id, -1)
     return 1
   endif
