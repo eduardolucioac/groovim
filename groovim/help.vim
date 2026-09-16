@@ -165,7 +165,7 @@ endfunc
 
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n|GrooVim|=D|2.0.8b|-|Vi|IMproved\'n\'GrooVIed!|".
-\"\n Last change: 2026 September 4".
+\"\n Last change: 2026 September 16".
 \"\n Eduardo L\u00facio Amorim Costa~".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
@@ -193,7 +193,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * What is GrooVim?~".
 \"\n".
-\"\n The|GrooVim|is an extensive script (it\'s a|.vimrc|) that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
+\"\n The|GrooVim|is an extensive script -- a|.vimrc|and the parts it loads -- that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
 \"\n*o*  Allow use with just a few instructions by a public accustomed to editors/IDEs default;".
 \"\n*o*  Facilitate and accelerate widely the use, being also a integrated \"UI\";".
 \"\n*o*  Preserving always that possible the default behavior of Vim;".
@@ -202,7 +202,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;".
 \"\n*o*  Enhancing Vim project as a free alternative (this script is Apache License - Version 2.0), independent and community-supported initiative;".
 \"\n*o*  Encourage the use of shell Vim;".
-\"\n*o*  Being a \"all in one\" package, ie, depend only on the contents of the file|.vimrc|to work (no plugin scenario);".
+\"\n*o*  Working on its own, with no plugin needed for anything it does. Plugins are welcome and each one is found by itself, but nothing GrooVim promises rests on one;".
 \"\n*o*  Being a script for all types of terminals;".
 \"\n".
 \"\n * Before you start with the GrooVim!~".
@@ -253,7 +253,6 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|<Shift-Down> (normal mode/insert/visual) - Enter or exit the visual mode;".
 \"\n".
 \"\n*o*  Text selection:".
-\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert) - Word selection to the right/left;".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
 \"\n".
 \"\n*o*  Conventional text editors commands:".
@@ -280,8 +279,6 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->i . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
 \"\n".
-\"\n".
-\"\n When a shortcut does not fire, |:GrooVimKey| says what the key really delivered. Run it, press the key, and it prints what |getchar()| handed over -- two keys that look the same can arrive as different keys.".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
 \"\n     GrooVimIndent 4".
@@ -329,12 +326,10 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|<Shift-Alt-Arrows> (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);".
 \"\n   |-|<Ctrl-Alt-Arrows> (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using shorts movements;".
 \"\n   |-|<Alt-Down> (normal mode/insert/visual) - Returns to the previous tab;".
-\"\n   |-|<Ctrl-Down>/<Ctrl-Up> (normal mode/insert/visual) - The access tabs on left/right;".
 \"\n".
 \"\n*o*  Word selection".
 \"\n".
 \"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Word selection to the right/left;".
-\"\n   |-|<2-leftmouse> (normal mode/insert) - Double click the mouse on a word then press <z> letter. All words with the same content will be highlighted;".
 \"\n".
 \"\n*o*  Tabs".
 \"\n".
@@ -353,6 +348,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n  The mouse works everywhere: a click on the bar opens a section, a click on a line runs it, a click outside leaves.".
 \"\n  Every line shows the keys that do it, on the right. Choosing one PRESSES those keys, so the menu can never do anything the keyboard would not. The menu and the list below are written from the same place.".
 \"\n".
+\"\n  When one of them does not fire, |:GrooVimKey| says what the key really delivered: run it, press the key, and it prints what |getchar()| handed over. Two keys that look the same can arrive as different keys, and the second one of a shortcut has a whole second to arrive -- see |g:GrooVim_CommandZWait| below.".
+\"\n".
 \"\n*o*  Features".
 \"\n ".
 \"\n |-|Allows replication of the last command just by pressing the last |F| used. If in a given interval a key combination is not informed the last command is repeated;".
@@ -361,13 +358,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \ GrooVim_ShortcutsHelp() .
 \"\n".
-\"\n * Integration with plugins~".
+\"\n * What is missing, and what is being worked on~".
 \"\n".
-\"\n   *Undone...*".
-\"\n".
-\"\n * Tasks/Pendings/Bugs~".
-\"\n".
-\"\n   *Undone...*".
+\"\n The list lives in the|README.md|of the project, beside the code. It moves too often to be worth keeping in two places, and a list of bugs that is out of date is worse than none.".
 \"\n".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
