@@ -4411,6 +4411,10 @@ let s:menuLine = 1
 " with it! By Questor
 let s:menuSwitching = 0
 
+" Note: What the terminal was told about showing the cursor, kept while the menu
+" is up! By Questor
+let s:menuCursorWas = ""
+
 " Note: The colours of the menu. Four and not one: the menu itself, the line you
 " are on, the keys on the right, and the rules between blocks.
 "
@@ -4546,6 +4550,8 @@ func! GrooVim_Menu()
   call GrooVim_MenuColours()
   call GrooVim_MenuClose()
 
+  call GrooVim_MenuHideCursor()
+
   let [l:text, l:at] = GrooVim_MenuBarText()
   let s:menuBar = popup_create([l:text], {"line": 1, "col": 1,
    \ "highlight": "GrooVimMenu", "zindex": 100})
@@ -4554,6 +4560,50 @@ func! GrooVim_Menu()
   call GrooVim_MenuOpen(0)
 
 endfunc
+
+" Note: The cursor of the terminal has no idea a popup is there and goes on
+" blinking wherever it was in the file -- ON TOP of the menu, which is where you
+" are NOT.
+"
+" Note: Vim hides the cursor before a redraw with "t_vi" and shows it again after
+" with "t_ve". Emptying "t_ve" takes the showing away, so the next redraw hides it
+" and nothing brings it back until the string is handed over again! By Questor
+func! GrooVim_MenuHideCursor()
+  if s:menuCursorWas ==# ""
+    let s:menuCursorWas = &t_ve
+    set t_ve=
+    redraw
+  endif
+endfunc
+
+" Note: "echoraw" writes the string to the TERMINAL, which is what actually
+" brings the cursor back. Handing "t_ve" over again is only half of it: on the
+" way out there is no redraw left to emit it, and GrooVim would give you your
+" shell back with no cursor in it! By Questor
+func! GrooVim_MenuShowCursor()
+  if s:menuCursorWas !=# ""
+    let &t_ve = s:menuCursorWas
+    let s:menuCursorWas = ""
+    if exists("*echoraw")
+      call echoraw(&t_ve)
+    endif
+    redraw
+  endif
+endfunc
+
+" Note: And whatever happens, the cursor goes back before GrooVim does.
+"
+" Note: Leaving with the menu still up handed the terminal back with the cursor
+" HIDDEN -- measured, the last thing it was told was "hide" and nothing ever said
+" otherwise. You would have got your shell prompt back with no cursor in it, and
+" nothing to tell you why! By Questor
+" Note: "VimLeavePre" and not "VimLeave": the cursor comes back through a redraw,
+" and by "VimLeave" there is no drawing left to do -- measured, leaving with the
+" menu up ended on "hide" while leaving without it ended on "show"! By Questor
+augroup GrooVim_MenuCursor
+  autocmd!
+  autocmd VimLeavePre * call GrooVim_MenuClose()
+augroup END
 
 " Note: Opens the section, wrapping round at either end the way a menu bar does!
 " By Questor
@@ -4741,6 +4791,7 @@ func! GrooVim_MenuClicked(id)
 endfunc
 
 func! GrooVim_MenuClose()
+  call GrooVim_MenuShowCursor()
   if s:menuDrop > 0
     let s:menuSwitching = 1
     call popup_close(s:menuDrop, -1)

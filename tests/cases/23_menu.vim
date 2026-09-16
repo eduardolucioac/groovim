@@ -211,6 +211,23 @@ func! GT_Body()
     \ "   (tabs " . tabpagenr("$") . ")")
   call GT_Ok("  and the menu took itself down", empty(popup_list()), "")
 
+  " ---- the cursor of the terminal gets out of the way
+  "
+  " It has no idea a popup is there and goes on blinking wherever it was in the
+  " file -- on top of the menu, which is where you are NOT. Vim shows it again
+  " after every redraw through "t_ve"; emptying that takes the showing away.
+  call GT_Ok("setup: the terminal has a cursor to hide", &t_ve !=# "",
+    \ "   [" . strtrans(&t_ve) . "]")
+  call GrooVim_Menu()
+  call GT_Ok("with the menu up, nothing shows the cursor again", &t_ve ==# "",
+    \ "   [" . strtrans(&t_ve) . "]")
+  call GrooVim_MenuClose()
+  call GT_Ok("and closing it hands the cursor back", &t_ve !=# "",
+    \ "   [" . strtrans(&t_ve) . "]")
+  call GT_Ok("leaving GrooVim hands it back too",
+    \ execute("autocmd GrooVim_MenuCursor VimLeavePre") =~ "GrooVim_MenuClose",
+    \ "   (or your shell would come back with no cursor in it)")
+
   " ---- F10 closes it as well as opens it
   "
   " While the menu is up every key goes to the filter and the mapping never runs,
