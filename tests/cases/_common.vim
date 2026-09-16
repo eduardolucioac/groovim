@@ -111,6 +111,20 @@ func! GT_Press(keys)
   call feedkeys(a:keys, "x")
 endfunc
 
+" Every line of GrooVim: the ".vimrc" and the parts it loads.
+"
+" GrooVim is a directory now, not a file. A case that reads the source and stops
+" at the ".vimrc" reads the loader and nothing else -- 374 lines out of six
+" thousand -- and every check it makes comes back empty and PASSES, which is the
+" worst way for a check to be wrong.
+func! GT_SourceLines()
+  let l:lines = readfile($GROOVIM_TEST_VIMRC)
+  for l:part in sort(glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/parts/*.vim", 0, 1))
+    let l:lines = l:lines + readfile(l:part)
+  endfor
+  return l:lines
+endfunc
+
 " ---- helpers used by more than one case ----
 
 " How many occurrence-list windows there are in the current tab.

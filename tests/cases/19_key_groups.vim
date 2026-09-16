@@ -19,7 +19,11 @@ endfunc
 
 func! GT_Body()
   let l:path = $GROOVIM_TEST_VIMRC
+  let l:source = GT_SourceLines()
   call GT_Ok("we can read the source of GrooVim", filereadable(l:path), "   [" . l:path . "]")
+  call GT_Ok("  and the parts it loads", len(l:source) > 5000,
+    \ "   (" . len(glob(fnamemodify(l:path, ":h") . "/parts/*.vim", 0, 1)) . " parts, " .
+    \ len(l:source) . " lines in all)")
 
   " ---- the list, and the four groups
   call GT_Ok("the list of shortcuts is there",
@@ -98,7 +102,7 @@ func! GT_Body()
   " ---- what the messages send you to has to exist
   let l:named = []
   let l:wrong = []
-  for l:line in readfile(l:path)
+  for l:line in l:source
     if l:line =~ 'F[2-5]\\\=[">] and then \\\=["<]'
       call add(l:wrong, "old notation: " . trim(l:line)[0:55])
     endif
@@ -120,6 +124,24 @@ func! GT_Body()
   call GT_Ok("every shortcut a message names really exists", empty(l:wrong),
     \ empty(l:wrong) ? "   " . string(sort(copy(l:named))) : "   " . string(l:wrong))
   call GT_Ok("  and there are some to check", len(l:named) >= 8, "   (" . len(l:named) . ")")
+
+  " ---- the index says what is in each part, and says it about ALL of them
+  "
+  " A map that goes stale is worse than no map. Every file in "parts" has to be
+  " named in the ".vimrc", and every name in the ".vimrc" has to be a file.
+  let l:index = join(readfile(l:path), "\n")
+  let l:onDisk = map(glob(fnamemodify(l:path, ":h") . "/parts/*.vim", 0, 1), 'fnamemodify(v:val, ":t")')
+  let l:unlisted = filter(copy(l:onDisk), 'stridx(l:index, v:val) < 0')
+  call GT_Ok("the index names every part there is", empty(l:unlisted),
+    \ "   " . (empty(l:unlisted) ? "(" . len(l:onDisk) . " parts)" : string(l:unlisted)))
+  let l:named = []
+  for l:line in readfile(l:path)
+    let l:hit = matchstr(l:line, 'parts/\zs[0-9]\+-\w\+\.vim')
+    if l:hit != "" && index(l:named, l:hit) < 0 | call add(l:named, l:hit) | endif
+  endfor
+  call GT_Ok("  and names nothing that is not there",
+    \ empty(filter(copy(l:named), 'index(l:onDisk, v:val) < 0')),
+    \ "   " . string(filter(copy(l:named), 'index(l:onDisk, v:val) < 0')))
 
   " ---- GrooVim knows where its own .vimrc is
   call GT_Ok("GrooVim knows its own .vimrc", filereadable(g:GrooVim_Vimrc),

@@ -1,0 +1,59 @@
+"$$$$$$$$$$$$$$$$$$$$$$$$$$
+"ENABLE PLUGINS
+"$$$$$$$$$$$$$
+
+" Note: Is a given plugin installed? Looks into the native package directories
+" of Vim 8 and later AND into the "bundle" directory of Pathogen, so both ways
+" of installing are recognized! By Questor
+func! GrooVim_HasPlugin(name) abort
+  for l:place in ["pack/*/start/", "pack/*/opt/", "bundle/"]
+    if !empty(glob(g:GrooVim_Home . "/" . l:place . a:name, 0, 1))
+      return 1
+    endif
+  endfor
+  return 0
+endfunc
+
+" Note: Master switch: set it to 0 to ignore every plugin! By Questor
+let g:enable_all_plugins = get(g:, "enable_all_plugins", 1)
+
+" Note: Each plugin is now DETECTED instead of assumed. GrooVim promises to work
+" depending only on the contents of this ".vimrc" (the "no plugin scenario"), so
+" whatever is not installed simply stays quiet instead of failing. Set any of
+" these before sourcing GrooVim to force a value! By Questor
+
+" Note: tcomment.vim! By Questor
+let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tcomment_vim"))
+
+" Note: nerdtree.vim! By Questor
+let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree"))
+
+" Note: debugger.vim! No debug plugin is installed by the README instructions,
+" so this one stays off unless you ask for it! By Questor
+
+" Note: move.vim! By Questor
+let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move"))
+
+"$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+"$$$$$$$$$$$$$$$$$$$$$$$$$$
+"PERFORMANCE
+"$$$$$$$$$$$$$
+
+" Note: You got a fast terminal! By Questor
+set ttyfast
+
+" Note: Increase scroll speed! By Questor
+set ttyscroll=3
+
+" Note: Remove cursor effects to improve performance! By Questor
+set nocursorcolumn
+set nocursorline
+
+" Note: Limit the scope of syntax in very long lines to improve performance! By Questor
+set synmaxcol=1000
+
+" Note: Don't redraw while executing macros (good performance config)!
+" Causes scroll "flickering"! By Questor
+" set lazyredraw
+

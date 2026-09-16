@@ -198,6 +198,12 @@ around the substitution and put it back, the way the occurrence counter does.
 where you say and `getmousepos()` answers from there, so a menu that reads the
 mouse is as testable as one that reads keys.
 
+**GrooVim is a directory now, not a file.** A case that reads the source and
+stops at the `.vimrc` reads the loader and nothing else — 375 lines out of six
+thousand — and every check it makes comes back empty and PASSES, which is the
+worst way for a check to be wrong. Use `GT_SourceLines()`, which reads the
+`.vimrc` and the parts it loads.
+
 **Filtering the output hides a failure.** Run the whole runner and read the
 summary.
 
