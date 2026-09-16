@@ -4418,23 +4418,30 @@ let s:menuCursorWas = ""
 " Note: The colours of the menu. Four and not one: the menu itself, the line you
 " are on, the keys on the right, and the rules between blocks.
 "
-" Note: DARK, like the editor under it, and not a field of blue. Blue is kept for
-" the one line you are on, where it says something; painting all of it blue left
-" the keys on the right with almost no contrast against their own background.
-" The keys are cyan, the colour of the indent guides.
+" Note: LIGHT, and dark under it -- a menu of a conventional editor stands out
+" from the document, it does not blend into it. That is how Notepad++ draws its
+" own, and it is where these values come from.
+"
+" Note: Measured, every pair of them: near black on near white is 13.3 to 1, and
+" the blue of the keys against the same white, and the white of the chosen line
+" against that blue, are 5.7 to 1. Nothing here is under the 4.5 that counts as
+" readable.
+"
+" Note: In a terminal of 256 colours "#005faf" IS the colour numbered 25, exactly
+" and not nearly; the other two land on the nearest greys there are.
 "
 " Note: "PopupSelected" is the name VIM reads for the line you are on inside a
 " popup -- there is no per popup option for it! By Questor
 if &t_Co >= 256 || has("gui_running")
-  highlight GrooVimMenu ctermbg=236 ctermfg=254 guibg=#303030 guifg=#e4e4e4
-  highlight GrooVimMenuKey ctermbg=236 ctermfg=81 guibg=#303030 guifg=#5fd7ff
-  highlight GrooVimMenuRule ctermbg=236 ctermfg=240 guibg=#303030 guifg=#585858
-  highlight PopupSelected ctermbg=25 ctermfg=231 cterm=bold
-   \ guibg=#005faf guifg=#ffffff gui=bold
+  highlight GrooVimMenu ctermbg=255 ctermfg=235 guibg=#eff0f1 guifg=#232629
+  highlight GrooVimMenuKey ctermbg=255 ctermfg=25 guibg=#eff0f1 guifg=#005faf
+  highlight GrooVimMenuRule ctermbg=255 ctermfg=235 guibg=#eff0f1 guifg=#232629
+  highlight PopupSelected ctermbg=25 ctermfg=255 cterm=bold
+   \ guibg=#005faf guifg=#eff0f1 gui=bold
 else
-  highlight GrooVimMenu ctermbg=darkgray ctermfg=white
-  highlight GrooVimMenuKey ctermbg=darkgray ctermfg=cyan
-  highlight GrooVimMenuRule ctermbg=darkgray ctermfg=gray
+  highlight GrooVimMenu ctermbg=white ctermfg=black
+  highlight GrooVimMenuKey ctermbg=white ctermfg=blue
+  highlight GrooVimMenuRule ctermbg=white ctermfg=black
   highlight PopupSelected ctermbg=blue ctermfg=white cterm=bold
 endif
 

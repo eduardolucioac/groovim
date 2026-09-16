@@ -249,7 +249,22 @@ func! GT_Body()
     \ "   (" . g:GrooVim_CommandZWait . "ms, a hand travelling)")
 
   " ---- the colours
-  call GT_Ok("the menu is painted dark, not a field of blue",
+  call GT_Ok("the menu is light and the text on it is dark",
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg", "gui") ==# "#eff0f1" &&
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "fg", "gui") ==# "#232629",
+    \ "   (" . synIDattr(synIDtrans(hlID("GrooVimMenu")), "fg", "gui") . " on " .
+    \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg", "gui") . ")")
+  call GT_Ok("the keys are the blue one",
+    \ synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg", "gui") ==# "#005faf",
+    \ "   (" . synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg", "gui") . ")")
+  call GT_Ok("the chosen line turns the two around",
+    \ synIDattr(synIDtrans(hlID("PopupSelected")), "bg", "gui") ==# "#005faf" &&
+    \ synIDattr(synIDtrans(hlID("PopupSelected")), "fg", "gui") ==# "#eff0f1",
+    \ "   (" . synIDattr(synIDtrans(hlID("PopupSelected")), "fg", "gui") . " on " .
+    \ synIDattr(synIDtrans(hlID("PopupSelected")), "bg", "gui") . ")")
+  call GT_Ok("and in a terminal the blue is the colour numbered 25, exactly",
+    \ synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg", "cterm") ==# "25", "")
+  call GT_Ok("the menu is painted apart from the document",
     \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "bg") !=# "" &&
     \ synIDattr(synIDtrans(hlID("GrooVimMenuKey")), "fg") !=#
     \ synIDattr(synIDtrans(hlID("GrooVimMenu")), "fg"),
