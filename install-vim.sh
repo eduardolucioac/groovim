@@ -40,9 +40,6 @@ MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
 # The home of GrooVim: where its code is installed, and where it keeps its
 # plugins, its session, its saved options, its undo and its viminfo.
 GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
-# Linking instead of copying is for working ON GrooVim: the installed copy IS the
-# checkout, so an edit takes effect on the next run.
-LINK_CODE=0
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
@@ -86,8 +83,6 @@ Options:
   --modified-by NAME who this build says modified it, shown on the opening
                      screen and in ":version"
   --home DIR         where GrooVim lives      (default: ~/.groovim)
-  --link             link the code into that directory instead of copying it,
-                     so that editing this checkout takes effect at once
   --no-deps          do not install build dependencies
   --yes              answer yes to everything
   --help             this
@@ -116,7 +111,6 @@ while [ $# -gt 0 ]; do
     --jobs)      JOBS="${2:?--jobs needs a number}"; shift ;;
     --modified-by) MODIFIED_BY="${2:?--modified-by needs a name}"; shift ;;
     --home)      GROOVIM_HOME_DIR="${2:?--home needs a directory}"; shift ;;
-    --link)      LINK_CODE=1 ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
@@ -376,8 +370,8 @@ build_vim() {
 
 # Note: The code of GrooVim goes where GrooVim lives, beside the things it keeps
 # there already -- its plugins, its session, its saved options, its undo. After
-# this the "groovim" command needs to know ONE path, and it is a short one that
-# does not move when the checkout does.
+# this the "groovim" command needs to know ONE path, a short one that does not
+# move when the checkout does, and the checkout can be thrown away.
 install_groovim() {
 
   local from="$(cd "$(dirname "$VIMRC")" && pwd)"
@@ -385,25 +379,21 @@ install_groovim() {
 
   step "GrooVim itself"
 
-  if [ ! -d "$from/parts" ]; then
-    die "There is no \"parts\" directory beside $VIMRC -- is this a GrooVim checkout?"
+  if [ ! -d "$from/groovim" ]; then
+    die "There is no \"groovim\" directory beside $VIMRC -- is this a GrooVim checkout?"
   fi
 
+  # Note: COPIES and never links. A link would tie the installation to the
+  # checkout it was made from: move that directory or throw it away and GrooVim
+  # stops working, with nothing to say why. What is installed has to stand on
+  # its own! By Questor
   mkdir -p "$to"
-  rm -rf "$to/parts" "$to/.vimrc"
+  rm -rf "$to/groovim" "$to/.vimrc"
+  cp "$from/.vimrc" "$to/.vimrc"
+  cp -r "$from/groovim" "$to/groovim"
 
-  if [ "$LINK_CODE" -eq 1 ]; then
-    ln -s "$from/.vimrc" "$to/.vimrc"
-    ln -s "$from/parts"  "$to/parts"
-    echo "  linked to $from"
-    yellow "  editing that checkout changes GrooVim at once"
-  else
-    cp "$from/.vimrc" "$to/.vimrc"
-    cp -r "$from/parts" "$to/parts"
-    echo "  copied to $to"
-  fi
-
-  green "  $(ls "$to/parts" | wc -l) parts"
+  echo "  copied from $from"
+  green "  $(ls "$to/groovim" | wc -l) parts in $to/groovim"
 }
 
 # ---------------------------------------------------------------- wrapper ---

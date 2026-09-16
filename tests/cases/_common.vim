@@ -119,7 +119,7 @@ endfunc
 " worst way for a check to be wrong.
 func! GT_SourceLines()
   let l:lines = readfile($GROOVIM_TEST_VIMRC)
-  for l:part in sort(glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/parts/*.vim", 0, 1))
+  for l:part in sort(glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/*.vim", 0, 1))
     let l:lines = l:lines + readfile(l:part)
   endfor
   return l:lines

@@ -392,7 +392,7 @@ let s:GrooVim_Parts = [
  \ ["help",        "the help of F9, written out of the list of shortcuts"],
  \ ]
 
-let s:GrooVim_PartsDir = fnamemodify(g:GrooVim_Vimrc, ":h") . "/parts"
+let s:GrooVim_PartsDir = fnamemodify(g:GrooVim_Vimrc, ":h") . "/groovim"
 
 for s:GrooVim_Part in s:GrooVim_Parts
   let s:GrooVim_File = s:GrooVim_PartsDir . "/" . s:GrooVim_Part[0] . ".vim"

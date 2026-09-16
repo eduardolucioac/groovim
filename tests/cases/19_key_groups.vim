@@ -22,7 +22,7 @@ func! GT_Body()
   let l:source = GT_SourceLines()
   call GT_Ok("we can read the source of GrooVim", filereadable(l:path), "   [" . l:path . "]")
   call GT_Ok("  and the parts it loads", len(l:source) > 5000,
-    \ "   (" . len(glob(fnamemodify(l:path, ":h") . "/parts/*.vim", 0, 1)) . " parts, " .
+    \ "   (" . len(glob(fnamemodify(l:path, ":h") . "/groovim/*.vim", 0, 1)) . " parts, " .
     \ len(l:source) . " lines in all)")
 
   " ---- the list, and the four groups
@@ -132,7 +132,7 @@ func! GT_Body()
   " not load at all, so this is not about documentation going stale -- it is
   " about code that is there and never runs.
   let l:index = join(readfile(l:path), "\n")
-  let l:onDisk = map(glob(fnamemodify(l:path, ":h") . "/parts/*.vim", 0, 1), 'fnamemodify(v:val, ":t:r")')
+  let l:onDisk = map(glob(fnamemodify(l:path, ":h") . "/groovim/*.vim", 0, 1), 'fnamemodify(v:val, ":t:r")')
   let l:named = []
   for l:line in readfile(l:path)
     let l:hit = matchstr(l:line, '^ \\ \["\zs\w\+\ze",')
