@@ -158,7 +158,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: The three of them leave the cursor where it was;
     - `c` - Copy all text in the current buffer *(normal mode/insert/visual)*;
     - `End` - Selects the word under the cursor *(normal mode/insert/visual)*;
-    - `q` - Record a macro *(normal mode/insert/visual)*;
+    - `q` - Start and stop recording a macro *(normal mode/insert/visual)*;
+        - Note: The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own;
+        - Note: What is recorded goes into the register a , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one;
     - `w` - Run a macro *(normal mode/insert/visual)*;
     - `e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
     - `p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
@@ -193,6 +195,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: A document you have not saved yet is called new 1 , new 2 ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
     - `t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
+        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
     - `q` - Close the window *(normal mode/insert/visual)*;
     - `w` - Close the tab you are in *(normal mode/insert/visual)*;
         - Note: On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls new 1;

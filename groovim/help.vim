@@ -38,7 +38,12 @@ let g:GrooVim_Shortcuts = [
  \  ]},
  \ {"group": "F2", "key": "c", "break": 1, "modes": "niv", "run": 'call GrooVim_ClipSet(join(getline(1, "$"), "\n"))', "what": "Copy all text in the current buffer"},
  \ {"group": "F2", "key": "end", "modes": "niv", "run": 'exec "norm viw"', "what": "Selects the word under the cursor"},
- \ {"group": "F2", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_XenRec()', "what": "Record a macro"},
+ \ {"group": "F2", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_XenRec()',
+ \  "what": "Start and stop recording a macro",
+ \  "notes": [
+ \   "The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own",
+ \   "What is recorded goes into the register |a| , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one"
+ \  ]},
  \ {"group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
  \ {"group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
  \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
@@ -80,7 +85,11 @@ let g:GrooVim_Shortcuts = [
  \   "A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
  \   "The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again"
  \  ]},
- \ {"group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()', "what": "Allows always returning to a particular tab using <Alt-Down>"},
+ \ {"group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
+ \  "what": "Allows always returning to a particular tab using <Alt-Down>",
+ \  "notes": [
+ \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
+ \  ]},
  \ {"group": "F5", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_CloseAsking("q")', "what": "Close the window"},
  \ {"group": "F5", "key": "w", "modes": "niv", "run": 'call GrooVim_TabClose()',
  \  "what": "Close the tab you are in",
