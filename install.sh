@@ -5,7 +5,6 @@
 #
 #   ./install.sh                installs, or brings an installation up to date
 #   ./install.sh --rebuild      builds the Vim again even if the one there serves
-#   ./install.sh --check [VIM]  says whether a Vim would serve GrooVim
 #   ./install.sh --help         every option
 #
 # Run it again whenever you want: it builds the Vim only if the one it finds does
@@ -36,8 +35,6 @@ VERSION=""
 VIMRC=""
 ASSUME_YES=0
 SKIP_DEPS=0
-ONLY_CHECK=0
-VIM_TO_CHECK="vim"
 JOBS="$(nproc 2>/dev/null || echo 2)"
 # Who this build says modified it. Vim prints it on the opening screen and in
 # ":version", under "Modified by".
@@ -85,8 +82,6 @@ usage() {
   cat <<'END'
 
 Options:
-  --check [VIM]      only says whether a Vim serves, builds nothing. Without an
-                     argument it looks at the "vim" of your PATH.
   --version TAG      Vim tag to build (default: the newest release)
   --prefix DIR       where Vim goes      (default: ~/.local/share/groovim)
   --bindir DIR       where "groovim" goes(default: ~/.local/bin)
@@ -112,14 +107,6 @@ END
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --check)
-      ONLY_CHECK=1
-      # An optional binary right after: "--check /opt/vim/bin/vim". Anything
-      # starting with "-" is the next option, not a path.
-      if [ $# -gt 1 ] && [ "${2#-}" = "$2" ]; then
-        VIM_TO_CHECK="$2"; shift
-      fi
-      ;;
     --version)   VERSION="${2:?--version needs a tag}"; shift ;;
     --prefix)    PREFIX="${2:?--prefix needs a directory}"; shift ;;
     --bindir)    BINDIR="${2:?--bindir needs a directory}"; shift ;;
@@ -184,29 +171,6 @@ missing_for_groovim() {
   done
 }
 
-check_and_report() {
-  local vim_bin="${1:-vim}"
-  local missing
-
-  step "Looking at $vim_bin"
-  if ! command -v "$vim_bin" >/dev/null 2>&1 && [ ! -x "$vim_bin" ]; then
-    yellow "  there is no $vim_bin here"
-    return 1
-  fi
-
-  version_first_line "$vim_bin" | sed 's/^/  /'
-  "$vim_bin" --version 2>/dev/null | grep -m1 "Modified by" | sed 's/^/  /'
-  missing="$(missing_for_groovim "$vim_bin")"
-
-  if [ -z "$missing" ]; then
-    green "  it serves GrooVim as it is"
-    return 0
-  fi
-
-  yellow "  it falls short:"
-  printf '%s\n' "$missing" | sed 's/^/    - /'
-  return 1
-}
 
 # --------------------------------------------------------------- distros ---
 
@@ -551,17 +515,6 @@ warn_about_path() {
 # ------------------------------------------------------------------- main ---
 
 blue "GrooVim -- a Vim of its own"
-
-if [ "$ONLY_CHECK" -eq 1 ]; then
-  if check_and_report "$VIM_TO_CHECK"; then
-    echo
-    green "That Vim would serve GrooVim."
-  else
-    echo
-    yellow "Run this script with no options to build one that does."
-  fi
-  exit 0
-fi
 
 # Note: OUR Vim and not the one of the system. GrooVim is reached through the
 # "groovim" command and runs on the Vim this script builds; what your

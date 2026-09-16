@@ -363,13 +363,7 @@ follow. Two of those, side by side, are two GrooVim that know nothing of each
 other -- one for work and one for home, with different plugins, on the same
 machine.
 
-First, ask whether you need it at all:
-
-```
-./install.sh --check
-```
-
-It reads your Vim and says what is missing, if anything. To build:
+To install:
 
 ```
 ./install.sh
