@@ -100,7 +100,7 @@ func! GT_Indent(startingIndent, howMany, ...)
 endfunc
 
 exec "edit " . g:GT_FIX . "/indent.sh"
-call SpecificTabConf(2)
+call GrooVim_IndentWidthHere(2)
 call GT_Ok("width 2: Tab walks 2 by 2", GT_Indent(0, 3) == [0, 2, 4, 6], "   " . string(GT_Indent(0, 3)))
 
 " shiftwidth alone does NOT change the Tab, and that is why the command exists

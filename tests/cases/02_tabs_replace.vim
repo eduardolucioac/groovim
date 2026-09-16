@@ -1,4 +1,4 @@
-" Replacing across several tabs, and TabDo giving each one its cursor back.
+" Replacing across several tabs, and GrooVim_TabDo giving each one its cursor back.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
@@ -28,13 +28,13 @@ call GT_Ok("tab 1 replaced", getline(1,"$") ==# ["=== TAB A ===", "first occurre
 tabn 2
 call GT_Ok("tab 2 replaced (two on the same line)", getline(4) ==# "fourth occurrence: GOTIT and GOTIT on the same line", "   [" . getline(4) . "]")
 call GT_Ok("the cursor of tab 2 was kept", line(".") == 4 && col(".") == 3, "   (line " . line(".") . " col " . col(".") . ", expected 4/3)")
-call GT_Ok("the TabDo flags were cleared", g:tryCathOnTabDo == 0 && g:keepCursorOnTabDo == 0, "")
+call GT_Ok("the GrooVim_TabDo flags were cleared", g:tryCathOnTabDo == 0 && g:keepCursorOnTabDo == 0, "")
 
-" ---- the two meanings of TabDo, without going through the replace
+" ---- the two meanings of GrooVim_TabDo, without going through the replace
 tabonly! | %delete _ | call setline(1, ["a","b","c","d","e"]) | call cursor(2, 1)
 tabnew | call setline(1, ["a","b","c","d","e"]) | call cursor(2, 1)
 tabn 1
-call TabDo("call cursor(5, 1)")
+call GrooVim_TabDo("call cursor(5, 1)")
 call GT_Ok("without the flag: the cursor MOVES (the old behaviour)", line(".") == 5, "   (line " . line(".") . ")")
 tabn 2
 call GT_Ok("without the flag: the cursor of tab 2 moves as well", line(".") == 5, "   (line " . line(".") . ")")
@@ -43,7 +43,7 @@ tabn 1 | call cursor(2, 1)
 tabn 2 | call cursor(3, 1)
 tabn 1
 let g:keepCursorOnTabDo = 1
-call TabDo("call cursor(5, 1)")
+call GrooVim_TabDo("call cursor(5, 1)")
 let g:keepCursorOnTabDo = 0
 call GT_Ok("with the flag: tab 1 came back", line(".") == 2, "   (line " . line(".") . ")")
 call GT_Ok("with the flag: back to the tab it started on", tabpagenr() == 1, "   (tab " . tabpagenr() . ")")

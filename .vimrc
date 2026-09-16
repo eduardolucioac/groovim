@@ -390,7 +390,7 @@ let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
 " -- Konsole is one of them, which is why the detection quietly failed there.
 " So we recognize by their own environment the terminals we know, and tell the
 " package to go ahead. Set "g:osc52_force_avail" yourself to overrule! By Questor
-func! GrooVim_TerminalDoesOSC52()
+func! GrooVim_TerminalDoesOSC52() abort
 
   " Note: Under a GUI the terminal sequences make no sense! By Questor
   if has("gui_running")
@@ -472,7 +472,7 @@ let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", g:GrooVim_Home . "/bin"
 " Note: Jobs are required: see GrooVim_ClipToolCopy() for why a "system()" call
 " would freeze Vim on every copy. Without them we simply do not offer this
 " provider and the cascade goes on to OSC 52! By Questor
-func! GrooVim_ClipToolFind()
+func! GrooVim_ClipToolFind() abort
   if !exists("*job_start")
     return {}
   endif
@@ -507,24 +507,24 @@ let g:GrooVim_ClipCacheMs = get(g:, "GrooVim_ClipCacheMs", 300)
 let g:GrooVim_ClipCache = ""
 let g:GrooVim_ClipCachePending = 0
 
-func! GrooVim_ClipCacheClear(...)
+func! GrooVim_ClipCacheClear(...) abort
   let g:GrooVim_ClipCachePending = 0
 endfunc
 
 " Note: A trailing line break is what tells a LINEWISE copy from a charwise one!
 " By Questor
-func! GrooVim_ClipToText(text)
+func! GrooVim_ClipToText(text) abort
   if a:text =~ "\n$"
     return ["V", split(a:text, "\n", 1)[0:-2]]
   endif
   return ["v", split(a:text, "\n", 1)]
 endfunc
 
-func! GrooVim_ClipToolAvailable()
+func! GrooVim_ClipToolAvailable() abort
   return !empty(g:GrooVim_ClipTool)
 endfunc
 
-func! GrooVim_ClipToolCopy(reg, type, lines)
+func! GrooVim_ClipToolCopy(reg, type, lines) abort
   if empty(g:GrooVim_ClipTool)
     return
   endif
@@ -572,7 +572,7 @@ func! GrooVim_ClipToolCopy(reg, type, lines)
 
 endfunc
 
-func! GrooVim_ClipToolPaste(reg)
+func! GrooVim_ClipToolPaste(reg) abort
   if empty(g:GrooVim_ClipTool)
     return ["c", []]
   endif
@@ -639,7 +639,7 @@ let g:GrooVim_ClipFile = g:GrooVim_Home . "/clipboard"
 " warns (W24) and answers empty. Only "setreg()" raises E354. So availability is
 " asked to Vim itself, never probed by writing! By Questor
 let g:GrooVim_ClipRegCache = ""
-func! GrooVim_ClipReg()
+func! GrooVim_ClipReg() abort
   if g:GrooVim_ClipRegCache != ""
     return g:GrooVim_ClipRegCache
   endif
@@ -671,7 +671,7 @@ endfunc
 " "unnamedplus" both answer 0, "clipboard" was left empty, and so every yank
 " stopped at the unnamed register and nothing was ever sent to the terminal!
 " By Questor
-func! GrooVim_ClipSyncOption()
+func! GrooVim_ClipSyncOption() abort
   let l:reg = GrooVim_ClipReg()
   try
     if l:reg == "+"
@@ -684,7 +684,7 @@ func! GrooVim_ClipSyncOption()
 endfunc
 
 " Note: Re-checks the clipboard once the terminal had time to answer! By Questor
-func! GrooVim_ClipRefresh()
+func! GrooVim_ClipRefresh() abort
   let g:GrooVim_ClipRegCache = ""
   call GrooVim_ClipSyncOption()
 endfunc
@@ -698,7 +698,7 @@ augroup end
 
 " Note: The file based "transfer area", used when there is no clipboard
 " register at all. It also lets two Vim instances share a copy! By Questor
-func! GrooVim_ClipFileSet(value)
+func! GrooVim_ClipFileSet(value) abort
   try
     let l:dir = fnamemodify(g:GrooVim_ClipFile, ":h")
     if !isdirectory(l:dir)
@@ -714,7 +714,7 @@ func! GrooVim_ClipFileSet(value)
   endtry
 endfunc
 
-func! GrooVim_ClipFileGet()
+func! GrooVim_ClipFileGet() abort
   try
     if filereadable(g:GrooVim_ClipFile)
       return join(readfile(g:GrooVim_ClipFile), "\n")
@@ -725,7 +725,7 @@ func! GrooVim_ClipFileGet()
 endfunc
 
 " Note: Read the "transfer area"! By Questor
-func! GrooVim_ClipGet()
+func! GrooVim_ClipGet() abort
   let l:reg = GrooVim_ClipReg()
   if l:reg != "\""
     try
@@ -744,7 +744,7 @@ func! GrooVim_ClipGet()
 endfunc
 
 " Note: Write to the "transfer area"! By Questor
-func! GrooVim_ClipSet(value)
+func! GrooVim_ClipSet(value) abort
   let l:reg = GrooVim_ClipReg()
   if l:reg != "\""
     try
@@ -836,7 +836,7 @@ set shiftround
 " type plugin or a ":set shiftwidth=" you type, instead of drifting away from the
 " real indent. Falling back to "tabstop" is what keeps "make" right, since its
 " file type plugin leaves "shiftwidth" at zero! By Questor
-func! GrooVim_IndentGuideSet()
+func! GrooVim_IndentGuideSet() abort
 
   let l:listchars = "trail:\uB7,nbsp:~"
 
@@ -865,7 +865,7 @@ endfunc
 " Note: General tab conf! By Questor
 " Note: "setlocal" and not "set": this runs per buffer, and setting it globally
 " made opening one file change the indent width of every other open buffer! By Questor
-func! SpecificTabConf(tabWidth)
+func! GrooVim_IndentWidthHere(tabWidth) abort
 
   " Note: Size of a hard tabstop! By Questor
   exec "setlocal tabstop=" . a:tabWidth
@@ -901,7 +901,7 @@ endfun
 " prints! By Questor
 com! GrooVimKey call GrooVim_KeyReport()
 
-func! GrooVim_KeyReport()
+func! GrooVim_KeyReport() abort
 
   echo "GrooVim: press the key you want to look at..."
   let l:key = getchar()
@@ -940,17 +940,17 @@ endfunc
 com! -nargs=? GrooVimIndent call GrooVim_IndentWidth(<q-args>)
 
 " Note: A width EVERYWHERE: the default that new buffers get, and the one you are
-" on. "SpecificTabConf" alone is "setlocal", which is what the command above
+" on. "GrooVim_IndentWidthHere" alone is "setlocal", which is what the command above
 " wants -- but a screen that says "indent width" and leaves the next file you
 " open on the old one would be lying! By Questor
-func! GrooVim_IndentWidthApply(width)
+func! GrooVim_IndentWidthApply(width) abort
   exec "set tabstop=" . a:width
   exec "set shiftwidth=" . a:width
   exec "set softtabstop=" . a:width
-  call SpecificTabConf(a:width)
+  call GrooVim_IndentWidthHere(a:width)
 endfunc
 
-func! GrooVim_IndentWidth(width)
+func! GrooVim_IndentWidth(width) abort
 
   if a:width == ""
     call GrooVim_GrooVimBarMsg("The indent is " . &shiftwidth .
@@ -963,7 +963,7 @@ func! GrooVim_IndentWidth(width)
     return
   endif
 
-  call SpecificTabConf(str2nr(a:width))
+  call GrooVim_IndentWidthHere(str2nr(a:width))
   call GrooVim_GrooVimBarMsg("The indent is " . &shiftwidth . " columns wide now!", 5)
 
 endfunc
@@ -978,7 +978,7 @@ endfunc
 augroup GrooVim_Indent
   autocmd!
   autocmd FileType * if has_key(g:GrooVim_IndentWidthPerType, &filetype) |
-        \ call SpecificTabConf(g:GrooVim_IndentWidthPerType[&filetype]) | endif
+        \ call GrooVim_IndentWidthHere(g:GrooVim_IndentWidthPerType[&filetype]) | endif
   autocmd BufWinEnter,WinEnter * call GrooVim_IndentGuideSet()
   autocmd OptionSet shiftwidth,tabstop call GrooVim_IndentGuideSet()
 augroup end
@@ -1000,7 +1000,7 @@ autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
 " Note: Is a given plugin installed? Looks into the native package directories
 " of Vim 8 and later AND into the "bundle" directory of Pathogen, so both ways
 " of installing are recognized! By Questor
-func! GrooVim_HasPlugin(name)
+func! GrooVim_HasPlugin(name) abort
   for l:place in ["pack/*/start/", "pack/*/opt/", "bundle/"]
     if !empty(glob(g:GrooVim_Home . "/" . l:place . a:name, 0, 1))
       return 1
@@ -1123,7 +1123,7 @@ let g:GrooVim_GroovyMoveColumn = 0
 " ours: while it is up, the cursor is NOT painted with the colour of normal mode!
 " By Questor
 let g:GrooVim_GroovyMoveOnInsert = 0
-func! GrooVim_GroovyMoveMarkColumn()
+func! GrooVim_GroovyMoveMarkColumn() abort
   let g:GrooVim_GroovyMoveColumn = getcurpos()[4]
 
   " Note: And the cursor keeps the colour of insert mode for the whole trip. The
@@ -1140,7 +1140,7 @@ func! GrooVim_GroovyMoveMarkColumn()
 endfunc
 
 " Note: Gives the cursor back to the colours of each mode! By Questor
-func! GrooVim_GroovyMoveColorsBack()
+func! GrooVim_GroovyMoveColorsBack() abort
   if g:GrooVim_GroovyMoveOnInsert == 1
     let g:GrooVim_GroovyMoveOnInsert = 0
     let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
@@ -1152,7 +1152,7 @@ endfunc
 " the fourth one changes. Moving the cursor here would drag it out of the areas
 " without character, which is exactly what this function exists to travel over! By
 " Questor
-func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep)
+func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep) abort
   if (a:direction != "u" && a:direction != "d") || a:columnToKeep <= 0
     return
   endif
@@ -1160,7 +1160,7 @@ func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep)
   call cursor([l:positionNow[1], l:positionNow[2], l:positionNow[3], a:columnToKeep])
 endfunc
 
-func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range
+func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range abort
 
   let g:GrooVim_GroovyMoveEnabled = 0
 
@@ -1338,7 +1338,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 endfunc
 
 " Note: Adjusts the cursor position when this ends the movement ("GrooVim_GroovyMove()") over a tab char! By Questor
-func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range
+func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range abort
 
   let l:lineNow = getline(".")
   let l:lineSplited = split(l:lineNow, '\zs')
@@ -1386,7 +1386,7 @@ inoremap <silent> <script> <A-Right> <C-o>:call GrooVim_SelWord("i", "r", 0)<cr>
 vnoremap <silent> <script> <A-Right> :<C-u>call GrooVim_SelWord("v", "r", 0)<cr>
 
 " Note: Allows selection of words quickly (for copying or deletion)! By Questor
-func! GrooVim_SelWord(mod, direction, fullMove) range
+func! GrooVim_SelWord(mod, direction, fullMove) range abort
 
   let l:wordMove = ""
   let l:wordMoveInsert = ""
@@ -1435,7 +1435,7 @@ vnoremap <silent> <A-DOWN> :<C-U>call GrooVim_TabToReturn()<cr>v
 let g:lastTab = 1
 autocmd! TabLeave * let g:lastTab = tabpagenr()
 
-func! GrooVim_TabToReturn()
+func! GrooVim_TabToReturn() abort
   if g:GrooVim_TabToReturnNumber == 0
     exe "tabn " . g:lastTab
   else
@@ -1452,7 +1452,7 @@ endfunc
 
 " Note: Allows returning to a particular tab "forever"! By Questor
 let g:GrooVim_TabToReturnNumber = 0
-func! GrooVim_TabToReturnSet()
+func! GrooVim_TabToReturnSet() abort
   if g:GrooVim_TabToReturnNumber == 0
     let g:GrooVim_TabToReturnNumber = tabpagenr()
     call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
@@ -1481,7 +1481,7 @@ endif
 
 " Note: Get shown messages! By Questor
 let g:messagesHolder = ""
-func! GrooVim_GetMessages()
+func! GrooVim_GetMessages() abort
   let g:messagesHolder = ""
   redir => g:messagesHolder
     silent exec "messages"
@@ -1489,7 +1489,7 @@ func! GrooVim_GetMessages()
 endfunc
 
 " Note: Return the last shown message! By Questor
-func! GrooVim_ReturnLastMessage()
+func! GrooVim_ReturnLastMessage() abort
   call GrooVim_GetMessages()
   let l:messagesHolderSplitted = split(g:messagesHolder, "\n")
   if len(l:messagesHolderSplitted) >= 1
@@ -1501,72 +1501,13 @@ endfunc
 
 let g:lastMessageWorkaroundShowed = ""
 let g:lastMessageWorkaroundShowedIndex = 0
-" Note: Redisplays the last shown message! By Questor
-func! GrooVim_ShowLastMessageWorkaround()
-
-  let l:GrooVim_ReturnLastMessageReturn = GrooVim_ReturnLastMessage()
-
-  if l:GrooVim_ReturnLastMessageReturn[0] != ""
-    if l:GrooVim_ReturnLastMessageReturn[0] != g:lastMessageWorkaroundShowed || g:lastMessageWorkaroundShowed == "" || g:lastMessageWorkaroundShowedIndex < l:GrooVim_ReturnLastMessageReturn[1]
-
-      let l:messageBlock = 1
-      if l:GrooVim_ReturnLastMessageReturn[0] == "Messages maintainer: Bram Moolenaar <Bram@vim.org>"
-      elseif l:GrooVim_ReturnLastMessageReturn[0] =~ "replace with" && l:GrooVim_ReturnLastMessageReturn[0] =~ "(y/n/a/q/l/"
-      else
-        let l:messageBlock = 0
-      endif
-
-      if l:messageBlock == 0
-
-        let l:messageType = "n"
-        try
-
-          let l:messageNowToSplit = l:GrooVim_ReturnLastMessageReturn[0]
-          let l:messageNowSplitted = split(l:messageNowToSplit[0:6], ": ")
-
-          if len(l:messageNowSplitted) > 0
-
-            let l:messageNowTreated = substitute(l:messageNowSplitted[0], "E", "", "")
-
-            if l:messageNowTreated != 0
-              " Note: The quotes serve to make the result of "str2nr" be "transformed" into a string! By Questor
-              if l:messageNowTreated == "" . str2nr(l:messageNowTreated) . ""
-                if type(str2nr(l:messageNowTreated)) == type(0)
-                  if l:messageNowTreated > 0 && l:messageNowTreated < 10000
-                    let l:messageType = "e"
-                  endif
-                endif
-              endif
-            endif
-
-            
-          endif
-
-        catch
-          
-        endtry
-
-        if l:messageType == "e"
-          echohl Error | echo l:GrooVim_ReturnLastMessageReturn[0] | echohl None
-        elseif l:messageType == "n"
-          echo l:GrooVim_ReturnLastMessageReturn[0]
-        endif
-      endif
-
-    endif
-  endif
-
-  let g:lastMessageWorkaroundShowed = l:GrooVim_ReturnLastMessageReturn[0]
-  let g:lastMessageWorkaroundShowedIndex = l:GrooVim_ReturnLastMessageReturn[1]
-
-endfunc
 
 " Note: Finds the keyboard LEDs that report the CapsLock state. This used to
 " call "xset", which needs X11 and forks a shell about once per second. Reading
 " the LED works on Wayland, on X11 and on a bare tty, costs a file read and
 " needs no graphical session. On a machine with no physical keyboard (a
 " headless server) there is simply no LED and the check turns itself off! By Questor
-func! GrooVim_CapsLockLedsFind()
+func! GrooVim_CapsLockLedsFind() abort
   let l:leds = []
   try
     for l:led in glob("/sys/class/leds/*capslock*/brightness", 0, 1)
@@ -1582,7 +1523,7 @@ endfunc
 let g:GrooVim_CapsLockLeds = GrooVim_CapsLockLedsFind()
 
 " Note: There can be one LED per keyboard, so any of them lit means it is on! By Questor
-func! GrooVim_CapsLockIsOn()
+func! GrooVim_CapsLockIsOn() abort
   for l:led in g:GrooVim_CapsLockLeds
     try
       if str2nr(get(readfile(l:led), 0, "0")) > 0
@@ -1609,7 +1550,7 @@ let g:GrooVim_CheckCapsLockMsg = 0
 " Note: Mind the order! "GrooVim_GrooVimBarMsg()" refuses to show anything while
 " "g:GrooVim_CheckCapsLockReturn" is 1, so the warning must be pushed BEFORE
 " that flag is raised! By Questor
-func! GrooVim_CheckCapsLock() range
+func! GrooVim_CheckCapsLock() range abort
 
   " Note: Nothing to read, nothing to do! By Questor
   if empty(g:GrooVim_CapsLockLeds)
@@ -1665,7 +1606,7 @@ let g:GrooVim_GrooVimBarContext = ""
 " something does not need to know any of this: it is enough to be INVOKED
 " through here, and the name travels with the invocation. Adding a new one costs
 " a single line at the point that triggers it! By Questor
-func! GrooVim_Operation(context, funcName, args)
+func! GrooVim_Operation(context, funcName, args) abort
   call GrooVim_ContextEnter(a:context)
   try
     return call(a:funcName, a:args)
@@ -1679,7 +1620,7 @@ endfunc
 " By Questor
 let g:GrooVim_ContextStack = []
 
-func! GrooVim_ContextEnter(context)
+func! GrooVim_ContextEnter(context) abort
   call add(g:GrooVim_ContextStack, g:GrooVim_GrooVimBarContext)
   let g:GrooVim_Busy = 1
   let g:GrooVim_GrooVimBarContext = a:context
@@ -1695,7 +1636,7 @@ func! GrooVim_ContextEnter(context)
   call GrooVim_ContextRedraw()
 endfunc
 
-func! GrooVim_ContextLeave()
+func! GrooVim_ContextLeave() abort
   if !empty(g:GrooVim_ContextStack)
     let g:GrooVim_GrooVimBarContext = remove(g:GrooVim_ContextStack, -1)
   else
@@ -1706,7 +1647,7 @@ func! GrooVim_ContextLeave()
   call GrooVim_ContextRedraw()
 endfunc
 
-func! GrooVim_ContextRedraw()
+func! GrooVim_ContextRedraw() abort
   if v:vim_did_enter
     try
       redrawstatus!
@@ -1715,7 +1656,7 @@ func! GrooVim_ContextRedraw()
   endif
 endfunc
 
-func! GrooVim_CapsLockPoll(timerId)
+func! GrooVim_CapsLockPoll(timerId) abort
   " Note: Stay out of the way while a movement is being animated, or while a
   " prompt is waiting for an answer! By Questor
   if g:GrooVim_GroovyMoveEnabled == 0 || g:GrooVim_Busy
@@ -1743,7 +1684,7 @@ endif
 
 " Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertEnter * call GrooVim_InsertEnterPerforms()
-func! GrooVim_InsertEnterPerforms()
+func! GrooVim_InsertEnterPerforms() abort
   if g:onMoveScreen == 0
     if &virtualedit == "all"
       set virtualedit=onemore
@@ -1753,13 +1694,13 @@ endfunc
 
 " Note: Repositions the cursor in the correct location when exiting insert mode! By Questor
 autocmd! InsertLeave * call GrooVim_InsertLeavePerforms()
-func! GrooVim_InsertLeavePerforms()
+func! GrooVim_InsertLeavePerforms() abort
   exec "norm `^"
 endfunc
 
 " Note: Ensures state of "virtualedit" before any editing! By Questor
 autocmd! InsertCharPre * call GrooVim_InsertCharPrePerforms()
-func! GrooVim_InsertCharPrePerforms()
+func! GrooVim_InsertCharPrePerforms() abort
   if &virtualedit == "all"
     set virtualedit=onemore
   endif
@@ -1769,7 +1710,7 @@ endfunc
 autocmd! CursorHold * call GrooVim_CheckCapsLockTimer()
 autocmd! CursorHoldI * call GrooVim_CheckCapsLockTimer()
 let g:reloadVimrc = 0
-func! GrooVim_CheckCapsLockTimer()
+func! GrooVim_CheckCapsLockTimer() abort
   if g:onCursorMoved == 0 && g:onMoveScreen == 0
 
     call GrooVim_CheckCapsLock()
@@ -1806,7 +1747,7 @@ autocmd! CursorMovedI * call GrooVim_VimStatus()
 let g:lastMode = ""
 let g:onCursorMoved = 0
 let g:modeNow = ""
-func! GrooVim_VimStatus()
+func! GrooVim_VimStatus() abort
 
   let g:onCursorMoved = 1
   if g:onMoveScreen == 0
@@ -1856,7 +1797,7 @@ vnoremap <silent> <ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 vnoremap <silent> <S-ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
 
 " Note: Scrolls with the wheel allowing the cursor over "invalid" areas! By Questor
-func! GrooVim_ScrollAdm(mod, direction) range
+func! GrooVim_ScrollAdm(mod, direction) range abort
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
@@ -1882,7 +1823,7 @@ inoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 vnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
 
 " Note: When enter "visual block" mode and allows select any area! By Questor
-func! GrooVim_SetVisualBlock() range
+func! GrooVim_SetVisualBlock() range abort
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
@@ -1898,31 +1839,31 @@ nnoremap <silent> <C-u> u
 
 " Note: Allows undo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-u> :<C-u>call GrooVim_VisualUndo()<cr>v
-func! GrooVim_VisualUndo() range
+func! GrooVim_VisualUndo() range abort
   exec "norm u"
 endfunc
 
 " Note: Allows redo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-r> :<C-u>call GrooVim_VisualRedo()<cr>v
-func! GrooVim_VisualRedo() range
+func! GrooVim_VisualRedo() range abort
   exec "norm \<C-r>"
 endfunc
 
 " Note: Allows undo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-u> <Esc><bar>:call GrooVim_InsertUndo()<cr>i
-func! GrooVim_InsertUndo()
+func! GrooVim_InsertUndo() abort
   exec "norm u"
 endfunc
 
 " Note: Allows redo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-r> <Esc><bar>:call GrooVim_InsertRedo()<cr>i
-func! GrooVim_InsertRedo()
+func! GrooVim_InsertRedo() abort
   exec "norm \<C-r>"
 endfunc
 
 " Note: Allows "Space" in normal mode! By Questor
 noremap <silent> <script> <Space> :call GrooVim_SpaceOnNormalMode()<cr>
-func! GrooVim_SpaceOnNormalMode()
+func! GrooVim_SpaceOnNormalMode() abort
   exec "norm i\<Space>"
 endfunc
 
@@ -1930,15 +1871,6 @@ endfunc
 nnoremap <silent> <C-w> <C-w><C-w>
 inoremap <silent> <C-w> <Esc><C-w><C-w>
 vnoremap <silent> <C-w> <Esc><C-w><C-w>
-
-" Note: Gets the number of lines in the current transfer area! Questor
-func! GrooVim_NumberOfLinesOnDefaultTransferArea()
-  " Note: Get transfer area! By Questor
-  let l:lastYank = GrooVim_ClipGet()
-  let l:lastYankNumbOfLines = split(l:lastYank, "\n")
-  " Note: Checks how many lines have! Questor
-  return len(l:lastYankNumbOfLines)
-endfunc
 
 " Note: Allows yank a line without the return character! By Questor
 nnoremap <silent> yy 0y$
@@ -1990,7 +1922,7 @@ vmap <silent> <C-Left> b
 
 " Note: Allows "multimode" use of enter key in a conventional way! By Questor
 nnoremap <silent> <script> <Enter> :call GrooVim_NormalEnterOnNormalMode()<cr>
-func! GrooVim_NormalEnterOnNormalMode()
+func! GrooVim_NormalEnterOnNormalMode() abort
   exec "norm i\<cr>\<Esc>"
 endfunc
 
@@ -2001,7 +1933,7 @@ vmap <silent> <script> <Del> "_d
 " Note: Allows "multimode" use of backspace key in a conventional way! By Questor
 nmap <silent> <script> <Backspace> :call GrooVim_NormalBackspace()<cr>
 
-func! GrooVim_NormalBackspace()
+func! GrooVim_NormalBackspace() abort
 
   let l:continue = 1
 
@@ -2040,7 +1972,7 @@ vnoremap <silent> <C-Down> :<C-U>tabprevious<cr>v
 "
 " Note: At either end nothing happens, the way Notepad++ stops at the edge. A
 " message on every press of a key you hold down would be noise! By Questor
-func! GrooVim_TabMove(step)
+func! GrooVim_TabMove(step) abort
   let l:target = tabpagenr() + a:step
   if l:target < 1 || l:target > tabpagenr("$")
     return
@@ -2057,7 +1989,7 @@ inoremap <silent> <C-S-Down> <C-O>:call GrooVim_TabMove(-1)<cr>
 vnoremap <silent> <C-S-Down> :<C-U>call GrooVim_TabMove(-1)<cr>gv
 
 " Note: Allows "multimode" use of the Del key! By Questor
-func! GrooVim_NormalDel()
+func! GrooVim_NormalDel() abort
 
   let l:continue = 1
 
@@ -2087,7 +2019,7 @@ endfunc
 nnoremap <silent> <Tab> :call GrooVim_NormalTab()<cr>
 
 " Note: Allows Tab on normal mode when the line is empty! By Questor
-func! GrooVim_NormalTab()
+func! GrooVim_NormalTab() abort
   if col(".") == 1 && getline(".") == ""
     exec "normal i\<Tab>"
   else
@@ -2117,7 +2049,7 @@ nnoremap <silent> <S-Down> :call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
 " Note: Allows adjust the "set virtualedit=onemore" parameter when exit the current
 " mode you are! By Questor
-func! GrooVim_VirtualEditAdjust() range
+func! GrooVim_VirtualEditAdjust() range abort
   set virtualedit=onemore
 endfunc
 
@@ -2128,7 +2060,7 @@ nnoremap <silent> <script> <S-Up> i
 " Note: Allows adjust the "set virtualedit=onemore" parameter when enter visual
 " mode! By Questor
 nnoremap <silent> <script> v :<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v
-func! GrooVim_AdjustOnEnterVisualMode() range
+func! GrooVim_AdjustOnEnterVisualMode() range abort
   set virtualedit=onemore
 endfunc
 
@@ -2143,17 +2075,17 @@ let g:GrooVim_TabDoViews = {}
 
 " Note: Called through "tabdo", so they run once per tab and each one sees its own
 " "tabpagenr()"! By Questor
-func! GrooVim_TabDoViewSave()
+func! GrooVim_TabDoViewSave() abort
   let g:GrooVim_TabDoViews[tabpagenr()] = winsaveview()
 endfunc
 
-func! GrooVim_TabDoViewRestore()
+func! GrooVim_TabDoViewRestore() abort
   if has_key(g:GrooVim_TabDoViews, tabpagenr())
     call winrestview(g:GrooVim_TabDoViews[tabpagenr()])
   endif
 endfunc
 
-func! TabDo(command)
+func! GrooVim_TabDo(command) abort
   let currTab=tabpagenr()
   " Note: "noautocmd" because this pass is pure bookkeeping and must not fire the
   " tab events that the real command fires! By Questor
@@ -2175,7 +2107,7 @@ func! TabDo(command)
   endif
   exec "tabn " . currTab
 endfunc
-com! -nargs=+ -complete=command Tabdo call TabDo(<q-args>)
+com! -nargs=+ -complete=command Tabdo call GrooVim_TabDo(<q-args>)
 
 nnoremap <silent> <script> <2-Leftmouse> :call GrooVim_SelectNSearch(0, "n")<cr>
 inoremap <silent> <script> <2-Leftmouse> <Esc>:call GrooVim_SelectNSearch(0, "i")<cr>
@@ -2183,7 +2115,7 @@ vnoremap <silent> <script> <2-Leftmouse> :<C-u>call GrooVim_SelectNSearch(0, "v"
 
 " Note: Select and search with a double click and z key otherwise select the
 " word under cursor! By Questor
-func! GrooVim_SelectNSearch(type, mode) range
+func! GrooVim_SelectNSearch(type, mode) range abort
   if expand('%:t') =~ "GrooVim_SearchGuyResults"
     call GrooVim_SearchGuyNavigate()
   else
@@ -2221,7 +2153,7 @@ endfunc
 " Note: Select a range based on first and last positions! By Questor
 let g:lastCursorPos = [0,0]
 let g:GrooVim_SelectRangeInitialize = 1
-func! GrooVim_SelectRange(mod) range
+func! GrooVim_SelectRange(mod) range abort
 
   let l:selDirection = "nothing"
   if g:GrooVim_SelectRangeInitialize == 0 && a:mod == "i"
@@ -2276,7 +2208,7 @@ let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim
 " on disk! By Questor
 let g:GrooVim_OptsPending = []
 
-func! GrooVim_OptsBegin()
+func! GrooVim_OptsBegin() abort
   let g:GrooVim_OptsPending = []
 endfunc
 
@@ -2285,7 +2217,7 @@ endfunc
 " Note: The keeping was written in 2014, in the third argument of
 " "GrooVim_OptsUpdate", and never called from anywhere -- which is why it had a
 " defect in each of its three situations. Now it has a way in! By Questor
-func! GrooVim_OptsEnd()
+func! GrooVim_OptsEnd() abort
 
   let l:answer = GrooVim_GetOptions("Just apply or apply and save", ["a", "s"], "a", "")
 
@@ -2302,7 +2234,7 @@ endfunc
 
 " Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
 let g:optsTemp = []
-func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
+func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 
   let l:CoolAndVimOptsArrayUpdated = []
 
@@ -2369,7 +2301,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently)
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
-func! GrooVim_ConfigureSearchReplace(typeOfConfig) range
+func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
 
   " Note: No header line here. The bar already says "[configuration] [search]" or
   " "[configuration] [replace]", and what an empty answer does is written in the
@@ -2423,7 +2355,7 @@ endfunc
 " Note: A width here is THREE options of Vim at once -- "tabstop", "shiftwidth"
 " and "softtabstop" -- and they only mean what you expect while they agree. The
 " question asks ONCE and moves the three together! By Questor
-func! GrooVim_ConfigureIndent() range
+func! GrooVim_ConfigureIndent() range abort
 
   call GrooVim_OptsBegin()
 
@@ -2461,7 +2393,7 @@ func! GrooVim_ConfigureIndent() range
 
 endfunc
 
-func! GrooVim_ConfigureGeneral() range
+func! GrooVim_ConfigureGeneral() range abort
 
   call GrooVim_OptsBegin()
 
@@ -2481,7 +2413,7 @@ endfunc
 "
 " Note: "IsValid" takes the answer and says whether it serves. A closure carries
 " whatever else the test needs! By Questor
-func! GrooVim_AskUntilValid(prompt, IsValid)
+func! GrooVim_AskUntilValid(prompt, IsValid) abort
   while 1
     let l:answer = input(a:prompt)
     if call(a:IsValid, [l:answer])
@@ -2503,7 +2435,7 @@ endfunc
 " empty answer takes the factory default! By Questor
 " Note: The prompt of a question whose answer is a NUMBER and not one of a list.
 " Same shape as the one above, so the screens read alike! By Questor
-func! GrooVim_NumberToPrompt(factoryDefault, currentValue)
+func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
   if ("" . a:currentValue . "") != ""
@@ -2517,7 +2449,7 @@ endfunc
 " keeps what is in force, anything that is not a width asks again, and the
 " message at the end is what makes the answers STACK into a summary -- see the
 " long note in "GrooVim_GetOptions"! By Questor
-func! GrooVim_GetNumber(question, factoryDefault, currentValue)
+func! GrooVim_GetNumber(question, factoryDefault, currentValue) abort
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
   let l:prompt = a:question . " " .
@@ -2535,7 +2467,7 @@ func! GrooVim_GetNumber(question, factoryDefault, currentValue)
   return l:answer
 endfunc
 
-func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue)
+func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue) abort
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
   let l:prompt = a:question . " " .
@@ -2573,7 +2505,7 @@ endfunc
 " Note: The bracket part of the prompt: the options, which of them is the factory
 " default, and the value in force. In list order, so what you see follows what the
 " caller declared! By Questor
-func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue)
+func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue) abort
 
   let l:parts = []
   for l:option in a:possibleOptions
@@ -2597,7 +2529,7 @@ endfunc
 "
 " Note: The digits are checked with a pattern and not with "str2nr()". Vim reads
 " "3abc" as 3, so the old test took it for a valid three! By Questor
-func! GrooVim_IsRepetitionCount(answer)
+func! GrooVim_IsRepetitionCount(answer) abort
   if a:answer ==# "x"
     return 1
   endif
@@ -2608,12 +2540,12 @@ endfunc
 "
 " Note: Checked with a pattern and not with "str2nr()". Vim reads "3abc" as 3, so
 " a test made of "str2nr()" alone takes it for a valid three! By Questor
-func! GrooVim_IsPositiveNumber(answer)
+func! GrooVim_IsPositiveNumber(answer) abort
   return a:answer =~ '^\d\+$' && str2nr(a:answer) > 0
 endfunc
 
 " Note: Check if a given option is valid! By Questor
-func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption)
+func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) abort
 
   " Note: An empty answer means "keep what is in force", so it is valid exactly
   " when there IS something in force. Checked BEFORE the loop: it never depended
@@ -2642,7 +2574,7 @@ let g:tabChanged = 0
 let g:block_GrooVim_HLNext = 0
 highlight WhiteOnRed ctermbg=red ctermfg=white
 highlight WhiteOnBlue ctermbg=blue ctermfg=white
-func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment)
+func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment) abort
 
   let g:GrooVim_XenPlayRunningWithSearch = 1
 
@@ -2779,7 +2711,7 @@ endfunc
 
 " Note: Sets the type of search to be performed depending on user choice! By Questor
 let g:search_WithList = 0
-func! GrooVim_SearchWithMyOptions(mod) range
+func! GrooVim_SearchWithMyOptions(mod) range abort
 
   let l:callGrooVim_SearchGuy = 1
 
@@ -2791,7 +2723,7 @@ func! GrooVim_SearchWithMyOptions(mod) range
     let g:matchedLinesGlobalNavArray = []
     let g:GrooVim_SearchGuyEnabled = 0
     let l:callGrooVim_SearchGuy = 0
-    call TabDo("call GrooVim_SearchGuyPrepare()")
+    call GrooVim_TabDo("call GrooVim_SearchGuyPrepare()")
 
   endif
 
@@ -2812,7 +2744,7 @@ endfunc
 " Note: "\%V" is the regex atom for "inside the Visual area", and it keeps
 " working after visual mode ended, matching what "gv" would reselect, which is
 " exactly the case here! By Questor
-func! GrooVim_SelectionHighlight()
+func! GrooVim_SelectionHighlight() abort
   try
     return matchadd("Visual", '\%V.\%V\|\%V')
   catch
@@ -2826,7 +2758,7 @@ endfunc
 " Note: The boundaries come from "searchpos()" with the word atoms, and not from
 " walking the string by index, because indexing a String in Vim walks BYTES and
 " would cut an accented word in half! By Questor
-func! GrooVim_WordUnderCursorPos()
+func! GrooVim_WordUnderCursorPos() abort
 
   " Note: Nothing to mark if the cursor is not sitting on a word! By Questor
   if matchstr(getline("."), '\%' . col(".") . 'c.') !~ '\k'
@@ -2847,7 +2779,7 @@ endfunc
 " Note: Marks whatever is being OFFERED on the prompt: the selection in visual
 " mode, the word under the cursor otherwise. Same idea in both, so that the
 " question always has a counterpart on the text! By Questor
-func! GrooVim_OfferHighlight(mod)
+func! GrooVim_OfferHighlight(mod) abort
   if a:mod == "v"
     return GrooVim_SelectionHighlight()
   endif
@@ -2862,7 +2794,7 @@ func! GrooVim_OfferHighlight(mod)
   endtry
 endfunc
 
-func! GrooVim_SelectionHighlightClear(matchId)
+func! GrooVim_SelectionHighlightClear(matchId) abort
   if a:matchId > 0
     silent! call matchdelete(a:matchId)
   endif
@@ -2872,7 +2804,7 @@ endfunc
 let g:search_Direction = "f"
 let g:searchReplace_CaseSensitive = 0
 let g:grooVimSearchFoward = 1
-func! GrooVim_EasySearch(mod) range
+func! GrooVim_EasySearch(mod) range abort
 
   try
 
@@ -2994,7 +2926,7 @@ endfunc
 
 " Note: Organizes occurrences and navigation lists! By Questor
 let g:matchedLines = ""
-func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, column) range
+func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, column) range abort
   if a:linePosition != ""
     let l:linePositionPrefix = "|" . a:linePosition . "|        "
     let g:matchedLines =  g:matchedLines . strpart(l:linePositionPrefix, 0, 8) . a:lineValue . "\n"
@@ -3009,7 +2941,7 @@ func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, c
 endfunc
 
 " Note: Performs search in multiple tabs creating lists of occurrences! By Questor
-func! GrooVim_SearchGuyTraveler(mod) range
+func! GrooVim_SearchGuyTraveler(mod) range abort
 
   " Note: Counted BEFORE knowing whether there is a match, because Notepad++ says
   " "of N searched" about every file it looked at, not only the ones that had
@@ -3062,7 +2994,7 @@ let g:GrooVim_SearchGuyEnabled = 0
 let g:GrooVim_SearchGuyValue = ""
 let g:GrooVim_SearchGuyFilesSearched = 0
 let g:grooVimSearchFowardBlock = 0
-func! GrooVim_SearchGuy(mod) range
+func! GrooVim_SearchGuy(mod) range abort
 
   " Note: Avoid search backward! By Questor
   let g:grooVimSearchFowardBlock = 1
@@ -3080,7 +3012,7 @@ func! GrooVim_SearchGuy(mod) range
   let g:GrooVim_SearchGuyFilesSearched = 0
 
   if g:searchReplace_InAllOpened == 1
-    call TabDo("call GrooVim_SearchGuyTraveler(\"" . a:mod . "\")")
+    call GrooVim_TabDo("call GrooVim_SearchGuyTraveler(\"" . a:mod . "\")")
   else
     call GrooVim_SearchGuyTraveler(a:mod)
   endif
@@ -3111,7 +3043,7 @@ endfunc
 
 " Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed! By Questor
 autocmd! TabEnter * call GrooVim_TabParadise()
-func! GrooVim_TabParadise()
+func! GrooVim_TabParadise() abort
   " Note: If there is a search list this list is open in the current tab if the
   " functionality is enabled! By Questor
   "
@@ -3128,7 +3060,7 @@ func! GrooVim_TabParadise()
   endif
 endfunc
 
-func! GrooVim_SearchGuySyncNow(timer)
+func! GrooVim_SearchGuySyncNow(timer) abort
   " Note: Checked again because the timer runs later and the search may have been
   " ended in the meantime! By Questor
   if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
@@ -3209,7 +3141,7 @@ endif
 
 " Note: When entering a tab opens the occurrences list if the search with list
 " is enabled! By Questor
-func! GrooVim_SearchGuySync()
+func! GrooVim_SearchGuySync() abort
   if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 0
 
     call GrooVim_PutOnEditWindow()
@@ -3237,7 +3169,7 @@ endfunc
 
 " Note: Turns the window into what it really is: a list you read and navigate,
 " never one you type into! By Questor
-func! GrooVim_SearchGuyPanelSetup()
+func! GrooVim_SearchGuyPanelSetup() abort
 
   " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
   " forgot to save: it was showing up as modified and listed in ":ls"! By Questor
@@ -3294,7 +3226,7 @@ endfunc
 " reports it. Everything comes from the navigation array that was already being
 " built: an entry is either an occurrence ("tab,file,line,column") or a "0" for
 " the separators and the file names! By Questor
-func! GrooVim_SearchGuyBar()
+func! GrooVim_SearchGuyBar() abort
 
   let l:hits = 0
   let l:files = {}
@@ -3320,7 +3252,7 @@ endfunc
 " Note: Walks the windows of the CURRENT tab looking for one, and says whether it
 " found it. The name is a pattern for the list and an exact full path for a file!
 " By Questor
-func! GrooVim_SearchGuyFocusWindow(name, byPath)
+func! GrooVim_SearchGuyFocusWindow(name, byPath) abort
   for l:window in range(1, winnr("$"))
     exec l:window . "wincmd w"
     if a:byPath
@@ -3336,7 +3268,7 @@ endfunc
 
 " Note: Whether this tab holds any document of yours, or only accessories! By
 " Questor
-func! GrooVim_SearchGuyTabHasFile()
+func! GrooVim_SearchGuyTabHasFile() abort
   for l:buffer in tabpagebuflist(tabpagenr())
     if !GrooVim_IsHelperBuffer(bufname(l:buffer))
       return 1
@@ -3347,7 +3279,7 @@ endfunc
 
 " Note: The same thing across every tab, because a file can be open somewhere
 " else than where it was when the search ran! By Questor
-func! GrooVim_SearchGuyFindFile(path)
+func! GrooVim_SearchGuyFindFile(path) abort
   let l:tabNow = tabpagenr()
   for l:tab in range(1, tabpagenr("$"))
     exec "tabn " . l:tab
@@ -3368,7 +3300,7 @@ endfunc
 let g:GrooVim_SearchGuyBusy = 0
 " Note: Only the occurrences list, on purpose. NERDTree has its own rule for its
 " own window and two rules pulling the same window would fight! By Questor
-func! GrooVim_SearchGuyCloseIfAlone()
+func! GrooVim_SearchGuyCloseIfAlone() abort
   if g:GrooVim_SearchGuyBusy == 0 && winnr("$") == 1 &&
    \ bufname("%") =~ "GrooVim_SearchGuyResults"
     " Note: Through a timer because Vim refuses to change the window layout from
@@ -3378,7 +3310,7 @@ func! GrooVim_SearchGuyCloseIfAlone()
   endif
 endfunc
 
-func! GrooVim_SearchGuyCloseNow(timer)
+func! GrooVim_SearchGuyCloseNow(timer) abort
   " Note: Checked again because the timer runs later and the window may already
   " have company by then! By Questor
   "
@@ -3405,7 +3337,7 @@ endfunc
 "
 " Note: Only a new search (F3->f) ends the list itself, and it ends
 " it in every tab! By Questor
-func! GrooVim_SearchGuyQuitPre()
+func! GrooVim_SearchGuyQuitPre() abort
   if bufname("%") =~ "GrooVim_SearchGuyResults" && GrooVim_SearchGuyTabHasFile()
     call timer_start(0, "GrooVim_SearchGuyQuitTheFile")
   endif
@@ -3417,7 +3349,7 @@ endfunc
 " the file is closed instead, which is the same as if you had typed ":q" over the
 " file. The list buffer is "wipe", so it really was gone and "Sync" builds a new
 " one! By Questor
-func! GrooVim_SearchGuyQuitTheFile(timer)
+func! GrooVim_SearchGuyQuitTheFile(timer) abort
   if GrooVim_SearchGuyTabHasFile()
     call GrooVim_SearchGuySync()
     if GrooVim_SearchGuyPutOnFileWindow()
@@ -3428,7 +3360,7 @@ endfunc
 
 " Note: Goes to a window holding a document of yours, if this tab has one.
 " Returns 1 when it got there! By Questor
-func! GrooVim_SearchGuyPutOnFileWindow()
+func! GrooVim_SearchGuyPutOnFileWindow() abort
   for l:window in range(1, winnr("$"))
     if !GrooVim_IsHelperBuffer(expand('%:t'))
       return 1
@@ -3447,7 +3379,7 @@ augroup GrooVim_SearchGuyGroup
 augroup END
 
 " Note: Jumps to the occurrence of the line under the cursor! By Questor
-func! GrooVim_SearchGuyNavigate() range
+func! GrooVim_SearchGuyNavigate() range abort
 
   " Note: The list navigation is always forward to facilitate! By Questor
   let g:grooVimSearchFoward = 1
@@ -3533,7 +3465,7 @@ func! GrooVim_SearchGuyNavigate() range
 endfunc
 
 " Note: Prepare "GrooVim_SearchGuy()" for a new run or closes it! By Questor
-func! GrooVim_SearchGuyPrepare()
+func! GrooVim_SearchGuyPrepare() abort
 
   if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 1
 
@@ -3542,7 +3474,7 @@ func! GrooVim_SearchGuyPrepare()
       " "false" positives on "bufexists()" above! By Questor
       exec "bwipeout! GrooVim_SearchGuyResults" . tabpagenr()
     catch
-      
+
     endtry
 
   endif
@@ -3551,7 +3483,7 @@ endfunc
 
 " Note: For debugging purposes. To stop uses "0". Allows a "stop" on the line in that
 " is called and displays a message! By Questor
-func! GrooVim_PauseExecution(msg)
+func! GrooVim_PauseExecution(msg) abort
   echo "msg: \"" . a:msg . "\""
   while getchar() != 48
     exec "sleep 1000m"
@@ -3568,7 +3500,7 @@ vnoremap <silent> <Enter> "_xi<cr><Esc>
 nnoremap <silent> <script> <Del> :call GrooVim_NormalDel()<cr>
 
 " Note: Treat a string and return a substring to use in prompts! By Questor
-func! GrooVim_SubstringToPrompt(stringToBeTreated)
+func! GrooVim_SubstringToPrompt(stringToBeTreated) abort
   let l:lineSplited = split(a:stringToBeTreated, "\n")
   let l:transferAreaToShow = ""
   try
@@ -3593,7 +3525,7 @@ let g:configureGrooVim_EntertainmentReplace_Confirmation = 1
 let g:searchReplace_InAllOpened = 0
 let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
 let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 1
-func! GrooVim_EntertainmentReplace(mod) range
+func! GrooVim_EntertainmentReplace(mod) range abort
 
   " Note: Where the cursor was before anything happened. Notepad++ puts the caret
   " back where it was once a "Replace All" finishes, and ":substitute" leaves it on
@@ -3752,7 +3684,7 @@ func! GrooVim_EntertainmentReplace(mod) range
     let g:tryCathOnTabDo = 1
     let g:keepCursorOnTabDo = 1
     try
-      call TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
+      call GrooVim_TabDo("%s#" . l:pattern . "#" . l:valueThatWillReplace . "#" . l:confirmOrNot)
     finally
       let g:tryCathOnTabDo = 0
       let g:keepCursorOnTabDo = 0
@@ -3781,7 +3713,7 @@ endfunc
 " Note: "gdefault" is turned off while counting because it INVERTS the meaning of
 " the "g" flag: with it on, "g" would ask for only the FIRST match per line and
 " the count would come out short! By Questor
-func! GrooVim_CountOccurrences(pattern, firstLine, lastLine)
+func! GrooVim_CountOccurrences(pattern, firstLine, lastLine) abort
 
   if a:pattern == "" || a:firstLine > a:lastLine || a:firstLine < 1
     return 0
@@ -3807,7 +3739,7 @@ endfunc
 
 " Note: Create a search pattern! The "/" is escaped because it separates a
 " search command and the "#" because it separates a ":substitute" command! By Questor
-func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat)
+func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat) abort
   let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]#')
   let l:pattern = substitute(l:pattern, "\n$", "", "")
   return l:pattern
@@ -3816,7 +3748,7 @@ endfunc
 " Note: Create a ":substitute" REPLACEMENT value! The special chars here are not
 " the same of a pattern: "&" means the whole match and "~" the previous
 " replacement. The "#" is the separator we use! By Questor
-func! GrooVim_EscapeSubstituteReplacement(valueToTreat)
+func! GrooVim_EscapeSubstituteReplacement(valueToTreat) abort
   let l:replacement = escape(a:valueToTreat, '\\&~#')
   let l:replacement = substitute(l:replacement, "\n$", "", "")
   return l:replacement
@@ -3825,7 +3757,7 @@ endfunc
 " Note: Milliseconds, used by the CommandZ timing. This used to call
 " "/bin/date", which means forking a shell on EVERY F key press. "reltime()" is
 " built into Vim and costs nothing! By Questor
-func! GrooVim_GetMilliseconds()
+func! GrooVim_GetMilliseconds() abort
   if exists("*reltimefloat")
     return float2nr(reltimefloat(reltime()) * 1000)
   endif
@@ -3881,12 +3813,12 @@ let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_Home . "/se
 " terminal the size belongs to the terminal! By Questor
 set sessionoptions=buffers,curdir,tabpages
 
-func! GrooVim_SessionSave()
+func! GrooVim_SessionSave() abort
   call mkdir(fnamemodify(g:GrooVim_SessionFile, ":h"), "p")
   exec "mksession! " . fnameescape(g:GrooVim_SessionFile)
 endfunc
 
-func! GrooVim_SessionLoad()
+func! GrooVim_SessionLoad() abort
   if !filereadable(g:GrooVim_SessionFile)
     return
   endif
@@ -3901,7 +3833,7 @@ endfunc
 "
 " Note: And with nothing left to show, the welcome screen comes back: an empty
 " Vim that hides its own welcome looks like something went wrong! By Questor
-func! GrooVim_SessionDropGhosts()
+func! GrooVim_SessionDropGhosts() abort
 
   for l:buffer in getbufinfo({"buflisted": 1})
     if l:buffer.name != "" && !filereadable(l:buffer.name)
@@ -3938,7 +3870,7 @@ augroup END
 " Note: By hand only when it is not automatic. With the session saving itself,
 " saving it again by hand would be a command that does nothing you can see -- so
 " it says so instead of pretending! By Questor
-func! GrooVim_SessionSaveByHand()
+func! GrooVim_SessionSaveByHand() abort
   if g:GrooVim_SessionAuto == 1
     call GrooVim_GrooVimBarMsg("The session already saves itself! Turn it off with F5->c!", 6)
     return
@@ -3947,7 +3879,7 @@ func! GrooVim_SessionSaveByHand()
   call GrooVim_GrooVimBarMsg("Session saved!", 5)
 endfunc
 
-func! GrooVim_SessionLoadByHand()
+func! GrooVim_SessionLoadByHand() abort
   if g:GrooVim_SessionAuto == 1
     call GrooVim_GrooVimBarMsg("The session comes back by itself! Turn it off with F5->c!", 6)
     return
@@ -3964,7 +3896,7 @@ endfunc
 " Note: ":confirm" is what turns the refusal of Vim -- "E37: No write since last
 " change" -- into a question you can answer: save, throw away, or go back. Writing
 " that by hand would be repeating what Vim already knows! By Questor
-func! GrooVim_CloseAsking(command)
+func! GrooVim_CloseAsking(command) abort
   exec "confirm " . a:command
 endfunc
 
@@ -3996,7 +3928,7 @@ endfunc
 " unsaved text is asked about before anything happens. Answering "Cancel" leaves
 " the buffer where it was, and the "if" below sees that nothing moved and wipes
 " nothing! By Questor
-func! GrooVim_TabClose()
+func! GrooVim_TabClose() abort
 
   if tabpagenr("$") > 1
     confirm tabclose
@@ -4022,7 +3954,7 @@ func! GrooVim_TabClose()
 
 endfunc
 
-func! GrooVim_TabCloseSide(side)
+func! GrooVim_TabCloseSide(side) abort
   while 1
     let l:target = a:side > 0 ? tabpagenr() + 1 : tabpagenr() - 1
     if l:target < 1 || l:target > tabpagenr("$")
@@ -4057,7 +3989,7 @@ let g:GrooVim_CommandZMoment = 0
 let g:GrooVim_CommandZChar = ""
 let g:GrooVim_CommandZUnblock = 1
 let g:GrooVim_CommandZFCaller = ""
-func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType)
+func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
 
   let l:GrooVim_CommandZNowChar = ""
 
@@ -4448,7 +4380,7 @@ endif
 " Note: The two keys a shortcut is made of, ready to be pressed: the F key and
 " then the letter -- or the real key code, for the ones that are not letters! By
 " Questor
-func! GrooVim_ShortcutKeys(one)
+func! GrooVim_ShortcutKeys(one) abort
   let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
    \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
   let l:second = has_key(l:named, a:one.key)
@@ -4458,7 +4390,7 @@ endfunc
 
 " Note: How a shortcut is written for a human: "F5->n", the notation every
 " message of GrooVim uses! By Questor
-func! GrooVim_ShortcutShown(one)
+func! GrooVim_ShortcutShown(one) abort
   let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
   return a:one.group . "->" . get(l:named, a:one.key, a:one.key)
 endfunc
@@ -4471,7 +4403,7 @@ endfunc
 " Note: The bars become a SPACE and not nothing: in the help they are what
 " separates the word from the text around it, so dropping them would glue
 " "file.vimrc" together! By Questor
-func! GrooVim_ShortcutPlain(text)
+func! GrooVim_ShortcutPlain(text) abort
   let l:plain = substitute(a:text, '[|*]', " ", "g")
   return trim(substitute(l:plain, '  \+', " ", "g"))
 endfunc
@@ -4483,7 +4415,7 @@ endfunc
 " line would otherwise run past the edge and it is the RIGHT side that is lost --
 " which is the shortcut, the one thing a menu of a keyboard editor is for! By
 " Questor
-func! GrooVim_MenuLine(one, room)
+func! GrooVim_MenuLine(one, room) abort
   let l:what = GrooVim_ShortcutPlain(a:one.what)
   if strchars(l:what) > a:room
     let l:what = strcharpart(l:what, 0, a:room - 1) . "…"
@@ -4494,7 +4426,7 @@ endfunc
 
 " Note: The shortcuts of one section, how much room the descriptions may take,
 " and how wide the whole thing comes out! By Questor
-func! GrooVim_MenuOf(group, startColumn)
+func! GrooVim_MenuOf(group, startColumn) abort
 
   let l:entries = []
   let l:what = 0
@@ -4516,7 +4448,7 @@ endfunc
 " Note: The bar, and where on it each section begins -- the popup needs the
 " column to put itself under the right one, and the mouse needs it to know which
 " one was clicked! By Questor
-func! GrooVim_MenuBarText()
+func! GrooVim_MenuBarText() abort
   let l:text = ""
   let l:at = []
   for l:group in g:GrooVim_ShortcutGroups
@@ -4527,7 +4459,7 @@ func! GrooVim_MenuBarText()
   return [l:text, l:at]
 endfunc
 
-func! GrooVim_MenuPaintBar()
+func! GrooVim_MenuPaintBar() abort
   let [l:text, l:at] = GrooVim_MenuBarText()
   let l:here = l:at[s:menuSection]
   call popup_settext(s:menuBar, [{"text": l:text,
@@ -4537,7 +4469,7 @@ endfunc
 " Note: The names the colours are painted through. "prop_type_add" throws when
 " the name is already there, which it is the second time you open the menu! By
 " Questor
-func! GrooVim_MenuColours()
+func! GrooVim_MenuColours() abort
   for l:pair in [["GrooVimMenuOn", "PopupSelected"],
    \ ["GrooVimMenuKey", "GrooVimMenuKey"], ["GrooVimMenuRule", "GrooVimMenuRule"]]
     try
@@ -4547,7 +4479,7 @@ func! GrooVim_MenuColours()
   endfor
 endfunc
 
-func! GrooVim_Menu()
+func! GrooVim_Menu() abort
 
   if !has("popupwin") || !exists("*prop_type_add")
     call GrooVim_GrooVimBarMsg("This Vim has no popup windows! Use F9 for the help!", 6)
@@ -4575,7 +4507,7 @@ endfunc
 " Note: Vim hides the cursor before a redraw with "t_vi" and shows it again after
 " with "t_ve". Emptying "t_ve" takes the showing away, so the next redraw hides it
 " and nothing brings it back until the string is handed over again! By Questor
-func! GrooVim_MenuHideCursor()
+func! GrooVim_MenuHideCursor() abort
   if s:menuCursorWas ==# ""
     let s:menuCursorWas = &t_ve
     set t_ve=
@@ -4587,7 +4519,7 @@ endfunc
 " brings the cursor back. Handing "t_ve" over again is only half of it: on the
 " way out there is no redraw left to emit it, and GrooVim would give you your
 " shell back with no cursor in it! By Questor
-func! GrooVim_MenuShowCursor()
+func! GrooVim_MenuShowCursor() abort
   if s:menuCursorWas !=# ""
     let &t_ve = s:menuCursorWas
     let s:menuCursorWas = ""
@@ -4614,7 +4546,7 @@ augroup END
 
 " Note: Opens the section, wrapping round at either end the way a menu bar does!
 " By Questor
-func! GrooVim_MenuOpen(section)
+func! GrooVim_MenuOpen(section) abort
 
   let l:count = len(g:GrooVim_ShortcutGroups)
   let s:menuSection = (a:section + l:count) % l:count
@@ -4690,7 +4622,7 @@ endfunc
 
 " Note: Moves down or up, STEPPING OVER the rules: they are lines of the popup
 " but they are not choices! By Questor
-func! GrooVim_MenuStep(step)
+func! GrooVim_MenuStep(step) abort
 
   let l:total = len(g:GrooVim_MenuEntries)
   if l:total == 0
@@ -4716,7 +4648,7 @@ endfunc
 
 " Note: Left and Right walk the bar, an F key jumps to its own section, the mouse
 " clicks where it likes, and the rest is what a menu does! By Questor
-func! GrooVim_MenuFilter(id, key)
+func! GrooVim_MenuFilter(id, key) abort
 
   if a:key ==# "\<Left>"
     call GrooVim_MenuOpen(s:menuSection - 1)
@@ -4768,7 +4700,7 @@ func! GrooVim_MenuFilter(id, key)
   return 1
 endfunc
 
-func! GrooVim_MenuClicked(id)
+func! GrooVim_MenuClicked(id) abort
 
   let l:where = getmousepos()
 
@@ -4797,7 +4729,7 @@ func! GrooVim_MenuClicked(id)
   return 1
 endfunc
 
-func! GrooVim_MenuClose()
+func! GrooVim_MenuClose() abort
   call GrooVim_MenuShowCursor()
   if s:menuDrop > 0
     let s:menuSwitching = 1
@@ -4811,7 +4743,7 @@ func! GrooVim_MenuClose()
   endif
 endfunc
 
-func! GrooVim_MenuEntryChosen(id, chosen)
+func! GrooVim_MenuEntryChosen(id, chosen) abort
 
   " Note: A step sideways closed the old list, and this is only its echo! By
   " Questor
@@ -4847,7 +4779,7 @@ vnoremap <silent> <script> <F10> :<C-u>call GrooVim_Menu()<cr>
 
 " Note: The windows that are accessories of a tab and not documents of yours. In
 " one place because more than one thing needs to know it! By Questor
-func! GrooVim_IsHelperBuffer(name)
+func! GrooVim_IsHelperBuffer(name) abort
   return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "NERD_tree_" ||
    \ a:name =~ "GrooVimHelp"
 endfunc
@@ -4857,7 +4789,7 @@ endfunc
 " Note: It walks the windows a bounded number of times. It used to be a "while"
 " that pressed "<C-w>" until it landed on an editor: with nothing but accessories
 " open that day never came and Vim froze! By Questor
-func! GrooVim_PutOnEditWindow() range
+func! GrooVim_PutOnEditWindow() range abort
   for l:window in range(1, winnr("$"))
     if !GrooVim_IsHelperBuffer(expand('%:t'))
       return
@@ -4888,7 +4820,7 @@ endfunc
 " "new 2" again. That is how Notepad++ hands them out, and a counter would have
 " you at "new 47" on a morning when three documents were ever open at once! By
 " Questor
-func! GrooVim_NewNameOf(buffer)
+func! GrooVim_NewNameOf(buffer) abort
 
   if !GrooVim_IsADocument(a:buffer)
     return ""
@@ -4932,19 +4864,19 @@ endfunc
 " Note: A document of yours that has never been saved -- which is what gets a
 " "new N". Not a file (it has a name), not an accessory of a tab (the occurrence
 " list and the help are not buffers you edit)! By Questor
-func! GrooVim_IsADocument(buffer)
+func! GrooVim_IsADocument(buffer) abort
   return bufname(a:buffer) == "" && getbufvar(a:buffer, "&buftype") == ""
    \ && buflisted(a:buffer)
 endfunc
 
 " Note: What the bar calls the file of the window being drawn. It is "%f" plus
 " the "new N" above! By Questor
-func! GrooVim_FileLabel()
+func! GrooVim_FileLabel() abort
   let l:name = GrooVim_NewNameOf(bufnr("%"))
   return l:name != "" ? l:name : expand("%")
 endfunc
 
-func! GrooVim_TabLabel(tab)
+func! GrooVim_TabLabel(tab) abort
   let l:buffers = tabpagebuflist(a:tab)
   let l:chosen = l:buffers[tabpagewinnr(a:tab) - 1]
 
@@ -4976,7 +4908,7 @@ endfunc
 " Note: Like the tab line Vim draws by itself, with the same window count and the
 " same "+" for modified, except that only YOUR documents are counted: an
 " accessory is not a window you opened! By Questor
-func! GrooVim_TabLine()
+func! GrooVim_TabLine() abort
   let l:line = ""
 
   for l:tab in range(1, tabpagenr("$"))
@@ -5006,7 +4938,7 @@ endfunc
 set tabline=%!GrooVim_TabLine()
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
-func! GrooVim_ToogleGrooVimHelp() range
+func! GrooVim_ToogleGrooVimHelp() range abort
 
   if bufexists("GrooVimHelp") == 0
 
@@ -5021,7 +4953,17 @@ func! GrooVim_ToogleGrooVimHelp() range
     exec "put =g:GrooVimHelp"
     exec "norm ggdd"
     setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
-    setlocal syntax=help
+    " Note: The help syntax of Vim answers "E403: syntax sync: Line continuations
+    " pattern specified twice" when it is loaded onto a buffer that is not a real
+    " help FILE. Measured with nothing but "syntax on" in the vimrc, so it is not
+    " GrooVim's to fix, and it colours the text correctly all the same.
+    "
+    " Note: Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
+    " message is read later as a real one, by a human and by the battery alike!
+    " By Questor
+    let l:errmsgWas = v:errmsg
+    silent! setlocal syntax=help
+    let v:errmsg = l:errmsgWas
     let &l:statusline = "%!GrooVim_GrooVimHelpBar()"
     " Note: The help was WRITTEN into, so Vim marks it changed and the bar shows
     " a "+" on a buffer nobody can change! By Questor
@@ -5035,7 +4977,7 @@ func! GrooVim_ToogleGrooVimHelp() range
 endfunc
 
 " Note: Get current filename or filename and path and put on transfer area! By Questor
-func! GrooVim_GetFileNameAndPath() range
+func! GrooVim_GetFileNameAndPath() range abort
 
   let l:filenameOrFilenameAndPath = ""
 
@@ -5054,7 +4996,7 @@ func! GrooVim_GetFileNameAndPath() range
 endfunc
 
 " Note: Record a macro! By Questor
-func! GrooVim_XenRec() range
+func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its
   " own for one job, and "F5" is now the file commands! By Questor
@@ -5077,7 +5019,7 @@ endfunc
 " would fire CommandZ in the middle of your own keys. Measured on the register,
 " the tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
 " modifier mark in front! By Questor
-func! GrooVim_XenRecTrimKey()
+func! GrooVim_XenRecTrimKey() abort
   " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
   " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
   " on its own it is not valid UTF-8. The key itself, written as "\<F2>", carries
@@ -5091,7 +5033,7 @@ endfunc
 
 " Note: Run a macro certain number of times or repeatedly until the last line! By Questor
 let g:GrooVim_XenPlayRunningWithSearch = 0
-func! GrooVim_XenPlay(repeatExecution) range
+func! GrooVim_XenPlay(repeatExecution) range abort
 
   if a:repeatExecution == 0
     exec "norm @a"
@@ -5228,7 +5170,7 @@ endfunc
 " Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
 " BEFORE the cursor. Going through the mappings here made the copy land one
 " character too early, turning "DUPLICAR" into "DUPLICADUPLICARR"! By Questor
-func! GrooVim_DuplicateVisualSelection() range
+func! GrooVim_DuplicateVisualSelection() range abort
   let l:saved_reg = GrooVim_ClipGet()
   exec "norm! gvygv\<Esc>p"
   call GrooVim_ClipSet(l:saved_reg)
@@ -5251,7 +5193,7 @@ nnoremap <silent> <leader>z/ :nohlsearch<cr>
 
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
-func! GrooVim_SaveACopy() range
+func! GrooVim_SaveACopy() range abort
 
     let l:valueToPath = ""
     let l:stopWhile = 0
@@ -5313,7 +5255,7 @@ func! GrooVim_SaveACopy() range
 endfunc
 
 " Note: Saves to disk! By Questor
-func! GrooVim_VisualWrite() range
+func! GrooVim_VisualWrite() range abort
   " Note: Write! By Questor
   exec "w"
   " Note: Reselect area! By Questor
@@ -5342,7 +5284,7 @@ endfunc
 " end of a line. There is no word there, and "iw" then took only the last letter:
 " changing the case of "total" gave back "totaL". Anything that works on "the
 " word under the cursor" has to step onto the text first! By Questor
-func! GrooVim_StepOntoTheText()
+func! GrooVim_StepOntoTheText() abort
   let l:width = strlen(getline("."))
   if col(".") > l:width
     call cursor(line("."), max([1, l:width]))
@@ -5354,14 +5296,14 @@ endfunc
 " Note: This used to be "norm gUiwe", and the "e" walks to the end of the word --
 " so changing the case of a word you were in the middle of moved you to its last
 " letter. Changing the case of a word is not a movement! By Questor
-func! GrooVim_CaseOfTheWord(which)
+func! GrooVim_CaseOfTheWord(which) abort
   let l:view = winsaveview()
   call GrooVim_StepOntoTheText()
   exec "norm! g" . a:which . "iw"
   call winrestview(l:view)
 endfunc
 
-func! GrooVim_ToTitleCase(modType) range
+func! GrooVim_ToTitleCase(modType) range abort
 
   let l:search = @/
 
@@ -5399,7 +5341,7 @@ func! GrooVim_ToTitleCase(modType) range
 
 endfunc
 
-func! GrooVim_ToUpperLower(modType) range
+func! GrooVim_ToUpperLower(modType) range abort
   " Note: Reselect area! By Questor
   exec "norm gv"
 
@@ -5465,7 +5407,7 @@ let g:GrooVim_GrooVimBarMsgValue = ""
 let g:GrooVim_GrooVimBarMsgMoment = 0
 let g:GrooVim_GrooVimBarMsgEnabled = 0
 let g:GrooVim_GrooVimBarMsgDuration = 0
-func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
+func! GrooVim_GrooVimBarMsg(msgValue, msgDuration) abort
 
   if g:GrooVim_CheckCapsLockReturn == 0
     if a:msgValue != ""
@@ -5496,7 +5438,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration)
 endfun
 
 " Note: Drops a timed message from the bar once its time is over! By Questor
-func! GrooVim_GrooVimBarMsgExpire()
+func! GrooVim_GrooVimBarMsgExpire() abort
   if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0
     if (localtime() - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
       call GrooVim_GrooVimBarMsg("", "")
@@ -5512,11 +5454,11 @@ set laststatus=2
 " By Questor
 " Note: Where you are: the encoding, the flags of the buffer, the type, the line
 " and the column. The half of the bar that every window wants! By Questor
-func! GrooVim_GrooVimBarWhere()
+func! GrooVim_GrooVimBarWhere() abort
   return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
 
-func! GrooVim_GrooVimBar()
+func! GrooVim_GrooVimBar() abort
 
   let l:barContents = '%{GrooVim_FileLabel()} ' . GrooVim_GrooVimBarWhere()
 
@@ -5535,7 +5477,7 @@ endfun
 " banner of a DOCUMENT of yours. And no messages: an invitation to press F9 does
 " not belong on the bar of the thing F9 opened. The occurrence list has a bar of
 " its own for the same reasons! By Questor
-func! GrooVim_GrooVimHelpBar()
+func! GrooVim_GrooVimHelpBar() abort
   return "%f [%l/%L,%v] [%p%%]"
 endfunc
 set stl=%!GrooVim_GrooVimBar()
@@ -5575,7 +5517,7 @@ endif
 " "reverse", which SWAPS foreground and background and would show blue letters on
 " a white block instead of white on blue! By Questor
 let g:GrooVim_ReplaceHighlight = get(g:, "GrooVim_ReplaceHighlight", "cterm=NONE gui=NONE ctermbg=blue ctermfg=white guibg=blue guifg=white")
-func! GrooVim_SetReplaceHighlight()
+func! GrooVim_SetReplaceHighlight() abort
   try
     exec "highlight IncSearch " . g:GrooVim_ReplaceHighlight
   catch
@@ -5606,13 +5548,13 @@ let g:cursorColorBlock = 0
 " AND forked "konsoleprofile" three times (on load, on VimEnter and on
 " VimLeave). This speaks to any terminal that listens (Konsole, xterm, kitty,
 " alacritty, foot, wezterm...), forks nothing and works over SSH! By Questor
-func! SetCursorColor()
+func! GrooVim_CursorColorSet() abort
   let &t_SI = "\<Esc>]12;" . g:cursorColorI . "\x7"
   let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
 endfun
 
 " Note: Sends the color to the terminal right now! By Questor
-func! GrooVim_CursorColorEmit(color)
+func! GrooVim_CursorColorEmit(color) abort
   if exists("*echoraw")
     call echoraw("\<Esc>]12;" . a:color . "\x7")
   endif
@@ -5623,7 +5565,7 @@ endfunc
 " Note: "t_SI"/"t_EI" only know insert from everything else, so they cannot tell
 " visual from normal. The "ModeChanged" event can, and it is what paints visual
 " blue! By Questor
-func! GrooVim_CursorColorForMode()
+func! GrooVim_CursorColorForMode() abort
   " Note: Not while GroovyMove is travelling out of insert mode: there the cursor
   " belongs to insert from end to end! By Questor
   if g:GrooVim_GroovyMoveOnInsert == 1
@@ -5644,7 +5586,7 @@ endfunc
 
 " Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
 " insert mode! By Questor
-func! GrooVim_CursorColorNow()
+func! GrooVim_CursorColorNow() abort
   if g:GrooVim_GroovyMoveOnInsert == 1
     return
   endif
@@ -5652,7 +5594,7 @@ func! GrooVim_CursorColorNow()
 endfunc
 
 " Note: Gives the cursor back to the terminal when leaving! By Questor
-func! GrooVim_CursorColorReset()
+func! GrooVim_CursorColorReset() abort
   if exists("*echoraw")
     call echoraw("\<Esc>]112\x7")
   endif
@@ -5674,7 +5616,7 @@ if g:GrooVim_CursorColorEnabled
   augroup end
   if !exists("##ModeChanged")
     " Note: Older Vim: insert against everything else is all we get! By Questor
-    call SetCursorColor()
+    call GrooVim_CursorColorSet()
   endif
 endif
 
@@ -5709,7 +5651,7 @@ set undolevels=1000
 " Note: Ignore case when searching! By Questor
 set ignorecase
 
-" Note: When searching try to be smart about cases! By Questor 
+" Note: When searching try to be smart about cases! By Questor
 " set smartcase
 
 " Note: Makes search act like search in modern browsers ("highlight"
@@ -5945,7 +5887,7 @@ let g:GrooVim_Shortcuts = [
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
 " named key gets its capital back; punctuation is wrapped in bars, because the
 " help syntax of Vim would otherwise eat a "/" or a "[" ! By Questor
-func! GrooVim_ShortcutKeyShown(key)
+func! GrooVim_ShortcutKeyShown(key) abort
   let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
    \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
   let l:name = get(l:named, a:key, a:key)
@@ -5957,7 +5899,7 @@ endfunc
 
 " Note: Which modes a key answers in, spelled the way the help spells it! By
 " Questor
-func! GrooVim_ShortcutModes(modes)
+func! GrooVim_ShortcutModes(modes) abort
   let l:spelled = []
   for l:pair in [["n", "normal mode"], ["i", "insert"], ["v", "visual"]]
     if stridx(a:modes, l:pair[0]) >= 0
@@ -5969,7 +5911,7 @@ endfunc
 
 " Note: The F group sections of the help, written out of the list above! By
 " Questor
-func! GrooVim_ShortcutsHelp()
+func! GrooVim_ShortcutsHelp() abort
 
   let l:out = []
 
