@@ -72,18 +72,42 @@ func! GrooVim_TerminalDoesOSC52() abort
   return 1
 endfunc
 
-if g:GrooVim_EnableOSC52 && exists("v:clipproviders") && exists("+clipmethod")
+" Note: Puts OSC 52 into the cascade, or takes it out. A function and not a
+" block that runs once, because the general settings screen turns this on and
+" off while GrooVim is RUNNING, and an answer that only took effect after a
+" restart would be a lie. Called once as GrooVim loads, and again on every
+" change! By Questor
+func! GrooVim_OSC52Apply() abort
+
+  if !exists("v:clipproviders") || !exists("+clipmethod")
+    return
+  endif
+
+  if !g:GrooVim_EnableOSC52
+    if &clipmethod =~ "osc52"
+      let &clipmethod = join(filter(split(&clipmethod, ","), 'v:val !=# "osc52"'), ",")
+    endif
+    " Note: The register is worked out once and remembered, so it has to be
+    " forgotten here or the next copy still goes where it used to! By Questor
+    let g:GrooVim_ClipRegCache = ""
+    silent! clipreset
+    return
+  endif
+
   let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
   try
     packadd osc52
     if &clipmethod !~ "osc52"
       set clipmethod+=osc52
     endif
+    let g:GrooVim_ClipRegCache = ""
     " Note: Makes Vim pick a clipmethod again now that the provider exists! By Questor
     silent! clipreset
   catch
   endtry
-endif
+
+endfunc
+call GrooVim_OSC52Apply()
 
 " Note: A clipboard provider backed by an external tool, used ONLY when the tool
 " is ALREADY installed. This is what makes PASTE from another application work:

@@ -83,7 +83,9 @@ endfunc
 " sources everything in "~/.vim/plugin" by itself, so the file was being run by
 " the Vim of the system too. GrooVim is reached through the "groovim" command,
 " and what it saves has to stay on its side of that line! By Questor
-let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim")
+" Note: "g:GrooVim_OptsFile" is defined in the ".vimrc": the file is read there,
+" before any part of GrooVim, so the path has to be known before this one
+" runs! By Questor
 
 " Note: What the screen you are on has changed, so the question at the end can
 " write it all down if you say to keep it.
@@ -286,6 +288,18 @@ func! GrooVim_ConfigureGeneral() range abort
    \ [0,1], 1, g:GrooVim_SessionAuto)
   call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
    \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
+
+  " Note: Only ONE question for the clipboard, and not the two variables this
+  " grew from. "g:osc52_force_avail" belonged to a time when GrooVim kept a list
+  " of terminals known to do OSC 52 and had to be told when yours was not on it.
+  " There is no list any more -- it is tried wherever there is a terminal -- so
+  " the only thing left to decide is whether to try at all! By Questor
+  let g:GrooVim_EnableOSC52 = GrooVim_GetOptions(
+   \ "Let a copy leave through the terminal (OSC 52, this is what crosses SSH)",
+   \ [0,1], 1, g:GrooVim_EnableOSC52)
+  call GrooVim_OptsUpdate("let g:GrooVim_EnableOSC52 =",
+   \ "let g:GrooVim_EnableOSC52 = " . g:GrooVim_EnableOSC52, 0)
+  call GrooVim_OSC52Apply()
 
   call GrooVim_OptsEnd()
 

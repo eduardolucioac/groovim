@@ -71,4 +71,64 @@ let g:GT_R = GrooVim_AskUntilValid("Test: ", {a -> GrooVim_IsRepetitionCount(a)}
 call feedkeys("", "x")
 call GT_Ok("a bad one and then the x", g:GT_R ==# "x", "   [" . g:GT_R . "]")
 
+" ---- the general settings screen, and the clipboard question in it
+"
+" A setting that only took effect after a restart would be a lie, so this
+" exercises the screen and then looks at the cascade, not at the variable.
+let g:GT_KeptOSC = g:GrooVim_EnableOSC52
+let g:GT_KeptSession = g:GrooVim_SessionAuto
+
+call feedkeys("1\<CR>0\<CR>a\<CR>", "t")
+call GrooVim_ConfigureGeneral()
+call feedkeys("", "x")
+call GT_Ok("F5->c asks about the clipboard too", g:GrooVim_EnableOSC52 == 0,
+  \ "   (answered 0)")
+if exists("+clipmethod")
+  call GT_Ok("  and saying no takes OSC 52 out of the cascade AT ONCE",
+    \ &clipmethod !~ "osc52", "   [" . &clipmethod . "]")
+endif
+
+call feedkeys("1\<CR>1\<CR>a\<CR>", "t")
+call GrooVim_ConfigureGeneral()
+call feedkeys("", "x")
+call GT_Ok("saying yes puts it back", g:GrooVim_EnableOSC52 == 1, "")
+if exists("+clipmethod")
+  call GT_Ok("  and the cascade has it again, still last",
+    \ &clipmethod =~ "osc52$", "   [" . &clipmethod . "]")
+endif
+
+let g:GrooVim_EnableOSC52 = g:GT_KeptOSC
+let g:GrooVim_SessionAuto = g:GT_KeptSession
+call GrooVim_OSC52Apply()
+
+" ---- what makes a KEPT answer work at all
+"
+" The answers you keep are read before any part of GrooVim, so that they win
+" over the defaults. That only holds while every default is written as
+" "get(g:, "name", ...)": a plain assignment would run over the kept value
+" instead, silently. Seven of them were plain assignments until this moved.
+let g:GT_Plain = []
+let g:GT_Source = GT_SourceLines()
+for g:GT_Line in g:GT_Source
+  " A digit belongs to the name: "EnableOSC52" came out as "EnableOSC" while
+  " this read letters only, and the check failed on a name that does not exist.
+  let g:GT_Name = matchstr(g:GT_Line, 'GrooVim_OptsUpdate("let g:\zs[A-Za-z_0-9]\+')
+  if g:GT_Name ==# "" | continue | endif
+  if empty(filter(copy(g:GT_Source), 'v:val =~ "^let g:" . g:GT_Name . " = get(g:, "'))
+    call add(g:GT_Plain, g:GT_Name)
+  endif
+endfor
+call GT_Ok("every kept answer has a default that gives way to it", empty(g:GT_Plain),
+  \ "   " . (empty(g:GT_Plain) ? "(all of them)" : string(g:GT_Plain)))
+
+" ---- and the file is read before the parts, not after them
+let g:GT_Vimrc = readfile($GROOVIM_TEST_VIMRC)
+let g:GT_ReadAt = match(g:GT_Vimrc, 'source " . fnameescape(g:GrooVim_OptsFile)')
+let g:GT_PartsAt = match(g:GT_Vimrc, '^\s*exec "source " . fnameescape(s:GrooVim_File)')
+call GT_Ok("the .vimrc reads the kept answers", g:GT_ReadAt >= 0,
+  \ "   (line " . (g:GT_ReadAt + 1) . ")")
+call GT_Ok("  BEFORE it loads a single part",
+  \ g:GT_ReadAt >= 0 && g:GT_PartsAt > g:GT_ReadAt,
+  \ "   (kept answers on line " . (g:GT_ReadAt + 1) . ", the parts on line " . (g:GT_PartsAt + 1) . ")")
+
 call GT_Done()

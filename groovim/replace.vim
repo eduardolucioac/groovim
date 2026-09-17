@@ -20,10 +20,10 @@ func! GrooVim_SubstringToPrompt(stringToBeTreated) abort
 endfunc
 
 " Note: Searches for current selection or word under cursor! By Questor
-let g:configureGrooVim_EntertainmentReplace_Confirmation = 1
-let g:searchReplace_InAllOpened = 0
-let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = 1
-let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = 1
+let g:configureGrooVim_EntertainmentReplace_Confirmation = get(g:, "configureGrooVim_EntertainmentReplace_Confirmation", 1)
+let g:searchReplace_InAllOpened = get(g:, "searchReplace_InAllOpened", 0)
+let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = get(g:, "configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced", 1)
+let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = get(g:, "configureGrooVim_EntertainmentReplace_FromCurrentPosition", 1)
 func! GrooVim_EntertainmentReplace(mod) range abort
 
   " Note: Where the cursor was before anything happened. Notepad++ puts the caret

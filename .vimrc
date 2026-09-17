@@ -345,6 +345,12 @@ let g:GrooVim_Vimrc = get(g:, "GrooVim_Vimrc",
 let g:GrooVim_State = get(g:, "GrooVim_State",
  \ $GROOVIM_STATE != "" ? expand($GROOVIM_STATE) : g:GrooVim_Home)
 
+" Where the answers you chose to KEEP are written down. Defined here and not in
+" the "options" part, because the file is READ before any part of GrooVim runs,
+" so the path has to exist before them. It lives with the code and not with the
+" state: it is a choice, not something this run leaves behind.
+let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim")
+
 for s:GrooVim_Dir in [g:GrooVim_Home, g:GrooVim_State]
   if !isdirectory(s:GrooVim_Dir)
     call mkdir(s:GrooVim_Dir, "p")
@@ -424,6 +430,22 @@ let s:GrooVim_Parts = [
  \ ["usability",   "small comforts, and the encoding"],
  \ ["help",        "the help of F9, written out of the list of shortcuts"],
  \ ]
+
+" The options you chose to KEEP, read BEFORE a single part of GrooVim.
+"
+" They used to be read at the end of the last part, so that they would win over
+" the defaults. That works for an option consulted while you type -- whether the
+" session saves itself is asked at the moment it saves -- and not for one
+" consulted as GrooVim LOADS. "g:GrooVim_EnableOSC52" is decided in the first
+" part of eighteen, so a kept answer arrived thirteen parts too late and did
+" nothing, with nothing said about it.
+"
+" Read first, it wins over every default instead, because each of them is
+" written as "get(g:, "name", default)" -- a value already there is kept. Seven
+" of them were plain assignments until this moved, and would have been run over.
+if filereadable(g:GrooVim_OptsFile)
+  exec "source " . fnameescape(g:GrooVim_OptsFile)
+endif
 
 let s:GrooVim_PartsDir = fnamemodify(g:GrooVim_Vimrc, ":h") . "/groovim"
 

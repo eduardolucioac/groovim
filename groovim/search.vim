@@ -138,7 +138,7 @@ func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment) abort
 endfunc
 
 " Note: Sets the type of search to be performed depending on user choice! By Questor
-let g:search_WithList = 0
+let g:search_WithList = get(g:, "search_WithList", 0)
 func! GrooVim_SearchWithMyOptions(mod) range abort
 
   let l:callGrooVim_SearchGuy = 1
@@ -229,8 +229,8 @@ func! GrooVim_SelectionHighlightClear(matchId) abort
 endfunc
 
 " Note: Searches for current selection or word under cursor! By Questor
-let g:search_Direction = "f"
-let g:searchReplace_CaseSensitive = 0
+let g:search_Direction = get(g:, "search_Direction", "f")
+let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range abort
 

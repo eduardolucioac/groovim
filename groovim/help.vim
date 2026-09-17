@@ -431,12 +431,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 
-" Note: The options you chose to KEEP, read here at the END so that they win over
-" the defaults set above.
-"
-" Note: This used to happen by itself, because the file lived in "~/.vim/plugin"
-" and Vim sources everything there -- for the Vim of the system too. Out of that
-" directory it is GrooVim that reads it, and only GrooVim! By Questor
-if filereadable(g:GrooVim_OptsFile)
-  exec "source " . fnameescape(g:GrooVim_OptsFile)
-endif
+" Note: The options you chose to KEEP are read in the ".vimrc", BEFORE any part
+" of GrooVim -- see "GrooVim_OptsFile" there. They used to be read here, at the
+" very end, and that only worked for the ones consulted while you type! By
+" Questor
