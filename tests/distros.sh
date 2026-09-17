@@ -221,9 +221,9 @@ printf '%s\n' "$MACHINES" | while IFS='|' read -r name image bootstrap group ssh
     echo 'groo:groovim' | chpasswd
     usermod -s /bin/bash groo 2>/dev/null || true
   " >/dev/null 2>&1 && $RUNTIME exec -d "$container" /usr/sbin/sshd -D >/dev/null 2>&1; then
-    green "  ssh is up on port $PORT"
+    echo "${GREEN}  ssh is up on port $PORT${OFF}"
   else
-    red "  could not put an sshd on it"
+    echo "${RED}  could not put an sshd on it${OFF}"
     continue
   fi
 done
