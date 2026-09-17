@@ -426,9 +426,9 @@ To install:
 ./install.sh
 ```
 
-It installs the build dependencies of your distribution (Arch, Debian, Fedora,
-openSUSE, Alpine, Void and Gentoo families are known, and it asks before
-running anything as root), fetches the newest Vim release, and configures it
+It installs the build dependencies of your distribution (`pacman`, `apt-get`,
+`apt`, `dnf` and `zypper` are known, and it asks before running anything as
+root), fetches the newest Vim release, and configures it
 with only the flags that release actually offers -- it asks `./configure
 --help` instead of carrying a list that ages.
 
@@ -505,9 +505,9 @@ cd groovim
 groovim file.txt
 ```
 
-Tested on Debian, Ubuntu, Fedora, Rocky, Arch, openSUSE and a CentOS 7 --
-`./tests/distros.sh` builds a throwaway machine of each and runs it. It needs
-`bash`, which every one of them ships.
+Tested on Debian, Ubuntu, Fedora, Rocky, Arch and openSUSE -- `./tests/distros.sh`
+builds a throwaway machine of each and runs it. It needs `bash`, which every one
+of them ships.
 
 That is the whole installation. What it leaves on your machine:
 

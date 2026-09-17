@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 #
-# Needs bash, and says so on purpose. It was written in plain sh for a while so
-# that Alpine and Void could run it -- neither ships bash -- and the price was a
-# temporary file and a "while read" loop where one line of bash had been. Those
-# two are bases to build containers on, not machines anybody edits files on, and
-# carrying that shape for years to reach them is a bad trade. Every distribution
-# GrooVim aims at has bash.
+# Needs bash, and says so on purpose. It was written in plain sh for a while, to
+# reach machines that ship none, and the price was a temporary file and a "while
+# read" loop where one line of bash had been. Every distribution GrooVim aims at
+# has bash, and a shape carried for years costs more than what it reaches.
 #
 # Installs GrooVim: a Vim of its own, the GrooVim that runs on it, and the
 # "groovim" command that reaches the two.
@@ -51,7 +49,8 @@ MODIFIED_BY="${GROOVIM_MODIFIED_BY:-Questor the Elf (eduardolucioac)}"
 GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
 # Where a link goes so that "sudo groovim" finds the command. This is the first
 # choice, not the answer: sudo is asked where it really looks, because not every
-# distribution keeps this directory in its "secure_path" -- CentOS 7 does not.
+# distribution keeps this directory in its "secure_path" -- Rocky and openSUSE
+# do not.
 SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
 SYSTEM_LINK=1
 PLUGINS=1
@@ -200,34 +199,35 @@ missing_for_groovim() {
 
 # --------------------------------------------------------------- distros ---
 
-# The build dependencies of Vim, by package manager.
+# The build dependencies of Vim, for the distributions GrooVim aims at: Debian,
+# Ubuntu, Fedora, Rocky, Arch and openSUSE, and whatever is built on them.
 #
 # The manager is whichever one is INSTALLED, and not whichever one the name of
 # the distribution suggests. This used to read /etc/os-release and map the
-# family to a command: CentOS 7 calls itself "centos" with a family of "rhel
-# fedora", has no dnf at all, and the install died on its first step with
-# "sudo: dnf: command not found". Asking the machine what it has cannot be
-# wrong that way, and it needs no list of distribution names to keep up to
-# date -- a derivative nobody has heard of works by itself.
+# family to a command, which is wrong in both directions: a machine can call
+# itself one thing and carry another manager, and a derivative nobody has heard
+# of has a name no list will ever have. Asking the machine what it HAS cannot be
+# wrong that way, and there is no list of names to keep up to date.
 #
 # The manager also decides the NAMES of the packages, because each one carries
 # exactly one naming scheme. So this single question answers both.
 #
+# A machine with none of these says so and offers to go on: GrooVim does not
+# need to install anything to be installed, only to find the headers already
+# there.
+#
 # Each line: manager|command to install|packages
 distro_dependencies() {
   local recipe
-  # The order matters only inside a family: CentOS 8 keeps a "yum" that is
-  # really dnf, and Debian has both "apt" and "apt-get". First one wins.
+  # The order matters only inside a family: Debian has both "apt" and
+  # "apt-get", and a distribution can keep an old name aliased to a new
+  # manager. First one wins.
   for recipe in \
     "pacman|sudo pacman -S --needed --noconfirm|base-devel ncurses libx11 libxt python git findutils" \
     "apt-get|sudo apt-get install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
     "apt|sudo apt install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
     "dnf|sudo dnf install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
-    "yum|sudo yum install -y|gcc make ncurses-devel libX11-devel libXt-devel python-devel git findutils" \
     "zypper|sudo zypper install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
-    "apk|sudo apk add|build-base ncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
-    "xbps-install|sudo xbps-install -Sy|base-devel ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
-    "emerge|sudo emerge -n|sys-libs/ncurses x11-libs/libX11 x11-libs/libXt dev-lang/python dev-vcs/git sys-apps/findutils" \
   ; do
     if command -v "${recipe%%|*}" >/dev/null 2>&1; then
       echo "$recipe"
@@ -270,18 +270,19 @@ install_dependencies() {
   # A package step that fails does NOT end the install. The packages are a
   # convenience: the machine may have the headers already, and what is really
   # missing says so a minute later in the words of configure, which are far
-  # more precise than the ones of a package manager. A CentOS 7 that has
-  # outlived its repositories -- every one of them empty -- reached the build
-  # this way and only then said what it could not find.
+  # more precise than the ones of a package manager. A machine whose
+  # repositories answer nothing -- behind a proxy, offline, or simply older
+  # than its mirrors -- reaches the build this way and only then says what it
+  # could not find.
   # shellcheck disable=SC2086
   if $command $packages; then
     return 0
   fi
 
-  # One name that does not exist must not take the other five with it. Old
-  # distributions are where this happens: CentOS 7 has python-devel, but a
-  # list written for it still misses whatever its dead repositories no longer
-  # carry.
+  # One name that does not exist, or one that its own distribution cannot
+  # resolve today, must not take the other five with it. Measured: a machine
+  # where the headers of Xt would not install while every other package went
+  # in, and the whole build was lost over the one that did not matter.
   yellow "  the whole list did not go in. Trying one at a time:"
   missing=""
   for package in $packages; do
@@ -388,9 +389,9 @@ fetch_source() {
     # Throw away what the last build changed -- our own patch to version.c
     # included -- so every build starts from what upstream actually released.
     #
-    # In a subshell with "cd" and not with "git -C": that option is from git
-    # 1.8.5, and CentOS 7 ships 1.8.3.1, where it fails with "Unknown option:
-    # -C" and takes the install with it. "cd" is as old as the shell.
+    # Grouped in a subshell so that the three are one thing: a failure in any
+    # of them stops the rest and says so, and the "cd" cannot leak into what
+    # runs after it.
     (
       cd "$SOURCE" || exit 1
       git checkout -q -- .
@@ -409,8 +410,9 @@ fetch_source() {
 # This is not about preferring X. "--with-x" is a DEMAND: configure stops with
 # "could not configure X" when it is given and X is not all there, and that
 # contradicts what this script tells the user two steps earlier -- that only the
-# headers of ncurses stop a build. Measured on a Void whose libXt-devel refused
-# to install while libX11-devel went in: half an X killed the whole thing.
+# headers of ncurses stop a build. Measured on a machine where the headers of
+# Xt refused to install while those of X11 went in: half an X killed the whole
+# thing. It is also the case of a server with no X at all.
 have_x() {
   local dir
   for dir in /usr/include /usr/local/include; do
@@ -434,10 +436,10 @@ available_flags() {
   )
   # No "--enable-fail-if-missing". It contradicts the list below: it turns
   # every one of these into a requirement, and the whole point of them is that
-  # GrooVim takes what the machine has. A CentOS 7 with python 2.7 and no
-  # python3 stopped here with "could not configure python3" -- on a headless
-  # server, where there is no X and no Wayland either, and none of that should
-  # stop a terminal Vim from being built.
+  # GrooVim takes what the machine has. Measured: a machine with no python3
+  # stopped here with "could not configure python3" -- a headless server, where
+  # there is no X and no Wayland either, and none of that should stop a terminal
+  # Vim from being built.
   #
   # Nothing is lost by dropping it: "What came out" at the end reads the
   # features out of the Vim that was actually built and names every one that
@@ -587,9 +589,9 @@ END
 # The directory to link into: one that sudo really searches. secure_path lives
 # in the sudoers file, which a normal user cannot read, so it is not parsed --
 # sudo is simply run, and the PATH it hands its command IS the answer. Guessing
-# is what went wrong before: the secure_path of CentOS 7 is
+# is what went wrong before: the secure_path of Rocky and of openSUSE is
 # "/sbin:/bin:/usr/sbin:/usr/bin", with no /usr/local/bin in it, so the link
-# landed somewhere sudo would never look.
+# landed somewhere sudo would never look. Two of the six.
 sudo_bindir() {
   local sudo_path candidate
   sudo_path="$(sudo sh -c 'printf "%s" "$PATH"' 2>/dev/null || true)"

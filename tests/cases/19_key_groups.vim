@@ -208,8 +208,8 @@ func! GT_Body()
   " ---- and every shortcut on offer calls something that is really there
   "
   " The general form of the same defect: an entry may only name functions this
-  " Vim has. It is the check that would have caught it without a CentOS to find
-  " it for us.
+  " Vim has. It is the check that would have caught it here, instead of leaving
+  " it for somebody else's machine to find.
   let l:gone = []
   for l:one in g:GrooVim_Shortcuts
     if !GrooVim_ShortcutAvailable(l:one) | continue | endif
