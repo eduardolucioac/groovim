@@ -72,6 +72,20 @@ func! GrooVim_TerminalDoesOSC52() abort
   return 1
 endfunc
 
+" Note: Whether to BELIEVE the terminal can do OSC 52, or to ask it.
+"
+" Note: Set to 0 it does not turn OSC 52 off -- it hands the decision back: the
+" "osc52" package queries with DA1 and believes only an answer that advertises
+" "52". That is stricter, and the price is every terminal that does OSC 52
+" without ever announcing it, which is many of them. So the default is to
+" believe, and the middle answer of F5->c is there for a terminal that prints
+" rubbish instead of swallowing a sequence it does not know.
+"
+" Note: Written here, after the question above can be asked, and not up with
+" "g:GrooVim_EnableOSC52": a "let" at the top of the file would run before the
+" function it calls exists ("E117")! By Questor
+let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
+
 " Note: Puts OSC 52 into the cascade, or takes it out. A function and not a
 " block that runs once, because the general settings screen turns this on and
 " off while GrooVim is RUNNING, and an answer that only took effect after a
@@ -94,7 +108,6 @@ func! GrooVim_OSC52Apply() abort
     return
   endif
 
-  let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
   try
     packadd osc52
     if &clipmethod !~ "osc52"

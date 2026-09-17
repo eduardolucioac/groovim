@@ -289,16 +289,33 @@ func! GrooVim_ConfigureGeneral() range abort
   call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
    \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
 
-  " Note: Only ONE question for the clipboard, and not the two variables this
-  " grew from. "g:osc52_force_avail" belonged to a time when GrooVim kept a list
-  " of terminals known to do OSC 52 and had to be told when yours was not on it.
-  " There is no list any more -- it is tried wherever there is a terminal -- so
-  " the only thing left to decide is whether to try at all! By Questor
-  let g:GrooVim_EnableOSC52 = GrooVim_GetOptions(
-   \ "Let a copy leave through the terminal (OSC 52, this is what crosses SSH)",
-   \ [0,1], 1, g:GrooVim_EnableOSC52)
+  " Note: ONE question with THREE answers, over two variables, because there are
+  " three things that can be meant and not two.
+  "
+  " Note: "g:osc52_force_avail" set to 0 does NOT turn OSC 52 off. It puts the
+  " question back to the terminal: the "osc52" package of Vim asks with a DA1
+  " query and believes only an answer that advertises "52". That is the middle
+  " answer here, and it is worth having -- a terminal that does not swallow an
+  " unknown sequence cleanly prints rubbish on your screen, and refusing OSC 52
+  " altogether would be too much, because an xterm that DOES announce it would
+  " stop working too.
+  "
+  " Note: The cost of the middle answer is the terminals that do OSC 52 without
+  " ever announcing it, and there are many -- so "yes" stays the default! By
+  " Questor
+  let l:osc52Now = !g:GrooVim_EnableOSC52 ? "n"
+   \ : (get(g:, "osc52_force_avail", 1) ? "y" : "a")
+  let l:osc52 = GrooVim_GetOptions(
+   \ "A copy leaving through the terminal -- OSC 52, what crosses SSH: " .
+   \ "[n]o, [a]sk the terminal, [y]es",
+   \ ["n", "a", "y"], "y", l:osc52Now)
+
+  let g:GrooVim_EnableOSC52 = l:osc52 ==# "n" ? 0 : 1
+  let g:osc52_force_avail = l:osc52 ==# "y" ? 1 : 0
   call GrooVim_OptsUpdate("let g:GrooVim_EnableOSC52 =",
    \ "let g:GrooVim_EnableOSC52 = " . g:GrooVim_EnableOSC52, 0)
+  call GrooVim_OptsUpdate("let g:osc52_force_avail =",
+   \ "let g:osc52_force_avail = " . g:osc52_force_avail, 0)
   call GrooVim_OSC52Apply()
 
   call GrooVim_OptsEnd()
