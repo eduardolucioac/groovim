@@ -74,6 +74,24 @@ func! GrooVim_TerminalDoesOSC52() abort
     return 1
   endif
 
+  " Note: Over SSH every answer above is the wrong one, because the evidence
+  " does not travel. "$KONSOLE_VERSION", "$TERM_PROGRAM" and "$VTE_VERSION" are
+  " set by the terminal in the shell IT started, and ssh carries none of them to
+  " the other side unless both ends were configured to pass them. So the far end
+  " sees a bare "xterm-256color" and concludes the terminal can do nothing.
+  "
+  " Note: And the far end is exactly where this matters. There is no X there, no
+  " Wayland, no tool to call: OSC 52 is the ONLY thing that can carry a copy
+  " out, which is the whole promise of reaching a headless machine by SSH. So it
+  " is tried. A terminal that does not know the sequence ignores it, and a copy
+  " that does not arrive is what we already had by not trying.
+  "
+  " Note: It is still the LAST method: "clipmethod" is "wayland,x11,osc52", so a
+  " machine that does have a clipboard of its own goes on using it! By Questor
+  if $SSH_TTY != "" || $SSH_CONNECTION != ""
+    return 1
+  endif
+
   return 0
 endfunc
 
