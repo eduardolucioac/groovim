@@ -289,33 +289,22 @@ func! GrooVim_ConfigureGeneral() range abort
   call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
    \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
 
-  " Note: ONE question with THREE answers, over two variables, because there are
-  " three things that can be meant and not two.
+  " Note: Two answers and not three. There IS a third state -- "g:osc52_force_avail
+  " = 0" makes Vim ask the terminal with a DA1 query and use OSC 52 only if the
+  " answer advertises "52" -- and it is a real thing, not another way of saying
+  " off. It is not asked here because of WHO answers that query: in practice the
+  " xterm family and almost nothing else. On every other terminal "ask" behaves
+  " exactly like "no", and a third answer that usually does what another one does
+  " is worse than not having it.
   "
-  " Note: "g:osc52_force_avail" set to 0 does NOT turn OSC 52 off. It puts the
-  " question back to the terminal: the "osc52" package of Vim asks with a DA1
-  " query and believes only an answer that advertises "52". That is the middle
-  " answer here, and it is worth having -- a terminal that does not swallow an
-  " unknown sequence cleanly prints rubbish on your screen, and refusing OSC 52
-  " altogether would be too much, because an xterm that DOES announce it would
-  " stop working too.
-  "
-  " Note: The cost of the middle answer is the terminals that do OSC 52 without
-  " ever announcing it, and there are many -- so "yes" stays the default! By
-  " Questor
-  let l:osc52Now = !g:GrooVim_EnableOSC52 ? "n"
-   \ : (get(g:, "osc52_force_avail", 1) ? "y" : "a")
-  let l:osc52 = GrooVim_GetOptions(
-   \ "A copy leaving through the terminal -- OSC 52, what crosses SSH: " .
-   \ "[n]o, [a]sk the terminal, [y]es",
-   \ ["n", "a", "y"], "y", l:osc52Now)
-
-  let g:GrooVim_EnableOSC52 = l:osc52 ==# "n" ? 0 : 1
-  let g:osc52_force_avail = l:osc52 ==# "y" ? 1 : 0
+  " Note: It is still there for whoever wants it, one line in your own
+  " configuration, and it is written down where it lives (the "behaviour" part)!
+  " By Questor
+  let g:GrooVim_EnableOSC52 = GrooVim_GetOptions(
+   \ "Let a copy leave through the terminal (OSC 52, this is what crosses SSH)",
+   \ [0,1], 1, g:GrooVim_EnableOSC52)
   call GrooVim_OptsUpdate("let g:GrooVim_EnableOSC52 =",
    \ "let g:GrooVim_EnableOSC52 = " . g:GrooVim_EnableOSC52, 0)
-  call GrooVim_OptsUpdate("let g:osc52_force_avail =",
-   \ "let g:osc52_force_avail = " . g:osc52_force_avail, 0)
   call GrooVim_OSC52Apply()
 
   call GrooVim_OptsEnd()

@@ -75,57 +75,49 @@ call GT_Ok("a bad one and then the x", g:GT_R ==# "x", "   [" . g:GT_R . "]")
 "
 " A setting that only took effect after a restart would be a lie, so this
 " exercises the screen and then looks at the cascade, not at the variable.
-" Three answers, because there are three things that can be meant:
+" The clipboard question: two answers on the screen, and a third state that is
+" real but is not asked about.
 "
-"   n  OSC 52 never enters the cascade
-"   a  it does, and the TERMINAL is asked whether it can -- the osc52 package
-"      queries with DA1 and believes only an answer advertising "52"
-"   y  it does, and the sequence is sent whatever the terminal says
-"
-" The middle one is not "off by another name": on a terminal that announces it,
-" "a" still works. It is for a terminal that prints rubbish instead of
-" swallowing a sequence it does not know.
+" "g:osc52_force_avail = 0" makes Vim ask the terminal with a DA1 query and use
+" OSC 52 only if the answer advertises "52". That is not "off by another name" --
+" on an xterm it still works. It is off the screen because of who answers that
+" query: the xterm family and almost nothing else, so everywhere else asking
+" behaves exactly like refusing.
 let g:GT_KeptOSC = g:GrooVim_EnableOSC52
 let g:GT_KeptForce = get(g:, "osc52_force_avail", 1)
 let g:GT_KeptSession = g:GrooVim_SessionAuto
 
-call feedkeys("1\<CR>n\<CR>a\<CR>", "t")
+call feedkeys("1\<CR>0\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
 call GT_Ok("F5->c asks about the clipboard too", g:GrooVim_EnableOSC52 == 0,
-  \ "   (answered n)")
+  \ "   (answered 0)")
 if exists("+clipmethod")
-  call GT_Ok("  and \"no\" takes OSC 52 out of the cascade AT ONCE",
+  call GT_Ok("  and no takes OSC 52 out of the cascade AT ONCE",
     \ &clipmethod !~ "osc52", "   [" . &clipmethod . "]   (no restart)")
 endif
 
-call feedkeys("1\<CR>a\<CR>a\<CR>", "t")
+call feedkeys("1\<CR>1\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
-call GT_Ok("\"ask\" puts it back in the cascade", g:GrooVim_EnableOSC52 == 1, "")
-call GT_Ok("  but hands the decision to the terminal", g:osc52_force_avail == 0,
-  \ "   (force_avail 0: the package queries with DA1)")
-
-call feedkeys("1\<CR>y\<CR>a\<CR>", "t")
-call GrooVim_ConfigureGeneral()
-call feedkeys("", "x")
-call GT_Ok("\"yes\" sends it whatever the terminal says", g:osc52_force_avail == 1, "")
+call GT_Ok("yes puts it back", g:GrooVim_EnableOSC52 == 1, "")
 if exists("+clipmethod")
-  call GT_Ok("  and the cascade has it, still last",
+  call GT_Ok("  and the cascade has it again, still last",
     \ &clipmethod =~ "osc52$", "   [" . &clipmethod . "]")
 endif
 
-call GT_Ok("the three answers are three different states",
-  \ len(uniq(sort([0 . "|" . 0, 1 . "|" . 0, 1 . "|" . 1]))) == 3,
-  \ "   (EnableOSC52 and force_avail, as a pair)")
+call GT_Ok("the screen asks two things and no more",
+  \ g:osc52_force_avail == g:GT_KeptForce,
+  \ "   (force_avail " . g:osc52_force_avail . ": the screen does not touch it)")
 
-" ---- and the screen remembers which of the three you are on
-call feedkeys("1\<CR>\<CR>a\<CR>", "t")
-call GrooVim_ConfigureGeneral()
-call feedkeys("", "x")
-call GT_Ok("an empty answer keeps the one in force",
-  \ g:GrooVim_EnableOSC52 == 1 && g:osc52_force_avail == 1,
-  \ "   (it showed \"y\" as the value in force)")
+" ---- and the third state is still reachable by hand
+let g:osc52_force_avail = 0
+call GrooVim_OSC52Apply()
+call GT_Ok("setting force_avail by hand is honoured", g:osc52_force_avail == 0,
+  \ "   (one line of your own configuration)")
+call GT_Ok("  and it is NOT the same as turning OSC 52 off",
+  \ g:GrooVim_EnableOSC52 == 1 && (!exists("+clipmethod") || &clipmethod =~ "osc52"),
+  \ "   [" . (exists("+clipmethod") ? &clipmethod : "-") . "]   (still in the cascade; the terminal decides)")
 
 let g:GrooVim_EnableOSC52 = g:GT_KeptOSC
 let g:osc52_force_avail = g:GT_KeptForce

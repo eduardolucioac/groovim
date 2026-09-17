@@ -74,12 +74,19 @@ endfunc
 
 " Note: Whether to BELIEVE the terminal can do OSC 52, or to ask it.
 "
-" Note: Set to 0 it does not turn OSC 52 off -- it hands the decision back: the
-" "osc52" package queries with DA1 and believes only an answer that advertises
-" "52". That is stricter, and the price is every terminal that does OSC 52
-" without ever announcing it, which is many of them. So the default is to
-" believe, and the middle answer of F5->c is there for a terminal that prints
-" rubbish instead of swallowing a sequence it does not know.
+" Note: Set to 0 it does NOT turn OSC 52 off -- "g:GrooVim_EnableOSC52" does
+" that. It hands the decision back to the terminal: the "osc52" package sends a
+" DA1 query ("ESC [ c") and uses OSC 52 only if the answer advertises "52".
+" Measured in the package itself: the query is sent ONLY when this is 0, so with
+" the default of 1 Vim never asks at all.
+"
+" Note: Which is why F5->c does not offer it as a third answer. Who replies "52"
+" to a DA1 is, in practice, the xterm family and almost nothing else -- so on
+" every other terminal asking behaves exactly like refusing, and a third answer
+" that usually does what another one does is worse than not having it. Set it
+" here, in one line of your own configuration, if you want the strict reading:
+"
+"   let g:osc52_force_avail = 0
 "
 " Note: Written here, after the question above can be asked, and not up with
 " "g:GrooVim_EnableOSC52": a "let" at the top of the file would run before the
