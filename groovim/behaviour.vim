@@ -36,63 +36,40 @@ let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
 " paste stays off unless you know your terminal answers! By Questor
 let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
 
-" Note: The "osc52" package asks the terminal with a DA1 query ("ESC [ c") and
-" only believes it when the answer advertises "52". That is how xterm announces
-" it, but several terminals DO implement OSC 52 without ever saying so that way
-" -- Konsole is one of them, which is why the detection quietly failed there.
-" So we recognize by their own environment the terminals we know, and tell the
-" package to go ahead. Set "g:osc52_force_avail" yourself to overrule! By Questor
+" Note: Should OSC 52 be tried at all? The honest answer is that we cannot know
+" whether this terminal does it, and that asking was the wrong question.
+"
+" Note: This used to be a list of terminals that identify themselves in their own
+" environment -- "$KONSOLE_VERSION", "$VTE_VERSION", "$TERM_PROGRAM" and the
+" rest. A list like that is never finished. VTE alone covers GNOME, XFCE, MATE
+" and Terminator, but COSMIC is not VTE, and whatever is written next will not be
+" there either: every one of them answered "no" by default. And a "no" here is
+" SILENT -- the copy never arrives and nothing on screen says why.
+"
+" Note: The two mistakes are not the same size. Sending the sequence to a
+" terminal that does not know it costs nothing, because an unknown OSC is
+" swallowed. NOT sending it to one that does costs the copy. So the default is to
+" try, and the question is only whether there is a terminal to try on.
+"
+" Note: It is also the LAST method: "clipmethod" is "wayland,x11,groovim,osc52",
+" so a machine with a clipboard of its own, or a tool to call, never reaches it.
+" Turn it off with "let g:GrooVim_EnableOSC52 = 0", or decide it yourself with
+" "let g:osc52_force_avail = 0/1"! By Questor
 func! GrooVim_TerminalDoesOSC52() abort
 
-  " Note: Under a GUI the terminal sequences make no sense! By Questor
+  " Note: Under a GUI there is no terminal for the sequence to reach! By Questor
   if has("gui_running")
     return 0
   endif
 
-  " Note: Terminals that do OSC 52 and identify themselves! By Questor
-  if $KONSOLE_VERSION != "" || $KITTY_WINDOW_ID != "" || $ALACRITTY_WINDOW_ID != ""
-        \ || $ALACRITTY_SOCKET != "" || $WEZTERM_PANE != "" || $GHOSTTY_BIN_DIR != ""
-    return 1
+  " Note: A terminal that says it can do nothing is taken at its word. Only
+  " "dumb" is tested: Vim refuses to set "term" to an empty string at all
+  " ("E529"), so there is no such case to guard against! By Questor
+  if &term ==# "dumb"
+    return 0
   endif
 
-  " Note: VTE (GNOME Terminal and relatives) does OSC 52 from 0.72 on! By Questor
-  if $VTE_VERSION != "" && str2nr($VTE_VERSION) >= 7200
-    return 1
-  endif
-
-  if $TERM_PROGRAM =~? "iTerm\\|WezTerm\\|ghostty\\|vscode\\|Apple_Terminal"
-    return 1
-  endif
-
-  if &term =~ "^\\(foot\\|kitty\\|alacritty\\|wezterm\\|contour\\|rio\\)"
-    return 1
-  endif
-
-  " Note: tmux forwards OSC 52 to the terminal around it when "set-clipboard" is
-  " on, which is its default! By Questor
-  if $TMUX != ""
-    return 1
-  endif
-
-  " Note: Over SSH every answer above is the wrong one, because the evidence
-  " does not travel. "$KONSOLE_VERSION", "$TERM_PROGRAM" and "$VTE_VERSION" are
-  " set by the terminal in the shell IT started, and ssh carries none of them to
-  " the other side unless both ends were configured to pass them. So the far end
-  " sees a bare "xterm-256color" and concludes the terminal can do nothing.
-  "
-  " Note: And the far end is exactly where this matters. There is no X there, no
-  " Wayland, no tool to call: OSC 52 is the ONLY thing that can carry a copy
-  " out, which is the whole promise of reaching a headless machine by SSH. So it
-  " is tried. A terminal that does not know the sequence ignores it, and a copy
-  " that does not arrive is what we already had by not trying.
-  "
-  " Note: It is still the LAST method: "clipmethod" is "wayland,x11,osc52", so a
-  " machine that does have a clipboard of its own goes on using it! By Questor
-  if $SSH_TTY != "" || $SSH_CONNECTION != ""
-    return 1
-  endif
-
-  return 0
+  return 1
 endfunc
 
 if g:GrooVim_EnableOSC52 && exists("v:clipproviders") && exists("+clipmethod")

@@ -4,66 +4,83 @@
 " only way out is OSC 52: an escape sequence the TERMINAL turns into a clipboard
 " entry. No X, no Wayland, no tool to call.
 "
-" What this case guards is the question that decides whether it is used at all:
-" does this terminal do OSC 52? Getting it wrong is silent. A copy simply never
-" arrives, and nothing on screen says why.
+" What this case guards is the question that decides whether it is used at all.
+" Getting it wrong is silent: a copy simply never arrives, and nothing on screen
+" says why.
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
-" The environment is put back after each question, so one answer cannot decide
-" the next.
-func! GT_Asking(vars)
+" Asks the question with a given terminal and a given environment, and puts both
+" back afterwards, so one answer cannot decide the next.
+func! GT_Asking(term, ...)
+  let l:vars = a:0 > 0 ? a:1 : {}
+  let l:keptTerm = &term
   let l:kept = {}
   for l:name in ["SSH_TTY", "SSH_CONNECTION", "KONSOLE_VERSION", "TMUX",
     \ "TERM_PROGRAM", "VTE_VERSION", "KITTY_WINDOW_ID"]
     let l:kept[l:name] = eval("$" . l:name)
     exec "let $" . l:name . " = ''"
   endfor
-  for [l:name, l:value] in items(a:vars)
+  for [l:name, l:value] in items(l:vars)
     exec "let $" . l:name . " = '" . l:value . "'"
   endfor
+
+  let &term = a:term
   let l:answer = GrooVim_TerminalDoesOSC52()
+
+  let &term = l:keptTerm
   for [l:name, l:value] in items(l:kept)
     exec "let $" . l:name . " = '" . l:value . "'"
   endfor
   return l:answer
 endfunc
 
-" ---- a terminal that says nothing about itself
-call GT_Ok("nothing known: we do not assume", GT_Asking({}) == 0,
-  \ "   (term " . &term . ")")
+" Vim refuses an empty "term" outright, which is why the code does not look for
+" one. Proved here rather than assumed, because it is the reason a branch is
+" missing.
+func! GT_TermRefusesEmpty()
+  let l:kept = &term
+  try
+    let &term = ""
+    let &term = l:kept
+    return 0
+  catch /E529/
+    return 1
+  catch
+    let &term = l:kept
+    return 0
+  endtry
+endfunc
 
-" ---- the terminals that identify themselves in their own environment
+" ---- there is a terminal, so it is tried
 "
-" The osc52 package of Vim asks with a DA1 query and believes only an answer
-" that advertises "52". Several terminals do OSC 52 without ever saying so that
-" way, so their own variables are what we go by.
-call GT_Ok("Konsole says so in KONSOLE_VERSION",
-  \ GT_Asking({"KONSOLE_VERSION": "260801"}) == 1, "")
-call GT_Ok("kitty, in KITTY_WINDOW_ID",
-  \ GT_Asking({"KITTY_WINDOW_ID": "1"}) == 1, "")
-call GT_Ok("the ones that fill TERM_PROGRAM",
-  \ GT_Asking({"TERM_PROGRAM": "iTerm.app"}) == 1, "")
-call GT_Ok("VTE from 0.72 on",
-  \ GT_Asking({"VTE_VERSION": "7200"}) == 1, "")
-call GT_Ok("  and not before it",
-  \ GT_Asking({"VTE_VERSION": "6003"}) == 0, "   (it did not forward OSC 52 yet)")
-call GT_Ok("tmux forwards it to whatever is around it",
-  \ GT_Asking({"TMUX": "/tmp/tmux-1000/default,1,0"}) == 1, "")
+" This used to be a list of terminals that name themselves in their own
+" environment: $KONSOLE_VERSION, $VTE_VERSION, $TERM_PROGRAM. A list like that is
+" never finished -- VTE alone covers GNOME, XFCE, MATE and Terminator, but COSMIC
+" is not VTE and whatever is written next will not be there either. Every one of
+" them answered "no" by default, and here a "no" is silent.
+"
+" The two mistakes are not the same size: the sequence costs nothing when it is
+" not understood, and costs the copy when it is not sent.
+for s:term in ["xterm-256color", "xterm", "linux", "foot", "screen-256color",
+  \ "rxvt-unicode-256color", "alacritty", "contour", "st-256color",
+  \ "xfce4-terminal", "cosmic-term", "terminal-nobody-has-written-yet"]
+  call GT_Ok("[" . s:term . "] is a terminal, so we try", GT_Asking(s:term) == 1, "")
+endfor
 
-" ---- and over SSH, where none of that survives
-"
-" This is the case that was wrong, and the one GrooVim exists for. Every
-" variable above is set by the terminal in the shell IT started; ssh carries
-" none of them across. The far end sees a bare "xterm-256color" and used to
-" conclude the terminal could do nothing -- on the very machine where OSC 52 is
-" the ONLY thing that can carry a copy out.
-call GT_Ok("over SSH we try, because nothing else can work",
-  \ GT_Asking({"SSH_TTY": "/dev/pts/0"}) == 1,
-  \ "   (the terminal of the other end is unknowable from here)")
-call GT_Ok("  SSH_CONNECTION answers for it too",
-  \ GT_Asking({"SSH_CONNECTION": "10.0.0.1 22 10.0.0.2 22"}) == 1,
-  \ "   (there is no tty when the command came with the ssh line)")
+" ---- and this is the check that refuses a list
+call GT_Ok("with NOTHING in the environment, we still try",
+  \ GT_Asking("xterm-256color", {}) == 1,
+  \ "   (no KONSOLE_VERSION, no VTE_VERSION, no TERM_PROGRAM, no TMUX, no SSH)")
+call GT_Ok("  and a terminal nobody has heard of is not worse off",
+  \ GT_Asking("something-new", {}) == GT_Asking("xterm-256color", {"KONSOLE_VERSION": "260801"}),
+  \ "   (the answer cannot depend on being on a list)")
+
+" ---- what there is no point in trying
+call GT_Ok("a dumb terminal is taken at its word", GT_Asking("dumb") == 0, "")
+call GT_Ok("  and there is no emptier case to guard",
+  \ GT_TermRefusesEmpty() == 1,
+  \ "   (Vim answers E529 to an empty \"term\", so the code does not test for one)")
 
 " ---- the register a copy goes to
 call GT_Ok("the register is one Vim knows",
@@ -74,9 +91,8 @@ call GT_Ok("the register is one Vim knows",
 if exists("+clipmethod")
   call GT_Ok("osc52 is in the cascade", &clipmethod =~ "osc52",
     \ "   [" . &clipmethod . "]")
-  call GT_Ok("  and it is the LAST of them",
-    \ &clipmethod =~ "osc52$",
-    \ "   [" . &clipmethod . "]   (a machine with a clipboard of its own keeps using it)")
+  call GT_Ok("  and it is the LAST of them", &clipmethod =~ "osc52$",
+    \ "   [" . &clipmethod . "]   (a machine with a clipboard of its own, or a tool to call, never reaches it)")
 endif
 
 " ---- paste through OSC 52 stays off
