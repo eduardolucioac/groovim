@@ -56,6 +56,11 @@ fi
 # The bootstrap installs sudo and nothing else on purpose -- not even git. git
 # is one of the build dependencies install.sh is supposed to put in by itself,
 # and handing it over would hide whether it does.
+# Alpine and Void are deliberately NOT here. Neither ships bash, and install.sh
+# asks for it: they are bases to build containers on, not machines anybody sits
+# at and edits a file on. Supporting them cost a temporary file and a loop where
+# one line of bash had been, and carrying that shape for years to reach them is
+# a worse trade than leaving them out.
 MACHINES="
 debian|docker.io/library/debian:12|apt-get update -qq && apt-get install -y -qq sudo|sudo
 ubuntu|docker.io/library/ubuntu:24.04|apt-get update -qq && apt-get install -y -qq sudo|sudo
@@ -63,8 +68,6 @@ fedora|docker.io/library/fedora:41|dnf install -y -q sudo|wheel
 rocky|docker.io/library/rockylinux:9|dnf install -y -q sudo|wheel
 arch|docker.io/library/archlinux:latest|pacman -Sy --noconfirm --quiet sudo|wheel
 opensuse|docker.io/opensuse/tumbleweed|zypper -n -q install sudo|wheel
-alpine|docker.io/library/alpine:3.20|apk add --quiet sudo shadow|wheel
-void|docker.io/voidlinux/voidlinux:latest|rm -f /usr/share/xbps.d/*.conf /etc/xbps.d/*.conf && mkdir -p /etc/xbps.d && echo repository=https://repo-fastly.voidlinux.org/current > /etc/xbps.d/00-repo.conf && xbps-install -Syu xbps && xbps-install -Sy sudo|wheel
 "
 
 # Colours, and only when someone is looking.
@@ -93,8 +96,13 @@ cd "$HOME" || exit 1
 mkdir -p groovim && tar -C groovim -xzf /opt/groovim.tgz || exit 1
 cd groovim || exit 1
 
-# No check for bash any more: install.sh is plain sh, which is the whole
-# reason Alpine and Void are on the list.
+# install.sh asks for bash. Said here so that a machine without one explains
+# itself instead of failing at a shebang.
+if ! command -v bash >/dev/null 2>&1; then
+  echo "===> there is no bash here, and install.sh asks for one"
+  exit 0
+fi
+
 echo "===> install"
 ./install.sh --yes
 echo "[install ended with $?]"

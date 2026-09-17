@@ -1,9 +1,11 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
-# Plain POSIX sh, and not bash. Alpine and Void ship no bash at all -- their
-# /bin/sh is busybox ash and dash -- and on both of them this script did not
-# reach its first line: "/usr/bin/env: bash: No such file or directory". It
-# cost four constructions to leave behind, each marked where it was.
+# Needs bash, and says so on purpose. It was written in plain sh for a while so
+# that Alpine and Void could run it -- neither ships bash -- and the price was a
+# temporary file and a "while read" loop where one line of bash had been. Those
+# two are bases to build containers on, not machines anybody edits files on, and
+# carrying that shape for years to reach them is a bad trade. Every distribution
+# GrooVim aims at has bash.
 #
 # Installs GrooVim: a Vim of its own, the GrooVim that runs on it, and the
 # "groovim" command that reaches the two.
@@ -93,11 +95,7 @@ ask() {
   local answer
   printf '%s [y/N] ' "$1"
   read -r answer </dev/tty || return 1
-  # "case" and not "[[ =~ ]]", which is of bash.
-  case "$answer" in
-    [yY]) return 0 ;;
-    *)    return 1 ;;
-  esac
+  [[ "$answer" =~ ^[yY]$ ]]
 }
 
 usage() {
@@ -428,13 +426,12 @@ have_x() {
 # stops being used, instead of breaking the build.
 available_flags() {
   local configure_help="$1"
-
-  # Printed one per line, and not gathered into an array: arrays are of bash.
-  printf '%s\n' \
-    --with-features=huge \
-    --enable-multibyte \
-    --enable-terminal \
+  local flags=(
+    --with-features=huge
+    --enable-multibyte
+    --enable-terminal
     --enable-cscope
+  )
   # No "--enable-fail-if-missing". It contradicts the list below: it turns
   # every one of these into a requirement, and the whole point of them is that
   # GrooVim takes what the machine has. A CentOS 7 with python 2.7 and no
@@ -462,44 +459,32 @@ available_flags() {
       --with-x|--enable-xim) have_x || continue ;;
     esac
     if grep -q -- "${optional%%=*}" "$configure_help"; then
-      printf '%s\n' "$optional"
+      flags+=("$optional")
     fi
   done
+  printf '%s\n' "${flags[@]}"
 }
 
 build_vim() {
-  local configure_help flag_file flag
+  local configure_help flags
 
   step "Building"
   cd "$SOURCE"
 
   configure_help="$(mktemp)"
-  flag_file="$(mktemp)"
   ./configure --help > "$configure_help" 2>&1 || true
-  available_flags "$configure_help" > "$flag_file"
+  # An array, and the quotes around it, are what keep the spaces inside
+  # "--with-modified-by=Questor the Elf (eduardolucioac)" together instead of
+  # turning one flag into four.
+  mapfile -t flags < <(available_flags "$configure_help")
   rm -f "$configure_help"
-
-  # The flags reach configure as the positional parameters of this function.
-  # "mapfile" is of bash, and so is the process substitution it was fed from.
-  #
-  # The loop is fed by a REDIRECT and not by a pipe, which is the whole trick: a
-  # pipe would run it in a subshell and everything it set would be thrown away
-  # at "done". And "$@" is quoted at every step, which is what keeps the spaces
-  # inside "--with-modified-by=Questor the Elf (eduardolucioac)" together
-  # instead of turning one flag into four.
-  set --
-  while IFS= read -r flag; do
-    [ -n "$flag" ] || continue
-    set -- "$@" "$flag"
-  done < "$flag_file"
-  rm -f "$flag_file"
 
   echo "  prefix: $PREFIX"
   echo "  flags:"
-  printf '    %s\n' "$@"
+  printf '    %s\n' "${flags[@]}"
 
   make distclean >/dev/null 2>&1 || true
-  ./configure --prefix="$PREFIX" "$@"
+  ./configure --prefix="$PREFIX" "${flags[@]}"
 
   echo "  compiling with $JOBS jobs..."
   make -j"$JOBS"
@@ -545,7 +530,7 @@ write_groovim() {
   mkdir -p "$BINDIR"
 
   cat > "$target" <<END
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # Runs the Vim of GrooVim, with the .vimrc of GrooVim. Written by
 # install.sh -- run it again to change any of this.

@@ -505,10 +505,9 @@ cd groovim
 groovim file.txt
 ```
 
-It is plain POSIX `sh` and asks for no bash, so it runs on Alpine and Void as it
-does anywhere else. Tested on Debian, Ubuntu, Fedora, Rocky, Arch, openSUSE,
-Alpine, Void and a CentOS 7 -- `./tests/distros.sh` builds a throwaway machine
-of each and runs it.
+Tested on Debian, Ubuntu, Fedora, Rocky, Arch, openSUSE and a CentOS 7 --
+`./tests/distros.sh` builds a throwaway machine of each and runs it. It needs
+`bash`, which every one of them ships.
 
 That is the whole installation. What it leaves on your machine:
 
