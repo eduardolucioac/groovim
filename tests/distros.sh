@@ -144,6 +144,17 @@ if [ "${BATTERY:-0}" = "1" ]; then
   echo "===> battery"
   ./tests/run.sh 2>&1 | tail -3
 fi
+
+# Under "--ssh" the machine is going to be USED, so the checks above must not be
+# the first thing its owner sees. GrooVim saves a session and brings it back, so
+# the file this script edited came up on the first run -- with no opening screen,
+# because Vim only draws one when it starts with no file. That looked like two
+# defects and was only my own leftovers.
+if [ "${SSH_MODE:-0}" = "1" ]; then
+  rm -rf "$HOME/.groovim/session.vim" "$HOME/.groovim/undo" \
+    "$HOME/.groovim/viminfo" /tmp/t.txt
+  echo "===> state cleared: the first groovim here starts fresh"
+fi
 INSIDE
 chmod +x "$WORK/inside.sh"
 
@@ -202,7 +213,7 @@ printf '%s\n' "$MACHINES" | while IFS='|' read -r name image bootstrap group ssh
   $RUNTIME cp "$WORK/groovim.tgz" "$container:/opt/groovim.tgz" >/dev/null 2>&1
   $RUNTIME cp "$WORK/inside.sh" "$container:/opt/inside.sh" >/dev/null 2>&1
 
-  $RUNTIME exec -e "BATTERY=$BATTERY" -u groo "$container" /opt/inside.sh 2>&1 \
+  $RUNTIME exec -e "BATTERY=$BATTERY" -e "SSH_MODE=$SSH" -u groo "$container" /opt/inside.sh 2>&1 \
     | sed 's/^/  /'
 
   if [ "$SSH" -eq 0 ]; then
