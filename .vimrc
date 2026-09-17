@@ -297,6 +297,22 @@ set nocompatible
 " clipboard file and the "viminfo". Two of those, side by side, are two GrooVim
 " that know nothing of each other.
 "
+" The encoding, and it has to be HERE: before a single part is read.
+"
+" Vim resolves a "\uXXXX" in a double-quoted string to the bytes of whatever
+" 'encoding' is at the moment it reads the line, and it picks that from the
+" locale when it starts. On a machine with no UTF-8 locale -- a headless
+" server, a container, a sudo that strips LANG -- it starts in latin1, and the
+" "\u250A" of the indent guide collapsed into a single byte. Vim then refused
+" it: "E1512: Wrong character width for field leadmultispace", and the guides
+" were silently gone. Worse, with no listchars of its own the window fell back
+" to the default of Vim, which draws a "$" at the end of every line.
+"
+" It is set again, along with the file encodings, in the "usability" part. This
+" is the one that has to come first.
+set encoding=utf-8
+set termencoding=utf-8
+
 " Note: The environment and not only "g:GrooVim_Home", because with "-u" there is
 " no file of yours running before this one: overriding the variable would mean
 " typing "--cmd" on every call. It is the same shape as "GROOVIM_VIM" and

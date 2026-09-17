@@ -75,14 +75,26 @@ func! GrooVim_IndentGuideSet() abort
   " the spaces with a backslash! By Questor
   " Note: "leadmultispace" is from Vim 9, and "listchars" is only window local on
   " a recent enough Vim, so both are attempted and neither is fatal! By Questor
-  try
-    let &l:listchars = l:listchars
-  catch
+  " Note: Falling back in two directions. The window local option is of a recent
+  " enough Vim, so the global one is tried next; and the guide itself may be
+  " refused -- a Vim that does not know "leadmultispace", or a character it
+  " cannot measure -- so what is left has to be the rest, and never nothing.
+  "
+  " Note: Never nothing is the point. A "listchars" that stays empty is not
+  " "no guides": it is the DEFAULT of Vim showing through, which draws a "$" at
+  " the end of every line! By Questor
+  for l:attempt in [l:listchars, "trail:\uB7,nbsp:~", "trail:-"]
     try
-      let &listchars = l:listchars
+      let &l:listchars = l:attempt
+      return
     catch
     endtry
-  endtry
+    try
+      let &listchars = l:attempt
+      return
+    catch
+    endtry
+  endfor
 
 endfunc
 

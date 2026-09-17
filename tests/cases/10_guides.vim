@@ -132,6 +132,44 @@ call GT_Ok("refuses 3abc, keeps the width", &shiftwidth == 4, "   (sw=" . &shift
 GrooVimIndent
 call GT_Ok("with no argument it changes nothing", &shiftwidth == 4, "   (sw=" . &shiftwidth . ")")
 
+" ---- the encoding comes before the parts, and it is not a matter of taste
+"
+" Vim turns a "\uXXXX" in a double-quoted string into the bytes of whatever
+" 'encoding' is at the moment it READS the line, and it takes that from the
+" locale it started in. On a machine with no UTF-8 locale -- a headless server,
+" a container, a sudo that strips LANG -- it starts in latin1, the "\u250A" of
+" the guide collapses into one byte, and Vim refuses it with "E1512: Wrong
+" character width". The guides went silently missing, and the "$" of the default
+" listchars showed through in their place.
+"
+" This reads the file instead of the running Vim on purpose: under a UTF-8
+" locale the bug cannot be reproduced, and the order in the file is what decides
+" it on the machines where it can.
+let l:lines = readfile($GROOVIM_TEST_VIMRC)
+let l:encodingAt = match(l:lines, '^set encoding=utf-8')
+let l:sourceAt = match(l:lines, '^\s*exec "source " . fnameescape')
+call GT_Ok("the .vimrc sets the encoding", l:encodingAt >= 0, "   (line " . (l:encodingAt + 1) . ")")
+call GT_Ok("  and it does it BEFORE sourcing a single part",
+  \ l:encodingAt >= 0 && l:sourceAt > l:encodingAt,
+  \ "   (encoding on line " . (l:encodingAt + 1) . ", the parts load on line " . (l:sourceAt + 1) . ")")
+call GT_Ok("so the guide is a real character and not one byte",
+  \ strchars(g:GrooVim_IndentGuideChar) == 1 && len(g:GrooVim_IndentGuideChar) > 1,
+  \ "   [" . g:GrooVim_IndentGuideChar . "] " . len(g:GrooVim_IndentGuideChar) . " bytes")
+
+" ---- and when the guide cannot be drawn, what is left is not nothing
+"
+" An empty listchars is not "no guides": it is the default of Vim showing
+" through, which puts a "$" at the end of every line.
+let l:kept = g:GrooVim_IndentGuideChar
+let g:GrooVim_IndentGuideChar = "\uFF21"
+call GrooVim_IndentGuideSet()
+call GT_Ok("a guide Vim refuses does not empty listchars", &listchars != "",
+  \ "   [" . &listchars . "]   (a double width character: E1512)")
+call GT_Ok("  and trail survives it", &listchars =~ "trail:", "   [" . &listchars . "]")
+let g:GrooVim_IndentGuideChar = l:kept
+call GrooVim_IndentGuideSet()
+call GT_Ok("and the real one comes back", GT_GuideWidth() > 0, "   [" . &listchars . "]")
+
 call GT_Done()
 endfunc
 
