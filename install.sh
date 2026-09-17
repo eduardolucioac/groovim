@@ -1,4 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
+#
+# Plain POSIX sh, and not bash. Alpine and Void ship no bash at all -- their
+# /bin/sh is busybox ash and dash -- and on both of them this script did not
+# reach its first line: "/usr/bin/env: bash: No such file or directory". It
+# cost four constructions to leave behind, each marked where it was.
 #
 # Installs GrooVim: a Vim of its own, the GrooVim that runs on it, and the
 # "groovim" command that reaches the two.
@@ -88,7 +93,11 @@ ask() {
   local answer
   printf '%s [y/N] ' "$1"
   read -r answer </dev/tty || return 1
-  [[ "$answer" =~ ^[yY]$ ]]
+  # "case" and not "[[ =~ ]]", which is of bash.
+  case "$answer" in
+    [yY]) return 0 ;;
+    *)    return 1 ;;
+  esac
 }
 
 usage() {
@@ -212,15 +221,15 @@ distro_dependencies() {
   # The order matters only inside a family: CentOS 8 keeps a "yum" that is
   # really dnf, and Debian has both "apt" and "apt-get". First one wins.
   for recipe in \
-    "pacman|sudo pacman -S --needed --noconfirm|base-devel ncurses libx11 libxt python git" \
-    "apt-get|sudo apt-get install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git" \
-    "apt|sudo apt install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git" \
-    "dnf|sudo dnf install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" \
-    "yum|sudo yum install -y|gcc make ncurses-devel libX11-devel libXt-devel python-devel git" \
-    "zypper|sudo zypper install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git" \
-    "apk|sudo apk add|build-base ncurses-dev libx11-dev libxt-dev python3-dev git" \
-    "xbps-install|sudo xbps-install -Sy|base-devel ncurses-devel libX11-devel libXt-devel python3-devel git" \
-    "emerge|sudo emerge -n|sys-libs/ncurses x11-libs/libX11 x11-libs/libXt dev-lang/python dev-vcs/git" \
+    "pacman|sudo pacman -S --needed --noconfirm|base-devel ncurses libx11 libxt python git findutils" \
+    "apt-get|sudo apt-get install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
+    "apt|sudo apt install -y|build-essential libncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
+    "dnf|sudo dnf install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
+    "yum|sudo yum install -y|gcc make ncurses-devel libX11-devel libXt-devel python-devel git findutils" \
+    "zypper|sudo zypper install -y|gcc make ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
+    "apk|sudo apk add|build-base ncurses-dev libx11-dev libxt-dev python3-dev git findutils" \
+    "xbps-install|sudo xbps-install -Sy|base-devel ncurses-devel libX11-devel libXt-devel python3-devel git findutils" \
+    "emerge|sudo emerge -n|sys-libs/ncurses x11-libs/libX11 x11-libs/libXt dev-lang/python dev-vcs/git sys-apps/findutils" \
   ; do
     if command -v "${recipe%%|*}" >/dev/null 2>&1; then
       echo "$recipe"
@@ -297,6 +306,36 @@ install_dependencies() {
   fi
 }
 
+# The plain commands the build reaches for -- not the libraries, which are the
+# packages above, but the tools the Makefile of Vim runs.
+#
+# Asked BEFORE the build because of what a minimal openSUSE cost: its image has
+# no "find", and nothing said so until "make install", four minutes in, where
+# the only clue was "chmod: missing operand after '755'". Two seconds here
+# instead of four minutes there.
+check_the_tools() {
+  local tool missing
+
+  step "Tools"
+
+  missing=""
+  for tool in git make find sed grep awk tar; do
+    command -v "$tool" >/dev/null 2>&1 || missing="$missing $tool"
+  done
+  command -v cc >/dev/null 2>&1 || command -v gcc >/dev/null 2>&1 ||
+    missing="$missing a-C-compiler"
+
+  if [ -z "$missing" ]; then
+    green "  git, make, find, a compiler and the usual text tools are all here"
+    return 0
+  fi
+
+  yellow "  these are not here:$missing"
+  echo "    The build uses every one of them, and the error it gives when one is"
+  echo "    missing says nothing about which. Install them and run this again."
+  ask "  Go on anyway?" || exit 1
+}
+
 # ------------------------------------------------------------- our own name ---
 
 # The first line of the screen Vim shows when it opens with no file.
@@ -366,17 +405,36 @@ fetch_source() {
   fi
 }
 
+# Is a usable X here? Both headers, because they come from two packages and a
+# machine can have one without the other.
+#
+# This is not about preferring X. "--with-x" is a DEMAND: configure stops with
+# "could not configure X" when it is given and X is not all there, and that
+# contradicts what this script tells the user two steps earlier -- that only the
+# headers of ncurses stop a build. Measured on a Void whose libXt-devel refused
+# to install while libX11-devel went in: half an X killed the whole thing.
+have_x() {
+  local dir
+  for dir in /usr/include /usr/local/include; do
+    if [ -f "$dir/X11/Xlib.h" ] && [ -f "$dir/X11/Intrinsic.h" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 # Only the flags this source actually offers. Asking "./configure --help" is
 # what keeps the script from ageing: a flag that is renamed upstream simply
 # stops being used, instead of breaking the build.
 available_flags() {
   local configure_help="$1"
-  local flags=(
-    --with-features=huge
-    --enable-multibyte
-    --enable-terminal
+
+  # Printed one per line, and not gathered into an array: arrays are of bash.
+  printf '%s\n' \
+    --with-features=huge \
+    --enable-multibyte \
+    --enable-terminal \
     --enable-cscope
-  )
   # No "--enable-fail-if-missing". It contradicts the list below: it turns
   # every one of these into a requirement, and the whole point of them is that
   # GrooVim takes what the machine has. A CentOS 7 with python 2.7 and no
@@ -398,30 +456,50 @@ available_flags() {
       --enable-waylandclipboard \
       "--with-modified-by=$MODIFIED_BY"
   do
+    # The flags that need an X to exist are left out when there is none: see
+    # have_x above. Everything else only has to be a flag this source knows.
+    case "$optional" in
+      --with-x|--enable-xim) have_x || continue ;;
+    esac
     if grep -q -- "${optional%%=*}" "$configure_help"; then
-      flags+=("$optional")
+      printf '%s\n' "$optional"
     fi
   done
-  printf '%s\n' "${flags[@]}"
 }
 
 build_vim() {
-  local configure_help flags
+  local configure_help flag_file flag
 
   step "Building"
   cd "$SOURCE"
 
   configure_help="$(mktemp)"
+  flag_file="$(mktemp)"
   ./configure --help > "$configure_help" 2>&1 || true
-  mapfile -t flags < <(available_flags "$configure_help")
+  available_flags "$configure_help" > "$flag_file"
   rm -f "$configure_help"
+
+  # The flags reach configure as the positional parameters of this function.
+  # "mapfile" is of bash, and so is the process substitution it was fed from.
+  #
+  # The loop is fed by a REDIRECT and not by a pipe, which is the whole trick: a
+  # pipe would run it in a subshell and everything it set would be thrown away
+  # at "done". And "$@" is quoted at every step, which is what keeps the spaces
+  # inside "--with-modified-by=Questor the Elf (eduardolucioac)" together
+  # instead of turning one flag into four.
+  set --
+  while IFS= read -r flag; do
+    [ -n "$flag" ] || continue
+    set -- "$@" "$flag"
+  done < "$flag_file"
+  rm -f "$flag_file"
 
   echo "  prefix: $PREFIX"
   echo "  flags:"
-  printf '    %s\n' "${flags[@]}"
+  printf '    %s\n' "$@"
 
   make distclean >/dev/null 2>&1 || true
-  ./configure --prefix="$PREFIX" "${flags[@]}"
+  ./configure --prefix="$PREFIX" "$@"
 
   echo "  compiling with $JOBS jobs..."
   make -j"$JOBS"
@@ -467,7 +545,7 @@ write_groovim() {
   mkdir -p "$BINDIR"
 
   cat > "$target" <<END
-#!/usr/bin/env bash
+#!/bin/sh
 #
 # Runs the Vim of GrooVim, with the .vimrc of GrooVim. Written by
 # install.sh -- run it again to change any of this.
@@ -652,6 +730,7 @@ if [ "$NEED_BUILD" -eq 1 ]; then
   echo "  and write \"groovim\" into $BINDIR."
   ask "  Go on?" || { echo "  Nothing done."; exit 0; }
   install_dependencies
+  check_the_tools
   fetch_source
   brand_the_splash
   build_vim

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Runs the automated battery of GrooVim.
 #
 #   ./run.sh                  uses ../.vimrc
@@ -63,7 +63,13 @@ TOTAL=0; FAILURES=0; BROKEN=0
 
 for CASE in "$BASE"/cases/[0-9]*.vim; do
   NAME="$(basename "$CASE" .vim)"
-  [ -n "$FILTER" ] && [[ "$NAME" != *"$FILTER"* ]] && continue
+  # "case" and not "[[ ]]": this runs where /bin/sh is not bash.
+  if [ -n "$FILTER" ]; then
+    case "$NAME" in
+      *"$FILTER"*) ;;
+      *) continue ;;
+    esac
+  fi
 
   # "script" gives a real terminal: without it "input()" and the keys of the
   # mappings do not behave as they do in real use.

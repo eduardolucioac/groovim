@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Writes the shortcuts of GrooVim into the README, out of the one list they all
 # come from.
 #
