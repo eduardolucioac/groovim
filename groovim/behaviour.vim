@@ -369,10 +369,11 @@ func! GrooVim_ClipPaste(mode) abort
     " program -- cannot be read from here: reading it back would mean asking the
     " terminal and waiting for an answer many never send. What does work is the
     " paste of the terminal itself, which types the text in as if you had.
+    " Note: Short on purpose. The first try ran off the bar and only its tail
+    " was left on screen, which is worse than saying less! By Questor
     if GrooVim_ClipAssumed()
-      call GrooVim_GrooVimBarMsg("Nothing copied HERE yet. Text copied on " .
-       \ "another machine cannot be read from this one: use the paste of your " .
-       \ "terminal (usually Ctrl-Shift-V)!", 8)
+      call GrooVim_GrooVimBarMsg(
+       \ "Nothing copied here. From outside, use Ctrl-Shift-V!", 6)
     else
       call GrooVim_GrooVimBarMsg("There is nothing to paste!", 4)
     endif

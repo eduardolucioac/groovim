@@ -183,8 +183,11 @@ call setreg("+", "")
 call setreg("\"", "")
 let g:GrooVim_GrooVimBarMsgValue = ""
 call feedkeys("i\<C-v>\<Esc>", "x")
-call GT_Ok("with nothing to paste it says so", g:GrooVim_GrooVimBarMsgValue =~ "nothing",
+call GT_Ok("with nothing to paste it says so", g:GrooVim_GrooVimBarMsgValue =~? "nothing",
   \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]   (it used to be E353)")
+call GT_Ok("  and the message fits on one line",
+  \ strchars(g:GrooVim_GrooVimBarMsgValue) <= 72,
+  \ "   (" . strchars(g:GrooVim_GrooVimBarMsgValue) . " characters)   (a message that runs off the bar leaves only its tail)")
 call GT_Ok("  and the document was not touched", getline(1) ==# "",
   \ "   [" . getline(1) . "]")
 
