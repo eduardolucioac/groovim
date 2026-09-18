@@ -389,16 +389,37 @@ func! GrooVim_ConfigureFile() range abort
    \ {answer -> answer ==# "" || index(["u", "w", "m"], answer) >= 0})
   echomsg "   "
 
+  " Note: The Language menu of Notepad++, which in Vim is the "filetype": what
+  " decides the colours, the indenting and the comment character. GrooVim keeps
+  " no list of its own -- <Tab> completes among the ones this Vim ships, which is
+  " the only list that can ever be right! By Questor
+  echomsg "Set language:"
+  let l:language = GrooVim_AskUntilValid(
+   \ "<Tab> completes, \"none\" for plain text, or empty to do nothing " .
+   \ GrooVim_OptionsToPrompt(["<name>", "none", "<empty>"], "<empty>", &filetype),
+   \ {answer -> GrooVim_IsLanguageAnswer(answer)}, "filetype")
+  echomsg "   "
+
   call GrooVim_FileSettingsApply(
    \ l:encoding ==# "" ? "" : l:encoding[0],
    \ strchars(l:encoding) > 1 ? l:encoding[1] : "",
-   \ l:lineEnding)
+   \ l:lineEnding, l:language)
 
 endfunc
 
 " Note: An encoding answer is two letters -- one of the encodings and then "r"
 " or "c" -- or empty, which leaves the encoding as it is. Nothing else: a single
 " letter is half an answer, and there is no way to tell WHICH half! By Questor
+" Note: Empty leaves the language alone, "none" takes it off -- the "None (Normal
+" Text)" of that menu -- and anything else has to be a file type this Vim knows.
+" Asked of Vim itself, so the answer is right by construction! By Questor
+func! GrooVim_IsLanguageAnswer(answer) abort
+  if a:answer ==# "" || a:answer ==# "none"
+    return 1
+  endif
+  return index(getcompletion("", "filetype"), a:answer) >= 0
+endfunc
+
 func! GrooVim_IsEncodingAnswer(answer) abort
   " Note: Empty is the answer that changes nothing, and the default.
   if a:answer ==# ""
@@ -413,15 +434,17 @@ endfunc
 
 " Note: Apart from the asking, so that a case can put it through every
 " combination without typing an answer! By Questor
-func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
+func! GrooVim_FileSettingsApply(encoding, how, lineEnding, ...) abort
 
-  " Note: Either half may be EMPTY, which means "leave THIS one alone". Both of
-  " them empty is a screen you pressed <Enter> through, and nothing happens! By
+  " Note: Any of the three may be EMPTY, which means "leave THIS one alone". All
+  " three empty is a screen you pressed <Enter> through, and nothing happens! By
   " Questor
+  let l:language = a:0 > 0 ? a:1 : ""
   let l:doEncoding = a:encoding !=# ""
   let l:doLineEnding = a:lineEnding !=# ""
+  let l:doLanguage = l:language !=# ""
 
-  if !l:doEncoding && !l:doLineEnding
+  if !l:doEncoding && !l:doLineEnding && !l:doLanguage
     call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
     return 0
   endif
@@ -430,6 +453,9 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
   let l:ff = l:doLineEnding ? g:GrooVim_LineEndings[a:lineEnding].ff : &fileformat
   let l:said = (l:doEncoding ? l:enc.name : "the encoding it had") . ", " .
    \ (l:doLineEnding ? g:GrooVim_LineEndings[a:lineEnding].name : "the line ending it had")
+  if l:doLanguage
+    let l:said = l:said . ", language " . (l:language ==# "none" ? "off" : l:language)
+  endif
 
   " Note: Reading again is about the ENCODING, so with none chosen there is
   " nothing to read again for: what is left is the line ending, and that is a
@@ -444,6 +470,9 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
     try
       exec "edit! ++enc=" . l:enc.fenc . " ++ff=" . l:ff
       let &l:bomb = l:enc.bom
+      " Note: After the reading, because reading a file works the file type out
+      " again from scratch and would undo a language chosen here! By Questor
+      call GrooVim_LanguageApply(l:language)
       call GrooVim_GrooVimBarMsg("Read again as " . l:said . "!", 5)
       return 1
     catch
@@ -459,15 +488,30 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
   if l:doLineEnding
     let &l:fileformat = l:ff
   endif
+  call GrooVim_LanguageApply(l:language)
 
-  " Note: Marked as changed on purpose. Vim writes the new encoding at the next
-  " write and not before, so a buffer that says it has nothing to write would
-  " leave the setting looking applied and the file untouched! By Questor
-  setlocal modified
+  " Note: Marked as changed only when what was chosen has to be WRITTEN to take
+  " effect. A language is not written anywhere -- it is how this Vim reads the
+  " file -- so choosing one alone leaves a clean buffer clean! By Questor
+  if l:doEncoding || l:doLineEnding
+    setlocal modified
+    call GrooVim_GrooVimBarMsg("Will be written as " . l:said . " -- save to apply!", 6)
+  else
+    call GrooVim_GrooVimBarMsg("Language is now " .
+     \ (l:language ==# "none" ? "off" : l:language) . "!", 5)
+  endif
 
-  call GrooVim_GrooVimBarMsg("Will be written as " . l:said . " -- save to apply!", 6)
   return 1
 
+endfunc
+
+" Note: "none" is the "None (Normal Text)" of that menu, and an empty file type
+" is how Vim spells it! By Questor
+func! GrooVim_LanguageApply(language) abort
+  if a:language ==# ""
+    return
+  endif
+  let &l:filetype = a:language ==# "none" ? "" : a:language
 endfunc
 
 " Note: What Notepad++ calls View, Show Symbol: what is DRAWN on the screen that
@@ -542,9 +586,16 @@ endfunc
 "
 " Note: "IsValid" takes the answer and says whether it serves. A closure carries
 " whatever else the test needs! By Questor
-func! GrooVim_AskUntilValid(prompt, IsValid) abort
+" Note: A third argument turns on the completion of Vim, by name -- "filetype",
+" "file", "buffer" and the rest of ":help command-completion". It is what lets
+" the language question offer the 831 file types this Vim knows without GrooVim
+" holding a list of its own! By Questor
+func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
+  let l:completion = a:0 > 0 ? a:1 : ""
   while 1
-    let l:answer = input(a:prompt)
+    let l:answer = l:completion ==# ""
+     \ ? input(a:prompt)
+     \ : input(a:prompt, "", l:completion)
     if call(a:IsValid, [l:answer])
       return l:answer
     endif
