@@ -342,7 +342,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n That screen also sets the LANGUAGE, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right.".
 \"\n".
-\"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean, and why it is not among what that screen offers to keep -- it belongs to the buffer you are on.".
+\"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean.".
+\"\n".
+\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block.".
 \"\n".
 \"\n *THE FILE YOU HAVE OPEN*".
 \"\n".
@@ -350,6 +352,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which reads the file AGAIN with that encoding -- the bytes do not move and their meaning changes, which is the top of that menu -- or |[c]| , which converts the file, its \"Convert to\": the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
 \"\n*o*  What ends a line: |[u]nix| LF, |[w]indows| CRLF, |[m]acintosh| CR;".
+\"\n*o*  A line that begins with |>| explains; the line under it asks. What explains may be as long as it likes, because it is a message -- a QUESTION wider than your terminal wraps, and Vim answers a wrapped prompt with a hit-enter that eats the key you meant for the question;".
 \"\n*o*  An EMPTY answer means \"leave THIS one alone\" and not \"leave the screen\": give it to the encoding and the line ending is still asked, give it to both and nothing happens at all. It is the default of both questions, so pressing <Enter> through the screen leaves the file as it found it, and what was done and what was not is on the bar afterwards;".
 \"\n".
 \"\n Reading again throws away what you have not written yet, so it is refused while there is something to lose. Converting marks the buffer as changed on purpose: Vim writes the new encoding at the next write and not before, and a buffer that claimed to have nothing to write would leave the setting looking applied with the file untouched.".

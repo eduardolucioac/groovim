@@ -139,7 +139,7 @@ call GT_Ok("the file screen does not ask about the language",
 call GT_Ok("  and the view screen does",
   \ GT_FunctionText("GrooVim_ConfigureView") =~ "IsLanguageAnswer", "")
 
-call feedkeys("\<CR>\<CR>python\<CR>a\<CR>", "t")
+call feedkeys("\<CR>\<CR>a\<CR>python\<CR>", "t")
 call GrooVim_ConfigureView()
 call feedkeys("", "x")
 call GT_Ok("choosing it changes the file type", &filetype ==# "python",
@@ -147,13 +147,13 @@ call GT_Ok("choosing it changes the file type", &filetype ==# "python",
 call GT_Ok("  and does NOT mark the buffer as changed", &modified == 0,
   \ "   (a language is not written into the file; it is how Vim reads it)")
 
-call feedkeys("\<CR>\<CR>none\<CR>a\<CR>", "t")
+call feedkeys("\<CR>\<CR>a\<CR>none\<CR>", "t")
 call GrooVim_ConfigureView()
 call feedkeys("", "x")
 call GT_Ok("\"none\" takes it off", &filetype ==# "",
   \ "   [" . &filetype . "]")
 
-call feedkeys("\<CR>\<CR>\<CR>a\<CR>", "t")
+call feedkeys("\<CR>\<CR>a\<CR>\<CR>", "t")
 let g:GT_WAS = &filetype
 call GrooVim_ConfigureView()
 call feedkeys("", "x")
@@ -203,6 +203,30 @@ call GT_Ok("empty on both: nothing at all",
   \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
 call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed",
   \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+
+" ---- every question of these screens fits an eighty column terminal
+"
+" A prompt wider than the terminal wraps, the message area overflows, and the
+" hit-enter Vim raises for that EATS the answer. Measured: at eighty columns the
+" language question swallowed its own, and the same answer went through only
+" after the explanation moved to the line above it.
+"
+" The lines that only EXPLAIN may be as long as they like -- they are messages,
+" and a message that wraps costs nothing.
+let g:GT_Prompts = [
+  \ ["encoding", "Answer the 1 and 2 together or empty to do nothing " .
+  \   GrooVim_OptionsToPrompt(["[12]", "<empty>"], "<empty>", "")],
+  \ ["line ending", GrooVim_OptionsToPrompt(["u", "w", "m", "<empty>"], "<empty>", "u")],
+  \ ["language", GrooVim_OptionsToPrompt(["<name>", "none", "<empty>"], "<empty>", "text")],
+  \ ]
+for s:one in g:GT_Prompts
+  call GT_Ok("the " . s:one[0] . " question fits 80 columns",
+    \ strchars(s:one[1]) <= 80,
+    \ "   (" . strchars(s:one[1]) . ")   [" . s:one[1] . "]")
+endfor
+call GT_Ok("and what only explains carries the \"> \"",
+  \ GT_FunctionText("GrooVim_ConfigureFile") =~ "GrooVim_ScreenSay",
+  \ "   (put on by GrooVim_ScreenSay, never written by hand)")
 
 " ---- and it no longer holds the screen waiting for Enter
 call GT_Ok("the screen does not ask you to press Enter",

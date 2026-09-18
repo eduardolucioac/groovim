@@ -365,11 +365,12 @@ func! GrooVim_ConfigureFile() range abort
   " prompt of more than one screen line overflows the message area, and the
   " hit-enter Vim raises for that EATS the first key you press -- measured! By
   " Questor
-  echomsg "Change/convert encoding:"
-  echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
-   \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow())
-  echomsg "2 - Apply it by [r]eading again with the \"encode\" or by " .
-   \ "[c]onverting the file " . GrooVim_OptionsToPrompt(["r", "c"], "", "")
+  call GrooVim_ScreenSay("Change/convert encoding:")
+  call GrooVim_ScreenSay("1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, " .
+   \ "utf-16 b[e] " .
+   \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow()))
+  call GrooVim_ScreenSay("2 - Apply it by [r]eading again with the \"encode\" " .
+   \ "or by [c]onverting the file " . GrooVim_OptionsToPrompt(["r", "c"], "", ""))
 
   " Note: Empty is the answer that changes nothing, and it is the default, so
   " pressing <Enter> through a screen leaves it as it found it -- which is what
@@ -382,9 +383,9 @@ func! GrooVim_ConfigureFile() range abort
 
   " Note: An empty answer means "leave THIS alone", not "leave the screen". The
   " line ending is another question and gets asked either way! By Questor
-  echomsg "Convert line ending:"
+  call GrooVim_ScreenSay("Convert line ending: [u]nix LF, [w]indows CRLF, " .
+   \ "[m]acintosh CR, empty does nothing")
   let l:lineEnding = GrooVim_AskUntilValid(
-   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or empty to do nothing " .
    \ GrooVim_OptionsToPrompt(["u", "w", "m", "<empty>"], "<empty>", GrooVim_LineEndingNow()),
    \ {answer -> answer ==# "" || index(["u", "w", "m"], answer) >= 0})
   echomsg "   "
@@ -526,17 +527,27 @@ func! GrooVim_ConfigureView() range abort
 
   call GrooVim_SymbolsSet()
 
+  " Note: The question that keeps comes HERE, in the middle, and it closes the
+  " block it belongs to: the two answers above are preferences of the editor and
+  " can be kept, and what follows it cannot. Asked at the end instead, it read as
+  " if it were offering to keep all three! By Questor
+  call GrooVim_OptsEnd()
+
   " Note: The Language menu of Notepad++, which in Vim is the "filetype". It is
   " asked HERE and not on the file screen, and the reason is the one written at
   " GrooVim_LanguageApply: a language is never written into the file. The file
   " screen is what goes onto the disk -- the encoding and what ends a line change
   " the bytes there -- and this changes how the same bytes are READ.
   "
+  " Note: It belongs to the BUFFER you are on, which is why it is below the
+  " question that keeps and not above it: keeping "python" for the next time you
+  " open GrooVim would put every file you open into python.
+  "
   " Note: GrooVim keeps no list of its own. <Tab> completes among the ones this
   " Vim ships, which is the only list that can ever be right! By Questor
-  echomsg "Set language:"
+  call GrooVim_ScreenSay("Set language: <Tab> completes, \"none\" for plain " .
+   \ "text, empty does nothing")
   let l:language = GrooVim_AskUntilValid(
-   \ "<Tab> completes, \"none\" for plain text, or empty to do nothing " .
    \ GrooVim_OptionsToPrompt(["<name>", "none", "<empty>"], "<empty>", &filetype),
    \ {answer -> GrooVim_IsLanguageAnswer(answer)}, "filetype")
   echomsg "   "
@@ -546,11 +557,6 @@ func! GrooVim_ConfigureView() range abort
     call GrooVim_GrooVimBarMsg("Language is now " .
      \ (l:language ==# "none" ? "off" : l:language) . "!", 5)
   endif
-
-  " Note: The language is NOT among what this screen offers to keep. It belongs
-  " to the buffer you are on, and keeping "python" for the next time you open
-  " GrooVim would put every file you open into python! By Questor
-  call GrooVim_OptsEnd()
 
 endfunc
 
@@ -593,6 +599,19 @@ endfunc
 " "file", "buffer" and the rest of ":help command-completion". It is what lets
 " the language question offer the 831 file types this Vim knows without GrooVim
 " holding a list of its own! By Questor
+" Note: A line of a screen that EXPLAINS instead of asking. The "> " is put on
+" by this and never written by hand, so every one of them carries the same mark
+" and a screen of several questions reads as several.
+"
+" Note: A message and not part of the prompt, and that is not decoration: a
+" prompt wider than the terminal wraps, the message area overflows, and the
+" hit-enter Vim raises for that EATS the answer -- measured at eighty columns,
+" where the language question swallowed its own. A message may be as long as it
+" likes! By Questor
+func! GrooVim_ScreenSay(text) abort
+  echomsg "> " . a:text
+endfunc
+
 func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
   let l:completion = a:0 > 0 ? a:1 : ""
   while 1

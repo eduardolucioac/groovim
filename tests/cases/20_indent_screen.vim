@@ -54,7 +54,7 @@ func! GT_Body()
   call GT_Ok("answering \"a\": nothing was written", !filereadable(g:GrooVim_OptsFile), "")
 
   " ---- a real tab instead of spaces
-  call feedkeys("\<CR>0\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("\<CR>0\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureIndent()
   call feedkeys("", "x")
   call GT_Ok("Tab puts a real tab now", &expandtab == 0, "")
@@ -66,7 +66,7 @@ func! GT_Body()
   call cursor(1, 1)
   call feedkeys("\<Tab>", "x")
   call GT_Ok("a real tab lands in the line", getline(1) =~ "^\t", "   [" . strtrans(getline(1)) . "]")
-  call feedkeys("\<CR>1\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("\<CR>1\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureIndent()
   call feedkeys("", "x")
   %delete _
@@ -90,7 +90,7 @@ func! GT_Body()
 
   let g:GrooVim_IndentGuideChar = "|"
   call GrooVim_SymbolsSet()
-  call feedkeys("\<CR>0\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("\<CR>0\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureView()
   call feedkeys("", "x")
   call GT_Ok("guides off: no guide in listchars", GT_Guide() ==# "", "   [" . &listchars . "]")
@@ -98,14 +98,14 @@ func! GT_Body()
   call GT_Ok("  and the char you chose was remembered", g:GrooVim_IndentGuideCharLast ==# "|",
     \ "   [" . g:GrooVim_IndentGuideCharLast . "]")
 
-  call feedkeys("\<CR>1\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("\<CR>1\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureView()
   call feedkeys("", "x")
   call GT_Ok("guides on again, with the SAME char", strcharpart(GT_Guide(), 0, 1) ==# "|",
     \ "   [" . GT_Guide() . "]   (and not the factory one)")
 
   " ---- and the other symbol of that screen
-  call feedkeys("1\<CR>\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("1\<CR>\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureView()
   call feedkeys("", "x")
   " Anchored at the start or after a comma: "leadmultispace:" ENDS with the
@@ -113,7 +113,7 @@ func! GT_Body()
   call GT_Ok("space and tab on: a dot on every space",
     \ &listchars =~ '\(^\|,\)space:', "   [" . &listchars . "]")
   call GT_Ok("  and an arrow on every tab", &listchars =~ "tab:\u2192", "")
-  call feedkeys("0\<CR>\<CR>\<CR>a\<CR>", "t")
+  call feedkeys("0\<CR>\<CR>a\<CR>\<CR>", "t")
   call GrooVim_ConfigureView()
   call feedkeys("", "x")
   call GT_Ok("off again: no dot on a space", &listchars !~ '\(^\|,\)space:',
