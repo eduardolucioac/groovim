@@ -112,7 +112,7 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
  \  "what": "Opens the settings -- ALL of them",
  \  "notes": [
- \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[v]iew| , what is DRAWN and is not in the file; |[f]ile| , the encoding and what ends a line IN the file you have open; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
+ \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[v]iew| , what is DRAWN and is not in the file, the language among it; |[f]ile| , the encoding and what ends a line IN the file you have open; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
  \   "The indent one is the \"Tab Settings\" of Notepad++, and the view one is its \"View, Show Symbol\"",
  \   "On every screen, leaving an answer EMPTY keeps the value shown as \"in use\". At the end a summary of what you chose is held on screen until you press <Enter>",
  \   "|[f]ile| is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there",
@@ -340,14 +340,16 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why Notepad++ keeps it in \"View, Show Symbol\" and not in its tab settings.".
 \"\n".
+\"\n That screen also sets the LANGUAGE, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right.".
+\"\n".
+\"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean, and why it is not among what that screen offers to keep -- it belongs to the buffer you are on.".
+\"\n".
 \"\n *THE FILE YOU HAVE OPEN*".
 \"\n".
 \"\n The encoding and what ends a line belong to the DOCUMENT, not to the editor, and they are asked with F5->c and then |[f]| . It is the Encoding menu and the \"EOL Conversion\" of Notepad++, in one screen:".
 \"\n".
 \"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which reads the file AGAIN with that encoding -- the bytes do not move and their meaning changes, which is the top of that menu -- or |[c]| , which converts the file, its \"Convert to\": the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
 \"\n*o*  What ends a line: |[u]nix| LF, |[w]indows| CRLF, |[m]acintosh| CR;".
-\"\n*o*  The language, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right;".
-\"\n   |-|Note: Choosing a language alone does not mark the file as changed. A language is not written into it -- it is how Vim reads it;".
 \"\n*o*  An EMPTY answer means \"leave THIS one alone\" and not \"leave the screen\": give it to the encoding and the line ending is still asked, give it to both and nothing happens at all. It is the default of both questions, so pressing <Enter> through the screen leaves the file as it found it, and what was done and what was not is on the bar afterwards;".
 \"\n".
 \"\n Reading again throws away what you have not written yet, so it is refused while there is something to lose. Converting marks the buffer as changed on purpose: Vim writes the new encoding at the next write and not before, and a buffer that claimed to have nothing to write would leave the setting looking applied with the file untouched.".

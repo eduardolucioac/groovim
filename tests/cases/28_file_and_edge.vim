@@ -127,24 +127,37 @@ call GT_Ok("  and empty, which leaves it alone", GrooVim_IsLanguageAnswer("") ==
 call GT_Ok("a name it does not know is refused",
   \ GrooVim_IsLanguageAnswer("linguagem-que-nao-existe") == 0, "")
 
+" It is asked on the VIEW screen and not on the file one: nothing about a
+" language is ever written to the disk. The encoding and the line ending change
+" the bytes in the file; a language changes how the same bytes are READ.
 exec "edit! " . g:GT_FILE
 %delete _
 call setline(1, "x = 1")
 write
-call GrooVim_FileSettingsApply("", "", "", "python")
-call GT_Ok("setting it alone changes the file type", &filetype ==# "python",
+call GT_Ok("the file screen does not ask about the language",
+  \ GT_FunctionText("GrooVim_ConfigureFile") !~ "IsLanguageAnswer", "")
+call GT_Ok("  and the view screen does",
+  \ GT_FunctionText("GrooVim_ConfigureView") =~ "IsLanguageAnswer", "")
+
+call feedkeys("\<CR>\<CR>python\<CR>a\<CR>", "t")
+call GrooVim_ConfigureView()
+call feedkeys("", "x")
+call GT_Ok("choosing it changes the file type", &filetype ==# "python",
   \ "   [" . &filetype . "]")
 call GT_Ok("  and does NOT mark the buffer as changed", &modified == 0,
   \ "   (a language is not written into the file; it is how Vim reads it)")
-call GrooVim_FileSettingsApply("", "", "", "none")
+
+call feedkeys("\<CR>\<CR>none\<CR>a\<CR>", "t")
+call GrooVim_ConfigureView()
+call feedkeys("", "x")
 call GT_Ok("\"none\" takes it off", &filetype ==# "",
   \ "   [" . &filetype . "]")
 
-call GrooVim_FileSettingsApply("b", "c", "w", "vim")
-call GT_Ok("all three at once", &filetype ==# "vim" && &bomb == 1 && &fileformat ==# "dos",
-  \ "   [" . &filetype . " bomb=" . &bomb . " " . &fileformat . "]")
-call GT_Ok("  and now it IS marked as changed", &modified == 1,
-  \ "   (the encoding and the line ending have to be written)")
+call feedkeys("\<CR>\<CR>\<CR>a\<CR>", "t")
+let g:GT_WAS = &filetype
+call GrooVim_ConfigureView()
+call feedkeys("", "x")
+call GT_Ok("and empty leaves it where it was", &filetype ==# g:GT_WAS, "")
 
 " ---- an empty answer means "leave THIS alone", not "leave the screen"
 exec "edit! " . g:GT_FILE
@@ -155,7 +168,7 @@ let g:GT_BEFORE = [&fileencoding, &bomb, &fileformat, &modified]
 
 " x on the encoding: the line ending is STILL asked, and answering it works.
 let g:GrooVim_GrooVimBarMsgValue = ""
-call feedkeys("\<CR>w\<CR>\<CR>", "t")
+call feedkeys("\<CR>w\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
 call GT_Ok("empty on the encoding: the encoding is untouched",
@@ -170,7 +183,7 @@ call GT_Ok("  and it says what it did and what it did not",
 
 " x on the line ending: the encoding is applied all the same.
 exec "edit! " . g:GT_FILE
-call feedkeys("bc\<CR>\<CR>\<CR>", "t")
+call feedkeys("bc\<CR>\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
 call GT_Ok("empty on the line ending: the encoding WAS applied", &bomb == 1, "")
@@ -182,7 +195,7 @@ call GT_Ok("  and the line ending was left where it was",
 exec "edit! " . g:GT_FILE
 let g:GT_AGAIN = [&fileencoding, &bomb, &fileformat]
 let g:GrooVim_GrooVimBarMsgValue = ""
-call feedkeys("\<CR>\<CR>\<CR>", "t")
+call feedkeys("\<CR>\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
 call GT_Ok("empty on both: nothing at all",
