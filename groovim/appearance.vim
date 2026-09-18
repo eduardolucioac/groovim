@@ -120,7 +120,7 @@ func! GrooVim_GrooVimHelpBar() abort
 endfunc
 set stl=%!GrooVim_GrooVimBar()
 " Note: Displays a message on the initial run! By Questor
-call GrooVim_GrooVimBarMsg("To see GrooVim help use F9!", 10)
+call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 
 " Note: Make the 81st column stand out (just the 80st column of wide lines...)! By Questor
 highlight GrooVim_ColorColumn ctermbg=blue
