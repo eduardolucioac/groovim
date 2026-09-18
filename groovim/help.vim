@@ -108,8 +108,7 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"
  \  ]},
- \ {"group": "F5", "key": "v", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\zv")', "i": 'call feedkeys("\<Esc>\\zvi")'}, "what": "Opens the file|.vimrc|"},
- \ {"group": "F5", "key": "r", "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
+ \ {"group": "F5", "key": "r", "break": 1, "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
  \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
  \  "what": "Opens the settings -- ALL of them",
  \  "notes": [

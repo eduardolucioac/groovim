@@ -200,9 +200,6 @@ func! GrooVim_DuplicateVisualSelection() range abort
   call GrooVim_ClipSet(l:saved_reg)
 endfunc
 
-" Note: Opens the .vimrc of GrooVim in a tab of its own! By Questor
-exec "nnoremap <silent> <leader>zv :tabedit " . fnameescape(g:GrooVim_Vimrc) . "<cr>"
-
 " Note: Reads the .vimrc again, in every tab.
 "
 " Note: Plain mappings with the path written in at load time, and NOT a function

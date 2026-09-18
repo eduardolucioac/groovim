@@ -205,7 +205,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: The keys of <<> and <>> without the Shift: the comma is to the left of the dot, which is the way each one closes;
     - `a` - Close everything and leave *(normal mode/insert/visual)*;
         - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
-    - `v` - Opens the file .vimrc *(normal mode/insert/visual)*;
     - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
     - `c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
         - Note: It asks which of them first: [i]ndent , the width and what <Tab> puts; [s]earch ; [r]eplace ; [g]eneral . Then it opens that screen;

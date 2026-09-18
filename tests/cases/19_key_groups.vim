@@ -182,9 +182,9 @@ func! GT_Body()
     \ "   [" . g:GrooVim_Vimrc . "]")
   call GT_Ok("  and it is the one being run",
     \ simplify(fnamemodify(g:GrooVim_Vimrc, ":p")) ==# simplify(fnamemodify(l:path, ":p")), "")
-  call GT_Ok("the mapping that opens it carries the path, not the variable",
-    \ maparg("\\zv", "n") !~ "MYVIMRC" && maparg("\\zv", "n") =~ "tabedit", "")
-  call GT_Ok("neither goes through a function of its own",
+  call GT_Ok("the mapping that reloads it carries the path, not the variable",
+    \ maparg("\\zvv", "n") !~ "MYVIMRC" && maparg("\\zvv", "n") =~ "source", "")
+  call GT_Ok("and it does not go through a function of its own",
     \ maparg("\\zvv", "n") !~ "call ",
     \ "   (sourcing redefines every function, and Vim refuses one that is RUNNING: E127)")
 
