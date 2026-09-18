@@ -266,13 +266,31 @@ func! GT_Body()
   call GT_Ok("back on, and it is on offer again", GrooVim_ShortcutAvailable(l:tree) &&
     \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0, "")
 
-  " ---- doing it and setting it up: same letter, one group apart
-  call GT_Ok("F3 runs the search and the replace",
+  " ---- one door into the settings, and only one
+  "
+  " Each screen used to have a key of its own -- one for the search, one for the
+  " replace, one for the indent, one for the general -- four entries in the list,
+  " in the help, in the menu and in the README, for four things that are the same
+  " thing. F5->c asks WHICH and opens it.
+  call GT_Ok("F3 still runs the search and the replace",
     \ !empty(filter(GT_Of("F3"), 'v:val.key ==# "f"')) &&
     \ !empty(filter(GT_Of("F3"), 'v:val.key ==# "h"')), "")
-  call GT_Ok("F5 sets them up, on the SAME letters",
-    \ !empty(filter(GT_Of("F5"), 'v:val.key ==# "f"')) &&
-    \ !empty(filter(GT_Of("F5"), 'v:val.key ==# "h"')), "")
+  " The type is asked first: "run" is one line of VimScript, or a dictionary of
+  " them keyed by mode, and "=~" against a dictionary throws.
+  call GT_Ok("F5 has one key for every setting there is",
+    \ len(filter(GT_Of("F5"),
+    \   'type(v:val.run) == type("") && v:val.run =~ "GrooVim_Configure()"')) == 1,
+    \ "   (F5->c)")
+  call GT_Ok("  and it is a door, not a screen",
+    \ exists("*GrooVim_Configure"), "")
+  for s:gone in ["f", "h", "i"]
+    call GT_Ok("  the letter " . s:gone . " of F5 is free again",
+      \ empty(filter(GT_Of("F5"), 'v:val.key ==# "' . s:gone . '"')), "")
+  endfor
+  call GT_Ok("  and the four screens are all still reachable",
+    \ exists("*GrooVim_ConfigureIndent") && exists("*GrooVim_ConfigureSearchReplace")
+    \ && exists("*GrooVim_ConfigureGeneral"),
+    \ "   (indent, search, replace, general)")
 
   " ---- and the keys really do what the list says
   tabonly!

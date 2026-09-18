@@ -194,7 +194,7 @@ func! GrooVim_EntertainmentReplace(mod) range abort
     " Note: What actually happened matters more than the hint below! By Questor
     call GrooVim_GrooVimBarMsg("Reached the end of the file: " . l:wrapped . " occurrence(s) replaced from the top!", 6)
   else
-    call GrooVim_GrooVimBarMsg("You could set me using F5->h!", 4)
+    call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [r]!", 5)
   endif
 
   finally

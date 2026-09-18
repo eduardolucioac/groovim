@@ -188,6 +188,35 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed! By Questor
+" Note: The one door into the settings. It asks WHICH of them and then opens
+" that screen, which is what a conventional editor does: one "Settings", and the
+" topics inside it.
+"
+" Note: Each screen used to have a key of its own -- four entries in the list, in
+" the help, in the menu and in the README, for four things that are the same
+" thing. Now there is one, and three letters of the F5 group came back.
+"
+" Note: Written without naming those keys, because a case reads every "FX->x" in
+" the source and refuses one that no longer exists -- which is exactly what they
+" no longer do! By Questor
+func! GrooVim_Configure() range abort
+
+  let l:which = GrooVim_GetOptions(
+   \ "Configure: [i]ndent, [s]earch, [r]eplace or [g]eneral",
+   \ ["i", "s", "r", "g"], "i", "")
+
+  if l:which ==# "i"
+    call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
+  elseif l:which ==# "s"
+    call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
+  elseif l:which ==# "r"
+    call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
+  elseif l:which ==# "g"
+    call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
+  endif
+
+endfunc
+
 func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
 
   " Note: No header line here. The bar already says "[configuration] [search]" or

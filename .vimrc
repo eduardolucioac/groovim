@@ -26,14 +26,9 @@
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-" Note: The notice above, and not the whole licence. What used to be here was
-" the previous one pasted in full -- 211 lines of it before the first line of
-" GrooVim -- and this one is 674, so that is not a road to go down again.
-"
-" Note: The licence itself lives in the file "LICENSE", where every project
-" keeps it, and what a source file carries is this: the notice the GPL asks you
-" to attach, from "How to Apply These Terms to Your New Programs" at its end! By
-" Questor
+" Note: The licence itself lives in the file "LICENSE", and what a source
+" file carries is this: the notice the GPL asks you to attach, from
+" "How to Apply These Terms to Your New Programs" at its end! By Questor
 
 let g:grooVimVersion = "v2.0.8b"
 " Eduardo Lúcio

@@ -343,7 +343,7 @@ func! GrooVim_EasySearch(mod) range abort
     call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
   endif
 
-  call GrooVim_GrooVimBarMsg("You could set me using F5->f!", 4)
+  call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
 
   finally
     " Note: Safety net: an interruption must not leave the text painted! By Questor

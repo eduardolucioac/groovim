@@ -179,7 +179,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the "Style all occurrences of token" of Notepad++;
     - `f` - Opens for search *(normal mode/insert/visual)*;
     - `h` - Opens to replace *(normal mode/insert/visual)*;
-        - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h;
+        - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
     - `End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
 
  * **F4** and then... *(The installed plugins and what they do)*
@@ -207,12 +207,11 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
     - `v` - Opens the file .vimrc *(normal mode/insert/visual)*;
     - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
-    - `f` - Opens to configure the search *(normal mode/insert/visual)*;
-    - `h` - Opens to configure the replace *(normal mode/insert/visual)*;
-        - Note: The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up;
-        - Note: On these two screens, leaving an answer EMPTY keeps the value shown as "now". At the end a summary of what you chose is held on screen until you press <Enter>;
-    - `i` - Opens the indent settings -- the "Tab Settings" of Notepad++ *(normal mode/insert/visual)*;
-    - `c` - Opens the general settings *(normal mode/insert/visual)*;
+    - `c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
+        - Note: It asks which of them first: [i]ndent , the width and what <Tab> puts; [s]earch ; [r]eplace ; [g]eneral . Then it opens that screen;
+        - Note: The indent one is the "Tab Settings" of Notepad++;
+        - Note: On every screen, leaving an answer EMPTY keeps the value shown as "now". At the end a summary of what you chose is held on screen until you press <Enter>;
+        - Note: There is one door and only one. Each screen used to have a key of its own, so the letters f , h and i of this group are free again;
     - `[` - Saves the current session *(normal mode/insert/visual)*;
     - `]` - Brings the last saved session back *(normal mode/insert/visual)*;
         - Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;

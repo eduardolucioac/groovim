@@ -67,7 +67,7 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
  \  "what": "Opens to replace",
  \  "notes": [
- \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->h"
+ \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
  \  ]},
  \ {"group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
  \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
@@ -110,15 +110,14 @@ let g:GrooVim_Shortcuts = [
  \  ]},
  \ {"group": "F5", "key": "v", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\zv")', "i": 'call feedkeys("\<Esc>\\zvi")'}, "what": "Opens the file|.vimrc|"},
  \ {"group": "F5", "key": "r", "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
- \ {"group": "F5", "key": "f", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])', "what": "Opens to configure the search"},
- \ {"group": "F5", "key": "h", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])',
- \  "what": "Opens to configure the replace",
+ \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
+ \  "what": "Opens the settings -- ALL of them",
  \  "notes": [
- \   "The SAME letter that runs it, one group up: F3->f searches and F5->f sets the search up; F3->h replaces and F5->h sets the replace up",
- \   "On these two screens, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>"
+ \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
+ \   "The indent one is the \"Tab Settings\" of Notepad++",
+ \   "On every screen, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>",
+ \   "There is one door and only one. Each screen used to have a key of its own, so the letters |f| , |h| and |i| of this group are free again"
  \  ]},
- \ {"group": "F5", "key": "i", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])', "what": "Opens the indent settings -- the \"Tab Settings\" of Notepad++"},
- \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])', "what": "Opens the general settings"},
  \ {"group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "what": "Saves the current session"},
  \ {"group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
  \  "what": "Brings the last saved session back",
@@ -337,7 +336,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
 \"\n".
-\"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->i . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->c and then |[i]| . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
 \"\n".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
@@ -348,7 +347,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
 \"\n     let g:GrooVim_IndentWidthPerType = {\"python\": 4, \"javascript\": 2}".
 \"\n<".
-\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->i turns them off and on, and hands back the char you chose;".
+\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->c and then |[i]| turns them off and on, and hands back the char you chose;".
 \"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
 \"\n".
 \"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
