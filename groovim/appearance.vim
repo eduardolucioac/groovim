@@ -22,12 +22,24 @@ set showmatch
 " Note: How many tenths of a second to blink when matching brackets! By Questor
 set mat=2
 
-" Note: No annoying sound on errors! By Questor
+" Note: No sound, and "noerrorbells" is NOT enough for that. From its own
+" manual: "This only makes a difference for error messages, the bell will be
+" used ALWAYS for a lot of errors without a message". A cursor that cannot move
+" any further is exactly one of those, so reaching the end of a line rang a real
+" bell -- and over SSH that lights the bell mark on the tab of the terminal.
+"
+" Note: "belloff=all" is what covers them, and it is the behaviour GrooVim is
+" after: Notepad++ does not beep when you reach the end of a line, or at
+" anything else. Put "set belloff=" in your own configuration to have the bells
+" back, and see ":help belloff" for silencing only some of them.
+"
+" Note: The two below are kept because they still say something: no bell for
+" error messages, and the bell that does ring is a sound and not a screen flash
+" ("visualbell" plus an empty "t_vb" was the old way of silencing Vim, and
+" "belloff" replaced it)! By Questor
+set belloff=all
 set noerrorbells
 set novisualbell
-
-" ToDo: What comes to be? By Questor
-" set t_vb=
 
 " ToDo: Line break? By Questor
 " set tm=500

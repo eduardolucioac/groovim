@@ -154,4 +154,16 @@ call GT_Ok("  BEFORE it loads a single part",
   \ g:GT_ReadAt >= 0 && g:GT_PartsAt > g:GT_ReadAt,
   \ "   (kept answers on line " . (g:GT_ReadAt + 1) . ", the parts on line " . (g:GT_PartsAt + 1) . ")")
 
+" ---- the bell, which "noerrorbells" does not cover
+"
+" From the manual of that option: "This only makes a difference for error
+" messages, the bell will be used ALWAYS for a lot of errors without a message".
+" A cursor that cannot move any further is one of those, so reaching the end of a
+" line rang a real bell -- and over SSH that lights the bell mark on the tab of
+" the terminal. Notepad++ does not beep there, or anywhere.
+call GT_Ok("every bell is off", &belloff ==# "all", "   [belloff=" . &belloff . "]")
+call GT_Ok("  and noerrorbells alone would not have done it",
+  \ &errorbells == 0,
+  \ "   (it only covers errors that come WITH a message)")
+
 call GT_Done()
