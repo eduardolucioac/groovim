@@ -306,6 +306,38 @@ func! GT_Body()
   call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
     \ "   (" . line("$") . " lines)")
 
+  " ---- the licence, in one place and said the same way everywhere
+  "
+  " The .vimrc used to carry the whole of Apache 2.0 in comments: 211 lines of
+  " licence before the first line of GrooVim. The GNU one is 674, so this is not
+  " a road to go down again -- the licence lives in the file every project keeps
+  " it in, and the source carries the notice the GPL asks you to attach.
+  let l:here = fnamemodify(l:path, ":h")
+  let l:licence = l:here . "/LICENSE"
+  call GT_Ok("there is a LICENSE", filereadable(l:licence), "   [" . l:licence . "]")
+  if filereadable(l:licence)
+    let l:text = readfile(l:licence)
+    call GT_Ok("  and it is the GNU GPL, version 3",
+      \ l:text[0] =~ "GNU GENERAL PUBLIC LICENSE" && l:text[1] =~ "Version 3",
+      \ "   [" . trim(l:text[0]) . " " . trim(l:text[1]) . "]")
+    call GT_Ok("  whole, to its last section",
+      \ !empty(filter(copy(l:text), 'v:val =~ "How to Apply These Terms"')),
+      \ "   (" . len(l:text) . " lines)")
+  endif
+
+  let l:vimrc = readfile(l:path)
+  call GT_Ok("the .vimrc carries the notice, not the licence",
+    \ !empty(filter(copy(l:vimrc), 'v:val =~ "GNU General Public License as published by"'))
+    \ && !empty(filter(copy(l:vimrc), 'v:val =~ "any later version"')),
+    \ "   (\"or later\": the notice of the GPL itself)")
+  call GT_Ok("  and it is short",
+    \ len(filter(copy(l:vimrc), 'v:val =~ "^\" "')) < 400,
+    \ "   (211 lines of licence used to come before the first line of GrooVim)")
+
+  call GT_Ok("nothing anywhere still says Apache",
+    \ empty(filter(GT_SourceLines() + l:vimrc, 'v:val =~? "apache"')),
+    \ "   (one licence, said the same way in every place that names it)")
+
   call GT_Done()
 endfunc
 

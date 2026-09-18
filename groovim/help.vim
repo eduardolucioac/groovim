@@ -260,7 +260,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Enhancing Vim project as a general purpose IDE;".
 \"\n*o*  Approach Vim of \"standard\" text editors in what is convenient and positive and modify Vim in its negative aspects;".
 \"\n*o*  Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;".
-\"\n*o*  Enhancing Vim project as a free alternative (this script is Apache License - Version 2.0), independent and community-supported initiative;".
+\"\n*o*  Enhancing Vim project as a free alternative (GNU General Public License v3.0 or later), independent and community-supported initiative;".
 \"\n*o*  Encourage the use of shell Vim;".
 \"\n*o*  Working on its own, with no plugin needed for anything it does. Plugins are welcome and each one is found by itself, but nothing GrooVim promises rests on one;".
 \"\n*o*  Being a script for all types of terminals;".
