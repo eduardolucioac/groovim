@@ -130,10 +130,6 @@ let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52
 " change! By Questor
 func! GrooVim_OSC52Apply() abort
 
-  if !exists("v:clipproviders") || !exists("+clipmethod")
-    return
-  endif
-
   if !g:GrooVim_EnableOSC52
     if &clipmethod =~ "osc52"
       let &clipmethod = join(filter(split(&clipmethod, ","), 'v:val !=# "osc52"'), ",")
@@ -326,25 +322,23 @@ endfunc
 let g:GrooVim_EnableClipTool = get(g:, "GrooVim_EnableClipTool", 1)
 
 if g:GrooVim_EnableClipTool
-  if exists("v:clipproviders") && exists("+clipmethod")
-    let g:GrooVim_ClipTool = GrooVim_ClipToolFind()
-    if !empty(g:GrooVim_ClipTool) && &clipmethod !~ "groovim"
-      let v:clipproviders["groovim"] = {
-            \ "available": function("GrooVim_ClipToolAvailable"),
-            \ "copy":  {"+": function("GrooVim_ClipToolCopy"),
-            \           "*": function("GrooVim_ClipToolCopy")},
-            \ "paste": {"+": function("GrooVim_ClipToolPaste"),
-            \           "*": function("GrooVim_ClipToolPaste")},
-            \ }
-      " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the
-      " native methods, which are faster when the Vim build has them! By Questor
-      if &clipmethod =~ "osc52"
-        let &clipmethod = substitute(&clipmethod, "osc52", "groovim,osc52", "")
-      else
-        set clipmethod+=groovim
-      endif
-      silent! clipreset
+  let g:GrooVim_ClipTool = GrooVim_ClipToolFind()
+  if !empty(g:GrooVim_ClipTool) && &clipmethod !~ "groovim"
+    let v:clipproviders["groovim"] = {
+          \ "available": function("GrooVim_ClipToolAvailable"),
+          \ "copy":  {"+": function("GrooVim_ClipToolCopy"),
+          \           "*": function("GrooVim_ClipToolCopy")},
+          \ "paste": {"+": function("GrooVim_ClipToolPaste"),
+          \           "*": function("GrooVim_ClipToolPaste")},
+          \ }
+    " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the
+    " native methods, which are faster when the Vim build has them! By Questor
+    if &clipmethod =~ "osc52"
+      let &clipmethod = substitute(&clipmethod, "osc52", "groovim,osc52", "")
+    else
+      set clipmethod+=groovim
     endif
+    silent! clipreset
   endif
 endif
 
@@ -370,12 +364,17 @@ func! GrooVim_ClipReg() abort
   " "*", which is the primary selection (the middle click one). Asking
   " has("unnamedplus") here would answer 0 on such a build and quietly send
   " every copy to the wrong selection! By Questor
-  if exists("v:clipmethod") && v:clipmethod != "" && v:clipmethod != "none"
-        \ && exists("v:clipproviders") && has_key(v:clipproviders, v:clipmethod)
+  if v:clipmethod != "" && v:clipmethod != "none"
+        \ && has_key(v:clipproviders, v:clipmethod)
     let g:GrooVim_ClipRegCache = "+"
     return g:GrooVim_ClipRegCache
   endif
 
+  " Note: Not a leftover for an older Vim -- it answers where "clipmethod" is
+  " IGNORED. From the manual of the option: under a GUI, or on a system with
+  " neither Wayland nor X11 such as Windows or macOS, "v:clipmethod" is set to
+  " "none" while the clipboard itself works perfectly well. The branch above
+  " cannot fire there, and this one is what finds the register! By Questor
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
     return g:GrooVim_ClipRegCache
@@ -490,7 +489,7 @@ endfunc
 " question about it on any screen -- it used to be one, and the only reason it
 " had an answer worth giving was this gap! By Questor
 func! GrooVim_ClipAssumed() abort
-  return exists("v:clipmethod") && v:clipmethod ==# "osc52"
+  return v:clipmethod ==# "osc52"
         \ && get(g:, "osc52_disable_paste", 1)
 endfunc
 

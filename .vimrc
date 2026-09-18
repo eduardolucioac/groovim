@@ -297,6 +297,21 @@ set nocompatible
 " clipboard file and the "viminfo". Two of those, side by side, are two GrooVim
 " that know nothing of each other.
 "
+" The Vim GrooVim asks for, said once and here.
+"
+" 9.2 is what install.sh builds, and GrooVim is reached only through the
+" "groovim" command, which runs that Vim -- so it is what GrooVim gets. The
+" clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
+" ":clipreset" and the "osc52" package that ships with it.
+"
+" Said here instead of guarding every use of them. Four "exists()" scattered
+" through the clipboard were carrying a Vim this project refuses to run on, and
+" one clear sentence is worth more than four silent degradations.
+if v:version < 902
+  echomsg "GrooVim: this is Vim " . (v:version / 100) . "." . (v:version % 100) .
+   \ " and GrooVim asks for 9.2 -- the clipboard will not work. Run install.sh."
+endif
+
 " The encoding, and it has to be HERE: before a single part is read.
 "
 " Vim resolves a "\uXXXX" in a double-quoted string to the bytes of whatever

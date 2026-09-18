@@ -131,4 +131,29 @@ call GT_Ok("  and only its owner can read it",
   \ "   (" . getfperm(g:GrooVim_ClipFile) . ")   (a clipboard carries private things)")
 call delete(g:GrooVim_ClipFile)
 
+" ---- GrooVim asks for Vim 9.2, and says so in one place
+"
+" It is the version install.sh builds, and GrooVim is reached only through the
+" "groovim" command, which runs that Vim. The clipboard depends on what arrived
+" in 9.2: v:clipproviders, clipmethod, :clipreset and the osc52 package. Four
+" "exists()" used to guard those, carrying a Vim this project refuses to run on;
+" one sentence in the .vimrc replaced them.
+call GT_Ok("this Vim is 9.2 or newer", v:version >= 902,
+  \ "   (" . (v:version / 100) . "." . (v:version % 100) . ")")
+call GT_Ok("and the 9.2 things are simply there, unguarded",
+  \ exists("v:clipproviders") && exists("+clipmethod") && exists("v:clipmethod"), "")
+call GT_Ok("no exists() left carrying an older Vim",
+  \ empty(filter(GT_SourceLines(),
+  \   'v:val =~ "exists(\"v:clipproviders\")" || v:val =~ "exists(\"+clipmethod\")"')),
+  \ "   (the .vimrc says it once instead)")
+call GT_Ok("the .vimrc is where it is said",
+  \ !empty(filter(readfile($GROOVIM_TEST_VIMRC), 'v:val =~ "v:version < 902"')), "")
+
+let g:GT_Install = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/install.sh"
+if filereadable(g:GT_Install)
+  call GT_Ok("  and install.sh asks for the same number",
+    \ !empty(filter(readfile(g:GT_Install), 'v:val =~ "^readonly MINIMUM_VERSION=902"')),
+    \ "   (one number, two places, and they have to agree)")
+endif
+
 call GT_Done()

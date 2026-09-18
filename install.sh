@@ -76,7 +76,10 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # What GrooVim needs from the Vim it runs on. Measured, not guessed: each line
 # is a feature some part of GrooVim calls, with the release that brought it.
-readonly MINIMUM_VERSION=900   # "leadmultispace", used by the indent guides
+# 9.2, and the clipboard is what asks for it: "v:clipproviders", "clipmethod",
+# ":clipreset" and the "osc52" package all arrived in it. The indent guides need
+# only 9.0 ("leadmultispace"), which used to be the number here.
+readonly MINIMUM_VERSION=902
 
 # ------------------------------------------------------------------ output ---
 
@@ -180,7 +183,7 @@ missing_for_groovim() {
   version="${version:-0}"
   [ "${#version}" -eq 2 ] && version="${version}0"
   if [ "$version" -lt "$MINIMUM_VERSION" ]; then
-    echo "Vim $version, and GrooVim asks for $MINIMUM_VERSION or newer (the indent guides use \"leadmultispace\")"
+    echo "Vim $version, and GrooVim asks for $MINIMUM_VERSION or newer (the clipboard uses the providers of 9.2)"
   fi
 
   local every_one
