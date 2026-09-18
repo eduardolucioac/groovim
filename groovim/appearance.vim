@@ -102,10 +102,15 @@ set laststatus=2
 " "Powered by" on the bar, and the bar goes back to normal when it is over. The
 " prompt itself stays clean: the context lives here, not glued to the question!
 " By Questor
-" Note: Where you are: the encoding, the flags of the buffer, the type, the line
-" and the column. The half of the bar that every window wants! By Questor
+" Note: Where you are: the encoding, what ends a line, the flags of the buffer,
+" the type, the line and the column. The half of the bar that every window
+" wants!
+"
+" Note: The line ending is there because it can be CHANGED -- F5->c and then
+" [f] -- and a setting you can change and cannot see is a setting you cannot
+" trust. Notepad++ keeps it on its bar for the same reason! By Questor
 func! GrooVim_GrooVimBarWhere() abort
-  return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"")}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
 
 func! GrooVim_GrooVimBar() abort
@@ -134,11 +139,41 @@ set stl=%!GrooVim_GrooVimBar()
 " Note: Displays a message on the initial run! By Questor
 call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 
-" Note: Make the 81st column stand out (just the 80st column of wide lines...)! By Questor
-highlight GrooVim_ColorColumn ctermbg=blue
-augroup GrooVim_ColorColumn
-  autocmd! VimEnter,WinEnter * call matchadd('GrooVim_ColorColumn', '\%81v', 100)
+" Note: The vertical edge, which is the "Vertical Edge Settings" of Notepad++: a
+" line down the screen telling you where a line is getting long.
+"
+" Note: "colorcolumn" and not the "matchadd" that was here. A match can only
+" paint a character that EXISTS, so the old one marked column 81 of the long
+" lines and left nothing on the short ones -- a dotted trail instead of a line.
+" "colorcolumn" paints the column on every row, which is the line Notepad++
+" draws.
+"
+" Note: Column 79 and not 80. A line of 79 characters is the last one that fits
+" in 80 columns, so the mark sits ON the first column you should not reach.
+"
+" Note: Set it to 0 to take the line away! By Questor
+let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
+
+" Note: A dark grey and not the blue that was here. The old one painted a handful
+" of characters, one per long line; this one is a column down the whole window,
+" and at that size a strong colour stops being a hint and becomes the thing you
+" look at! By Questor
+highlight ColorColumn ctermbg=236 guibg=#303030
+
+" Note: "colorcolumn" is window local, so it is set on entering a window, the
+" same way the symbols are! By Questor
+func! GrooVim_EdgeSet() abort
+  try
+    let &l:colorcolumn = g:GrooVim_EdgeColumn > 0 ? string(g:GrooVim_EdgeColumn) : ""
+  catch
+  endtry
+endfunc
+
+augroup GrooVim_Edge
+  autocmd!
+  autocmd BufWinEnter,WinEnter * call GrooVim_EdgeSet()
 augroup end
+call GrooVim_EdgeSet()
 
 " Note: Make trailing whitespace and non-breaking spaces visible! By Questor
 set list

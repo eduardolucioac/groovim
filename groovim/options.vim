@@ -205,13 +205,15 @@ func! GrooVim_Configure() range abort
   " is not valid and the question simply asks again, which is what every other
   " question of GrooVim does when there is nothing to fall back on! By Questor
   let l:which = GrooVim_GetOptions(
-   \ "Configure: [i]ndent, [v]iew, [s]earch, [r]eplace or [g]eneral",
-   \ ["i", "v", "s", "r", "g"], "", "")
+   \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace or [g]eneral",
+   \ ["i", "v", "f", "s", "r", "g"], "", "")
 
   if l:which ==# "i"
     call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
   elseif l:which ==# "v"
     call GrooVim_Operation("[configuration] [view]", "GrooVim_ConfigureView", [])
+  elseif l:which ==# "f"
+    call GrooVim_Operation("[configuration] [file]", "GrooVim_ConfigureFile", [])
   elseif l:which ==# "s"
     call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
   elseif l:which ==# "r"
@@ -297,6 +299,116 @@ func! GrooVim_ConfigureIndent() range abort
   " belong: View, Show Symbol -- which is the "[v]iew" screen! By Questor
 
   call GrooVim_OptsEnd()
+
+endfunc
+
+" Note: The five encodings the Encoding menu of Notepad++ offers, as GrooVim
+" asks them: the letter, then what Vim has to be told.
+"
+" Note: "utf-16le" and "utf-16" are the LE and BE of that menu, and both carry a
+" BOM there -- a UTF-16 file without one cannot be told apart from bytes! By
+" Questor
+let g:GrooVim_Encodings = {
+      \ "a": {"name": "ansi",          "fenc": "latin1",   "bom": 0},
+      \ "u": {"name": "utf-8",         "fenc": "utf-8",    "bom": 0},
+      \ "b": {"name": "utf-8 with BOM","fenc": "utf-8",    "bom": 1},
+      \ "l": {"name": "utf-16 LE BOM", "fenc": "utf-16le", "bom": 1},
+      \ "e": {"name": "utf-16 BE BOM", "fenc": "utf-16",   "bom": 1},
+      \ }
+
+let g:GrooVim_LineEndings = {
+      \ "u": {"name": "Unix (LF)",     "ff": "unix"},
+      \ "w": {"name": "Windows (CRLF)","ff": "dos"},
+      \ "m": {"name": "Macintosh (CR)","ff": "mac"},
+      \ }
+
+" Note: Which of them this buffer is on, as the letter that answers for it! By
+" Questor
+func! GrooVim_EncodingNow() abort
+  let l:enc = &fileencoding ==# "" ? &encoding : &fileencoding
+  if l:enc =~? "^utf-16le" | return "l" | endif
+  if l:enc =~? "^utf-16"   | return "e" | endif
+  if l:enc =~? "^utf-8"    | return &bomb ? "b" : "u" | endif
+  return "a"
+endfunc
+
+func! GrooVim_LineEndingNow() abort
+  for [l:key, l:one] in items(g:GrooVim_LineEndings)
+    if &fileformat ==# l:one.ff | return l:key | endif
+  endfor
+  return "u"
+endfunc
+
+" Note: The settings of the FILE that is open: the Encoding menu and the "EOL
+" Conversion" of Notepad++.
+"
+" Note: This screen does NOT end with "apply or save", and it is the only one.
+" What it sets belongs to the document and not to GrooVim -- keeping "utf-16"
+" for the next time you open the editor would be keeping the wrong thing. So the
+" summary is held by a pause of its own! By Questor
+func! GrooVim_ConfigureFile() range abort
+
+  let l:encodingNow = GrooVim_EncodingNow()
+  let l:encoding = GrooVim_GetOptions(
+   \ "Encoding: [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e]",
+   \ ["a", "u", "b", "l", "e"], "u", l:encodingNow)
+
+  " Note: The two halves of that menu. Its top list READS the file again as the
+  " encoding you picked -- the bytes are untouched and their meaning changes --
+  " and its "Convert to" leaves the text alone and WRITES it as the new one! By
+  " Questor
+  let l:how = GrooVim_GetOptions(
+   \ "Apply it by [r]eading the file again or by [c]onverting what is open",
+   \ ["r", "c"], "c", "")
+
+  let l:lineEnding = GrooVim_GetOptions(
+   \ "Line ending: [u]nix LF, [w]indows CRLF, [m]acintosh CR",
+   \ ["u", "w", "m"], "u", GrooVim_LineEndingNow())
+
+  call GrooVim_FileSettingsApply(l:encoding, l:how, l:lineEnding)
+
+  call input("Press <Enter>! ")
+  echomsg "   "
+
+endfunc
+
+" Note: Apart from the asking, so that a case can put it through every
+" combination without typing an answer! By Questor
+func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
+
+  let l:enc = g:GrooVim_Encodings[a:encoding]
+  let l:eol = g:GrooVim_LineEndings[a:lineEnding]
+
+  if a:how ==# "r"
+    " Note: Reading again throws away what is not written yet, so it is refused
+    " while there is something to lose! By Questor
+    if &modified
+      call GrooVim_GrooVimBarMsg("Save first: reading again would lose your changes!", 6)
+      return 0
+    endif
+    try
+      exec "edit! ++enc=" . l:enc.fenc . " ++ff=" . l:eol.ff
+      let &l:bomb = l:enc.bom
+      call GrooVim_GrooVimBarMsg("Read again as " . l:enc.name . ", " . l:eol.name . "!", 5)
+      return 1
+    catch
+      call GrooVim_GrooVimBarMsg("This Vim cannot read it as " . l:enc.name . "!", 6)
+      return 0
+    endtry
+  endif
+
+  let &l:fileencoding = l:enc.fenc
+  let &l:bomb = l:enc.bom
+  let &l:fileformat = l:eol.ff
+
+  " Note: Marked as changed on purpose. Vim writes the new encoding at the next
+  " write and not before, so a buffer that says it has nothing to write would
+  " leave the setting looking applied and the file untouched! By Questor
+  setlocal modified
+
+  call GrooVim_GrooVimBarMsg("Will be written as " . l:enc.name . ", " .
+   \ l:eol.name . " -- save to apply!", 6)
+  return 1
 
 endfunc
 
