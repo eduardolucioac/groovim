@@ -45,11 +45,11 @@ call GT_Ok("nbsp is still in listchars", &listchars =~ "nbsp:", "")
 
 " ---- turning the guides off
 let g:GrooVim_IndentGuideChar = ""
-call GrooVim_IndentGuideSet()
+call GrooVim_SymbolsSet()
 call GT_Ok("no character, no guide", GT_Guide() ==# "", "   [" . &listchars . "]")
 call GT_Ok("but trail and nbsp stay", &listchars =~ "trail:" && &listchars =~ "nbsp:", "   [" . &listchars . "]")
 let g:GrooVim_IndentGuideChar = "┊"
-call GrooVim_IndentGuideSet()
+call GrooVim_SymbolsSet()
 call GT_Ok("turned back on", GT_Guide() != "", "")
 
 " ---- where the guides land ON SCREEN, read from Vim itself
@@ -162,12 +162,12 @@ call GT_Ok("so the guide is a real character and not one byte",
 " through, which puts a "$" at the end of every line.
 let l:kept = g:GrooVim_IndentGuideChar
 let g:GrooVim_IndentGuideChar = "\uFF21"
-call GrooVim_IndentGuideSet()
+call GrooVim_SymbolsSet()
 call GT_Ok("a guide Vim refuses does not empty listchars", &listchars != "",
   \ "   [" . &listchars . "]   (a double width character: E1512)")
 call GT_Ok("  and trail survives it", &listchars =~ "trail:", "   [" . &listchars . "]")
 let g:GrooVim_IndentGuideChar = l:kept
-call GrooVim_IndentGuideSet()
+call GrooVim_SymbolsSet()
 call GT_Ok("and the real one comes back", GT_GuideWidth() > 0, "   [" . &listchars . "]")
 
 call GT_Done()

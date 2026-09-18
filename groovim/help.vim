@@ -112,8 +112,8 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
  \  "what": "Opens the settings -- ALL of them",
  \  "notes": [
- \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
- \   "The indent one is the \"Tab Settings\" of Notepad++",
+ \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[v]iew| , what is DRAWN and is not in the file; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
+ \   "The indent one is the \"Tab Settings\" of Notepad++, and the view one is its \"View, Show Symbol\"",
  \   "On every screen, leaving an answer EMPTY keeps the value shown as \"now\". At the end a summary of what you chose is held on screen until you press <Enter>",
  \   "There is one door and only one. Each screen used to have a key of its own, so the letters |f| , |h| and |i| of this group are free again"
  \  ]},
@@ -335,7 +335,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
 \"\n".
-\"\n The width, whether <Tab> puts spaces, and whether the guides are drawn are asked on a screen of their own, with F5->c and then |[i]| . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n The width and whether <Tab> puts spaces are asked with F5->c and then |[i]| . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n".
+\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why Notepad++ keeps it in \"View, Show Symbol\" and not in its tab settings.".
 \"\n".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
@@ -346,8 +348,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
 \"\n     let g:GrooVim_IndentWidthPerType = {\"python\": 4, \"javascript\": 2}".
 \"\n<".
-\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->c and then |[i]| turns them off and on, and hands back the char you chose;".
+\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->c and then |[v]| turns them off and on, and hands back the char you chose;".
 \"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
+\"\n*o*  |g:GrooVim_ShowSpaceAndTab| - 1 draws a dot on every space and an arrow on every tab, which is \"Show Space and Tab\" of Notepad++. Off by default, as it is there;".
 \"\n".
 \"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
 \"\n".

@@ -52,6 +52,12 @@ let &expandtab = g:GrooVim_IndentExpandTab
 " Questor
 set shiftround
 
+" Note: Draws a dot on every space and an arrow on every tab, which is "Show
+" Space and Tab" of Notepad++. Off by default, as it is there: seeing every
+" space is something you turn on to hunt something down, not something to read
+" code through! By Questor
+let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 0)
+
 " Note: Draws the indentation guides with "leadmultispace", which is native to
 " Vim and replaces what a plugin used to do here.
 "
@@ -60,9 +66,19 @@ set shiftround
 " type plugin or a ":set shiftwidth=" you type, instead of drifting away from the
 " real indent. Falling back to "tabstop" is what keeps "make" right, since its
 " file type plugin leaves "shiftwidth" at zero! By Questor
-func! GrooVim_IndentGuideSet() abort
+" Note: Named for what it does now. It used to set the indent guide alone, and
+" it sets every symbol of the "Show Symbol" menu that GrooVim has: the guide, the
+" dot on a space, the arrow on a tab! By Questor
+func! GrooVim_SymbolsSet() abort
 
-  let l:listchars = "trail:\uB7,nbsp:~"
+  " Note: A "tab:" is always there, whichever way the switch is. With "list" on
+  " -- and it is always on, the guide needs it -- a "listchars" with no "tab:"
+  " makes Vim draw a tab as "^I". Measured. Two spaces make it look like the
+  " blank it is! By Questor
+  let l:listchars = g:GrooVim_ShowSpaceAndTab
+   \ ? "tab:\u2192 ,space:\uB7" : "tab:  "
+
+  let l:listchars = l:listchars . ",trail:\uB7,nbsp:~"
 
   if g:GrooVim_IndentGuideChar != ""
     let l:width = &shiftwidth > 0 ? &shiftwidth : &tabstop
@@ -83,7 +99,7 @@ func! GrooVim_IndentGuideSet() abort
   " Note: Never nothing is the point. A "listchars" that stays empty is not
   " "no guides": it is the DEFAULT of Vim showing through, which draws a "$" at
   " the end of every line! By Questor
-  for l:attempt in [l:listchars, "trail:\uB7,nbsp:~", "trail:-"]
+  for l:attempt in [l:listchars, "tab:  ,trail:\uB7,nbsp:~", "trail:-"]
     try
       let &l:listchars = l:attempt
       return
@@ -113,7 +129,7 @@ func! GrooVim_IndentWidthHere(tabWidth) abort
   " other than the (hard) tabstop! By Questor
   exec "setlocal softtabstop=" . a:tabWidth
 
-  call GrooVim_IndentGuideSet()
+  call GrooVim_SymbolsSet()
 
 endfun
 
@@ -215,8 +231,8 @@ augroup GrooVim_Indent
   autocmd!
   autocmd FileType * if has_key(g:GrooVim_IndentWidthPerType, &filetype) |
         \ call GrooVim_IndentWidthHere(g:GrooVim_IndentWidthPerType[&filetype]) | endif
-  autocmd BufWinEnter,WinEnter * call GrooVim_IndentGuideSet()
-  autocmd OptionSet shiftwidth,tabstop call GrooVim_IndentGuideSet()
+  autocmd BufWinEnter,WinEnter * call GrooVim_SymbolsSet()
+  autocmd OptionSet shiftwidth,tabstop call GrooVim_SymbolsSet()
 augroup end
 
 "  * .inc

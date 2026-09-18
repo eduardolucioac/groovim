@@ -207,8 +207,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
     - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
     - `c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
-        - Note: It asks which of them first: [i]ndent , the width and what <Tab> puts; [s]earch ; [r]eplace ; [g]eneral . Then it opens that screen;
-        - Note: The indent one is the "Tab Settings" of Notepad++;
+        - Note: It asks which of them first: [i]ndent , the width and what <Tab> puts; [v]iew , what is DRAWN and is not in the file; [s]earch ; [r]eplace ; [g]eneral . Then it opens that screen;
+        - Note: The indent one is the "Tab Settings" of Notepad++, and the view one is its "View, Show Symbol";
         - Note: On every screen, leaving an answer EMPTY keeps the value shown as "now". At the end a summary of what you chose is held on screen until you press <Enter>;
         - Note: There is one door and only one. Each screen used to have a key of its own, so the letters f , h and i of this group are free again;
     - `[` - Saves the current session *(normal mode/insert/visual)*;

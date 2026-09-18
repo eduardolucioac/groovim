@@ -201,12 +201,17 @@ endfunc
 " no longer do! By Questor
 func! GrooVim_Configure() range abort
 
+  " Note: No default and no value in force, so no answer is assumed: an empty one
+  " is not valid and the question simply asks again, which is what every other
+  " question of GrooVim does when there is nothing to fall back on! By Questor
   let l:which = GrooVim_GetOptions(
-   \ "Configure: [i]ndent, [s]earch, [r]eplace or [g]eneral",
-   \ ["i", "s", "r", "g"], "i", "")
+   \ "Configure: [i]ndent, [v]iew, [s]earch, [r]eplace or [g]eneral",
+   \ ["i", "v", "s", "r", "g"], "", "")
 
   if l:which ==# "i"
     call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
+  elseif l:which ==# "v"
+    call GrooVim_Operation("[configuration] [view]", "GrooVim_ConfigureView", [])
   elseif l:which ==# "s"
     call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
   elseif l:which ==# "r"
@@ -287,10 +292,31 @@ func! GrooVim_ConfigureIndent() range abort
    \ "let g:GrooVim_IndentExpandTab = " . l:spaces, 0)
   let &expandtab = g:GrooVim_IndentExpandTab
 
+  " Note: The guides are not asked here any more. They are a SYMBOL drawn on the
+  " screen, not a rule about what <Tab> does, and Notepad++ puts them where they
+  " belong: View, Show Symbol -- which is the "[v]iew" screen! By Questor
+
+  call GrooVim_OptsEnd()
+
+endfunc
+
+" Note: What Notepad++ calls View, Show Symbol: what is DRAWN on the screen that
+" is not in the file. Two things for now, the two that menu has checked in the
+" screenshot this came from! By Questor
+func! GrooVim_ConfigureView() range abort
+
+  call GrooVim_OptsBegin()
+
+  let l:symbols = GrooVim_GetOptions("Show space and tab",
+   \ [0,1], 0, g:GrooVim_ShowSpaceAndTab)
+  let g:GrooVim_ShowSpaceAndTab = l:symbols
+  call GrooVim_OptsUpdate("let g:GrooVim_ShowSpaceAndTab =",
+   \ "let g:GrooVim_ShowSpaceAndTab = " . g:GrooVim_ShowSpaceAndTab, 0)
+
   " Note: On or off, and not the char itself: the char is what an EMPTY answer
   " would be, and empty already means "keep what is there" in every question of
   " GrooVim. Set "g:GrooVim_IndentGuideChar" by hand for another char! By Questor
-  let l:guides = GrooVim_GetOptions("Draw the indent guides",
+  let l:guides = GrooVim_GetOptions("Show indent guide",
    \ [0,1], 1, g:GrooVim_IndentGuideChar != "" ? 1 : 0)
   if l:guides == 0
     if g:GrooVim_IndentGuideChar != ""
@@ -301,9 +327,11 @@ func! GrooVim_ConfigureIndent() range abort
     let l:char = g:GrooVim_IndentGuideChar != ""
      \ ? g:GrooVim_IndentGuideChar : g:GrooVim_IndentGuideCharLast
   endif
+  let g:GrooVim_IndentGuideChar = l:char
   call GrooVim_OptsUpdate("let g:GrooVim_IndentGuideChar =",
    \ "let g:GrooVim_IndentGuideChar = " . string(l:char), 0)
-  call GrooVim_IndentGuideSet()
+
+  call GrooVim_SymbolsSet()
 
   call GrooVim_OptsEnd()
 

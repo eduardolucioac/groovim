@@ -76,26 +76,54 @@ func! GT_Body()
   call GT_Ok("spaces again, and no tab in the line", getline(1) !~ "\t" && getline(1) =~ "^ \\+X",
     \ "   [" . strtrans(getline(1)) . "]")
 
-  " ---- turning the guides off and on, keeping the char
+  " ---- the guides are asked ONE SCREEN OVER now
+  "
+  " They are a symbol painted on the screen and not a rule about what <Tab> does,
+  " which is where Notepad++ keeps them: View, Show Symbol. So the indent screen
+  " asks two things, and the view screen asks about the guide beside the dot on a
+  " space and the arrow on a tab.
+  " The variable and not the word: the body still explains, in a comment, why
+  " the guides are not asked here, and ":function" prints comments too.
+  call GT_Ok("the indent screen no longer touches the guide",
+    \ execute("function GrooVim_ConfigureIndent") !~ "IndentGuideChar",
+    \ "   (it asks the width and what <Tab> puts, and stops there)")
+
   let g:GrooVim_IndentGuideChar = "|"
-  call GrooVim_IndentGuideSet()
-  call feedkeys("\<CR>\<CR>0\<CR>a\<CR>", "t")
-  call GrooVim_ConfigureIndent()
+  call GrooVim_SymbolsSet()
+  call feedkeys("\<CR>0\<CR>a\<CR>", "t")
+  call GrooVim_ConfigureView()
   call feedkeys("", "x")
   call GT_Ok("guides off: no guide in listchars", GT_Guide() ==# "", "   [" . &listchars . "]")
   call GT_Ok("  and trail and nbsp stayed", &listchars =~ "trail:" && &listchars =~ "nbsp:", "")
   call GT_Ok("  and the char you chose was remembered", g:GrooVim_IndentGuideCharLast ==# "|",
     \ "   [" . g:GrooVim_IndentGuideCharLast . "]")
 
-  call feedkeys("\<CR>\<CR>1\<CR>a\<CR>", "t")
-  call GrooVim_ConfigureIndent()
+  call feedkeys("\<CR>1\<CR>a\<CR>", "t")
+  call GrooVim_ConfigureView()
   call feedkeys("", "x")
   call GT_Ok("guides on again, with the SAME char", strcharpart(GT_Guide(), 0, 1) ==# "|",
     \ "   [" . GT_Guide() . "]   (and not the factory one)")
 
+  " ---- and the other symbol of that screen
+  call feedkeys("1\<CR>\<CR>a\<CR>", "t")
+  call GrooVim_ConfigureView()
+  call feedkeys("", "x")
+  " Anchored at the start or after a comma: "leadmultispace:" ENDS with the
+  " string "space:", so a plain match answers yes to the guide.
+  call GT_Ok("space and tab on: a dot on every space",
+    \ &listchars =~ '\(^\|,\)space:', "   [" . &listchars . "]")
+  call GT_Ok("  and an arrow on every tab", &listchars =~ "tab:\u2192", "")
+  call feedkeys("0\<CR>\<CR>a\<CR>", "t")
+  call GrooVim_ConfigureView()
+  call feedkeys("", "x")
+  call GT_Ok("off again: no dot on a space", &listchars !~ '\(^\|,\)space:',
+    \ "   [" . &listchars . "]   (and the guide, which ENDS in \"space:\", is not it)")
+  call GT_Ok("  but a tab is STILL named", &listchars =~ "tab:",
+    \ "   [" . &listchars . "]   (with none, Vim draws a tab as \"^I\")")
+
   " ---- answering "s" keeps the three for the next time
   let g:GrooVim_IndentGuideChar = "┊"
-  call feedkeys("4\<CR>1\<CR>1\<CR>s\<CR>", "t")
+  call feedkeys("4\<CR>1\<CR>s\<CR>", "t")
   call GrooVim_ConfigureIndent()
   call feedkeys("", "x")
   call GT_Ok("answering \"s\": the file was written", filereadable(g:GrooVim_OptsFile), "")
@@ -103,7 +131,9 @@ func! GT_Body()
   call GT_Ok("  the width was kept", index(g:GT_KEPT, "let g:GrooVim_IndentWidth = 4") >= 0,
     \ "   " . string(g:GT_KEPT))
   call GT_Ok("  the spaces answer was kept", index(g:GT_KEPT, "let g:GrooVim_IndentExpandTab = 1") >= 0, "")
-  call GT_Ok("  and the guide char was kept", match(g:GT_KEPT, "GrooVim_IndentGuideChar") >= 0, "")
+  call GT_Ok("  and the guide char is NOT of this screen any more",
+    \ match(g:GT_KEPT, "GrooVim_IndentGuideChar") < 0,
+    \ "   (the view screen keeps that one)")
 
   let g:GrooVim_IndentWidth = 0
   exec "source " . fnameescape(g:GrooVim_OptsFile)

@@ -144,7 +144,7 @@ augroup end
 set list
 " Note: The trailing/non breaking space marks AND the indentation guides are all
 " built by this one, so that both always agree on the same "listchars"! By Questor
-call GrooVim_IndentGuideSet()
+call GrooVim_SymbolsSet()
 
 " " Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
 " " Note: Type I! By Questor
