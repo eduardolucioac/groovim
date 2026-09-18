@@ -38,17 +38,22 @@ set ttimeoutlen=150
 " what YOU want. The second is about how a capability is established, which is
 " not a preference, and it lives below! By Questor
 
-" Note: The policy. Set to 0 and OSC 52 never enters the cascade.
+" Note: The ONE switch for OSC 52, and it is not an option -- it is an emergency
+" brake. Nothing it does can leave you better off.
 "
-" Note: Not asked on any screen, and it used to be. OSC 52 is the LAST method of
-" the cascade, so reaching it means everything else already failed: turning it
-" off cannot leave you better off, only with nothing. The one thing that made it
-" worth asking was a gap -- the file of GrooVim stopped being written once OSC 52
-" took over -- and "GrooVim_ClipAssumed" below closes it.
+" Note: OSC 52 is the LAST method of the cascade, so reaching it means Wayland,
+" X11 and every tool have already failed. On a machine where it is reached, this
+" is what each setting gets you when you copy:
 "
-" Note: What is left is a terminal that prints rubbish instead of quietly
-" ignoring a sequence it does not know. That is a broken terminal, not a
-" preference, so it is one line of your own configuration:
+"   1 (the default)  the sequence leaves through the terminal AND the file of
+"                    GrooVim is written
+"   0                the file only
+"
+" Note: A strict subset, in other words. There is no machine and no terminal on
+" which 0 gives you something 1 does not, which is why it is asked about nowhere.
+" It exists for one thing only: a terminal that PRINTS the sequence instead of
+" quietly ignoring one it does not know. That is a broken terminal, not a taste,
+" and this is the way out:
 "
 "   let g:GrooVim_EnableOSC52 = 0
 "
@@ -96,28 +101,22 @@ func! GrooVim_TerminalDoesOSC52() abort
   return 1
 endfunc
 
-" Note: The DETECTION. Not whether to use OSC 52 -- that is the policy above --
-" but how the terminal is judged able to do it. Two ways, and only two:
+" Note: NOT a setting of GrooVim. It belongs to the "osc52" package that ships
+" with Vim, and the name is the package's: it reads "force available", which
+" describes the 1 and not the choice. Read it as "do not check".
 "
-"   1  assume it can       (the default)
-"   0  ask it with a DA1 query, and believe only an answer advertising "52"
+" Note: GrooVim sets it to 1, and that is a decision and not a preference,
+" because 0 is unusable here. With 0 the package sends a DA1 query and believes
+" only an answer advertising "52" -- and the terminals that do OSC 52 WITHOUT
+" ever announcing it are most of them, Konsole included. So a Vim that checks
+" concludes there is no support on a terminal where it works perfectly well, and
+" the copy never leaves the machine. Checking, here, is a worse answer than not
+" checking.
 "
-" Note: Assuming is the default because of terminals that DO OSC 52 without ever
-" announcing it, and Konsole is one of them: asked with DA1 it says nothing about
-" 52, so a Vim that asks concludes there is no support and a copy never leaves
-" the machine -- on a terminal where it works perfectly well.
-"
-" Note: The query itself. The package calls SendDA1() as it starts, and inside it
-" is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". So the call
-" happens and the sequence is NOT sent while this is 1: with our default, Vim
-" never actually consults the terminal.
-"
-" Note: This is not on the F5->c screen on purpose. The screen asks what you
-" WANT; how a capability is established is not a preference, and offering it as a
-" third answer beside yes and no would mix the two questions into one. One line
-" of your own configuration, for whoever wants the strict reading:
-"
-"   let g:osc52_force_avail = 0
+" Note: The query itself, from the package: SendDA1() is called as it starts, and
+" inside it is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". The
+" call happens and the sequence is NOT sent while this is 1 -- with our value,
+" Vim never consults the terminal at all.
 "
 " Note: Written here, after the question above can be asked, and not up with
 " "g:GrooVim_EnableOSC52": a "let" at the top of the file would run before the
