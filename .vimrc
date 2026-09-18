@@ -451,9 +451,9 @@ let s:GrooVim_Parts = [
 " They used to be read at the end of the last part, so that they would win over
 " the defaults. That works for an option consulted while you type -- whether the
 " session saves itself is asked at the moment it saves -- and not for one
-" consulted as GrooVim LOADS. "g:GrooVim_EnableOSC52" is decided in the first
-" part of eighteen, so a kept answer arrived thirteen parts too late and did
-" nothing, with nothing said about it.
+" consulted as GrooVim LOADS -- and the clipboard of the first part of eighteen
+" is decided there, so a kept answer would have arrived thirteen parts too late
+" and done nothing, with nothing said about it.
 "
 " Read first, it wins over every default instead, because each of them is
 " written as "get(g:, "name", default)" -- a value already there is kept. Seven

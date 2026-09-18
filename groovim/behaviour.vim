@@ -28,37 +28,18 @@ set ttimeoutlen=150
 "      tty with a terminal that speaks nothing;
 "   4. The unnamed register, our last resort.
 
-" Note: Two variables answer two DIFFERENT questions about OSC 52, and reading
-" them as one is what makes the whole thing confusing:
+" Note: There is nothing to configure about OSC 52, and getting to that took a
+" long argument. It is the LAST method of the cascade, so reaching it means
+" Wayland, X11 and every tool have already failed -- and from there every knob
+" could only SUBTRACT:
 "
-"   g:GrooVim_EnableOSC52   -- the POLICY.    Do we want OSC 52 at all?
-"   g:osc52_force_avail     -- the DETECTION. How is the terminal judged able?
+"   turning it off      leaves the file of GrooVim and nothing going out
+"   asking the terminal leaves "clipmethod=none" whenever it does not answer,
+"                       which is most terminals, so: nothing at all
 "
-" Note: The first is what F5->c asks, because it is the only one that is about
-" what YOU want. The second is about how a capability is established, which is
-" not a preference, and it lives below! By Questor
-
-" Note: The ONE switch for OSC 52, and it is not an option -- it is an emergency
-" brake. Nothing it does can leave you better off.
-"
-" Note: OSC 52 is the LAST method of the cascade, so reaching it means Wayland,
-" X11 and every tool have already failed. On a machine where it is reached, this
-" is what each setting gets you when you copy:
-"
-"   1 (the default)  the sequence leaves through the terminal AND the file of
-"                    GrooVim is written
-"   0                the file only
-"
-" Note: A strict subset, in other words. There is no machine and no terminal on
-" which 0 gives you something 1 does not, which is why it is asked about nowhere.
-" It exists for one thing only: a terminal that PRINTS the sequence instead of
-" quietly ignoring one it does not know. That is a broken terminal, not a taste,
-" and this is the way out:
-"
-"   let g:GrooVim_EnableOSC52 = 0
-"
-" By Questor
-let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
+" Note: Neither has a case where it leaves anyone better off, so neither is
+" offered. GrooVim assumes OSC 52 and keeps its own copy in a file beside it --
+" see "GrooVim_ClipAssumed"! By Questor
 
 " Note: An OSC 52 PASTE makes Vim block waiting for an answer that many
 " terminals never send (Ctrl-C cancels it). Copy is what we really want here, so
@@ -82,8 +63,8 @@ let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
 "
 " Note: It is also the LAST method: "clipmethod" is "wayland,x11,groovim,osc52",
 " so a machine with a clipboard of its own, or a tool to call, never reaches it.
-" Turn it off with "let g:GrooVim_EnableOSC52 = 0", or decide it yourself with
-" "let g:osc52_force_avail = 0/1"! By Questor
+" And there is no switch to turn it off, because there was never a situation in
+" which turning it off left anyone better off! By Questor
 func! GrooVim_TerminalDoesOSC52() abort
 
   " Note: Under a GUI there is no terminal for the sequence to reach! By Questor
@@ -118,42 +99,24 @@ endfunc
 " call happens and the sequence is NOT sent while this is 1 -- with our value,
 " Vim never consults the terminal at all.
 "
-" Note: Written here, after the question above can be asked, and not up with
-" "g:GrooVim_EnableOSC52": a "let" at the top of the file would run before the
-" function it calls exists ("E117")! By Questor
+" Note: Written here, after the function it calls, and not at the top of the
+" file: a "let" up there would run before that function exists ("E117")! By
+" Questor
 let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
 
-" Note: Puts OSC 52 into the cascade, or takes it out. A function and not a
-" block that runs once, because the general settings screen turns this on and
-" off while GrooVim is RUNNING, and an answer that only took effect after a
-" restart would be a lie. Called once as GrooVim loads, and again on every
-" change! By Questor
-func! GrooVim_OSC52Apply() abort
-
-  if !g:GrooVim_EnableOSC52
-    if &clipmethod =~ "osc52"
-      let &clipmethod = join(filter(split(&clipmethod, ","), 'v:val !=# "osc52"'), ",")
-    endif
-    " Note: The register is worked out once and remembered, so it has to be
-    " forgotten here or the next copy still goes where it used to! By Questor
-    let g:GrooVim_ClipRegCache = ""
-    silent! clipreset
-    return
+" Note: OSC 52 into the cascade, at the end of it. This was a function for a
+" while, so that a question on the settings screen could turn it off and on
+" again without a restart. The question is gone and so is the off: what is left
+" runs once, as GrooVim loads.
+try
+  packadd osc52
+  if &clipmethod !~ "osc52"
+    set clipmethod+=osc52
   endif
-
-  try
-    packadd osc52
-    if &clipmethod !~ "osc52"
-      set clipmethod+=osc52
-    endif
-    let g:GrooVim_ClipRegCache = ""
-    " Note: Makes Vim pick a clipmethod again now that the provider exists! By Questor
-    silent! clipreset
-  catch
-  endtry
-
-endfunc
-call GrooVim_OSC52Apply()
+  " Note: Makes Vim pick a clipmethod again now that the provider exists! By Questor
+  silent! clipreset
+catch
+endtry
 
 " Note: A clipboard provider backed by an external tool, used ONLY when the tool
 " is ALREADY installed. This is what makes PASTE from another application work:

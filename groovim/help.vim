@@ -377,7 +377,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is not portable: it is built for one architecture, it is linked against one libc, and|wl-copy|also needs libwayland-client at run time. And on a headless server there is no compositor for it to talk to anyway, which is exactly the case OSC 52 already covers by itself.".
 \"\n".
-\"\n Knobs:|g:GrooVim_EnableClipTool| ,|g:GrooVim_EnableOSC52| ,|g:GrooVim_ClipTools| ,|g:GrooVim_ClipBinDir| .".
+\"\n Knobs:|g:GrooVim_EnableClipTool| ,|g:GrooVim_ClipTools| ,|g:GrooVim_ClipBinDir| .".
 \"\n".
 \"\n * Script features!~".
 \"\n".

@@ -113,9 +113,9 @@ call GT_Ok("OSC 52 paste is off", get(g:, "osc52_disable_paste", 0) == 1, "")
 " Without a real OSC 52 method in use here, what can be checked is the rule
 " itself and that the two ends agree with it.
 call GT_Ok("the assumed case has a name", exists("*GrooVim_ClipAssumed"), "")
-call GT_Ok("  and it is not the case on this machine",
-  \ GrooVim_ClipAssumed() == (exists("v:clipmethod") && v:clipmethod ==# "osc52"),
-  \ "   (clipmethod " . (exists("v:clipmethod") ? v:clipmethod : "-") . ")")
+call GT_Ok("  and it answers for the method in use",
+  \ GrooVim_ClipAssumed() == (v:clipmethod ==# "osc52"),
+  \ "   (clipmethod " . v:clipmethod . ")")
 call GT_Ok("a copy keeps the file when it cannot be confirmed",
   \ !empty(filter(GT_SourceLines(),
   \   'v:val =~ "GrooVim_ClipAssumed()" && v:val =~ "^\\s*if"')),

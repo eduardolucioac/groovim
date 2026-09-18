@@ -100,27 +100,29 @@ call GT_Ok("  and the old 1 is not an answer any more",
   \ GrooVim_ValidateOptions("1", ["f", "p"], "f") == 0, "")
 
 " ---- the general settings screen
-call GT_Ok("F5->c still asks the one thing it asks", 1,
-  \ "   (the session; the clipboard question was taken OUT -- see below)")
 let g:GT_KeptSession = g:GrooVim_SessionAuto
 call feedkeys("0\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
-call GT_Ok("  and answering it works", g:GrooVim_SessionAuto == 0, "")
+call GT_Ok("F5->c asks about the session, and answering it works",
+  \ g:GrooVim_SessionAuto == 0, "")
 let g:GrooVim_SessionAuto = g:GT_KeptSession
 
-" ---- and why there is no clipboard question any anymore
+" ---- and nothing about the clipboard, anywhere
 "
 " OSC 52 is the LAST method of the cascade, so reaching it means everything else
-" already failed: turning it off cannot leave you better off, only with nothing.
-" The one thing that made the question worth asking was a gap -- once OSC 52 took
-" over, GrooVim stopped keeping its own copy in a file, so on a terminal that
-" ignores the sequence you lost both. "GrooVim_ClipAssumed" closes it.
-call GT_Ok("the screen asks nothing about the clipboard",
-  \ empty(filter(GT_SourceLines(), 'v:val =~ "GetOptions" && v:val =~ "OSC 52"')),
-  \ "   (a question nobody can answer wrongly is not worth asking)")
-call GT_Ok("and the gap that justified it is named in the code",
-  \ exists("*GrooVim_ClipAssumed"), "")
+" already failed. From there every knob could only SUBTRACT: turning it off left
+" the file and nothing going out, and asking the terminal left "clipmethod=none"
+" whenever it did not answer -- which is most terminals. Neither had a case where
+" it left anyone better off, so neither exists.
+call GT_Ok("no screen asks about the clipboard",
+  \ empty(filter(GT_SourceLines(), 'v:val =~ "GetOptions" && v:val =~ "OSC 52"')), "")
+call GT_Ok("and there is no switch left to ask about",
+  \ !exists("g:GrooVim_EnableOSC52") && !exists("*GrooVim_OSC52Apply"),
+  \ "   (a knob that can only subtract is not a knob)")
+call GT_Ok("what replaced it has a name",
+  \ exists("*GrooVim_ClipAssumed"),
+  \ "   (GrooVim assumes OSC 52 and keeps its own copy beside it)")
 
 " ---- what makes a KEPT answer work at all
 "
