@@ -99,58 +99,28 @@ call GT_Ok("the filename question answers to [p]", g:GT_R ==# "p", "   [" . g:GT
 call GT_Ok("  and the old 1 is not an answer any more",
   \ GrooVim_ValidateOptions("1", ["f", "p"], "f") == 0, "")
 
-" ---- the general settings screen, and the clipboard question in it
-"
-" A setting that only took effect after a restart would be a lie, so this
-" exercises the screen and then looks at the cascade, not at the variable.
-" The clipboard question: two answers on the screen, and a third state that is
-" real but is not asked about.
-"
-" "g:osc52_force_avail = 0" makes Vim ask the terminal with a DA1 query and use
-" OSC 52 only if the answer advertises "52". That is not "off by another name" --
-" on an xterm it still works. It is off the screen because of who answers that
-" query: the xterm family and almost nothing else, so everywhere else asking
-" behaves exactly like refusing.
-let g:GT_KeptOSC = g:GrooVim_EnableOSC52
-let g:GT_KeptForce = get(g:, "osc52_force_avail", 1)
+" ---- the general settings screen
+call GT_Ok("F5->c still asks the one thing it asks", 1,
+  \ "   (the session; the clipboard question was taken OUT -- see below)")
 let g:GT_KeptSession = g:GrooVim_SessionAuto
-
-call feedkeys("1\<CR>a\<CR>a\<CR>", "t")
+call feedkeys("0\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
-call GT_Ok("F5->c asks about the clipboard too", g:GrooVim_EnableOSC52 == 0,
-  \ "   (answered [a]auto)")
-if exists("+clipmethod")
-  call GT_Ok("  and auto takes OSC 52 out of the cascade AT ONCE",
-    \ &clipmethod !~ "osc52", "   [" . &clipmethod . "]   (no restart)")
-endif
-
-call feedkeys("1\<CR>o\<CR>a\<CR>", "t")
-call GrooVim_ConfigureGeneral()
-call feedkeys("", "x")
-call GT_Ok("[o]assume OSC 52 puts it back", g:GrooVim_EnableOSC52 == 1, "")
-if exists("+clipmethod")
-  call GT_Ok("  and the cascade has it again, still last",
-    \ &clipmethod =~ "osc52$", "   [" . &clipmethod . "]")
-endif
-
-call GT_Ok("the screen asks two things and no more",
-  \ g:osc52_force_avail == g:GT_KeptForce,
-  \ "   (force_avail " . g:osc52_force_avail . ": the screen does not touch it)")
-
-" ---- and the third state is still reachable by hand
-let g:osc52_force_avail = 0
-call GrooVim_OSC52Apply()
-call GT_Ok("setting force_avail by hand is honoured", g:osc52_force_avail == 0,
-  \ "   (one line of your own configuration)")
-call GT_Ok("  and it is NOT the same as turning OSC 52 off",
-  \ g:GrooVim_EnableOSC52 == 1 && (!exists("+clipmethod") || &clipmethod =~ "osc52"),
-  \ "   [" . (exists("+clipmethod") ? &clipmethod : "-") . "]   (still in the cascade; the terminal decides)")
-
-let g:GrooVim_EnableOSC52 = g:GT_KeptOSC
-let g:osc52_force_avail = g:GT_KeptForce
+call GT_Ok("  and answering it works", g:GrooVim_SessionAuto == 0, "")
 let g:GrooVim_SessionAuto = g:GT_KeptSession
-call GrooVim_OSC52Apply()
+
+" ---- and why there is no clipboard question any anymore
+"
+" OSC 52 is the LAST method of the cascade, so reaching it means everything else
+" already failed: turning it off cannot leave you better off, only with nothing.
+" The one thing that made the question worth asking was a gap -- once OSC 52 took
+" over, GrooVim stopped keeping its own copy in a file, so on a terminal that
+" ignores the sequence you lost both. "GrooVim_ClipAssumed" closes it.
+call GT_Ok("the screen asks nothing about the clipboard",
+  \ empty(filter(GT_SourceLines(), 'v:val =~ "GetOptions" && v:val =~ "OSC 52"')),
+  \ "   (a question nobody can answer wrongly is not worth asking)")
+call GT_Ok("and the gap that justified it is named in the code",
+  \ exists("*GrooVim_ClipAssumed"), "")
 
 " ---- what makes a KEPT answer work at all
 "

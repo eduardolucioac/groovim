@@ -102,4 +102,33 @@ endif
 " hanging the editor for.
 call GT_Ok("OSC 52 paste is off", get(g:, "osc52_disable_paste", 0) == 1, "")
 
+" ---- a copy that cannot be confirmed keeps a local one as well
+"
+" A copy through OSC 52 goes out as an escape sequence and the terminal is never
+" heard from again. The paste back is off, so the "+" register answers empty to
+" everything on top of that. Measured on a machine with no clipboard of its own:
+" "getreg('+')" came back empty while the file held the text, and GrooVim_ClipGet
+" returned nothing at all.
+"
+" Without a real OSC 52 method in use here, what can be checked is the rule
+" itself and that the two ends agree with it.
+call GT_Ok("the assumed case has a name", exists("*GrooVim_ClipAssumed"), "")
+call GT_Ok("  and it is not the case on this machine",
+  \ GrooVim_ClipAssumed() == (exists("v:clipmethod") && v:clipmethod ==# "osc52"),
+  \ "   (clipmethod " . (exists("v:clipmethod") ? v:clipmethod : "-") . ")")
+call GT_Ok("a copy keeps the file when it cannot be confirmed",
+  \ !empty(filter(GT_SourceLines(),
+  \   'v:val =~ "GrooVim_ClipAssumed()" && v:val =~ "^\\s*if"')),
+  \ "   (asked in ClipSet and in ClipGet)")
+
+" ---- the file itself: what a copy falls back to, and who can read it
+call delete(g:GrooVim_ClipFile)
+call GrooVim_ClipFileSet("um texto privado")
+call GT_Ok("the file takes a copy", GrooVim_ClipFileGet() ==# "um texto privado",
+  \ "   [" . g:GrooVim_ClipFile . "]")
+call GT_Ok("  and only its owner can read it",
+  \ getfperm(g:GrooVim_ClipFile) ==# "rw-------",
+  \ "   (" . getfperm(g:GrooVim_ClipFile) . ")   (a clipboard carries private things)")
+call delete(g:GrooVim_ClipFile)
+
 call GT_Done()

@@ -38,7 +38,21 @@ set ttimeoutlen=150
 " what YOU want. The second is about how a capability is established, which is
 " not a preference, and it lives below! By Questor
 
-" Note: The policy. Set to 0 and OSC 52 never enters the cascade! By Questor
+" Note: The policy. Set to 0 and OSC 52 never enters the cascade.
+"
+" Note: Not asked on any screen, and it used to be. OSC 52 is the LAST method of
+" the cascade, so reaching it means everything else already failed: turning it
+" off cannot leave you better off, only with nothing. The one thing that made it
+" worth asking was a gap -- the file of GrooVim stopped being written once OSC 52
+" took over -- and "GrooVim_ClipAssumed" below closes it.
+"
+" Note: What is left is a terminal that prints rubbish instead of quietly
+" ignoring a sequence it does not know. That is a broken terminal, not a
+" preference, so it is one line of your own configuration:
+"
+"   let g:GrooVim_EnableOSC52 = 0
+"
+" By Questor
 let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
 
 " Note: An OSC 52 PASTE makes Vim block waiting for an answer that many
@@ -435,6 +449,18 @@ endfunc
 " Note: Read the "transfer area"! By Questor
 func! GrooVim_ClipGet() abort
   let l:reg = GrooVim_ClipReg()
+
+  " Note: Asked FIRST when the method is the assumed one, because there the
+  " register answers empty to everything and the file is the only real source.
+  " Measured: with "osc52" in use, "getreg('+')" came back empty while the file
+  " held the text! By Questor
+  if GrooVim_ClipAssumed()
+    let l:assumedFile = GrooVim_ClipFileGet()
+    if l:assumedFile != ""
+      return l:assumedFile
+    endif
+  endif
+
   if l:reg != "\""
     try
       return getreg(l:reg)
@@ -452,11 +478,31 @@ func! GrooVim_ClipGet() abort
 endfunc
 
 " Note: Write to the "transfer area"! By Questor
+" Note: Is the clipboard in use one that can only be ASSUMED?
+"
+" Note: A copy through OSC 52 goes out as an escape sequence and the terminal is
+" never heard from again -- there is no way to know it arrived. And the paste
+" back is off (it waits for an answer many terminals never send and hangs Vim
+" until Ctrl-C), so the "+" register answers EMPTY to everything on top of that.
+"
+" Note: So when that is the method, the file of GrooVim is kept as well: the copy
+" still leaves through the terminal AND stays readable on this machine. That is
+" what makes OSC 52 never worse than no OSC 52, and it is why there is no
+" question about it on any screen -- it used to be one, and the only reason it
+" had an answer worth giving was this gap! By Questor
+func! GrooVim_ClipAssumed() abort
+  return exists("v:clipmethod") && v:clipmethod ==# "osc52"
+        \ && get(g:, "osc52_disable_paste", 1)
+endfunc
+
 func! GrooVim_ClipSet(value) abort
   let l:reg = GrooVim_ClipReg()
   if l:reg != "\""
     try
       call setreg(l:reg, a:value)
+      if GrooVim_ClipAssumed()
+        call GrooVim_ClipFileSet(a:value)
+      endif
       return
     catch
       let g:GrooVim_ClipRegCache = ""

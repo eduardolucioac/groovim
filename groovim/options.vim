@@ -289,29 +289,20 @@ func! GrooVim_ConfigureGeneral() range abort
   call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
    \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
 
-  " Note: One question, because only one of the two variables behind OSC 52 is a
-  " preference. This one is the POLICY -- do you want a copy to leave through the
-  " terminal at all. The other, "g:osc52_force_avail", is DETECTION: how the
-  " terminal is judged able to do it, by assuming or by asking it with a DA1
-  " query.
+  " Note: There is no question here about the clipboard, and working out why took
+  " an hour of arguing with someone who was right.
   "
-  " Note: Detection is not something to have an opinion about, so it is not asked
-  " here. Putting it beside yes and no as a third answer would be mixing the two
-  " questions into one -- it is set in one line of your own configuration, and
-  " explained where it is declared (the "behaviour" part)! By Questor
-  " Note: Written as the two things it chooses between, and not as a yes and a
-  " no. Every other method of the cascade is FOUND -- Wayland, X11, a tool that
-  " is installed -- and OSC 52 is the one that is ASSUMED: the sequence goes out
-  " and the terminal is never heard from again. That is the choice being made,
-  " and "let a copy leave through the terminal" did not say it! By Questor
-  let l:clipboard = GrooVim_GetOptions(
-   \ "Clipboard: [a]auto, only a means it can find, or [o]assume OSC 52 " .
-   \ "through the terminal too (this is what crosses SSH)",
-   \ ["a", "o"], "o", g:GrooVim_EnableOSC52 ? "o" : "a")
-  let g:GrooVim_EnableOSC52 = l:clipboard ==# "o" ? 1 : 0
-  call GrooVim_OptsUpdate("let g:GrooVim_EnableOSC52 =",
-   \ "let g:GrooVim_EnableOSC52 = " . g:GrooVim_EnableOSC52, 0)
-  call GrooVim_OSC52Apply()
+  " Note: OSC 52 is the LAST method of the cascade. If it is reached, everything
+  " else has already failed -- so turning it off cannot leave you better off, it
+  " leaves you with nothing. The only reason the question ever had an answer
+  " worth giving was a gap: with OSC 52 on, the copy went out through the
+  " terminal and GrooVim stopped keeping its own copy in a file, so on a terminal
+  " that ignores the sequence you lost both.
+  "
+  " Note: The gap is closed -- see "GrooVim_ClipAssumed" in the "behaviour" part,
+  " which keeps the file whenever the method is one that cannot be confirmed. On
+  " goes back to being never worse than off, and a question nobody can answer
+  " wrongly is a question not worth asking! By Questor
 
   call GrooVim_OptsEnd()
 
