@@ -77,12 +77,15 @@ vnoremap <silent> <C-w> <Esc><C-w><C-w>
 " Note: Allows yank a line without the return character! By Questor
 nnoremap <silent> yy 0y$
 
-nnoremap <silent> <script> p P`]<Right>
-nnoremap <silent> <script> <C-v> P`]<Right>
+" Note: Through GrooVim_ClipPaste and not a plain "P": with OSC 52 in use the
+" "+" register is unreadable and "P" answered "E353: Nothing in register +" --
+" see the long note at that function! By Questor
+nnoremap <silent> p :call GrooVim_ClipPaste("n")<cr>
+nnoremap <silent> <C-v> :call GrooVim_ClipPaste("n")<cr>
 
 " Note: Allows "normal" paste in insert mode (no line breaks and without need of
 " "Shift" key) (Ctrl+v)! By Questor
-inoremap <silent> <script> <C-v> <C-o>P<C-o>`]<Right>
+inoremap <silent> <C-v> <C-o>:call GrooVim_ClipPaste("i")<cr>
 
 " Note: Allows cut to insert mode in a conventional manner (Ctrl-x/Ctrl-v cycle)
 " (do not need the "Shift" key)! By Questor
@@ -107,8 +110,8 @@ nnoremap x "_x
 vnoremap x "_x
 
 " Note: Paste without yank (visual mode)! By Questor
-vnoremap <silent> <script> p "_dP`]<Right>
-vnoremap <silent> <script> <C-v> "_dP`]<Right>
+vnoremap <silent> p :<C-u>call GrooVim_ClipPaste("v")<cr>
+vnoremap <silent> <C-v> :<C-u>call GrooVim_ClipPaste("v")<cr>
 
 " Note: "Normal" movement with "Ctrl+Right"! By Questor
 nmap <silent> <C-Right> e

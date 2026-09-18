@@ -156,4 +156,36 @@ if filereadable(g:GT_Install)
     \ "   (one number, two places, and they have to agree)")
 endif
 
+" ---- pasting goes through the clipboard of GrooVim, not through the register
+"
+" With OSC 52 in use the "+" register cannot be read back, and
+" "clipboard=unnamedplus" makes a plain "P" read exactly that register: it
+" answered "E353: Nothing in register +" with the text sitting in the file the
+" whole time. Every paste key goes through GrooVim_ClipPaste now.
+for s:pair in [["p", "n"], ["\<C-v>", "n"], ["\<C-v>", "i"], ["p", "v"], ["\<C-v>", "v"]]
+  call GT_Ok("[" . s:pair[1] . "] " . strtrans(s:pair[0]) . " goes through GrooVim_ClipPaste",
+    \ maparg(s:pair[0], s:pair[1]) =~ "GrooVim_ClipPaste",
+    \ "   [" . maparg(s:pair[0], s:pair[1]) . "]")
+endfor
+
+" ---- and it really pastes
+exec "edit! " . g:GT_OUT . "/paste_me.txt"
+%delete _
+call GrooVim_ClipSet("VEIO DA AREA")
+call feedkeys("i\<C-v>\<Esc>", "x")
+call GT_Ok("Ctrl-V pastes what was copied", getline(1) =~ "VEIO DA AREA",
+  \ "   [" . getline(1) . "]")
+
+" ---- and with nothing to paste it SAYS so instead of failing
+%delete _
+call delete(g:GrooVim_ClipFile)
+call setreg("+", "")
+call setreg("\"", "")
+let g:GrooVim_GrooVimBarMsgValue = ""
+call feedkeys("i\<C-v>\<Esc>", "x")
+call GT_Ok("with nothing to paste it says so", g:GrooVim_GrooVimBarMsgValue =~ "nothing",
+  \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]   (it used to be E353)")
+call GT_Ok("  and the document was not touched", getline(1) ==# "",
+  \ "   [" . getline(1) . "]")
+
 call GT_Done()

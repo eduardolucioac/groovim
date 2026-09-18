@@ -346,6 +346,62 @@ func! GrooVim_ClipReg() abort
   return "\""
 endfunc
 
+" Note: Pastes what the CLIPBOARD OF GROOVIM has, and not what the "+" register
+" has. They are the same thing until OSC 52 is the method in use.
+"
+" Note: There the register cannot be read back -- the paste side of OSC 52 is off
+" because it waits for an answer many terminals never send and hangs Vim until
+" Ctrl-C -- so it is always empty. And with "clipboard=unnamedplus" a plain "P"
+" reads exactly that register: "E353: Nothing in register +", with the text
+" sitting in the file of GrooVim the whole time. Measured on a machine reached by
+" SSH, where Ctrl-Shift-V worked (that is the terminal typing, not Vim pasting)
+" and Ctrl-V did not.
+"
+" Note: Through the "z" register and never the unnamed one: with
+" "clipboard=unnamedplus", writing the unnamed register writes "+" as well, which
+" would send an OSC 52 COPY on every paste! By Questor
+func! GrooVim_ClipPaste(mode) abort
+
+  let l:text = GrooVim_ClipGet()
+  if l:text ==# ""
+    " Note: When OSC 52 is the method, empty has a REASON worth saying. A copy
+    " made anywhere else -- on the machine you are sitting at, in another
+    " program -- cannot be read from here: reading it back would mean asking the
+    " terminal and waiting for an answer many never send. What does work is the
+    " paste of the terminal itself, which types the text in as if you had.
+    if GrooVim_ClipAssumed()
+      call GrooVim_GrooVimBarMsg("Nothing copied HERE yet. Text copied on " .
+       \ "another machine cannot be read from this one: use the paste of your " .
+       \ "terminal (usually Ctrl-Shift-V)!", 8)
+    else
+      call GrooVim_GrooVimBarMsg("There is nothing to paste!", 4)
+    endif
+    return
+  endif
+
+  let l:kept = getreg("z")
+  let l:keptType = getregtype("z")
+
+  try
+    call setreg("z", l:text)
+    if a:mode ==# "v"
+      " Note: "gv" because getting here left visual mode, and "_d so that what
+      " is replaced does not land in a register! By Questor
+      silent! exec "normal! gv\"_d\"zP`]"
+    else
+      silent! exec "normal! \"zP`]"
+    endif
+    " Note: The same "<Right>" the mappings used to end with, and guarded: past
+    " the last column there is nowhere to go! By Questor
+    if col(".") < col("$")
+      normal! l
+    endif
+  finally
+    call setreg("z", l:kept, l:keptType)
+  endtry
+
+endfunc
+
 " Note: Avoids compatibility issues when copying to an external application! By Questor
 "
 " Note: This is what makes a plain "y" reach the clipboard. It must follow
