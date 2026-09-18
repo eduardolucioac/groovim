@@ -103,6 +103,52 @@ call GT_Ok("saved, and now reading again works",
   \ GrooVim_FileSettingsApply("u", "r", "u") == 1, "")
 call GT_Ok("  and the file is the one it was", getline(1) ==# "mudei isto", "")
 
+" ---- the answer to the encoding question is two letters, or the x that leaves
+call GT_Ok("\"uc\" is utf-8 by converting", GrooVim_IsEncodingAnswer("uc") == 1, "")
+call GT_Ok("\"br\" is utf-8 with BOM, by reading again", GrooVim_IsEncodingAnswer("br") == 1, "")
+call GT_Ok("\"x\" on its own leaves", GrooVim_IsEncodingAnswer("x") == 1, "")
+for s:no in ["u", "c", "uu", "cu", "zc", "ux", "uca", "", "UC"]
+  call GT_Ok("  [" . s:no . "] is refused", GrooVim_IsEncodingAnswer(s:no) == 0, "")
+endfor
+
+" ---- and leaving really leaves, at either question
+exec "edit! " . g:GT_FILE
+%delete _
+call setline(1, "intocado")
+write
+let g:GT_BEFORE = [&fileencoding, &bomb, &fileformat, &modified]
+
+let g:GrooVim_GrooVimBarMsgValue = ""
+call feedkeys("x\<CR>", "t")
+call GrooVim_ConfigureFile()
+call feedkeys("", "x")
+call GT_Ok("x at the encoding: nothing changed",
+  \ [&fileencoding, &bomb, &fileformat, &modified] ==# g:GT_BEFORE,
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . " modified=" . &modified . "]")
+call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed",
+  \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+
+let g:GrooVim_GrooVimBarMsgValue = ""
+call feedkeys("bc\<CR>x\<CR>", "t")
+call GrooVim_ConfigureFile()
+call feedkeys("", "x")
+call GT_Ok("x at the line ending: STILL nothing changed",
+  \ [&fileencoding, &bomb, &fileformat, &modified] ==# g:GT_BEFORE,
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . " modified=" . &modified . "]" .
+  \ "   (the encoding was answered and is not applied until both are in)")
+
+" ---- and answering both does apply
+call feedkeys("bc\<CR>w\<CR>", "t")
+call GrooVim_ConfigureFile()
+call feedkeys("", "x")
+call GT_Ok("\"bc\" then \"w\": utf-8 with BOM and CRLF",
+  \ &bomb == 1 && &fileformat ==# "dos",
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
+
+" ---- and it no longer holds the screen waiting for Enter
+call GT_Ok("the screen does not ask you to press Enter",
+  \ GT_FunctionText("GrooVim_ConfigureFile") !~ "Press <Enter>", "")
+
 " ---- and it lands on THIS tab and nowhere else
 "
 " The encoding, the BOM and what ends a line belong to the buffer, so a choice

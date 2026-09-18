@@ -344,9 +344,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The encoding and what ends a line belong to the DOCUMENT, not to the editor, and they are asked with F5->c and then |[f]| . It is the Encoding menu and the \"EOL Conversion\" of Notepad++, in one screen:".
 \"\n".
-\"\n*o*  The encoding: |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| , utf-16 b|[e]| ;".
-\"\n*o*  How to apply it: |[r]| reads the file AGAIN as that encoding, which is the top of that menu -- the bytes do not move and their meaning changes; |[c]| converts what is open, which is its \"Convert to\" -- the text does not move and the bytes do;".
+\"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which reads the file AGAIN with that encoding -- the bytes do not move and their meaning changes, which is the top of that menu -- or |[c]| , which converts the file, its \"Convert to\": the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
 \"\n*o*  What ends a line: |[u]nix| LF, |[w]indows| CRLF, |[m]acintosh| CR;".
+\"\n*o*  |[x]| , at either question, leaves without touching anything. Nothing is applied until BOTH answers are in, so leaving at the second one leaves nothing half done;".
 \"\n".
 \"\n Reading again throws away what you have not written yet, so it is refused while there is something to lose. Converting marks the buffer as changed on purpose: Vim writes the new encoding at the next write and not before, and a buffer that claimed to have nothing to write would leave the setting looking applied with the file untouched.".
 \"\n".

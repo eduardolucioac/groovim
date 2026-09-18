@@ -166,4 +166,26 @@ call GT_Ok("  and noerrorbells alone would not have done it",
   \ &errorbells == 0,
   \ "   (it only covers errors that come WITH a message)")
 
+" ---- no question may be wider than the screen
+"
+" The prompt of "input()" is one line. Longer than the terminal, it wraps, the
+" message area overflows, and Vim answers that with a hit-enter prompt which EATS
+" the first key you press -- measured: the same answer went through only when an
+" extra <CR> was fed before it. Two questions were over eighty characters and
+" both swallowed the answer to themselves.
+"
+" The meanings of the letters belong in an "echomsg" above the question when they
+" do not fit; the prompt stays short. The text is read out of the source, since a
+" question is not something a running Vim can be asked about.
+let g:GT_Wide = []
+for g:GT_Line in GT_SourceLines()
+  let g:GT_Q = matchstr(g:GT_Line, 'GrooVim_GetOptions(\s*"\zs[^"]*')
+  if g:GT_Q ==# "" | continue | endif
+  if strchars(g:GT_Q) > 45
+    call add(g:GT_Wide, strchars(g:GT_Q) . ": " . g:GT_Q)
+  endif
+endfor
+call GT_Ok("every question leaves room for its own options", empty(g:GT_Wide),
+  \ "   " . (empty(g:GT_Wide) ? "(45 characters at most; the options and the \"in use\" take the rest of the 80)" : string(g:GT_Wide)))
+
 call GT_Done()

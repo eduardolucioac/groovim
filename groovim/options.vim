@@ -204,8 +204,8 @@ func! GrooVim_Configure() range abort
   " Note: No default and no value in force, so no answer is assumed: an empty one
   " is not valid and the question simply asks again, which is what every other
   " question of GrooVim does when there is nothing to fall back on! By Questor
-  let l:which = GrooVim_GetOptions(
-   \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace or [g]eneral",
+  echomsg "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral"
+  let l:which = GrooVim_GetOptions("Configure",
    \ ["i", "v", "f", "s", "r", "g"], "", "")
 
   if l:which ==# "i"
@@ -348,28 +348,69 @@ endfunc
 " summary is held by a pause of its own! By Questor
 func! GrooVim_ConfigureFile() range abort
 
-  let l:encodingNow = GrooVim_EncodingNow()
-  let l:encoding = GrooVim_GetOptions(
-   \ "Encoding: [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e]",
-   \ ["a", "u", "b", "l", "e"], "u", l:encodingNow)
-
-  " Note: The two halves of that menu. Its top list READS the file again as the
-  " encoding you picked -- the bytes are untouched and their meaning changes --
-  " and its "Convert to" leaves the text alone and WRITES it as the new one! By
+  " Note: ONE question for the encoding, over three lines, because the two
+  " halves of it are one decision: which encoding, and what to do with it. Asked
+  " apart, the second read as a question about the first -- and the answer to
+  " "utf-8" is not "converting", it is "utf-8, by converting".
+  "
+  " Note: So the answer is the two letters together, "uc". An "x" on its own
+  " leaves without touching anything, and there is no empty answer that means
+  " "keep": keeping IS leaving, and that is what the x is for! By Questor
+  " Note: The two first lines are MESSAGES and only the last one is the prompt,
+  " which is how every question of GrooVim is already built. A prompt of three
+  " lines given to "input()" overflows the message area, and Vim answers that
+  " with a hit-enter prompt that EATS the first key you press -- measured: the
+  " same answer went through only when an extra <CR> was fed before it.
+  "
+  " Note: It reads better this way too. What the letters mean stays above while
+  " the question below is asked again for as long as the answer is not one! By
   " Questor
-  let l:how = GrooVim_GetOptions(
-   \ "Apply it by [r]eading the file again or by [c]onverting what is open",
-   \ ["r", "c"], "c", "")
+  echomsg "Encoding: [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e]"
+  echomsg "Apply it by [r]eading again with the \"encode\" or by [c]onverting the file"
 
-  let l:lineEnding = GrooVim_GetOptions(
-   \ "Line ending: [u]nix LF, [w]indows CRLF, [m]acintosh CR",
-   \ ["u", "w", "m"], "u", GrooVim_LineEndingNow())
-
-  call GrooVim_FileSettingsApply(l:encoding, l:how, l:lineEnding)
-
-  call input("Press <Enter>! ")
+  let l:answer = GrooVim_AskUntilValid(
+   \ "Answer the two together, like \"uc\", or [x] to leave " .
+   \ "[in use: \"" . GrooVim_EncodingNow() . "\"]? ",
+   \ {answer -> GrooVim_IsEncodingAnswer(answer)})
   echomsg "   "
 
+  if l:answer ==# "x"
+    call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
+    return
+  endif
+
+  " Note: The meanings above and the question below, for the same reason as the
+  " one above it: the whole of this in one prompt came to a hundred characters,
+  " wrapped on an eighty column terminal, and the hit-enter that follows ate the
+  " answer! By Questor
+  echomsg "Line ending: [u]nix LF, [w]indows CRLF, [m]acintosh CR"
+  let l:lineEnding = GrooVim_GetOptions("Line ending, or [x] to leave",
+   \ ["u", "w", "m", "x"], "u", GrooVim_LineEndingNow())
+
+  if l:lineEnding ==# "x"
+    call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
+    return
+  endif
+
+  " Note: Applied only once BOTH answers are in, so that leaving at the second
+  " question leaves nothing half done! By Questor
+  call GrooVim_FileSettingsApply(l:answer[0], l:answer[1], l:lineEnding)
+
+endfunc
+
+" Note: An encoding answer is two letters -- one of the encodings and then "r"
+" or "c" -- or the "x" that leaves. Nothing else, and not empty: on this screen
+" an empty answer would have to mean "keep", and keeping is what the x does! By
+" Questor
+func! GrooVim_IsEncodingAnswer(answer) abort
+  if a:answer ==# "x"
+    return 1
+  endif
+  if strchars(a:answer) != 2
+    return 0
+  endif
+  return has_key(g:GrooVim_Encodings, a:answer[0])
+   \ && (a:answer[1] ==# "r" || a:answer[1] ==# "c")
 endfunc
 
 " Note: Apart from the asking, so that a case can put it through every
