@@ -357,8 +357,9 @@ func! GrooVim_ConfigureFile() range abort
   " apart, the second read as a question about the first -- and the answer to
   " "utf-8" is not "converting", it is "utf-8, by converting".
   "
-  " Note: The "[?_]" and "[_?]" say which HALF of the answer each line fills:
-  " the first letter and the second.
+  " Note: Every one of the four brackets is built by GrooVim_OptionsToPrompt, the
+  " same one every other question of GrooVim goes through, so that the lines that
+  " only EXPLAIN read exactly like the line that asks.
   "
   " Note: The meanings are messages and only the last line is the prompt. A
   " prompt of more than one screen line overflows the message area, and the
@@ -366,51 +367,41 @@ func! GrooVim_ConfigureFile() range abort
   " Questor
   echomsg "Change/convert encoding:"
   echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
-   \ "[a/u/b/l/e][in use: \"" . GrooVim_EncodingNow() . "\"][?_]"
+   \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow())
   echomsg "2 - Apply it by [r]eading again with the \"encode\" or by " .
-   \ "[c]onverting the file [r/c][_?]"
+   \ "[c]onverting the file " . GrooVim_OptionsToPrompt(["r", "c"], "", "")
 
-  " Note: The "x" is the default, so an empty answer is one: pressing <Enter>
-  " through a screen changes nothing, which is what pressing <Enter> through a
-  " screen ought to do! By Questor
+  " Note: Empty is the answer that changes nothing, and it is the default, so
+  " pressing <Enter> through a screen leaves it as it found it -- which is what
+  " pressing <Enter> through a screen ought to do! By Questor
   let l:encoding = GrooVim_AskUntilValid(
-   \ "Answer the two together or [x[default]] to do nothing? ",
+   \ "Answer the 1 and 2 together or empty to do nothing " .
+   \ GrooVim_OptionsToPrompt(["[12]", "<empty>"], "<empty>", ""),
    \ {answer -> GrooVim_IsEncodingAnswer(answer)})
-  if l:encoding ==# ""
-    let l:encoding = "x"
-  endif
   echomsg "   "
 
-  " Note: The "x" means "leave THIS alone", and not "leave the screen". The line
-  " ending is another question and gets asked either way! By Questor
-  " Note: Asked with the plain asker and not through GrooVim_GetOptions, because
-  " that one uses the SAME value for two things: what to show as "in use" and
-  " what an empty answer gives back. Here they differ -- what is in use is "u",
-  " and an empty answer is the "x" that changes nothing -- and asking for both
-  " through one field gave back "u" and converted a file nobody asked to
-  " convert! By Questor
+  " Note: An empty answer means "leave THIS alone", not "leave the screen". The
+  " line ending is another question and gets asked either way! By Questor
   echomsg "Convert line ending:"
   let l:lineEnding = GrooVim_AskUntilValid(
-   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or [x] to do nothing " .
-   \ GrooVim_OptionsToPrompt(["u", "w", "m", "x"], "x", GrooVim_LineEndingNow()),
-   \ {answer -> answer ==# "" || index(["u", "w", "m", "x"], answer) >= 0})
-  if l:lineEnding ==# ""
-    let l:lineEnding = "x"
-  endif
+   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or empty to do nothing " .
+   \ GrooVim_OptionsToPrompt(["u", "w", "m", "<empty>"], "<empty>", GrooVim_LineEndingNow()),
+   \ {answer -> answer ==# "" || index(["u", "w", "m"], answer) >= 0})
   echomsg "   "
 
-  call GrooVim_FileSettingsApply(l:encoding[0], strchars(l:encoding) > 1 ? l:encoding[1] : "",
+  call GrooVim_FileSettingsApply(
+   \ l:encoding ==# "" ? "" : l:encoding[0],
+   \ strchars(l:encoding) > 1 ? l:encoding[1] : "",
    \ l:lineEnding)
 
 endfunc
 
 " Note: An encoding answer is two letters -- one of the encodings and then "r"
-" or "c" -- or the "x" that leaves. Nothing else, and not empty: on this screen
-" an empty answer would have to mean "keep", and keeping is what the x does! By
-" Questor
+" or "c" -- or empty, which leaves the encoding as it is. Nothing else: a single
+" letter is half an answer, and there is no way to tell WHICH half! By Questor
 func! GrooVim_IsEncodingAnswer(answer) abort
-  " Note: Empty is the "x": it is the default, and the caller turns it into one.
-  if a:answer ==# "x" || a:answer ==# ""
+  " Note: Empty is the answer that changes nothing, and the default.
+  if a:answer ==# ""
     return 1
   endif
   if strchars(a:answer) != 2
@@ -424,10 +415,11 @@ endfunc
 " combination without typing an answer! By Questor
 func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
 
-  " Note: Either half may be "x", which means "leave THIS one alone". Both of
-  " them being x is a screen you walked out of, and nothing happens! By Questor
-  let l:doEncoding = a:encoding !=# "x"
-  let l:doLineEnding = a:lineEnding !=# "x"
+  " Note: Either half may be EMPTY, which means "leave THIS one alone". Both of
+  " them empty is a screen you pressed <Enter> through, and nothing happens! By
+  " Questor
+  let l:doEncoding = a:encoding !=# ""
+  let l:doLineEnding = a:lineEnding !=# ""
 
   if !l:doEncoding && !l:doLineEnding
     call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
