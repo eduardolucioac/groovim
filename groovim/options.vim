@@ -353,48 +353,33 @@ func! GrooVim_ConfigureFile() range abort
   " apart, the second read as a question about the first -- and the answer to
   " "utf-8" is not "converting", it is "utf-8, by converting".
   "
-  " Note: So the answer is the two letters together, "uc". An "x" on its own
-  " leaves without touching anything, and there is no empty answer that means
-  " "keep": keeping IS leaving, and that is what the x is for! By Questor
-  " Note: The two first lines are MESSAGES and only the last one is the prompt,
-  " which is how every question of GrooVim is already built. A prompt of three
-  " lines given to "input()" overflows the message area, and Vim answers that
-  " with a hit-enter prompt that EATS the first key you press -- measured: the
-  " same answer went through only when an extra <CR> was fed before it.
+  " Note: The "[?_]" and "[_?]" say which HALF of the answer each line fills:
+  " the first letter and the second.
   "
-  " Note: It reads better this way too. What the letters mean stays above while
-  " the question below is asked again for as long as the answer is not one! By
+  " Note: The meanings are messages and only the last line is the prompt. A
+  " prompt of more than one screen line overflows the message area, and the
+  " hit-enter Vim raises for that EATS the first key you press -- measured! By
   " Questor
-  echomsg "Encoding: [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e]"
-  echomsg "Apply it by [r]eading again with the \"encode\" or by [c]onverting the file"
+  echomsg "Change/convert encoding:"
+  echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
+   \ "[a/u/b/l/e][in use: \"" . GrooVim_EncodingNow() . "\"][?_]"
+  echomsg "2 - Apply it by [r]eading again with the \"encode\" or by " .
+   \ "[c]onverting the file [r/c][_?]"
 
-  let l:answer = GrooVim_AskUntilValid(
-   \ "Answer the two together, like \"uc\", or [x] to leave " .
-   \ "[in use: \"" . GrooVim_EncodingNow() . "\"]? ",
+  let l:encoding = GrooVim_AskUntilValid(
+   \ "Answer the two together or [x] to do nothing? ",
    \ {answer -> GrooVim_IsEncodingAnswer(answer)})
   echomsg "   "
 
-  if l:answer ==# "x"
-    call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
-    return
-  endif
-
-  " Note: The meanings above and the question below, for the same reason as the
-  " one above it: the whole of this in one prompt came to a hundred characters,
-  " wrapped on an eighty column terminal, and the hit-enter that follows ate the
-  " answer! By Questor
-  echomsg "Line ending: [u]nix LF, [w]indows CRLF, [m]acintosh CR"
-  let l:lineEnding = GrooVim_GetOptions("Line ending, or [x] to leave",
+  " Note: The "x" means "leave THIS alone", and not "leave the screen". The line
+  " ending is another question and gets asked either way! By Questor
+  echomsg "Convert line ending:"
+  echomsg "[u]nix LF, [w]indows CRLF, [m]acintosh CR"
+  let l:lineEnding = GrooVim_GetOptions("Answer it or [x] to do nothing",
    \ ["u", "w", "m", "x"], "u", GrooVim_LineEndingNow())
 
-  if l:lineEnding ==# "x"
-    call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
-    return
-  endif
-
-  " Note: Applied only once BOTH answers are in, so that leaving at the second
-  " question leaves nothing half done! By Questor
-  call GrooVim_FileSettingsApply(l:answer[0], l:answer[1], l:lineEnding)
+  call GrooVim_FileSettingsApply(l:encoding[0], strchars(l:encoding) > 1 ? l:encoding[1] : "",
+   \ l:lineEnding)
 
 endfunc
 
@@ -417,10 +402,25 @@ endfunc
 " combination without typing an answer! By Questor
 func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
 
-  let l:enc = g:GrooVim_Encodings[a:encoding]
-  let l:eol = g:GrooVim_LineEndings[a:lineEnding]
+  " Note: Either half may be "x", which means "leave THIS one alone". Both of
+  " them being x is a screen you walked out of, and nothing happens! By Questor
+  let l:doEncoding = a:encoding !=# "x"
+  let l:doLineEnding = a:lineEnding !=# "x"
 
-  if a:how ==# "r"
+  if !l:doEncoding && !l:doLineEnding
+    call GrooVim_GrooVimBarMsg("Nothing changed!", 4)
+    return 0
+  endif
+
+  let l:enc = l:doEncoding ? g:GrooVim_Encodings[a:encoding] : {}
+  let l:ff = l:doLineEnding ? g:GrooVim_LineEndings[a:lineEnding].ff : &fileformat
+  let l:said = (l:doEncoding ? l:enc.name : "the encoding it had") . ", " .
+   \ (l:doLineEnding ? g:GrooVim_LineEndings[a:lineEnding].name : "the line ending it had")
+
+  " Note: Reading again is about the ENCODING, so with none chosen there is
+  " nothing to read again for: what is left is the line ending, and that is a
+  " conversion! By Questor
+  if l:doEncoding && a:how ==# "r"
     " Note: Reading again throws away what is not written yet, so it is refused
     " while there is something to lose! By Questor
     if &modified
@@ -428,9 +428,9 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
       return 0
     endif
     try
-      exec "edit! ++enc=" . l:enc.fenc . " ++ff=" . l:eol.ff
+      exec "edit! ++enc=" . l:enc.fenc . " ++ff=" . l:ff
       let &l:bomb = l:enc.bom
-      call GrooVim_GrooVimBarMsg("Read again as " . l:enc.name . ", " . l:eol.name . "!", 5)
+      call GrooVim_GrooVimBarMsg("Read again as " . l:said . "!", 5)
       return 1
     catch
       call GrooVim_GrooVimBarMsg("This Vim cannot read it as " . l:enc.name . "!", 6)
@@ -438,17 +438,20 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
     endtry
   endif
 
-  let &l:fileencoding = l:enc.fenc
-  let &l:bomb = l:enc.bom
-  let &l:fileformat = l:eol.ff
+  if l:doEncoding
+    let &l:fileencoding = l:enc.fenc
+    let &l:bomb = l:enc.bom
+  endif
+  if l:doLineEnding
+    let &l:fileformat = l:ff
+  endif
 
   " Note: Marked as changed on purpose. Vim writes the new encoding at the next
   " write and not before, so a buffer that says it has nothing to write would
   " leave the setting looking applied and the file untouched! By Questor
   setlocal modified
 
-  call GrooVim_GrooVimBarMsg("Will be written as " . l:enc.name . ", " .
-   \ l:eol.name . " -- save to apply!", 6)
+  call GrooVim_GrooVimBarMsg("Will be written as " . l:said . " -- save to apply!", 6)
   return 1
 
 endfunc

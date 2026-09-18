@@ -111,39 +111,50 @@ for s:no in ["u", "c", "uu", "cu", "zc", "ux", "uca", "", "UC"]
   call GT_Ok("  [" . s:no . "] is refused", GrooVim_IsEncodingAnswer(s:no) == 0, "")
 endfor
 
-" ---- and leaving really leaves, at either question
+" ---- "x" means "leave THIS alone", not "leave the screen"
 exec "edit! " . g:GT_FILE
 %delete _
 call setline(1, "intocado")
 write
 let g:GT_BEFORE = [&fileencoding, &bomb, &fileformat, &modified]
 
+" x on the encoding: the line ending is STILL asked, and answering it works.
 let g:GrooVim_GrooVimBarMsgValue = ""
-call feedkeys("x\<CR>", "t")
+call feedkeys("x\<CR>w\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
-call GT_Ok("x at the encoding: nothing changed",
-  \ [&fileencoding, &bomb, &fileformat, &modified] ==# g:GT_BEFORE,
-  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . " modified=" . &modified . "]")
-call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed",
+call GT_Ok("x on the encoding: the encoding is untouched",
+  \ &fileencoding ==# g:GT_BEFORE[0] && &bomb == g:GT_BEFORE[1],
+  \ "   [" . &fileencoding . " bomb=" . &bomb . "]")
+call GT_Ok("  but the line ending was still ASKED and applied",
+  \ &fileformat ==# "dos",
+  \ "   [" . &fileformat . "]   (x leaves one question alone, not the screen)")
+call GT_Ok("  and it says what it did and what it did not",
+  \ g:GrooVim_GrooVimBarMsgValue =~ "the encoding it had",
   \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
 
-let g:GrooVim_GrooVimBarMsgValue = ""
+" x on the line ending: the encoding is applied all the same.
+exec "edit! " . g:GT_FILE
 call feedkeys("bc\<CR>x\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
-call GT_Ok("x at the line ending: STILL nothing changed",
-  \ [&fileencoding, &bomb, &fileformat, &modified] ==# g:GT_BEFORE,
-  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . " modified=" . &modified . "]" .
-  \ "   (the encoding was answered and is not applied until both are in)")
+call GT_Ok("x on the line ending: the encoding WAS applied", &bomb == 1, "")
+call GT_Ok("  and the line ending was left where it was",
+  \ &fileformat ==# g:GT_BEFORE[2],
+  \ "   [" . &fileformat . "]")
 
-" ---- and answering both does apply
-call feedkeys("bc\<CR>w\<CR>", "t")
+" x on both: a screen you walked out of.
+exec "edit! " . g:GT_FILE
+let g:GT_AGAIN = [&fileencoding, &bomb, &fileformat]
+let g:GrooVim_GrooVimBarMsgValue = ""
+call feedkeys("x\<CR>x\<CR>", "t")
 call GrooVim_ConfigureFile()
 call feedkeys("", "x")
-call GT_Ok("\"bc\" then \"w\": utf-8 with BOM and CRLF",
-  \ &bomb == 1 && &fileformat ==# "dos",
+call GT_Ok("x on both: nothing at all",
+  \ [&fileencoding, &bomb, &fileformat] ==# g:GT_AGAIN,
   \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
+call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed",
+  \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
 
 " ---- and it no longer holds the screen waiting for Enter
 call GT_Ok("the screen does not ask you to press Enter",
