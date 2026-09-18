@@ -372,8 +372,7 @@ func! GrooVim_ClipPaste(mode) abort
     " Note: Short on purpose. The first try ran off the bar and only its tail
     " was left on screen, which is worse than saying less! By Questor
     if GrooVim_ClipAssumed()
-      call GrooVim_GrooVimBarMsg(
-       \ "Nothing copied here. From outside, use Ctrl-Shift-V!", 6)
+      call GrooVim_GrooVimBarMsg("From outside, use Ctrl-Shift-V!", 6)
     else
       call GrooVim_GrooVimBarMsg("There is nothing to paste!", 4)
     endif
