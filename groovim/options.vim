@@ -370,17 +370,34 @@ func! GrooVim_ConfigureFile() range abort
   echomsg "2 - Apply it by [r]eading again with the \"encode\" or by " .
    \ "[c]onverting the file [r/c][_?]"
 
+  " Note: The "x" is the default, so an empty answer is one: pressing <Enter>
+  " through a screen changes nothing, which is what pressing <Enter> through a
+  " screen ought to do! By Questor
   let l:encoding = GrooVim_AskUntilValid(
-   \ "Answer the two together or [x] to do nothing? ",
+   \ "Answer the two together or [x[default]] to do nothing? ",
    \ {answer -> GrooVim_IsEncodingAnswer(answer)})
+  if l:encoding ==# ""
+    let l:encoding = "x"
+  endif
   echomsg "   "
 
   " Note: The "x" means "leave THIS alone", and not "leave the screen". The line
   " ending is another question and gets asked either way! By Questor
+  " Note: Asked with the plain asker and not through GrooVim_GetOptions, because
+  " that one uses the SAME value for two things: what to show as "in use" and
+  " what an empty answer gives back. Here they differ -- what is in use is "u",
+  " and an empty answer is the "x" that changes nothing -- and asking for both
+  " through one field gave back "u" and converted a file nobody asked to
+  " convert! By Questor
   echomsg "Convert line ending:"
-  let l:lineEnding = GrooVim_GetOptions(
-   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or [x] to do nothing",
-   \ ["u", "w", "m", "x"], "u", GrooVim_LineEndingNow())
+  let l:lineEnding = GrooVim_AskUntilValid(
+   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or [x] to do nothing " .
+   \ GrooVim_OptionsToPrompt(["u", "w", "m", "x"], "x", GrooVim_LineEndingNow()),
+   \ {answer -> answer ==# "" || index(["u", "w", "m", "x"], answer) >= 0})
+  if l:lineEnding ==# ""
+    let l:lineEnding = "x"
+  endif
+  echomsg "   "
 
   call GrooVim_FileSettingsApply(l:encoding[0], strchars(l:encoding) > 1 ? l:encoding[1] : "",
    \ l:lineEnding)
@@ -392,7 +409,8 @@ endfunc
 " an empty answer would have to mean "keep", and keeping is what the x does! By
 " Questor
 func! GrooVim_IsEncodingAnswer(answer) abort
-  if a:answer ==# "x"
+  " Note: Empty is the "x": it is the default, and the caller turns it into one.
+  if a:answer ==# "x" || a:answer ==# ""
     return 1
   endif
   if strchars(a:answer) != 2

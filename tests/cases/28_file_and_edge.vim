@@ -107,7 +107,9 @@ call GT_Ok("  and the file is the one it was", getline(1) ==# "mudei isto", "")
 call GT_Ok("\"uc\" is utf-8 by converting", GrooVim_IsEncodingAnswer("uc") == 1, "")
 call GT_Ok("\"br\" is utf-8 with BOM, by reading again", GrooVim_IsEncodingAnswer("br") == 1, "")
 call GT_Ok("\"x\" on its own leaves", GrooVim_IsEncodingAnswer("x") == 1, "")
-for s:no in ["u", "c", "uu", "cu", "zc", "ux", "uca", "", "UC"]
+call GT_Ok("and an empty answer is the x", GrooVim_IsEncodingAnswer("") == 1,
+  \ "   (x is the default: <Enter> through the screen changes nothing)")
+for s:no in ["u", "c", "uu", "cu", "zc", "ux", "uca", "UC"]
   call GT_Ok("  [" . s:no . "] is refused", GrooVim_IsEncodingAnswer(s:no) == 0, "")
 endfor
 
@@ -155,6 +157,18 @@ call GT_Ok("x on both: nothing at all",
   \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
 call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed",
   \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+
+" ---- and pressing Enter through the whole screen changes nothing
+exec "edit! " . g:GT_FILE
+let g:GT_ENTER = [&fileencoding, &bomb, &fileformat]
+let g:GrooVim_GrooVimBarMsgValue = ""
+call feedkeys("\<CR>\<CR>", "t")
+call GrooVim_ConfigureFile()
+call feedkeys("", "x")
+call GT_Ok("<Enter> twice: nothing changed",
+  \ [&fileencoding, &bomb, &fileformat] ==# g:GT_ENTER,
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]   (x is the default of both)")
+call GT_Ok("  and it says so", g:GrooVim_GrooVimBarMsgValue =~ "Nothing changed", "")
 
 " ---- and it no longer holds the screen waiting for Enter
 call GT_Ok("the screen does not ask you to press Enter",
