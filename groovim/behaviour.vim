@@ -28,7 +28,17 @@ set ttimeoutlen=150
 "      tty with a terminal that speaks nothing;
 "   4. The unnamed register, our last resort.
 
-" Note: Set to 0 to keep the terminal out of it! By Questor
+" Note: Two variables answer two DIFFERENT questions about OSC 52, and reading
+" them as one is what makes the whole thing confusing:
+"
+"   g:GrooVim_EnableOSC52   -- the POLICY.    Do we want OSC 52 at all?
+"   g:osc52_force_avail     -- the DETECTION. How is the terminal judged able?
+"
+" Note: The first is what F5->c asks, because it is the only one that is about
+" what YOU want. The second is about how a capability is established, which is
+" not a preference, and it lives below! By Questor
+
+" Note: The policy. Set to 0 and OSC 52 never enters the cascade! By Questor
 let g:GrooVim_EnableOSC52 = get(g:, "GrooVim_EnableOSC52", 1)
 
 " Note: An OSC 52 PASTE makes Vim block waiting for an answer that many
@@ -72,19 +82,26 @@ func! GrooVim_TerminalDoesOSC52() abort
   return 1
 endfunc
 
-" Note: Whether to BELIEVE the terminal can do OSC 52, or to ask it.
+" Note: The DETECTION. Not whether to use OSC 52 -- that is the policy above --
+" but how the terminal is judged able to do it. Two ways, and only two:
 "
-" Note: Set to 0 it does NOT turn OSC 52 off -- "g:GrooVim_EnableOSC52" does
-" that. It hands the decision back to the terminal: the "osc52" package sends a
-" DA1 query ("ESC [ c") and uses OSC 52 only if the answer advertises "52".
-" Measured in the package itself: the query is sent ONLY when this is 0, so with
-" the default of 1 Vim never asks at all.
+"   1  assume it can       (the default)
+"   0  ask it with a DA1 query, and believe only an answer advertising "52"
 "
-" Note: Which is why F5->c does not offer it as a third answer. Who replies "52"
-" to a DA1 is, in practice, the xterm family and almost nothing else -- so on
-" every other terminal asking behaves exactly like refusing, and a third answer
-" that usually does what another one does is worse than not having it. Set it
-" here, in one line of your own configuration, if you want the strict reading:
+" Note: Assuming is the default because of terminals that DO OSC 52 without ever
+" announcing it, and Konsole is one of them: asked with DA1 it says nothing about
+" 52, so a Vim that asks concludes there is no support and a copy never leaves
+" the machine -- on a terminal where it works perfectly well.
+"
+" Note: The query itself. The package calls SendDA1() as it starts, and inside it
+" is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". So the call
+" happens and the sequence is NOT sent while this is 1: with our default, Vim
+" never actually consults the terminal.
+"
+" Note: This is not on the F5->c screen on purpose. The screen asks what you
+" WANT; how a capability is established is not a preference, and offering it as a
+" third answer beside yes and no would mix the two questions into one. One line
+" of your own configuration, for whoever wants the strict reading:
 "
 "   let g:osc52_force_avail = 0
 "

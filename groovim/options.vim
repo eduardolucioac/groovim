@@ -289,17 +289,16 @@ func! GrooVim_ConfigureGeneral() range abort
   call GrooVim_OptsUpdate("let g:GrooVim_SessionAuto =",
    \ "let g:GrooVim_SessionAuto = " . g:GrooVim_SessionAuto, 0)
 
-  " Note: Two answers and not three. There IS a third state -- "g:osc52_force_avail
-  " = 0" makes Vim ask the terminal with a DA1 query and use OSC 52 only if the
-  " answer advertises "52" -- and it is a real thing, not another way of saying
-  " off. It is not asked here because of WHO answers that query: in practice the
-  " xterm family and almost nothing else. On every other terminal "ask" behaves
-  " exactly like "no", and a third answer that usually does what another one does
-  " is worse than not having it.
+  " Note: One question, because only one of the two variables behind OSC 52 is a
+  " preference. This one is the POLICY -- do you want a copy to leave through the
+  " terminal at all. The other, "g:osc52_force_avail", is DETECTION: how the
+  " terminal is judged able to do it, by assuming or by asking it with a DA1
+  " query.
   "
-  " Note: It is still there for whoever wants it, one line in your own
-  " configuration, and it is written down where it lives (the "behaviour" part)!
-  " By Questor
+  " Note: Detection is not something to have an opinion about, so it is not asked
+  " here. Putting it beside yes and no as a third answer would be mixing the two
+  " questions into one -- it is set in one line of your own configuration, and
+  " explained where it is declared (the "behaviour" part)! By Questor
   let g:GrooVim_EnableOSC52 = GrooVim_GetOptions(
    \ "Let a copy leave through the terminal (OSC 52, this is what crosses SSH)",
    \ [0,1], 1, g:GrooVim_EnableOSC52)
