@@ -17,6 +17,15 @@ let g:GT_OUT = $GROOVIM_TEST_OUT != "" ? $GROOVIM_TEST_OUT : g:GT_BASE . "/resul
 let g:GT_NAME = "unnamed"
 let g:GT_LINES = []
 
+" A terminal as wide as the one GrooVim is used on.
+"
+" Without this a case runs in the 80 columns a pty falls back to with no terminal
+" behind it, and that is not a neutral choice: a prompt wider than the screen
+" wraps, the message area overflows, and the hit-enter Vim raises for that EATS
+" the first key fed to it. Questions were being shortened to fit a width nobody
+" reads them at.
+set columns=200
+
 func! GT_Name(name)
   let g:GT_NAME = a:name
   let g:GT_LINES = []

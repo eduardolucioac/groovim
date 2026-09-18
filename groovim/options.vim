@@ -204,8 +204,12 @@ func! GrooVim_Configure() range abort
   " Note: No default and no value in force, so no answer is assumed: an empty one
   " is not valid and the question simply asks again, which is what every other
   " question of GrooVim does when there is nothing to fall back on! By Questor
-  echomsg "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral"
-  let l:which = GrooVim_GetOptions("Configure",
+  " Note: One line, question and options together. It was split into a message
+  " and a short prompt for a while, and the message DISAPPEARED: the screen that
+  " opens next redraws, and a message does not survive that -- the text of a
+  " prompt does, because Vim leaves it on the line it was answered on! By Questor
+  let l:which = GrooVim_GetOptions(
+   \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral",
    \ ["i", "v", "f", "s", "r", "g"], "", "")
 
   if l:which ==# "i"
@@ -374,8 +378,8 @@ func! GrooVim_ConfigureFile() range abort
   " Note: The "x" means "leave THIS alone", and not "leave the screen". The line
   " ending is another question and gets asked either way! By Questor
   echomsg "Convert line ending:"
-  echomsg "[u]nix LF, [w]indows CRLF, [m]acintosh CR"
-  let l:lineEnding = GrooVim_GetOptions("Answer it or [x] to do nothing",
+  let l:lineEnding = GrooVim_GetOptions(
+   \ "[u]nix LF, [w]indows CRLF, [m]acintosh CR, or [x] to do nothing",
    \ ["u", "w", "m", "x"], "u", GrooVim_LineEndingNow())
 
   call GrooVim_FileSettingsApply(l:encoding[0], strchars(l:encoding) > 1 ? l:encoding[1] : "",
