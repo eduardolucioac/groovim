@@ -106,7 +106,7 @@ endfunc
 " defect in each of its three situations. Now it has a way in! By Questor
 func! GrooVim_OptsEnd() abort
 
-  let l:answer = GrooVim_GetOptions("Just apply or apply and save", ["a", "s"], "a", "")
+  let l:answer = GrooVim_GetOptions("Just [a]apply or [s]apply and save", ["a", "s"], "a", "")
 
   if l:answer ==# "s"
     for l:pair in g:GrooVim_OptsPending
@@ -218,7 +218,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
     let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = GrooVim_GetOptions("Replace begin from current position", [0,1], 1, g:configureGrooVim_EntertainmentReplace_FromCurrentPosition)
     call GrooVim_OptsUpdate("let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition =", "let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = " . g:configureGrooVim_EntertainmentReplace_FromCurrentPosition, 0)
   elseif a:typeOfConfig == "search"
-    let g:search_Direction = GrooVim_GetOptions("Search forward/backward", ["f","b"], "f", g:search_Direction)
+    let g:search_Direction = GrooVim_GetOptions("Search [f]forward/[b]backward", ["f","b"], "f", g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
     " Note: Needed to reverse the search! By Questor
     if g:search_Direction == "b"
@@ -299,9 +299,16 @@ func! GrooVim_ConfigureGeneral() range abort
   " here. Putting it beside yes and no as a third answer would be mixing the two
   " questions into one -- it is set in one line of your own configuration, and
   " explained where it is declared (the "behaviour" part)! By Questor
-  let g:GrooVim_EnableOSC52 = GrooVim_GetOptions(
-   \ "Let a copy leave through the terminal (OSC 52, this is what crosses SSH)",
-   \ [0,1], 1, g:GrooVim_EnableOSC52)
+  " Note: Written as the two things it chooses between, and not as a yes and a
+  " no. Every other method of the cascade is FOUND -- Wayland, X11, a tool that
+  " is installed -- and OSC 52 is the one that is ASSUMED: the sequence goes out
+  " and the terminal is never heard from again. That is the choice being made,
+  " and "let a copy leave through the terminal" did not say it! By Questor
+  let l:clipboard = GrooVim_GetOptions(
+   \ "Clipboard: [a]auto, only a means it can find, or [o]assume OSC 52 " .
+   \ "through the terminal too (this is what crosses SSH)",
+   \ ["a", "o"], "o", g:GrooVim_EnableOSC52 ? "o" : "a")
+  let g:GrooVim_EnableOSC52 = l:clipboard ==# "o" ? 1 : 0
   call GrooVim_OptsUpdate("let g:GrooVim_EnableOSC52 =",
    \ "let g:GrooVim_EnableOSC52 = " . g:GrooVim_EnableOSC52, 0)
   call GrooVim_OSC52Apply()
@@ -371,6 +378,20 @@ func! GrooVim_GetNumber(question, factoryDefault, currentValue) abort
   return l:answer
 endfunc
 
+" Note: How a question is written, and it is one rule with two halves:
+"
+"   A yes or a no is [0,1].    "Case sensitive (SEARCH/REPLACE)"
+"   A choice is LETTERS.       "Get [f]filename or [p]filename and path"
+"
+" Note: The letter is the first one of the word it stands for, written in front
+" of that word, so the answer is read off the question itself: "[f]forward",
+" "[b]backward", "[a]apply", "[s]apply and save".
+"
+" Note: Numbers for a choice is what this is here to stop. "Get [0]filename or
+" [1]filename and path" made the reader carry an arbitrary pairing in their head
+" for as long as the question was on screen, and there is nothing about a 0 that
+" means "filename". A 0 and a 1 mean something on their own -- no and yes -- and
+" that is the only thing they should ever be asked to mean! By Questor
 func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue) abort
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault

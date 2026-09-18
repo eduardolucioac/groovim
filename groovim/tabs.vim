@@ -229,11 +229,12 @@ func! GrooVim_GetFileNameAndPath() range abort
 
   let l:filenameOrFilenameAndPath = ""
 
-  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions("Get [0]filename or [1]filename and path", [0,1], 0, "")
-  if l:getFilenameOrFilenameAndPath == 0
+  let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions(
+   \ "Get [f]filename or [p]filename and path", ["f", "p"], "f", "")
+  if l:getFilenameOrFilenameAndPath ==# "f"
     let l:filenameOrFilenameAndPath = expand('%:t')
     echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
-  elseif l:getFilenameOrFilenameAndPath == 1
+  elseif l:getFilenameOrFilenameAndPath ==# "p"
     let l:filenameOrFilenameAndPath = expand('%:p')
     echomsg " -> Filename and path \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
   endif

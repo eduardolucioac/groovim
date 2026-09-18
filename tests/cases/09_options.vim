@@ -71,6 +71,34 @@ let g:GT_R = GrooVim_AskUntilValid("Test: ", {a -> GrooVim_IsRepetitionCount(a)}
 call feedkeys("", "x")
 call GT_Ok("a bad one and then the x", g:GT_R ==# "x", "   [" . g:GT_R . "]")
 
+" ---- how a question is written: a yes and a no are numbers, a choice is letters
+"
+" "Get [0]filename or [1]filename and path" made the reader carry an arbitrary
+" pairing in their head for as long as it was on screen. Nothing about a 0 means
+" "filename". A 0 and a 1 mean no and yes, and that is all they should ever be
+" asked to mean.
+"
+" This reads the source, because a question is not something a running Vim can be
+" asked about.
+let g:GT_Numbered = []
+for g:GT_Line in GT_SourceLines()
+  let g:GT_Q = matchstr(g:GT_Line, 'GrooVim_GetOptions(\s*\%(\n\s*.\)\?\s*"\zs[^"]*')
+  if g:GT_Q ==# "" | continue | endif
+  if g:GT_Q =~ '\[[0-9]\]'
+    call add(g:GT_Numbered, g:GT_Q)
+  endif
+endfor
+call GT_Ok("no question spells its answers out as numbers", empty(g:GT_Numbered),
+  \ "   " . (empty(g:GT_Numbered) ? "(a choice is written with letters)" : string(g:GT_Numbered)))
+
+" ---- and a choice really does answer to its letter
+call feedkeys("p\<CR>", "t")
+let g:GT_R = GrooVim_GetOptions("Get [f]filename or [p]filename and path", ["f", "p"], "f", "")
+call feedkeys("", "x")
+call GT_Ok("the filename question answers to [p]", g:GT_R ==# "p", "   [" . g:GT_R . "]")
+call GT_Ok("  and the old 1 is not an answer any more",
+  \ GrooVim_ValidateOptions("1", ["f", "p"], "f") == 0, "")
+
 " ---- the general settings screen, and the clipboard question in it
 "
 " A setting that only took effect after a restart would be a lie, so this
@@ -87,20 +115,20 @@ let g:GT_KeptOSC = g:GrooVim_EnableOSC52
 let g:GT_KeptForce = get(g:, "osc52_force_avail", 1)
 let g:GT_KeptSession = g:GrooVim_SessionAuto
 
-call feedkeys("1\<CR>0\<CR>a\<CR>", "t")
+call feedkeys("1\<CR>a\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
 call GT_Ok("F5->c asks about the clipboard too", g:GrooVim_EnableOSC52 == 0,
-  \ "   (answered 0)")
+  \ "   (answered [a]auto)")
 if exists("+clipmethod")
-  call GT_Ok("  and no takes OSC 52 out of the cascade AT ONCE",
+  call GT_Ok("  and auto takes OSC 52 out of the cascade AT ONCE",
     \ &clipmethod !~ "osc52", "   [" . &clipmethod . "]   (no restart)")
 endif
 
-call feedkeys("1\<CR>1\<CR>a\<CR>", "t")
+call feedkeys("1\<CR>o\<CR>a\<CR>", "t")
 call GrooVim_ConfigureGeneral()
 call feedkeys("", "x")
-call GT_Ok("yes puts it back", g:GrooVim_EnableOSC52 == 1, "")
+call GT_Ok("[o]assume OSC 52 puts it back", g:GrooVim_EnableOSC52 == 1, "")
 if exists("+clipmethod")
   call GT_Ok("  and the cascade has it again, still last",
     \ &clipmethod =~ "osc52$", "   [" . &clipmethod . "]")
