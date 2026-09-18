@@ -85,7 +85,7 @@ func! GrooVim_EntertainmentReplace(mod) range abort
       " and the loop around here only lets go of a NON empty answer.
       "
       " Note: "(required)" and not an instruction because it states the RULE, the
-      " way the neighbouring prompts state "[now: ...]" and "[0[default]/1]". And
+      " way the neighbouring prompts state "[in use: ...]" and "[0[default]/1]". And
       " it is true here: the loop really does enforce it! By Questor
       if ("" . l:valueToReplace . "") != ""
         let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "

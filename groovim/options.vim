@@ -497,20 +497,25 @@ endfunc
 " gets one of them. An empty answer keeps what is in force.
 "
 " Note: The prompt is BUILT here, from what the function already receives. Every
-" call site used to spell out "[0[default]/1][now: \"0\"]? " by hand, in eight
+" call site used to spell out "[0[default]/1][in use: \"0\"]? " by hand, in eight
 " places, and a change to the list of options would not reach the text. Now it
 " cannot drift.
 "
 " Note: An empty "currentValue" is a question with nothing in force -- the one
-" that asks what to get from a file name is like that. No "now" is shown and an
-" empty answer takes the factory default! By Questor
+" that asks what to get from a file name is like that. No "in use" is shown and
+" an empty answer takes the factory default.
+"
+" Note: "in use" and not "now", which it said for years. On the screen of the
+" file settings, next to a question about CONVERTING, "now" read as part of the
+" answer -- convert it now? What it means is the value the option is on! By
+" Questor
 " Note: The prompt of a question whose answer is a NUMBER and not one of a list.
 " Same shape as the one above, so the screens read alike! By Questor
 func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
   if ("" . a:currentValue . "") != ""
-    let l:prompt = l:prompt . "[now: \"" . a:currentValue . "\"]"
+    let l:prompt = l:prompt . "[in use: \"" . a:currentValue . "\"]"
   endif
 
   return l:prompt . "? "
@@ -603,7 +608,7 @@ func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue) abo
 
   let l:prompt = "[" . join(l:parts, "/") . "]"
   if ("" . a:currentValue . "") != ""
-    let l:prompt = l:prompt . "[now: \"" . a:currentValue . "\"]"
+    let l:prompt = l:prompt . "[in use: \"" . a:currentValue . "\"]"
   endif
 
   return l:prompt . "? "

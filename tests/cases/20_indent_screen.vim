@@ -20,7 +20,7 @@ func! GT_Body()
     \ GrooVim_NumberToPrompt(2, "") ==# '[a number, 2[default]]? ',
     \ "   [" . GrooVim_NumberToPrompt(2, "") . "]")
   call GT_Ok("number prompt, with a value in force",
-    \ GrooVim_NumberToPrompt(2, 4) ==# '[a number, 2[default]][now: "4"]? ',
+    \ GrooVim_NumberToPrompt(2, 4) ==# '[a number, 2[default]][in use: "4"]? ',
     \ "   [" . GrooVim_NumberToPrompt(2, 4) . "]")
 
   call feedkeys("zz\<CR>0\<CR>3abc\<CR>6\<CR>", "t")

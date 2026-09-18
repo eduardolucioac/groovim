@@ -103,6 +103,48 @@ call GT_Ok("saved, and now reading again works",
   \ GrooVim_FileSettingsApply("u", "r", "u") == 1, "")
 call GT_Ok("  and the file is the one it was", getline(1) ==# "mudei isto", "")
 
+" ---- and it lands on THIS tab and nowhere else
+"
+" The encoding, the BOM and what ends a line belong to the buffer, so a choice
+" made on one document cannot reach another. Proved rather than assumed: every
+" one of the three is a Vim option that also has a global value, and setting the
+" global one is exactly the mistake that locked every buffer of the session when
+" the help used ":set noma" instead of ":setlocal noma".
+tabonly!
+exec "edit! " . g:GT_OUT . "/tab_one.txt"
+%delete _
+call setline(1, "um")
+write
+exec "tabnew " . g:GT_OUT . "/tab_two.txt"
+%delete _
+call setline(1, "dois")
+write
+call GT_Ok("setup: two tabs, both utf-8 and unix",
+  \ &fileencoding ==# "utf-8" && &bomb == 0 && &fileformat ==# "unix",
+  \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+
+tabprevious
+call GrooVim_FileSettingsApply("l", "c", "m")
+call GT_Ok("tab 1 converted to utf-16 LE and CR",
+  \ &fileencoding ==# "utf-16le" && &bomb == 1 && &fileformat ==# "mac",
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
+
+tabnext
+call GT_Ok("tab 2 was NOT touched",
+  \ &fileencoding ==# "utf-8" && &bomb == 0 && &fileformat ==# "unix",
+  \ "   [" . &fileencoding . " bomb=" . &bomb . " " . &fileformat . "]")
+call GT_Ok("  and it was not marked as changed either", &modified == 0, "")
+
+" A new tab after all that starts clean too: what was set is of the buffer, not
+" a new default for everything that comes next.
+tabnew
+call GT_Ok("a tab opened afterwards starts clean",
+  \ &bomb == 0 && &fileformat ==# "unix",
+  \ "   [bomb=" . &bomb . " " . &fileformat . "]")
+tabonly!
+
+call delete(g:GT_OUT . "/tab_one.txt")
+call delete(g:GT_OUT . "/tab_two.txt")
 call delete(g:GT_FILE)
 call GT_Done()
 endfunc

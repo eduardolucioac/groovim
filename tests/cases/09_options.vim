@@ -5,19 +5,19 @@ call GT_Name(expand("<sfile>:t:r"))
 
 " ---- the text comes from the options, not from a sentence written by hand
 call GT_Ok("numeric, default 0, now 0",
-  \ GrooVim_OptionsToPrompt([0,1], 0, 0) ==# '[0[default]/1][now: "0"]? ',
+  \ GrooVim_OptionsToPrompt([0,1], 0, 0) ==# '[0[default]/1][in use: "0"]? ',
   \ "   [" . GrooVim_OptionsToPrompt([0,1], 0, 0) . "]")
 call GT_Ok("numeric, default 1, now 0",
-  \ GrooVim_OptionsToPrompt([0,1], 1, 0) ==# '[0/1[default]][now: "0"]? ',
+  \ GrooVim_OptionsToPrompt([0,1], 1, 0) ==# '[0/1[default]][in use: "0"]? ',
   \ "   [" . GrooVim_OptionsToPrompt([0,1], 1, 0) . "]")
 call GT_Ok("text, default f, now b",
-  \ GrooVim_OptionsToPrompt(["f","b"], "f", "b") ==# '[f[default]/b][now: "b"]? ',
+  \ GrooVim_OptionsToPrompt(["f","b"], "f", "b") ==# '[f[default]/b][in use: "b"]? ',
   \ "   [" . GrooVim_OptionsToPrompt(["f","b"], "f", "b") . "]")
 call GT_Ok("no value in force: no \"now\" is shown",
   \ GrooVim_OptionsToPrompt([0,1], 0, "") ==# '[0[default]/1]? ',
   \ "   [" . GrooVim_OptionsToPrompt([0,1], 0, "") . "]")
 call GT_Ok("three options follow the list",
-  \ GrooVim_OptionsToPrompt([0,1,2], 2, 1) ==# '[0/1/2[default]][now: "1"]? ',
+  \ GrooVim_OptionsToPrompt([0,1,2], 2, 1) ==# '[0/1/2[default]][in use: "1"]? ',
   \ "   [" . GrooVim_OptionsToPrompt([0,1,2], 2, 1) . "]")
 
 " ---- validation
