@@ -53,10 +53,10 @@ let &expandtab = g:GrooVim_IndentExpandTab
 set shiftround
 
 " Note: Draws a dot on every space and an arrow on every tab, which is "Show
-" Space and Tab" of Notepad++. Off by default, as it is there: seeing every
-" space is something you turn on to hunt something down, not something to read
-" code through! By Questor
-let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 0)
+" Space and Tab" of Notepad++. ON by default, which is where GrooVim parts from
+" it: a space and a tab look the same and are not, and that is the kind of thing
+" an editor should show you instead of waiting to be asked! By Questor
+let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 1)
 
 " Note: Draws the indentation guides with "leadmultispace", which is native to
 " Vim and replaces what a plugin used to do here.

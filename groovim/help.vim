@@ -350,7 +350,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n<".
 \"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->c and then |[v]| turns them off and on, and hands back the char you chose;".
 \"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
-\"\n*o*  |g:GrooVim_ShowSpaceAndTab| - 1 draws a dot on every space and an arrow on every tab, which is \"Show Space and Tab\" of Notepad++. Off by default, as it is there;".
+\"\n*o*  |g:GrooVim_ShowSpaceAndTab| - 1 draws a dot on every space and an arrow on every tab, which is \"Show Space and Tab\" of Notepad++. ON by default, which is where GrooVim parts from it: a space and a tab look the same and are not;".
 \"\n".
 \"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
 \"\n".

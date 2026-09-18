@@ -308,7 +308,7 @@ func! GrooVim_ConfigureView() range abort
   call GrooVim_OptsBegin()
 
   let l:symbols = GrooVim_GetOptions("Show space and tab",
-   \ [0,1], 0, g:GrooVim_ShowSpaceAndTab)
+   \ [0,1], 1, g:GrooVim_ShowSpaceAndTab)
   let g:GrooVim_ShowSpaceAndTab = l:symbols
   call GrooVim_OptsUpdate("let g:GrooVim_ShowSpaceAndTab =",
    \ "let g:GrooVim_ShowSpaceAndTab = " . g:GrooVim_ShowSpaceAndTab, 0)

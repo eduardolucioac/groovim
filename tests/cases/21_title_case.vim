@@ -123,12 +123,12 @@ func! GT_Body()
   " Measured: one ":set noma" and every buffer opened afterwards is locked.
   call GT_Ok("the global \"modifiable\" is on", &g:modifiable == 1, "")
   call GT_Ok("the help locks itself with setlocal",
-    \ execute("function GrooVim_ToogleGrooVimHelp") =~ "setlocal noma" &&
-    \ execute("function GrooVim_ToogleGrooVimHelp") !~ '\\s\\zsset noma',
+    \ GT_FunctionText("GrooVim_ToogleGrooVimHelp") =~ "setlocal noma" &&
+    \ GT_FunctionText("GrooVim_ToogleGrooVimHelp") !~ '\\s\\zsset noma',
     \ "   (\":set noma\" would lock every buffer of the session)")
   call GT_Ok("and so does the occurrence list",
-    \ execute("function GrooVim_SearchGuySync") =~ "setlocal noma" &&
-    \ execute("function GrooVim_SearchGuySync") !~ '\\s\\zsset noma', "")
+    \ GT_FunctionText("GrooVim_SearchGuySync") =~ "setlocal noma" &&
+    \ GT_FunctionText("GrooVim_SearchGuySync") !~ '\\s\\zsset noma', "")
 
   " ---- the bar of the help is not the bar of a document
   "

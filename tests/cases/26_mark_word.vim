@@ -15,7 +15,16 @@ call GT_Name(expand("<sfile>:t:r"))
 " it from column 1 of the line being looked at reads the mark itself as plain and
 " answers with the columns that are NOT marked -- which is how this was wrong the
 " first time.
+" Note: The symbols are turned off while the question is asked. With "list" on
+" and a "space:" in "listchars", a space is drawn as a character of its own and
+" in a colour of its own, so every space read as painted -- measured, columns
+" [1,2,3,4,5,6,8] where the mark covers [1,2,3,4,5]. What is being asked here is
+" which columns of the TEXT carry the mark, and a symbol is not text.
 func! GT_Painted(line, plainLine)
+  let l:kept = &l:list
+  setlocal nolist
+  redraw
+
   let l:plain = screenattr(a:plainLine, 1)
   let l:cols = []
   for l:c in range(1, 40)
@@ -23,6 +32,9 @@ func! GT_Painted(line, plainLine)
       call add(l:cols, l:c)
     endif
   endfor
+
+  let &l:list = l:kept
+  redraw
   return l:cols
 endfunc
 

@@ -85,7 +85,7 @@ func! GT_Body()
   " The variable and not the word: the body still explains, in a comment, why
   " the guides are not asked here, and ":function" prints comments too.
   call GT_Ok("the indent screen no longer touches the guide",
-    \ execute("function GrooVim_ConfigureIndent") !~ "IndentGuideChar",
+    \ GT_FunctionText("GrooVim_ConfigureIndent") !~ "IndentGuideChar",
     \ "   (it asks the width and what <Tab> puts, and stops there)")
 
   let g:GrooVim_IndentGuideChar = "|"

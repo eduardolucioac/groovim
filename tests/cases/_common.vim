@@ -117,6 +117,23 @@ endfunc
 " at the ".vimrc" reads the loader and nothing else -- 374 lines out of six
 " thousand -- and every check it makes comes back empty and PASSES, which is the
 " worst way for a check to be wrong.
+" The body of a function, as TEXT.
+"
+" ":function" prints it through the display, so with "list" on and a "space:" in
+" "listchars" every space comes back as the character that draws it -- measured:
+" "setlocal.noma.nomodified", with the dots being the symbol for a space, and the
+" indentation coming back as guide characters. The option is turned off around
+" the capture so that the text is the text.
+func! GT_FunctionText(name)
+  let l:kept = &l:list
+  try
+    setlocal nolist
+    return execute("function " . a:name)
+  finally
+    let &l:list = l:kept
+  endtry
+endfunc
+
 func! GT_SourceLines()
   let l:lines = readfile($GROOVIM_TEST_VIMRC)
   for l:part in sort(glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/*.vim", 0, 1))

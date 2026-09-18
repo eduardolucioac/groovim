@@ -103,10 +103,10 @@ func! GT_Body()
   " the closing goes through the asking route; the question on screen is checked
   " with screen.sh, where it reads: Save changes to "..."?
   call GT_Ok("closing to the side goes through the asking route",
-    \ execute("function GrooVim_TabCloseSide") =~ 'confirm',
+    \ GT_FunctionText("GrooVim_TabCloseSide") =~ 'confirm',
     \ "   (a bare :tabclose would answer E37 and close nothing)")
   call GT_Ok("and so does closing the tab you are in",
-    \ execute("function GrooVim_CloseAsking") =~ 'confirm', "")
+    \ GT_FunctionText("GrooVim_CloseAsking") =~ 'confirm', "")
 
   " ---- F5 w closes the tab you are in
   tabonly!
