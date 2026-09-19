@@ -8,8 +8,7 @@
 "LICENSE (GNU General Public License v3.0 or later)
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" GrooVim -- a Vim of its own, remodelled to work the way a conventional
-" editor does.
+" GrooVim — a Vim of its own, remodelled for a simpler, smarter experience.
 "
 " Copyright (C) 2014-2026 Eduardo Lucio Amorim Costa
 "
@@ -30,7 +29,11 @@
 " file carries is this: the notice the GPL asks you to attach, from
 " "How to Apply These Terms to Your New Programs" at its end! By Questor
 
-let g:grooVimVersion = "v2.0.8b"
+" Note: The version, and the ONE place it is written. The help of F9 used to
+" carry a second copy of it, typed by hand, and that is how a number goes stale:
+" nothing makes the two agree, and nobody reads the title of a help they wrote
+" themselves! By Questor
+let g:grooVimVersion = "v3.0.0b"
 " Eduardo Lúcio
 " 2014
 

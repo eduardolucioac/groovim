@@ -324,6 +324,25 @@ func! GT_Body()
   call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
     \ "   (" . line("$") . " lines)")
 
+  " ---- the version, in one place
+  "
+  " The help of F9 used to carry a second copy of it, typed by hand, and that is
+  " how a number goes stale: nothing makes the two agree, and nobody reads the
+  " title of a help they wrote.
+  call GT_Ok("there is a version", g:grooVimVersion =~ '^v\d\+\.\d\+\.\d',
+    \ "   [" . g:grooVimVersion . "]")
+  call GT_Ok("  and the help of F9 shows THAT one",
+    \ stridx(g:GrooVimHelp, g:grooVimVersion[1:]) >= 0,
+    \ "   (read from the variable, not typed again)")
+  call GT_Ok("  and the bar too",
+    \ stridx(GrooVim_GrooVimBar(), g:grooVimVersion) >= 0
+    \ || stridx(execute("echo GrooVim_GrooVimBar()"), "grooVimVersion") >= 0, "")
+  call GT_Ok("no other file writes a version by hand",
+    \ empty(filter(GT_SourceLines(),
+    \   'v:val =~ "[0-9]\\.[0-9]\\.[0-9]b" && v:val !~ "grooVimVersion"')),
+    \ "   " . string(filter(GT_SourceLines(),
+    \   'v:val =~ "[0-9]\\.[0-9]\\.[0-9]b" && v:val !~ "grooVimVersion"')))
+
   " ---- the licence, in one place and said the same way everywhere
   "
   " The .vimrc used to carry the whole of Apache 2.0 in comments: 211 lines of

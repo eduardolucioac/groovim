@@ -223,8 +223,8 @@ endfunc
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
-\"\n|GrooVim|=D|2.0.8b|-|Vi|IMproved\'n\'GrooVIed!|".
-\"\n Last change: 2026 September 16".
+\"\n|GrooVim|=D|" . g:grooVimVersion . "|-|Vi|IMproved\'n\'GrooVIed!|".
+\"\n Last change: 2026 September 19".
 \"\n Eduardo L\u00facio Amorim Costa~".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
