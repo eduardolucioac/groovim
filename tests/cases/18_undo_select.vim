@@ -83,7 +83,29 @@ func! GT_Body()
   call GT_Ok("  and it did not type an \"a\" into the file either",
     \ getline(2) ==# "third occurrence of TARGET here", "   [" . getline(2) . "]")
 
-  call GT_Done()
+  " ---- Ctrl-C copies and leaves the cursor WHERE IT WAS
+"
+" A plain "y" in visual mode drops the cursor at the start of what was selected,
+" which is of Vim and of nothing else: in a conventional editor you copy and go
+" on from where you are.
+"
+" The mode afterwards is NOT asked about: "feedkeys(..., "x")" ends insert mode
+" when the keys run out, so it answers "n" here whatever the mapping does -- and
+" it answered "n" for the "yi" that was here before this changed.
+%delete _
+call setline(1, ["uma linha de teste", "outra linha"])
+call cursor(1, 5)
+call feedkeys("vlll", "x")
+let g:GT_AT = getcurpos()[1:2]
+call GT_Ok("setup: selecting, the cursor is at the far end", g:GT_AT ==# [1, 8],
+  \ "   " . string(g:GT_AT))
+call feedkeys("\<C-c>", "x")
+call GT_Ok("Ctrl-C leaves the cursor where it was", getcurpos()[1:2] ==# g:GT_AT,
+  \ "   " . string(getcurpos()[1:2]) . "   (a plain \"y\" would drop it at column 5)")
+call GT_Ok("  and it copied what was selected", GrooVim_ClipGet() ==# "linh",
+  \ "   [" . GrooVim_ClipGet() . "]")
+
+call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

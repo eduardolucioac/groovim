@@ -108,178 +108,202 @@ endfunc
 
 func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range abort
 
-  let g:GrooVim_GroovyMoveEnabled = 0
+  " Note: A "finally", because this movement can be INTERRUPTED and usually is:
+  " GrooVim itself says "Use Ctrl+C to stop!" while a smooth one is running. An
+  " interrupt walks out of the function, and the line at the end that gives the
+  " cursor back to the colours of each mode never ran! By Questor
+  try
 
-  if a:blockSmoothness == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0 && a:GrooVim_GroovyMoveType == 0
-    call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-  endif
+    let g:GrooVim_GroovyMoveEnabled = 0
 
-  " Note: "curswant" is the column the cursor TRIES to keep across vertical moves.
-  "
-  " Note: In insert mode it comes from the mapping, which took it before "<C-o>":
-  " here it would already be the column of the SHORT line. Everywhere else, taken
-  " at the very top, because the "virtualedit" below disturbs it too.
-  "
-  " Note: The mapping leaves a zero behind once it is read, so a value that was
-  " never marked -- or already used -- never moves anything! By Questor
-  let l:columnToKeep = a:mod == "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
-  let g:GrooVim_GroovyMoveColumn = 0
-
-  if &virtualedit == "onemore"
-    set virtualedit=all
-  endif
-
-  " Note: The column to keep goes back BEFORE the movement, because it is what
-  "<Up>" and "<Down>" aim at. Putting it back only afterwards fixed the number
-  " and left the cursor one column short: the move had already happened with the
-  " wrong aim! By Questor
-  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
-
-  let l:disableSmoothness = 0
-  let l:disableHorizontalSmoothness = 0
-  let l:horizontalSmoothnessFactor = 2
-  let l:verticalSmoothnessFactor = 10
-
-  if a:GrooVim_GroovyMoveType == 0
-    let l:horizontalMovementFactor = 20
-    let l:verticalMovementFactor = 15
-  elseif a:GrooVim_GroovyMoveType == 1
-    let l:horizontalMovementFactor = 1
-    let l:verticalMovementFactor = 1
-  endif
-
-  if a:mod == "n" || a:mod == "i"
-
-    if a:direction == "l"
-      for i in range(1, l:horizontalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-          exec "sleep " . l:horizontalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Left>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "d"
-      for i in range(1, l:verticalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0
-          exec "sleep " . l:verticalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Down>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "u"
-      for i in range(1, l:verticalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0
-          exec "sleep " . l:verticalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Up>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "r"
-      for i in range(1, l:horizontalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-          exec "sleep " . l:horizontalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Right>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
+    if a:blockSmoothness == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0 && a:GrooVim_GroovyMoveType == 0
+      call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
     endif
 
-  elseif a:mod == "v"
+    " Note: "curswant" is the column the cursor TRIES to keep across vertical moves.
+    "
+    " Note: In insert mode it comes from the mapping, which took it before "<C-o>":
+    " here it would already be the column of the SHORT line. Everywhere else, taken
+    " at the very top, because the "virtualedit" below disturbs it too.
+    "
+    " Note: The mapping leaves a zero behind once it is read, so a value that was
+    " never marked -- or already used -- never moves anything! By Questor
+    let l:columnToKeep = a:mod == "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
+    let g:GrooVim_GroovyMoveColumn = 0
 
-    exec "norm gv"
-    if a:direction == "l"
-      for i in range(1, l:horizontalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-          exec "sleep " . l:horizontalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Left>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "d"
-      for i in range(1, l:verticalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0
-          exec "sleep " . l:verticalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Down>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "u"
-      for i in range(1, l:verticalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0
-          exec "sleep " . l:verticalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Up>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
-    elseif a:direction == "r"
-      for i in range(1, l:horizontalMovementFactor)
-        if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
-          exec "sleep " . l:horizontalSmoothnessFactor . "m"
-        endif
-        exec "norm \<Right>"
-        if a:blockSmoothness == 0
-          redraw
-        endif
-      endfor
+    if &virtualedit == "onemore"
+      set virtualedit=all
     endif
 
-    " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
-    let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
-    let g:cursorHoldVisual = 1
-    exec "norm \<Esc>"
+    " Note: The column to keep goes back BEFORE the movement, because it is what
+    "<Up>" and "<Down>" aim at. Putting it back only afterwards fixed the number
+    " and left the cursor one column short: the move had already happened with the
+    " wrong aim! By Questor
+    call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
-  endif
+    let l:disableSmoothness = 0
+    let l:disableHorizontalSmoothness = 0
+    let l:horizontalSmoothnessFactor = 2
+    let l:verticalSmoothnessFactor = 10
 
-  let g:onMoveScreen = 1
-
-  " Note: "set virtualedit=onemore" if the area is already valid! By Questor
-  "
-  " Note: And ONLY then. Leaving "all" on while the cursor is over an area without
-  " character is what lets it stay there: putting it back unconditionally dragged
-  " the cursor onto the text at the end of every movement! By Questor
-  if virtcol('.') <= virtcol('$')
-
-    if &virtualedit == "all"
-      set virtualedit=onemore
+    if a:GrooVim_GroovyMoveType == 0
+      let l:horizontalMovementFactor = 20
+      let l:verticalMovementFactor = 15
+    elseif a:GrooVim_GroovyMoveType == 1
+      let l:horizontalMovementFactor = 1
+      let l:verticalMovementFactor = 1
     endif
 
-    if a:direction == "r" && a:mod != "v"
-      call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
+    if a:mod == "n" || a:mod == "i"
+
+      if a:direction == "l"
+        for i in range(1, l:horizontalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+            exec "sleep " . l:horizontalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Left>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "d"
+        for i in range(1, l:verticalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0
+            exec "sleep " . l:verticalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Down>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "u"
+        for i in range(1, l:verticalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0
+            exec "sleep " . l:verticalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Up>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "r"
+        for i in range(1, l:horizontalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+            exec "sleep " . l:horizontalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Right>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      endif
+
+    elseif a:mod == "v"
+
+      exec "norm gv"
+      if a:direction == "l"
+        for i in range(1, l:horizontalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+            exec "sleep " . l:horizontalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Left>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "d"
+        for i in range(1, l:verticalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0
+            exec "sleep " . l:verticalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Down>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "u"
+        for i in range(1, l:verticalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0
+            exec "sleep " . l:verticalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Up>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      elseif a:direction == "r"
+        for i in range(1, l:horizontalMovementFactor)
+          if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
+            exec "sleep " . l:horizontalSmoothnessFactor . "m"
+          endif
+          exec "norm \<Right>"
+          if a:blockSmoothness == 0
+            redraw
+          endif
+        endfor
+      endif
+
+      " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
+      let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
+      let g:cursorHoldVisual = 1
+      exec "norm \<Esc>"
+
     endif
 
-  endif
+    let g:onMoveScreen = 1
 
-  " Note: The column the cursor tries to keep goes back, and ONLY it: the cursor
-  " itself is left exactly where the movement put it, virtual space included.
-  "
-  " Note: Moving the cursor here was a mistake of mine: it dragged it back onto
-  " the text and took away the whole point of this function, which is travelling
-  " over areas WITHOUT character. The fourth item of "cursor()" is the column to
-  " keep; the first three are the position, and they go back unchanged -- the
-  " third one is the virtual offset, which is what holds the cursor out there.
-  "
-  " Note: And once more AFTER the block above, because coming out of
-  " "virtualedit=all" snaps the cursor onto the text and resets the column. This
-  " one is for the NEXT movement: it is what the mapping will read! By Questor
-  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
+    " Note: "set virtualedit=onemore" if the area is already valid! By Questor
+    "
+    " Note: And ONLY then. Leaving "all" on while the cursor is over an area without
+    " character is what lets it stay there: putting it back unconditionally dragged
+    " the cursor onto the text at the end of every movement! By Questor
+    if virtcol('.') <= virtcol('$')
 
-  " Note: The trip is over, so the cursor goes back to answering to each mode! By
-  " Questor
-  call GrooVim_GroovyMoveColorsBack()
+      if &virtualedit == "all"
+        set virtualedit=onemore
+      endif
+
+      if a:direction == "r" && a:mod != "v"
+        call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
+      endif
+
+    endif
+
+    " Note: The column the cursor tries to keep goes back, and ONLY it: the cursor
+    " itself is left exactly where the movement put it, virtual space included.
+    "
+    " Note: Moving the cursor here was a mistake of mine: it dragged it back onto
+    " the text and took away the whole point of this function, which is travelling
+    " over areas WITHOUT character. The fourth item of "cursor()" is the column to
+    " keep; the first three are the position, and they go back unchanged -- the
+    " third one is the virtual offset, which is what holds the cursor out there.
+    "
+    " Note: And once more AFTER the block above, because coming out of
+    " "virtualedit=all" snaps the cursor onto the text and resets the column. This
+    " one is for the NEXT movement: it is what the mapping will read! By Questor
+    call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
+
+    " Note: The trip is over, so the cursor goes back to answering to each mode! By
+    " Questor
+    call GrooVim_GroovyMoveColorsBack()
+
+  finally
+    " Note: The trip is over however it ended, so the cursor goes back to
+    " answering to each mode! By Questor
+    call GrooVim_GroovyMoveColorsBack()
+
+    " Note: And it is PAINTED here, by the mode we are actually in.
+    "
+    " Note: Giving the colours back is not enough, because nothing repaints on
+    " its own. A movement passes through normal mode on its way -- the mapping
+    " of visual mode leaves it with a ":" and comes back, and "t_EI" fires when
+    " insert is left -- and each of those paints the cursor the colour of normal
+    " mode, which is green. Whatever it was painted on the way, the mode at the
+    " end is what decides! By Questor
+    if get(g:, "GrooVim_CursorColorEnabled", 0) && exists("*GrooVim_CursorColorForMode")
+      call GrooVim_CursorColorForMode()
+    endif
+  endtry
 
 endfunc
 

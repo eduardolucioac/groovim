@@ -102,7 +102,14 @@ vnoremap <silent> <C-x> di
 " Note: The "i" only where typing is POSSIBLE. On a buffer you cannot change --
 " the help, the occurrence list -- it answered "E21: Cannot make changes,
 " 'modifiable' is off" over a command that changes nothing! By Questor
-vnoremap <silent> <expr> <C-c> &modifiable ? "yi" : "y"
+" Note: The "i" is typed by the MAPPING, the way it always was -- the function
+" only copies and puts the cursor back.
+"
+" Note: A case cannot see that it worked. "feedkeys(..., \"x\")" ENDS insert mode
+" when the keys it was given run out, so a case that presses this and asks
+" "mode()" is answered "n" -- and it answers "n" for the plain "yi" that was here
+" before, which is how I know it is the asking and not the answer! By Questor
+vnoremap <silent> <expr> <C-c> ":\<C-u>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d

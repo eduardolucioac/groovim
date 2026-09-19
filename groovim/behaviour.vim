@@ -512,6 +512,43 @@ func! GrooVim_ClipAssumed() abort
         \ && get(g:, "osc52_disable_paste", 1)
 endfunc
 
+" Note: Copies what is selected and leaves the cursor WHERE IT WAS.
+"
+" Note: A plain "y" in visual mode drops the cursor at the START of what was
+" selected, which is of Vim and of nothing else: in a conventional editor you
+" copy and go on from where you are. The position is taken before the yank and
+" put back after it.
+"
+" Note: The yank itself is still a yank -- "gvy" and not a string handed to
+" setreg -- because that is what keeps a linewise selection linewise and a block
+" a block. What is added is the file of GrooVim, and only when the method in use
+" is one whose success cannot be known: see GrooVim_ClipAssumed! By Questor
+func! GrooVim_CopyHere() abort
+
+  " Note: The selection is put back FIRST and the position read AFTER it. The ":"
+  " that brings us here has already moved the cursor to the start of the range --
+  " that is what leaving visual mode with ":" does -- so reading the position on
+  " the first line of this function reads the wrong end. Measured: column 8 while
+  " selecting, column 5 by the time the function ran.
+  "
+  " Note: "gv" puts the cursor back on the side it was on, which is the whole
+  " reason it can be used for this! By Questor
+  normal! gv
+  let l:where = getcurpos()
+  normal! y
+
+  if GrooVim_ClipAssumed()
+    call GrooVim_ClipFileSet(getreg(GrooVim_ClipReg()))
+  endif
+
+  call setpos(".", l:where)
+
+  " Note: And back to typing, which is what a conventional editor leaves you able
+  " to do after a copy. Only where typing is POSSIBLE: on a buffer you cannot
+  " change -- the help, the occurrence list -- it answered "E21: Cannot make
+  " changes, 'modifiable' is off" over a command that changes nothing! By Questor
+endfunc
+
 func! GrooVim_ClipSet(value) abort
   let l:reg = GrooVim_ClipReg()
   if l:reg != "\""

@@ -251,16 +251,23 @@ endfunc
 " visual from normal. The "ModeChanged" event can, and it is what paints visual
 " blue! By Questor
 func! GrooVim_CursorColorForMode() abort
+  let l:mode = mode()
+  let l:visual = l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
+        \ || l:mode ==# "s" || l:mode ==# "S" || l:mode ==# "\<C-s>"
+
   " Note: Not while GroovyMove is travelling out of insert mode: there the cursor
-  " belongs to insert from end to end! By Questor
-  if g:GrooVim_GroovyMoveOnInsert == 1
+  " belongs to insert from end to end.
+  "
+  " Note: But never over a mode that CAN be seen. The flag says "we came from
+  " insert", and if it is ever left standing -- an interrupted movement used to
+  " leave it so -- believing it over "mode()" painted the cursor green in visual
+  " mode, which is blue. What Vim reports wins! By Questor
+  if g:GrooVim_GroovyMoveOnInsert == 1 && !l:visual
     call GrooVim_CursorColorEmit(g:cursorColorI)
     return
   endif
 
-  let l:mode = mode()
-  if l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
-        \ || l:mode ==# "s" || l:mode ==# "S" || l:mode ==# "\<C-s>"
+  if l:visual
     call GrooVim_CursorColorEmit(g:cursorColorV)
   elseif l:mode =~# "^[iR]"
     call GrooVim_CursorColorEmit(g:cursorColorI)

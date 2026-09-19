@@ -123,7 +123,43 @@ func! GT_ConcludeBlock(t)
   call GT_Ok("block: down to the long one, column 24", p[2].line == 7 && p[2].col == 24, GT_Show(p[2]))
   call GT_Ok("block: still in visual block", p[2].mode ==# "\<C-v>", "   (mode [" . strtrans(p[2].mode) . "])")
   call GT_Ok("block: the text was not touched", getline(1, "$") ==# g:GT_TEXT, "")
+  call GT_ColourChecks()
   call GT_Done()
+endfunc
+
+" ---- the cursor colour, and the flag that used to outlive an interrupt
+"
+" GroovyMove raises a flag while it travels out of insert mode, so that the
+" cursor keeps the colour of insert for the whole trip instead of flashing the
+" one of normal mode on the way out. The trip can be INTERRUPTED -- GrooVim says
+" "Use Ctrl+C to stop!" while a smooth one runs -- and an interrupt walked out of
+" the function before the line that lowers it. The flag stayed up, and everything
+" after it was painted green: visual mode included, which is blue.
+func! GT_ColourChecks()
+  call GT_Ok("the movement gives the colours back in a \"finally\"",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ "finally",
+    \ "   (an interrupt walks out of a function; a finally still runs)")
+  call GT_Ok("  and that is what lowers the flag",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ 'finally\_.\{-}GroovyMoveColorsBack', "")
+
+  " And the second half: even with the flag standing, a mode that can be SEEN
+  " wins. The colour itself cannot be checked -- it is sent to the TERMINAL with
+  " "echoraw", and a case cannot read a terminal -- so what is checked is the
+  " decision that chooses it.
+  call GT_Ok("the flag never wins over a mode that can be seen",
+    \ GT_FunctionText("GrooVim_CursorColorForMode")
+    \   =~ 'GroovyMoveOnInsert == 1 && !l:visual',
+    \ "   (with the flag standing and the mode visual, visual wins)")
+  call GT_Ok("  and visual is asked about before the flag is",
+    \ match(GT_FunctionText("GrooVim_CursorColorForMode"), "l:visual =")
+    \ < match(GT_FunctionText("GrooVim_CursorColorForMode"), "GroovyMoveOnInsert"), "")
+  call GT_Ok("and the movement PAINTS by the mode it ends in",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ "CursorColorForMode",
+    \ "   (giving the colours back is not painting: nothing repaints on its own)")
+  call GT_Ok("the three colours are three different ones",
+    \ len(uniq(sort([g:cursorColorNV, g:cursorColorI, g:cursorColorV]))) == 3,
+    \ "   (normal [" . g:cursorColorNV . "] insert [" . g:cursorColorI .
+    \ "] visual [" . g:cursorColorV . "])")
 endfunc
 
 call GT_AfterStartup("GT_Body")
