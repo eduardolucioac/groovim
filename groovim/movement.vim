@@ -292,16 +292,21 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     " answering to each mode! By Questor
     call GrooVim_GroovyMoveColorsBack()
 
-    " Note: And it is PAINTED here, by the mode we are actually in.
+    " Note: And it is painted by the mode we are actually in -- ON A TIMER, after
+    " this function has returned.
     "
     " Note: Giving the colours back is not enough, because nothing repaints on
-    " its own. A movement passes through normal mode on its way -- the mapping
-    " of visual mode leaves it with a ":" and comes back, and "t_EI" fires when
-    " insert is left -- and each of those paints the cursor the colour of normal
-    " mode, which is green. Whatever it was painted on the way, the mode at the
-    " end is what decides! By Questor
+    " its own: a movement passes through normal mode on its way -- the mapping of
+    " visual mode leaves it with a ":" and comes back, and "t_EI" fires whenever
+    " insert is left -- and each of those paints the cursor green.
+    "
+    " Note: And painting HERE is not enough either. Traced, on a movement that
+    " ends in visual mode: the paint from inside this function saw "mode()"
+    " answer "n", because the mode has not settled while the mapping that called
+    " us is still running. A timer of zero runs on the next pass of the main
+    " loop, where what Vim answers is what you are actually in! By Questor
     if get(g:, "GrooVim_CursorColorEnabled", 0) && exists("*GrooVim_CursorColorForMode")
-      call GrooVim_CursorColorForMode()
+      call timer_start(0, {t -> GrooVim_CursorColorForMode()})
     endif
   endtry
 

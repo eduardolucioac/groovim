@@ -105,6 +105,25 @@ call GT_Ok("Ctrl-C leaves the cursor where it was", getcurpos()[1:2] ==# g:GT_AT
 call GT_Ok("  and it copied what was selected", GrooVim_ClipGet() ==# "linh",
   \ "   [" . GrooVim_ClipGet() . "]")
 
+" ---- and the WINDOW does not jump either
+"
+" A yank over a selection that runs off the screen scrolls the window to its
+" start, and putting the cursor back does not bring the window with it: the text
+" jumped under the cursor. "winsaveview" holds both.
+%delete _
+call setline(1, map(range(1, 200), '"linha " . v:val'))
+call cursor(120, 1)
+normal! zz
+call feedkeys("v", "x")
+call feedkeys("100k", "x")
+let g:GT_VIEW = [line("."), col("."), line("w0")]
+call feedkeys("\<C-c>", "x")
+call GT_Ok("Ctrl-C leaves the window where it was", line("w0") == g:GT_VIEW[2],
+  \ "   (top line " . line("w0") . ", and it was " . g:GT_VIEW[2] . ")")
+call GT_Ok("  with the cursor still on it",
+  \ [line("."), col(".")] ==# g:GT_VIEW[0:1],
+  \ "   (line " . line(".") . ", and it was " . g:GT_VIEW[0] . ")")
+
 call GT_Done()
 endfunc
 

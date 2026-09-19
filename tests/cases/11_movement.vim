@@ -156,6 +156,9 @@ func! GT_ColourChecks()
   call GT_Ok("and the movement PAINTS by the mode it ends in",
     \ GT_FunctionText("GrooVim_GroovyMove") =~ "CursorColorForMode",
     \ "   (giving the colours back is not painting: nothing repaints on its own)")
+  call GT_Ok("  on a timer, after the mode has settled",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ 'timer_start(0[^)]*CursorColorForMode',
+    \ "   (traced: from inside the function, \"mode()\" answered \"n\" on a movement that ended in visual)")
   call GT_Ok("the three colours are three different ones",
     \ len(uniq(sort([g:cursorColorNV, g:cursorColorI, g:cursorColorV]))) == 3,
     \ "   (normal [" . g:cursorColorNV . "] insert [" . g:cursorColorI .

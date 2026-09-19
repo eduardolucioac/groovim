@@ -533,15 +533,24 @@ func! GrooVim_CopyHere() abort
   "
   " Note: "gv" puts the cursor back on the side it was on, which is the whole
   " reason it can be used for this! By Questor
+  " Note: The whole VIEW and not only the cursor. A yank over a selection that
+  " runs off the screen scrolls the window to its start, and putting the cursor
+  " back afterwards does not bring the window with it -- the text jumped under
+  " it. "winsaveview" holds where the window is looking as well as where the
+  " cursor is.
+  "
+  " Note: Taken after the "gv" and not before: the ":" that brings us here has
+  " already moved the cursor to the start of the range, and "gv" puts the
+  " selection back AND the cursor on the side it was on! By Questor
   normal! gv
-  let l:where = getcurpos()
+  let l:view = winsaveview()
   normal! y
 
   if GrooVim_ClipAssumed()
     call GrooVim_ClipFileSet(getreg(GrooVim_ClipReg()))
   endif
 
-  call setpos(".", l:where)
+  call winrestview(l:view)
 
   " Note: And back to typing, which is what a conventional editor leaves you able
   " to do after a copy. Only where typing is POSSIBLE: on a buffer you cannot
