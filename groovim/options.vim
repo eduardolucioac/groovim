@@ -366,11 +366,10 @@ func! GrooVim_ConfigureFile() range abort
   " hit-enter Vim raises for that EATS the first key you press -- measured! By
   " Questor
   call GrooVim_ScreenSay("Change/convert encoding:")
-  call GrooVim_ScreenSay("1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, " .
-   \ "utf-16 b[e] " .
-   \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow()))
-  call GrooVim_ScreenSay("2 - Apply it by [r]eading again with the \"encode\" " .
-   \ "or by [c]onverting the file " . GrooVim_OptionsToPrompt(["r", "c"], "", ""))
+  echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
+   \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow())
+  echomsg "2 - Apply it by [r]eading again with the \"encode\" or by " .
+   \ "[c]onverting the file " . GrooVim_OptionsToPrompt(["r", "c"], "", "")
 
   " Note: Empty is the answer that changes nothing, and it is the default, so
   " pressing <Enter> through a screen leaves it as it found it -- which is what
@@ -599,17 +598,27 @@ endfunc
 " "file", "buffer" and the rest of ":help command-completion". It is what lets
 " the language question offer the 831 file types this Vim knows without GrooVim
 " holding a list of its own! By Questor
-" Note: A line of a screen that EXPLAINS instead of asking. The "> " is put on
-" by this and never written by hand, so every one of them carries the same mark
-" and a screen of several questions reads as several.
+" Note: The mark of a SECTION. It goes on the first line of one and on nothing
+" else, so that a screen of several questions reads as several -- a block of
+" three lines carries it once, and a question that is a block on its own carries
+" it too.
 "
-" Note: A message and not part of the prompt, and that is not decoration: a
-" prompt wider than the terminal wraps, the message area overflows, and the
-" hit-enter Vim raises for that EATS the answer -- measured at eighty columns,
-" where the language question swallowed its own. A message may be as long as it
-" likes! By Questor
+" Note: Written in ONE place and put on by the two functions below, never typed
+" into a string at a call site. That is what keeps every screen of GrooVim
+" marked the same way! By Questor
+let g:GrooVim_ScreenMark = "> "
+
+" Note: A section that opens with something to READ -- the lines under it are
+" plain messages and carry no mark! By Questor
 func! GrooVim_ScreenSay(text) abort
-  echomsg "> " . a:text
+  echomsg g:GrooVim_ScreenMark . a:text
+endfunc
+
+" Note: A section that opens with something to ANSWER, which is most of them:
+" one question, one section! By Questor
+func! GrooVim_ScreenAsk(prompt, IsValid, ...) abort
+  return call("GrooVim_AskUntilValid",
+   \ [g:GrooVim_ScreenMark . a:prompt, a:IsValid] + a:000)
 endfunc
 
 func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
@@ -662,7 +671,7 @@ func! GrooVim_GetNumber(question, factoryDefault, currentValue) abort
   let l:prompt = a:question . " " .
    \ GrooVim_NumberToPrompt(a:factoryDefault, a:currentValue)
 
-  let l:answer = GrooVim_AskUntilValid(l:prompt,
+  let l:answer = GrooVim_ScreenAsk(l:prompt,
    \ {answer -> answer ==# "" ? 1 : GrooVim_IsPositiveNumber(answer)})
 
   if l:answer ==# ""
@@ -694,7 +703,7 @@ func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue
   let l:prompt = a:question . " " .
    \ GrooVim_OptionsToPrompt(a:possibleOptions, a:factoryDefault, a:currentValue)
 
-  let l:optionReturn = GrooVim_AskUntilValid(l:prompt,
+  let l:optionReturn = GrooVim_ScreenAsk(l:prompt,
    \ {answer -> GrooVim_ValidateOptions(answer, a:possibleOptions, l:inForce)})
 
   if ("" . l:optionReturn . "") == ""

@@ -51,7 +51,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     " ask again with another sentence, "use a valid one!", which threw away the
     " part that tells you about the "x" just when you most needed to read it! By
     " Questor
-    let l:numberOfRepetitions = GrooVim_AskUntilValid(
+    let l:numberOfRepetitions = GrooVim_ScreenAsk(
      \ "Number of repetitions (use \"x\" to execute to last/first line): ",
      \ {answer -> GrooVim_IsRepetitionCount(answer)})
     " Note: Runs up to the last/first row!! By Questor
