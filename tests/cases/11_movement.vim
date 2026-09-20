@@ -124,7 +124,7 @@ func! GT_ConcludeBlock(t)
   call GT_Ok("block: still in visual block", p[2].mode ==# "\<C-v>", "   (mode [" . strtrans(p[2].mode) . "])")
   call GT_Ok("block: the text was not touched", getline(1, "$") ==# g:GT_TEXT, "")
   call GT_ColourChecks()
-  call GT_Done()
+  call GT_ViewBody()
 endfunc
 
 " ---- the cursor colour, and the flag that used to outlive an interrupt
@@ -163,6 +163,88 @@ func! GT_ColourChecks()
     \ len(uniq(sort([g:cursorColorNV, g:cursorColorI, g:cursorColorV]))) == 3,
     \ "   (normal [" . g:cursorColorNV . "] insert [" . g:cursorColorI .
     \ "] visual [" . g:cursorColorV . "])")
+endfunc
+
+
+" ---- the window, and the cursor it is supposed to follow
+"
+" A movement in visual mode goes through the ":" of the mapping, and typing ":"
+" in visual mode puts the cursor on the FIRST line of the range (":h v_:"). The
+" window goes there with it. The "gv" that puts the selection back then jumps to
+" the other end, and a jump of more than a screen makes Vim CENTRE the line it
+" lands on -- so the window ends up somewhere the user never asked for, on a
+" movement whose cursor never left the screen.
+"
+" Measured, before the fix: window on 80..120, cursor on 115, the selection
+" starting on 40. One Shift-Alt-Up took the cursor to 100 -- a line that was on
+" the screen all along -- and left the window on 95..135.
+"
+" The rule these two checks hold is the one that was asked for: the window is
+" still when the cursor is on it, and follows when the cursor leaves.
+let g:GT_VIEWS = {}
+
+func! GT_ViewSample(what)
+  let g:GT_VIEWS[a:what] = {"line": line("."), "top": line("w0"), "bottom": line("w$")}
+endfunc
+
+func! GT_ViewShow(what)
+  let p = g:GT_VIEWS[a:what]
+  return "   (window " . p.top . ".." . p.bottom . ", cursor " . p.line . ")"
+endfunc
+
+func! GT_ViewBody()
+  let g:GT_KEPT_LINES = &lines
+  " A window tall enough for the cursor to travel 15 lines inside it: a pty with
+  " no terminal behind it falls back to 24, and there the movement would leave
+  " the screen no matter what the code does.
+  set lines=43
+  enew!
+  call setline(1, map(range(1, 300), '"linha " . v:val'))
+  call cursor(40, 1)
+  call feedkeys("v", "t")
+  call timer_start(100, {t -> [cursor(115, 1), winrestview({"topline": 80}),
+    \ GT_ViewSample("in"), feedkeys("\<A-S-Up>", "t")]})
+  call GT_When('line(".") == 100', "GT_ViewOut")
+endfunc
+
+func! GT_ViewOut()
+  call GT_ViewSample("in-end")
+
+  " And now the other half: the same key with the cursor near the top, where it
+  " DOES leave the screen and the window has to come along.
+  call feedkeys("\<Esc>", "t")
+  call timer_start(100, {t -> [cursor(40, 1), feedkeys("v", "t")]})
+  call timer_start(250, {t -> [cursor(85, 1), winrestview({"topline": 80}),
+    \ GT_ViewSample("out"), feedkeys("\<A-S-Up>", "t")]})
+  call GT_When('line(".") == 70', "GT_ViewConclude")
+endfunc
+
+func! GT_ViewConclude()
+  call GT_ViewSample("out-end")
+  let a = g:GT_VIEWS
+
+  call GT_Ok("setup: the cursor is on the screen, the far end is not",
+    \ a["in"].top == 80 && a["in"].line == 115 && a["in"].line <= a["in"].bottom,
+    \ GT_ViewShow("in") . "   (the selection starts on 40)")
+  call GT_Ok("a movement that stays on the screen does not scroll it",
+    \ a["in-end"].top == a["in"].top,
+    \ GT_ViewShow("in-end") . "   (it used to come back centred, on 95..135)")
+  call GT_Ok("  and the cursor did travel", a["in-end"].line == 100, GT_ViewShow("in-end"))
+  call GT_Ok("  and it is still on the screen",
+    \ a["in-end"].line >= a["in-end"].top && a["in-end"].line <= a["in-end"].bottom, "")
+
+  call GT_Ok("setup: and now the cursor near the top", a["out"].top == 80 && a["out"].line == 85,
+    \ GT_ViewShow("out"))
+  call GT_Ok("a movement that leaves the screen DOES scroll it",
+    \ a["out-end"].top < a["out"].top, GT_ViewShow("out-end"))
+  call GT_Ok("  by the least it can", a["out-end"].top == a["out-end"].line,
+    \ GT_ViewShow("out-end") . "   (the cursor on the first line, and not a line further)")
+  call GT_Ok("  and the window is taken by the MAPPING, before the \":\"",
+    \ maparg("<A-S-Up>", "v") =~ "GrooVim_ViewMark",
+    \ "   (by the time the function runs, the \":\" has already moved it)")
+
+  let &lines = g:GT_KEPT_LINES
+  call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

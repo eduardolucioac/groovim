@@ -110,19 +110,36 @@ call GT_Ok("  and it copied what was selected", GrooVim_ClipGet() ==# "linh",
 " A yank over a selection that runs off the screen scrolls the window to its
 " start, and putting the cursor back does not bring the window with it: the text
 " jumped under the cursor. "winsaveview" holds both.
+"
+" The selection is built so that the cursor is on the screen and the OTHER end of
+" it is far above: that is the shape that moved the window, because the ":" of
+" the mapping takes the cursor to the start of the range -- far off the screen --
+" and the "gv" that brings it back lands more than a screen away, which is when
+" Vim CENTRES what it lands on. Taking the window after the "gv", as this used to,
+" held a place the user had never been looking at.
+let g:GT_KEPT_LINES = &lines
+set lines=43
 %delete _
-call setline(1, map(range(1, 200), '"linha " . v:val'))
-call cursor(120, 1)
-normal! zz
+call setline(1, map(range(1, 300), '"linha " . v:val'))
+call cursor(40, 1)
 call feedkeys("v", "x")
-call feedkeys("100k", "x")
+call cursor(115, 1)
+call winrestview({"topline": 80})
 let g:GT_VIEW = [line("."), col("."), line("w0")]
+call GT_Ok("setup: the cursor is on the screen, the other end is not",
+  \ g:GT_VIEW[2] == 80 && line(".") == 115 && line(".") <= line("w$"),
+  \ "   (window " . line("w0") . ".." . line("w$") . ", cursor " . line(".") .
+  \ ", the selection starts on 40)")
 call feedkeys("\<C-c>", "x")
 call GT_Ok("Ctrl-C leaves the window where it was", line("w0") == g:GT_VIEW[2],
   \ "   (top line " . line("w0") . ", and it was " . g:GT_VIEW[2] . ")")
 call GT_Ok("  with the cursor still on it",
   \ [line("."), col(".")] ==# g:GT_VIEW[0:1],
   \ "   (line " . line(".") . ", and it was " . g:GT_VIEW[0] . ")")
+call GT_Ok("  and the window comes from the MAPPING, taken before the \":\"",
+  \ maparg("<C-c>", "v") =~ "GrooVim_ViewMark",
+  \ "   (by the time the function runs, the \":\" has already moved it)")
+let &lines = g:GT_KEPT_LINES
 
 call GT_Done()
 endfunc

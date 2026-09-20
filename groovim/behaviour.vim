@@ -542,7 +542,12 @@ func! GrooVim_CopyHere() abort
   " Note: Taken after the "gv" and not before: the ":" that brings us here has
   " already moved the cursor to the start of the range, and "gv" puts the
   " selection back AND the cursor on the side it was on! By Questor
+  "
+  " Note: The WINDOW comes from the mapping, taken before the ":" -- by here it
+  " has already been moved twice, and taking it now would hold the wrong place.
+  " See "GrooVim_ViewMark()", in the part of the movement! By Questor
   normal! gv
+  call GrooVim_ViewBack()
   let l:view = winsaveview()
   normal! y
 

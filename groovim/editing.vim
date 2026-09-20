@@ -109,7 +109,7 @@ vnoremap <silent> <C-x> di
 " when the keys it was given run out, so a case that presses this and asks
 " "mode()" is answered "n" -- and it answers "n" for the plain "yi" that was here
 " before, which is how I know it is the asking and not the answer! By Questor
-vnoremap <silent> <expr> <C-c> ":\<C-u>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
+vnoremap <silent> <expr> <C-c> GrooVim_ViewMark() . ":\<C-u>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d

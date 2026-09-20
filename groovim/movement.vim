@@ -2,6 +2,43 @@
 "SHORTCUTS (AND REMOVE VIM STUPID BEHAVIOR)
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" Note: Where the window was looking BEFORE the ":" of a mapping.
+"
+" Note: Typing ":" in visual mode puts the cursor on the FIRST line of the range
+" (see ":h v_:"), and the window goes there with it. The "gv" that puts the
+" selection back then jumps to the other end, and a jump of more than a screen
+" makes Vim CENTRE the line it lands on. The cursor comes home; the window does
+" not.
+"
+" Note: Measured, on a selection of 76 lines with the window on 80..120 and the
+" cursor on 115: at the door of the function the cursor was on 40 and the window
+" on 20..60, and after the "gv" the window was on 95..135 -- scrolled by a
+" movement that never left the screen.
+"
+" Note: Taken in the MAPPING, which is the only place that still sees the window
+" the user is looking at: by the time the function runs, the ":" has already
+" moved it! By Questor
+let g:GrooVim_ViewBefore = {}
+func! GrooVim_ViewMark() abort
+  let g:GrooVim_ViewBefore = winsaveview()
+  return ""
+endfunc
+
+" Note: The window, and ONLY the window: the cursor belongs to whoever is moving
+" it. If it ends up outside, Vim scrolls the least it can on its own, which is
+" the scroll that FOLLOWS the cursor and the one that was wanted all along.
+"
+" Note: Called right after the "gv", so that the movement that comes next starts
+" from the window the user was looking at! By Questor
+func! GrooVim_ViewBack() abort
+  if empty(g:GrooVim_ViewBefore)
+    return
+  endif
+  let l:view = g:GrooVim_ViewBefore
+  let g:GrooVim_ViewBefore = {}
+  call winrestview({"topline": l:view["topline"], "leftcol": l:view["leftcol"]})
+endfunc
+
 " Note: Swap : and ; to make colon commands easier to type! By Questor
 nnoremap  ;  :
 nnoremap  :  ;
@@ -15,10 +52,10 @@ nnoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? ":call GrooV
 
 " Note: The variable ":let g:onMoveScreen = 1<cr>" is setted in another opportunity
 " for the visual mode! Questor
-vnoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"l\", 0, 0)<cr>" : "")
-vnoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"d\", 0, 0)<cr>" : "")
-vnoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"u\", 0, 0)<cr>" : "")
-vnoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? ":<C-u>call GrooVim_GroovyMove(\"v\", \"r\", 0, 0)<cr>" : "")
+vnoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? GrooVim_ViewMark() . ":<C-u>call GrooVim_GroovyMove(\"v\", \"l\", 0, 0)<cr>" : "")
+vnoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? GrooVim_ViewMark() . ":<C-u>call GrooVim_GroovyMove(\"v\", \"d\", 0, 0)<cr>" : "")
+vnoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? GrooVim_ViewMark() . ":<C-u>call GrooVim_GroovyMove(\"v\", \"u\", 0, 0)<cr>" : "")
+vnoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? GrooVim_ViewMark() . ":<C-u>call GrooVim_GroovyMove(\"v\", \"r\", 0, 0)<cr>" : "")
 
 inoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"l\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
 inoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? "<C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove(\"i\", \"d\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
@@ -28,8 +65,8 @@ inoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call 
 nnoremap <silent> <PageDown> :call GrooVim_GroovyMove("n", "d", 1, 0)<cr>
 nnoremap <silent> <PageUp> :call GrooVim_GroovyMove("n", "u", 1, 0)<cr>
 
-vnoremap <silent> <PageDown> :<C-u>call GrooVim_GroovyMove("v", "d", 1, 0)<cr>
-vnoremap <silent> <PageUp> :<C-u>call GrooVim_GroovyMove("v", "u", 1, 0)<cr>
+vnoremap <silent> <expr> <PageDown> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"d\", 1, 0)\<cr>"
+vnoremap <silent> <expr> <PageUp> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"u\", 1, 0)\<cr>"
 
 inoremap <silent> <PageDown> <C-o>:call GrooVim_GroovyMove("i", "d", 1, 0)<cr>
 inoremap <silent> <PageUp> <C-o>:call GrooVim_GroovyMove("i", "u", 1, 0)<cr>
@@ -39,10 +76,10 @@ nnoremap <silent> <C-A-Down> :call GrooVim_GroovyMove("n", "d", 0, 1)<cr>
 nnoremap <silent> <C-A-Up> :call GrooVim_GroovyMove("n", "u", 0, 1)<cr>
 nnoremap <silent> <C-A-Right> :call GrooVim_GroovyMove("n", "r", 0, 1)<cr>
 
-vnoremap <silent> <C-A-Left> :<C-u>call GrooVim_GroovyMove("v", "l", 0, 1)<cr>
-vnoremap <silent> <C-A-Down> :<C-u>call GrooVim_GroovyMove("v", "d", 0, 1)<cr>
-vnoremap <silent> <C-A-Up> :<C-u>call GrooVim_GroovyMove("v", "u", 0, 1)<cr>
-vnoremap <silent> <C-A-Right> :<C-u>call GrooVim_GroovyMove("v", "r", 0, 1)<cr>
+vnoremap <silent> <expr> <C-A-Left> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"l\", 0, 1)\<cr>"
+vnoremap <silent> <expr> <C-A-Down> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"d\", 0, 1)\<cr>"
+vnoremap <silent> <expr> <C-A-Up> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"u\", 0, 1)\<cr>"
+vnoremap <silent> <expr> <C-A-Right> GrooVim_ViewMark() . ":\<C-u>call GrooVim_GroovyMove(\"v\", \"r\", 0, 1)\<cr>"
 
 " Note: The vertical ones, here and in the "Alt" with "Shift" ones above, take
 " note of the column BEFORE the "<C-o>". Going to
@@ -201,6 +238,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     elseif a:mod == "v"
 
       exec "norm gv"
+      call GrooVim_ViewBack()
       if a:direction == "l"
         for i in range(1, l:horizontalMovementFactor)
           if a:blockSmoothness == 0 && l:disableSmoothness == 0 && l:disableHorizontalSmoothness == 0
@@ -355,10 +393,10 @@ inoremap <silent> <A-End> <C-o>:call GrooVim_SelWord("i", "r", 1)<cr>
 inoremap <silent> <A-Home> <C-o>:call GrooVim_SelWord("i", "l", 1)<cr>
 nnoremap <silent> <script> <A-Left> :call GrooVim_SelWord("n", "l", 0)<cr>
 inoremap <silent> <script> <A-Left> <C-o>:call GrooVim_SelWord("i", "l", 0)<cr>
-vnoremap <silent> <script> <A-Left> :<C-u>call GrooVim_SelWord("v", "l", 0)<cr>
+vnoremap <silent> <script> <expr> <A-Left> GrooVim_ViewMark() . ":\<C-u>call GrooVim_SelWord(\"v\", \"l\", 0)\<cr>"
 nnoremap <silent> <script> <A-Right> :call GrooVim_SelWord("n", "r", 0)<cr>
 inoremap <silent> <script> <A-Right> <C-o>:call GrooVim_SelWord("i", "r", 0)<cr>
-vnoremap <silent> <script> <A-Right> :<C-u>call GrooVim_SelWord("v", "r", 0)<cr>
+vnoremap <silent> <script> <expr> <A-Right> GrooVim_ViewMark() . ":\<C-u>call GrooVim_SelWord(\"v\", \"r\", 0)\<cr>"
 
 " Note: Allows selection of words quickly (for copying or deletion)! By Questor
 func! GrooVim_SelWord(mod, direction, fullMove) range abort
@@ -383,6 +421,7 @@ func! GrooVim_SelWord(mod, direction, fullMove) range abort
 
   if a:mod == "v"
     exec "norm gv" . l:wordMove
+    call GrooVim_ViewBack()
   elseif a:mod == "i"
     if virtcol('.') == (virtcol('$') - 1)
       if a:direction == "r"
@@ -440,15 +479,20 @@ endfunc
 if g:enable_tcomment_vim
   nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
   inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
-  vnoremap <silent> <A-Up> :<C-u>call GrooVim_VisualComment()<cr>
+  vnoremap <silent> <expr> <A-Up> GrooVim_ViewMark() . ":\<C-u>call GrooVim_VisualComment()\<cr>"
   " Note: Allows comment the current line in a simple and fast way! By Questor
   func! GrooVim_VisualComment() range
     " Note: Lets see if the selection involves more than one line comparing the
     " "start" and "end" line position of the selection!! By Questorr
     if   getpos("'<")[1] == getpos("'>")[1]
       exec "norm gcc"
+      " Note: Here too, and not only on the branch with the "gv": a mark that is
+      " left behind is read by the NEXT movement, which would put the window back
+      " where it was two keys ago! By Questor
+      call GrooVim_ViewBack()
     else
       exec "norm gv"
+      call GrooVim_ViewBack()
       exec "norm gc"
     endif
   endfunc
