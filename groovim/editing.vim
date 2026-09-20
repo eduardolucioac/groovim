@@ -4,9 +4,8 @@ func! GrooVim_ScrollAdm(mod, direction) range abort
     set virtualedit=all
   endif
 
-  if a:mod == "v"
-    exec "norm gv"
-  endif
+  " Note: No "gv" here: the wheel of visual mode comes through "<Cmd>" and the
+  " selection was never lost! By Questor
 
   if a:direction == "u"
     exec "norm \<Up>\<Up>\<Up>"
@@ -109,7 +108,7 @@ vnoremap <silent> <C-x> di
 " when the keys it was given run out, so a case that presses this and asks
 " "mode()" is answered "n" -- and it answers "n" for the plain "yi" that was here
 " before, which is how I know it is the asking and not the answer! By Questor
-vnoremap <silent> <expr> <C-c> GrooVim_ViewMark() . ":\<C-u>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
+vnoremap <expr> <C-c> "\<Cmd>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
 
 " Note: Delete and backspace without yank! By Questor
 nnoremap d "_d

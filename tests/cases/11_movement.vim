@@ -179,8 +179,13 @@ endfunc
 " starting on 40. One Shift-Alt-Up took the cursor to 100 -- a line that was on
 " the screen all along -- and left the window on 95..135.
 "
-" The rule these two checks hold is the one that was asked for: the window is
-" still when the cursor is on it, and follows when the cursor leaves.
+" Putting the window back afterwards fixes where it ENDS and not what is
+" painted on the way: between the ":" and the "gv" the window really is on
+" 20..60, and whatever paints in that instant shows it. The key goes through
+" "<Cmd>" now, which never opens a command line, so that position never exists.
+"
+" The rule these checks hold is the one that was asked for: the window is still
+" when the cursor is on it, and follows when the cursor leaves.
 let g:GT_VIEWS = {}
 
 func! GT_ViewSample(what)
@@ -239,9 +244,61 @@ func! GT_ViewConclude()
     \ a["out-end"].top < a["out"].top, GT_ViewShow("out-end"))
   call GT_Ok("  by the least it can", a["out-end"].top == a["out-end"].line,
     \ GT_ViewShow("out-end") . "   (the cursor on the first line, and not a line further)")
-  call GT_Ok("  and the window is taken by the MAPPING, before the \":\"",
-    \ maparg("<A-S-Up>", "v") =~ "GrooVim_ViewMark",
-    \ "   (by the time the function runs, the \":\" has already moved it)")
+  call GT_Ok("and the key never opens a command line at all",
+    \ maparg("<A-S-Up>", "v") =~ "<Cmd>",
+    \ "   (a \":\" in visual mode moves the cursor to the first line of the range)")
+  call GT_Ok("  so the selection is still up when the function runs",
+    \ maparg("<A-S-Up>", "v") !~ "gv" && GT_FunctionText("GrooVim_GroovyMove") !~ 'exec "norm gv"',
+    \ "   (\":h map-cmd\": \"Visual mode is preserved, so tricks with gv are not needed\")")
+
+  " ---- and the wheel of the mouse, which travels the same road
+  "
+  " It does not scroll: it moves the cursor three lines and lets the window
+  " follow. Through the ":<C-u>" it used to come in on, one notch UP moved the
+  " cursor three lines up and the window fifteen lines DOWN -- measured, 80..120
+  " became 95..135.
+  call feedkeys("\<Esc>", "x")
+  call cursor(40, 1)
+  call feedkeys("v", "x")
+  call cursor(115, 1)
+  call winrestview({"topline": 80})
+  let l:top = line("w0")
+  call feedkeys("\<ScrollWheelUp>", "x")
+  call GT_Ok("the wheel of visual mode does not throw the window either",
+    \ line("w0") == l:top,
+    \ "   (window " . line("w0") . ".." . line("w$") . ", and it was " . l:top . "..)")
+  call GT_Ok("  and it did move the cursor", line(".") == 112,
+    \ "   (line " . line(".") . ", three above the 115 it was on)")
+  call GT_Ok("  with the selection still up", mode() ==# "v",
+    \ "   (mode [" . strtrans(mode()) . "])")
+
+  " ---- and what the mapping of a selection must NOT ask about
+  "
+  " With the key coming through "<Cmd>" the selection is still up, and while it
+  " is up the marks "'<" and "'>" are of the PREVIOUS one. The other end of the
+  " selection you are in is "line(\"v\")". Commenting told one line from many by
+  " those marks, and it was only right because the ":" of the old mapping had
+  " already ended the selection.
+  "
+  " The two branches are not decoration: measured, over a selection inside a
+  " single line the "gc" of visual mode comments what is SELECTED and leaves the
+  " line as it was. tcomment is not installed for the battery, so what is checked
+  " here is the decision -- the commenting itself was measured by hand, on this
+  " machine, with the plugin really there.
+  if exists("*GrooVim_VisualComment")
+    let l:text = GT_FunctionText("GrooVim_VisualComment")
+    " The code and not a mention of it: the note above these lines names both
+    " "gcc" and "'<", and a check that reads the body of a function reads its
+    " comments too -- it passed over a function with the branches taken out.
+    call GT_Ok("commenting asks the selection it is IN which end is which",
+      \ l:text =~ 'line("v") == line(".")' && l:text !~ "getpos(\"'<\")",
+      \ "   (while a selection is up, \"'<\" is of the one before it)")
+    call GT_Ok("  and one line is still not the same as many",
+      \ l:text =~ 'exec "norm gcc"' && l:text =~ "else",
+      \ "   (over one line, the \"gc\" of visual mode comments the SELECTION)")
+  else
+    call GT_Note("tcomment is not here, so its checks did not run")
+  endif
 
   let &lines = g:GT_KEPT_LINES
   call GT_Done()

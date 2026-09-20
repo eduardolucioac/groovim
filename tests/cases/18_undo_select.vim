@@ -136,9 +136,9 @@ call GT_Ok("Ctrl-C leaves the window where it was", line("w0") == g:GT_VIEW[2],
 call GT_Ok("  with the cursor still on it",
   \ [line("."), col(".")] ==# g:GT_VIEW[0:1],
   \ "   (line " . line(".") . ", and it was " . g:GT_VIEW[0] . ")")
-call GT_Ok("  and the window comes from the MAPPING, taken before the \":\"",
-  \ maparg("<C-c>", "v") =~ "GrooVim_ViewMark",
-  \ "   (by the time the function runs, the \":\" has already moved it)")
+call GT_Ok("  because the key never opens a command line",
+  \ maparg("<C-c>", "v") =~ "<Cmd>" && GT_FunctionText("GrooVim_CopyHere") !~ "normal! gv",
+  \ "   (a \":\" in visual mode moves the cursor to the first line of the range)")
 let &lines = g:GT_KEPT_LINES
 
 call GT_Done()

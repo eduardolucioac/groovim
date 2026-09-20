@@ -310,8 +310,14 @@ inoremap <silent> <S-ScrollWheelUp> <C-o>:call GrooVim_ScrollAdm("i", "u")<cr>
 inoremap <silent> <ScrollWheelDown> <C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
 inoremap <silent> <S-ScrollWheelDown> <C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
 
-vnoremap <silent> <ScrollWheelUp> :<C-u>call GrooVim_ScrollAdm("v", "u")<cr>
-vnoremap <silent> <S-ScrollWheelUp> :<C-u>call GrooVim_ScrollAdm("v", "u")<cr>
-vnoremap <silent> <ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
-vnoremap <silent> <S-ScrollWheelDown> :<C-u>call GrooVim_ScrollAdm("v", "d")<cr>
+" Note: The wheel of visual mode goes through "<Cmd>" for the same reason the
+" movement keys do: a ":" would take the cursor to the first line of the range
+" and the window with it, and the "gv" that put the selection back landed more
+" than a screen away, which makes Vim CENTRE what it lands on. Measured, window
+" on 80..120 and cursor on 115: one notch UP moved the cursor three lines up and
+" the window fifteen lines DOWN, to 95..135! By Questor
+vnoremap <ScrollWheelUp> <Cmd>call GrooVim_ScrollAdm("v", "u")<cr>
+vnoremap <S-ScrollWheelUp> <Cmd>call GrooVim_ScrollAdm("v", "u")<cr>
+vnoremap <ScrollWheelDown> <Cmd>call GrooVim_ScrollAdm("v", "d")<cr>
+vnoremap <S-ScrollWheelDown> <Cmd>call GrooVim_ScrollAdm("v", "d")<cr>
 

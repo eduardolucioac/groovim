@@ -89,6 +89,11 @@ for CASE in "$BASE"/cases/[0-9]*.vim; do
   # shortcuts. Every command of the tree itself is called through "silent!", so
   # nothing here needs the plugin to really be there.
   mkdir -p "$GROOVIM_HOME/pack/groovim/start/nerdtree"
+  # And tcomment, for the same reason by another road: commenting a selection is
+  # only WRITTEN when the plugin is detected, so without this the checks on it
+  # read a function that does not exist and pass by saying nothing. The keys of
+  # the plugin are never pressed here -- what is checked is the code around them.
+  mkdir -p "$GROOVIM_HOME/pack/groovim/start/tcomment_vim"
   timeout "$TIMEOUT" script -qc "'$VIM' -N -u '$VIMRC' -i NONE -n -S '$CASE'" /dev/null >/dev/null 2>&1
   OUTPUT="$BASE/results/$NAME.txt"
 

@@ -525,29 +525,23 @@ endfunc
 " is one whose success cannot be known: see GrooVim_ClipAssumed! By Questor
 func! GrooVim_CopyHere() abort
 
-  " Note: The selection is put back FIRST and the position read AFTER it. The ":"
-  " that brings us here has already moved the cursor to the start of the range --
-  " that is what leaving visual mode with ":" does -- so reading the position on
-  " the first line of this function reads the wrong end. Measured: column 8 while
-  " selecting, column 5 by the time the function ran.
-  "
-  " Note: "gv" puts the cursor back on the side it was on, which is the whole
-  " reason it can be used for this! By Questor
   " Note: The whole VIEW and not only the cursor. A yank over a selection that
   " runs off the screen scrolls the window to its start, and putting the cursor
   " back afterwards does not bring the window with it -- the text jumped under
   " it. "winsaveview" holds where the window is looking as well as where the
   " cursor is.
   "
-  " Note: Taken after the "gv" and not before: the ":" that brings us here has
-  " already moved the cursor to the start of the range, and "gv" puts the
-  " selection back AND the cursor on the side it was on! By Questor
+  " Note: And it is taken HERE and trusted, because the mapping comes through
+  " "<Cmd>": the selection is still up, the cursor has not been moved, and the
+  " window is the one being looked at.
   "
-  " Note: The WINDOW comes from the mapping, taken before the ":" -- by here it
-  " has already been moved twice, and taking it now would hold the wrong place.
-  " See "GrooVim_ViewMark()", in the part of the movement! By Questor
-  normal! gv
-  call GrooVim_ViewBack()
+  " Note: Through the ":<C-u>" this used to come in on, none of the three was
+  " true. Leaving visual mode with ":" drops the cursor on the first line of the
+  " range -- measured: column 8 while selecting, column 5 by the time the
+  " function ran -- and takes the window along, so the selection had to be put
+  " back with a "gv" before anything could be read. And a "gv" that lands more
+  " than a screen away makes Vim CENTRE what it lands on, which moved the window
+  " on a copy that moves nothing! By Questor
   let l:view = winsaveview()
   normal! y
 
