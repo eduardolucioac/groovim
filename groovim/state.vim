@@ -240,24 +240,35 @@ func! GrooVim_CheckCapsLockTimer() abort
     let g:GrooVim_GroovyMoveEnabled = 1
   endif
 
-  " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
-  if g:cursorHoldVisual == 1
-    exec "norm gv"
-    if g:cursorHoldVisualExec != ""
-      exec g:cursorHoldVisualExec
-      let g:cursorHoldVisualExec = ""
-    endif
-    let g:cursorHoldVisual = 0
-    let g:onMoveScreen = 1
-  endif
-
   checktime
 endfunc
+" Note: And the same thing for visual mode, where "CursorHold" never happens.
+"
+" Note: A movement puts itself out of reach while it runs -- hold the key down
+" and what you get is ONE movement, not the ten that would be queued -- and what
+" puts it back on its feet is the "else" above, which only runs when Vim is idle
+" with nothing waiting. That is the whole point: idle means the keys you pressed
+" during the trip were already thrown away.
+"
+" Note: It used to be reached in visual mode by leaving the mode -- the movement
+" ended with an "<Esc>" -- and that is what made the marking of the selection
+" flash off and on. "SafeState" is the event for exactly this moment, "when
+" nothing is pending, going to wait for the user to type a character", and it
+" does not fire while there is typeahead. Measured with three keys fed at once:
+" one movement, which is what holding the key down must do! By Questor
+autocmd! SafeState * call GrooVim_SafeStatePerforms()
+func! GrooVim_SafeStatePerforms() abort
+  if g:onMoveScreen == 1 && mode() =~# "^[vV\<C-v>]"
+    let g:onMoveScreen = 0
+    let g:GrooVim_GroovyMoveEnabled = 1
+  endif
+endfunc
+
 " Note: Execution delay (in milliseconds). Zero is deliberate: "CursorHold"
 " does NOT repeat while Vim is idle (see ":h CursorHold"), it fires once after
-" the user stops typing. Zero makes GrooVim react immediately, which is what
-" the visual mode workaround of "GrooVim_GroovyMove()" depends on, and it costs
-" nothing now that no shell command runs from here! By Questor
+" the user stops typing. Zero makes GrooVim react immediately -- the Caps Lock
+" and the message of the bar, which is what is left here -- and it costs nothing
+" now that no shell command runs from here! By Questor
 set updatetime=0
 
 " Note: Allows controlling the status of a number of GrooVim features! By Questor

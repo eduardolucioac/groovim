@@ -81,8 +81,6 @@ inoremap <silent> <C-A-Right> <C-o>:call GrooVim_GroovyMove("i", "r", 1, 1)<cr>
 " Note: Allows fluid cursor movement on the screen! By Questor
 let g:onMoveScreen = 0
 let g:GrooVim_GroovyMoveType = 0
-let g:cursorHoldVisualExec = ""
-let g:cursorHoldVisual = 0
 let g:GrooVim_GroovyMoveEnabled = 1
 " Note: Where the insert mode mappings leave the column to keep, taken while still
 " in insert mode! By Questor
@@ -265,10 +263,22 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
         endfor
       endif
 
-      " Note: This workaround is to use "CursorHold" event in visual mode. This event is only possible in normal mode! By Questor
-      let g:cursorHoldVisualExec = "call GrooVim_GroovyMoveAdjuster(\"" . a:direction . "\", " . a:blockSmoothness . ", " . l:disableSmoothness . ", " . l:verticalSmoothnessFactor . ")"
-      let g:cursorHoldVisual = 1
-      exec "norm \<Esc>"
+      " Note: Called straight from here, in visual mode, like every other branch
+      " of this function.
+      "
+      " Note: It used to be written into a variable, and the movement ended with
+      " an "<Esc>" so that "CursorHold" -- which only happens in normal mode --
+      " would fire, run what was written there, and put the selection back with a
+      " "gv". That is the whole of the second blink: leaving visual mode drops the
+      " marking of EVERY selected line, Vim paints the screen without it, and the
+      " "gv" paints it again. Measured on the screen itself, at the moment of the
+      " "CursorHold" and before its "gv": the attribute painted on a selected line
+      " was 0, the attribute of a line outside the selection.
+      "
+      " Note: The detour existed because the ":" of the old mapping had already
+      " left visual mode anyway. Through "<Cmd>" the mode was never left, so there
+      " is nothing to come back from! By Questor
+      call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
 
     endif
 
@@ -362,7 +372,6 @@ func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, 
         redraw
       endif
 
-      let g:cursorHoldVisual = 0
       let g:onMoveScreen = 1
 
     endif

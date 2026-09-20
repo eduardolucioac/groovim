@@ -189,7 +189,8 @@ endfunc
 let g:GT_VIEWS = {}
 
 func! GT_ViewSample(what)
-  let g:GT_VIEWS[a:what] = {"line": line("."), "top": line("w0"), "bottom": line("w$")}
+  let g:GT_VIEWS[a:what] = {"line": line("."), "top": line("w0"),
+    \ "bottom": line("w$"), "mode": mode()}
 endfunc
 
 func! GT_ViewShow(what)
@@ -198,6 +199,11 @@ func! GT_ViewShow(what)
 endfunc
 
 func! GT_ViewBody()
+  " The block above ends INSIDE visual block mode, and it stays there now that
+  " the movement no longer leaves the mode to finish. Without this the "v" below
+  " lands on a selection that is already up and the anchor is not where this
+  " block thinks it is.
+  call feedkeys("\<Esc>", "x")
   let g:GT_KEPT_LINES = &lines
   " A window tall enough for the cursor to travel 15 lines inside it: a pty with
   " no terminal behind it falls back to 24, and there the movement would leave
@@ -221,11 +227,26 @@ func! GT_ViewOut()
   call timer_start(100, {t -> [cursor(40, 1), feedkeys("v", "t")]})
   call timer_start(250, {t -> [cursor(85, 1), winrestview({"topline": 80}),
     \ GT_ViewSample("out"), feedkeys("\<A-S-Up>", "t")]})
-  call GT_When('line(".") == 70', "GT_ViewConclude")
+  call GT_When('line(".") == 70', "GT_ViewAgain")
+endfunc
+
+" ---- and the same key AGAIN, without leaving the selection
+"
+" A movement puts itself out of reach while it runs, so that holding the key down
+" gives ONE trip and not the ten that would be queued, and it is put back on its
+" feet when Vim goes idle with nothing waiting. That used to be reached by
+" LEAVING visual mode, which is what made the marking flash. Staying in it and
+" changing nothing else left the second press of the key doing nothing at all --
+" measured: three presses, and the cursor moved once. "SafeState" is the event
+" for that moment, and it fires in visual mode too.
+func! GT_ViewAgain()
+  call GT_ViewSample("out-end")
+  call feedkeys("\<A-S-Up>", "t")
+  call GT_When('line(".") == 55', "GT_ViewConclude")
 endfunc
 
 func! GT_ViewConclude()
-  call GT_ViewSample("out-end")
+  call GT_ViewSample("out-end2")
   let a = g:GT_VIEWS
 
   call GT_Ok("setup: the cursor is on the screen, the far end is not",
@@ -250,6 +271,32 @@ func! GT_ViewConclude()
   call GT_Ok("  so the selection is still up when the function runs",
     \ maparg("<A-S-Up>", "v") !~ "gv" && GT_FunctionText("GrooVim_GroovyMove") !~ 'exec "norm gv"',
     \ "   (\":h map-cmd\": \"Visual mode is preserved, so tricks with gv are not needed\")")
+
+  call GT_Ok("the same key AGAIN moves again, with the selection never dropped",
+    \ a["out-end2"].line == 55 && a["out-end2"].mode ==# "v",
+    \ "   (line " . a["out-end2"].line . ", mode [" . strtrans(a["out-end2"].mode) .
+    \ "])   (it used to need an \"<Esc>\" to be put back on its feet)")
+
+  " ---- and the marking of the selection, which used to flash off and on
+  "
+  " The movement in visual mode ended with an "<Esc>" so that "CursorHold" --
+  " which only happens in normal mode -- would fire and run the adjuster, and a
+  " "gv" put the selection back afterwards. Leaving visual mode drops the marking
+  " of EVERY selected line: Vim paints the screen without it and the "gv" paints
+  " it again. Measured on the screen itself, at the "CursorHold" and before its
+  " "gv", the attribute painted on a selected line was 0 -- the attribute of a
+  " line OUTSIDE the selection. Counted on what the terminal received, one
+  " Shift-Alt-Down painted a selected line four times; it paints it once now.
+  "
+  " The code and not the screen, because a case cannot watch a repaint: what is
+  " checked is that the movement no longer leaves the mode, and that nothing is
+  " left behind for "CursorHold" to do.
+  call GT_Ok("the movement never leaves visual mode to finish",
+    \ GT_FunctionText("GrooVim_GroovyMove") !~ 'exec "norm .\\\\<Esc>"',
+    \ "   (leaving it drops the marking of every selected line)")
+  call GT_Ok("  and nothing is left for CursorHold to run",
+    \ !exists("g:cursorHoldVisual") && !exists("g:cursorHoldVisualExec"),
+    \ "   (the adjuster is called straight from the movement, in visual mode)")
 
   " ---- and the wheel of the mouse, which travels the same road
   "
