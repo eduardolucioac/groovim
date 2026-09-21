@@ -67,8 +67,10 @@ GROOVIM_PLUGINS="
 nerdtree|https://github.com/preservim/nerdtree.git|the file tree of F4->n
 tcomment_vim|https://github.com/tomtom/tcomment_vim.git|the comment toggle, which Vim has no command of its own for
 vim-move|https://github.com/matze/vim-move.git|moving a line or a selection up and down
-vim-bookmarks|https://github.com/MattesGroeger/vim-bookmarks.git|the bookmarks of F4->b, marked lines you can walk between
 "
+
+# What GrooVim used to install and does not any more.
+GROOVIM_PLUGINS_GONE="vim-bookmarks"
 # Building takes minutes. An installation that is already there and serves is not
 # built again unless you say so.
 REBUILD=0
@@ -746,6 +748,21 @@ install_plugins() {
 
   where="$GROOVIM_HOME_DIR/pack/groovim/start"
   mkdir -p "$where"
+
+  # A plugin GrooVim used to install and does not any more is TAKEN AWAY, and not
+  # merely left off the list. Left where it was it would go on loading: its
+  # autocommands would run, its signs would be drawn, and two pieces of code
+  # would be doing the same job on the same file. The bookmarks are GrooVim's own
+  # now -- see groovim/bookmarks.vim for why they had to be.
+  #
+  # Only a directory this installer put there itself, and only one of these
+  # names. Anything else of yours in the same place is left alone.
+  for name in $GROOVIM_PLUGINS_GONE; do
+    if [ -d "$where/$name/.git" ]; then
+      rm -rf "$where/$name"
+      yellow "  $name -- taken away, GrooVim does this itself now"
+    fi
+  done
 
   printf '%s\n' "$GROOVIM_PLUGINS" | while IFS='|' read -r name url what; do
     [ -n "$name" ] || continue

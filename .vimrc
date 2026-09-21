@@ -248,6 +248,7 @@ let s:GrooVim_Parts = [
  \ ["options",     "the questions the configuration screens ask, and the answers"],
  \ ["search",      "searching, and the highlight that follows it"],
  \ ["occurrences", "the occurrence list: the panel of Notepad++"],
+ \ ["bookmarks",   "marked lines, the notes on them and the walk between"],
  \ ["replace",     "replacing, with and without confirmation"],
  \ ["session",     "the session, and every way of closing"],
  \ ["shortcuts",   "the F keys: CommandZ, and the list every shortcut is written in"],

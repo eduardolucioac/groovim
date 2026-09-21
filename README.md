@@ -135,7 +135,7 @@ Script features!
  * Comment lines
 
     - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim;
-    - m and M (normal mode) - Walk to the next marked line and to the one before, using vim-bookmarks. F4 and the arrows do the same in every mode. These two take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
+    - m and M (normal mode) - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
 
 F'S Shortcuts (CommandZ)!
 -----
@@ -493,8 +493,8 @@ That is the whole installation. What it leaves on your machine:
 The checkout is not needed afterwards -- everything is **copied**, so you can move
 it or throw it away. To update, pull and run `./install.sh` again.
 
-The four plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**,
-**vim-move** and **vim-bookmarks** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
+The three plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**
+and **vim-move** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
 `./install.sh` again updates them. Use `--no-plugins` to leave them out: nothing
 GrooVim promises rests on one, and a shortcut whose plugin is not there says
 which one is missing instead of running.

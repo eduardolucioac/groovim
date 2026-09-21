@@ -94,10 +94,6 @@ for CASE in "$BASE"/cases/[0-9]*.vim; do
   # read a function that does not exist and pass by saying nothing. The keys of
   # the plugin are never pressed here -- what is checked is the code around them.
   mkdir -p "$GROOVIM_HOME/pack/groovim/start/tcomment_vim"
-  # And the bookmarks, for the third time the same reason: the keys that walk the
-  # marks are written by GrooVim and only when the plugin is detected, so without
-  # this the checks on them read mappings that were never made.
-  mkdir -p "$GROOVIM_HOME/pack/groovim/start/vim-bookmarks"
   timeout "$TIMEOUT" script -qc "'$VIM' -N -u '$VIMRC' -i NONE -n -S '$CASE'" /dev/null >/dev/null 2>&1
   OUTPUT="$BASE/results/$NAME.txt"
 

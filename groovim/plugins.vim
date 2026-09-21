@@ -40,8 +40,6 @@ let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("ne
 " Note: move.vim! By Questor
 let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move")) && g:enable_all_plugins
 
-" Note: vim-bookmarks! By Questor
-let g:enable_vim_bookmarks = get(g:, "enable_vim_bookmarks", GrooVim_HasPlugin("vim-bookmarks")) && g:enable_all_plugins
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$
 

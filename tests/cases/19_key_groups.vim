@@ -197,60 +197,15 @@ func! GT_Body()
   call GT_Ok("F4 is the tree and the bookmarks",
     \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "i", "l", "c"],
     \ "   " . string(map(GT_Of("F4"), 'v:val.key')))
-  call GT_Ok("  and each one names the plugin it needs",
-    \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == len(GT_Of("F4")), "")
+  call GT_Ok("  and the one that needs a plugin says so",
+    \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == 1,
+    \ "   (the tree; the marks are GrooVim's own code)")
 
-  " ---- and the two keys you walk the marks with
-  "
-  " Walking them is what you do over and over, so they are one key each. They
-  " take the "m" that sets a mark of Vim and the "M" that jumps to the middle of
-  " the screen: a trade made with open eyes, because this plugin replaces what
-  " marks were FOR -- and ":mark a" still writes one from the command line.
-  "
-  " They are the only way to walk them: F4 and the arrows did the same and came
-  " off, so what is left of the bookmarks under F4 is what is NOT walking.
-  if g:enable_vim_bookmarks
-    call GT_Ok("m walks to the next mark", maparg("m", "n") =~ "BookmarkNext",
-      \ "   [" . maparg("m", "n") . "]")
-    call GT_Ok("  and M to the one before", maparg("M", "n") =~ "BookmarkPrev",
-      \ "   [" . maparg("M", "n") . "]")
-    call GT_Ok("  and they are the only way to walk them",
-      \ empty(filter(copy(GT_Of("F4")), 'v:val.key ==# "down" || v:val.key ==# "up"')),
-      \ "   (F4 and the arrows did the same and were taken off)")
-    call GT_Ok("  while the marks of Vim answer on the command line",
-      \ exists(":mark") == 2, "   (\":mark a\" still writes one)")
-
-    " ---- and the margin the signs are drawn in
-    "
-    " Every sign has to be ONE cell wide. The annotation sign the plugin ships,
-    " "\u2630", is two to Vim -- measured, "strwidth" says 2 against 1 for the
-    " flag -- and two cells in a margin of two leave no room for the space Vim
-    " puts after, so the text of that one line came out shifted against every
-    " other line of the file.
-    call GT_Ok("the sign of a mark is one cell wide",
-      \ strwidth(g:bookmark_sign) == 1,
-      \ "   [" . g:bookmark_sign . "] strwidth " . strwidth(g:bookmark_sign))
-    call GT_Ok("  and so is the sign of an annotation",
-      \ strwidth(g:bookmark_annotation_sign) == 1,
-      \ "   [" . g:bookmark_annotation_sign . "] strwidth " .
-      \ strwidth(g:bookmark_annotation_sign) . "   (the one it ships with is 2)")
-
-    " The margin is always there. With "auto" it comes and goes with the signs,
-    " and the whole text slides two columns sideways when it does -- which
-    " happens the moment the list of marks takes the focus, because the plugin
-    " takes its signs down while another window has it.
-    call GT_Ok("the margin does not come and go", &signcolumn ==# "yes",
-      \ "   [signcolumn=" . &signcolumn . "]")
-    call GT_Ok("  and it is not a grey band",
-      \ synIDattr(synIDtrans(hlID("SignColumn")), "bg", "cterm") ==# "" &&
-      \ synIDattr(synIDtrans(hlID("SignColumn")), "bg", "gui") ==# "",
-      \ "   (the colour scheme paints it 242, against a text area with none)")
-    call GT_Ok("  and the list of marks is called by its name",
-      \ GT_FunctionText("GrooVim_BookmarksList") =~ "quickfix_title",
-      \ "   (a quickfix window says the COMMAND that filled it, otherwise)")
-  else
-    call GT_Note("vim-bookmarks is not here, so its keys did not run")
-  endif
+  " The marks have a case of their own now: they are GrooVim's own code and not
+  " a plugin any more, so what belongs here is only where their keys live.
+  call GT_Ok("and the marks are not a plugin any more",
+    \ empty(filter(copy(GT_Of("F4")), 'v:val.key !=# "n" && has_key(v:val, "needs")')),
+    \ "   (only the tree still asks for one)")
 
   " ---- a shortcut whose work belongs to a plugin says so
   "
@@ -301,20 +256,15 @@ func! GT_Body()
     \ !GrooVim_ShortcutAvailable(l:tree), "")
   call GT_Ok("  F9 does not write down what cannot be done",
     \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") < 0, "")
-  " The group goes when its LAST shortcut goes, and F4 holds two plugins now --
-  " the tree and the bookmarks -- so both have to be off for it to empty.
-  let g:GT_KEPT_BOOKMARKS = g:enable_vim_bookmarks
-  let g:enable_vim_bookmarks = 0
-  call GT_Ok("  and the group goes with its last shortcut",
-    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") < 0,
-    \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')) .
-    \ "   (a heading over nothing, and a menu that opens empty)")
-  call GT_Ok("  the menu offers nothing under F4",
-    \ empty(GrooVim_MenuOf("F4", 1)[0]), "")
-  let g:enable_vim_bookmarks = g:GT_KEPT_BOOKMARKS
-  call GT_Ok("  but with the bookmarks alone it is still a group",
-    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0,
-    \ "   (the tree is still off here)")
+  " The group goes when its LAST shortcut goes. F4 also holds the marks, which
+  " belong to nobody but GrooVim, so what is checked is the tree leaving the
+  " group and not the group emptying.
+  call GT_Ok("  and the tree is no longer on offer under it",
+    \ empty(filter(copy(GrooVim_MenuOf("F4", 1)[0]), 'v:val.key ==# "n"')),
+    \ "   (a heading over nothing is what this guards against)")
+  call GT_Ok("  while the marks under it stay, being nobody's plugin",
+    \ len(GrooVim_MenuOf("F4", 1)[0]) == 4,
+    \ "   (" . len(GrooVim_MenuOf("F4", 1)[0]) . " of them: b, i, l and c)")
 
   let g:GrooVim_GrooVimBarMsgValue = ""
   call GT_Press("\<F4>n")
