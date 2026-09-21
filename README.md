@@ -190,8 +190,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 
     - `n` - Opens/closes the NERDTree *(normal mode/insert/visual)*;
     - `b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
-    - `Down` - Goes to the next marked line *(normal mode/insert/visual)*;
-    - `Up` - Goes to the previous marked line *(normal mode/insert/visual)*;
     - `i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `l` - Lists every marked line, to walk between them *(normal mode/insert/visual)*;
     - `c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;

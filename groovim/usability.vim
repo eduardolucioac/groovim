@@ -112,9 +112,34 @@ let g:bookmark_no_default_key_mappings = 1
 let g:bookmark_auto_save_file = g:GrooVim_State . "/bookmarks"
 
 " Note: The sign is the one Notepad++ draws, and the line is not painted: a
-" bookmark says WHERE, it does not take the colours of the text away! By Questor
+" bookmark says WHERE, it does not take the colours of the text away.
+"
+" Note: And the sign of an ANNOTATION is not the one the plugin ships. Its "\u2630"
+" is TWO cells wide to Vim -- measured, "strwidth" says 2 against 1 for the flag
+" -- and a sign of two cells in a margin of two leaves no room for the space Vim
+" puts after it, so the text of that one line came out shifted against every
+" other. A margin where the lines do not line up is worse than a plain character.
+"
+" Note: The margin is always THERE, and not only when something is in it. With
+" "auto" it appears and vanishes with the signs, and the whole text of the file
+" slides two columns sideways when it does -- which is what happens the moment
+" the list of marks takes the focus, because the plugin takes its signs down
+" while another window has it! By Questor
 let g:bookmark_sign = "\u2691"
+let g:bookmark_annotation_sign = "+"
 let g:bookmark_highlight_lines = 0
+set signcolumn=yes
+
+" Note: The margin is not a grey band. The colour scheme paints "SignColumn" with
+" a background of its own -- measured, "ctermbg=242" against a text area with no
+" background at all -- so an empty margin was a grey stripe down the side of
+" every file. It takes the colour of the text now, and the signs in it keep
+" theirs! By Questor
+highlight SignColumn ctermbg=NONE guibg=NONE
+augroup GrooVim_SignColumn
+  autocmd!
+  autocmd ColorScheme * highlight SignColumn ctermbg=NONE guibg=NONE
+augroup end
 
 " Note: And the two keys you walk the marks with, because walking them is what
 " you do over and over: "m" for the next one and "M" for the one before. F4 and
@@ -131,6 +156,20 @@ if g:enable_vim_bookmarks
   nnoremap <silent> m :BookmarkNext<cr>
   nnoremap <silent> M :BookmarkPrev<cr>
 endif
+
+" Note: The list of marks, with a name written on it.
+"
+" Note: A quickfix window says on its bar the COMMAND that filled it, and what
+" that command is here is "cgetexpr bm#location_list()" -- true, and of no use to
+" anybody reading. It is not an error, it is what Vim writes there when nobody
+" says otherwise, and the screenshots of the plugin itself show the same thing.
+" Now somebody says otherwise! By Questor
+func! GrooVim_BookmarksList() abort
+  BookmarkShowAll
+  if &buftype ==# "quickfix"
+    let w:quickfix_title = "Bookmarks"
+  endif
+endfunc
 
 "* NERDTree
 

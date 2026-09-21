@@ -195,7 +195,7 @@ func! GT_Body()
   " you mark and then walk between, which is the "Search -> Bookmark" of
   " Notepad++. Every one of them belongs to a plugin, and every one says so.
   call GT_Ok("F4 is the tree and the bookmarks",
-    \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "down", "up", "i", "l", "c"],
+    \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "i", "l", "c"],
     \ "   " . string(map(GT_Of("F4"), 'v:val.key')))
   call GT_Ok("  and each one names the plugin it needs",
     \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == len(GT_Of("F4")), "")
@@ -207,17 +207,47 @@ func! GT_Body()
   " the screen: a trade made with open eyes, because this plugin replaces what
   " marks were FOR -- and ":mark a" still writes one from the command line.
   "
-  " F4 and the arrows do the same and stay: the menu of F10 and the list of F9
-  " are written from the F keys, and a plain letter would be in neither.
+  " They are the only way to walk them: F4 and the arrows did the same and came
+  " off, so what is left of the bookmarks under F4 is what is NOT walking.
   if g:enable_vim_bookmarks
     call GT_Ok("m walks to the next mark", maparg("m", "n") =~ "BookmarkNext",
       \ "   [" . maparg("m", "n") . "]")
     call GT_Ok("  and M to the one before", maparg("M", "n") =~ "BookmarkPrev",
       \ "   [" . maparg("M", "n") . "]")
-    call GT_Ok("  and F4 says the same thing, in every mode",
-      \ !empty(filter(copy(GT_Of("F4")), 'v:val.key ==# "down"')), "")
+    call GT_Ok("  and they are the only way to walk them",
+      \ empty(filter(copy(GT_Of("F4")), 'v:val.key ==# "down" || v:val.key ==# "up"')),
+      \ "   (F4 and the arrows did the same and were taken off)")
     call GT_Ok("  while the marks of Vim answer on the command line",
       \ exists(":mark") == 2, "   (\":mark a\" still writes one)")
+
+    " ---- and the margin the signs are drawn in
+    "
+    " Every sign has to be ONE cell wide. The annotation sign the plugin ships,
+    " "\u2630", is two to Vim -- measured, "strwidth" says 2 against 1 for the
+    " flag -- and two cells in a margin of two leave no room for the space Vim
+    " puts after, so the text of that one line came out shifted against every
+    " other line of the file.
+    call GT_Ok("the sign of a mark is one cell wide",
+      \ strwidth(g:bookmark_sign) == 1,
+      \ "   [" . g:bookmark_sign . "] strwidth " . strwidth(g:bookmark_sign))
+    call GT_Ok("  and so is the sign of an annotation",
+      \ strwidth(g:bookmark_annotation_sign) == 1,
+      \ "   [" . g:bookmark_annotation_sign . "] strwidth " .
+      \ strwidth(g:bookmark_annotation_sign) . "   (the one it ships with is 2)")
+
+    " The margin is always there. With "auto" it comes and goes with the signs,
+    " and the whole text slides two columns sideways when it does -- which
+    " happens the moment the list of marks takes the focus, because the plugin
+    " takes its signs down while another window has it.
+    call GT_Ok("the margin does not come and go", &signcolumn ==# "yes",
+      \ "   [signcolumn=" . &signcolumn . "]")
+    call GT_Ok("  and it is not a grey band",
+      \ synIDattr(synIDtrans(hlID("SignColumn")), "bg", "cterm") ==# "" &&
+      \ synIDattr(synIDtrans(hlID("SignColumn")), "bg", "gui") ==# "",
+      \ "   (the colour scheme paints it 242, against a text area with none)")
+    call GT_Ok("  and the list of marks is called by its name",
+      \ GT_FunctionText("GrooVim_BookmarksList") =~ "quickfix_title",
+      \ "   (a quickfix window says the COMMAND that filled it, otherwise)")
   else
     call GT_Note("vim-bookmarks is not here, so its keys did not run")
   endif

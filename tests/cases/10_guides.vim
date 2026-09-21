@@ -64,10 +64,14 @@ for pair in [[2, [1,3,5,7,9,11,13,15,17,19,21,23,25,27,29,31,33,35,37,39]],
   \ [8, [1,9,17,25,33]]]
   exec "set shiftwidth=" . pair[0]
   redraw
+  " Screen columns are not text columns: a margin for the signs sits before the
+  " text, and it is two cells wide. "screenpos" says where character 1 of the
+  " line really landed, so what is counted here is the text and not the window.
+  let off = screenpos(win_getid(), 1, 1).col - 1
   let columns = []
-  for c in range(1, 46)
+  for c in range(1 + off, 46 + off)
     if nr2char(screenchar(1, c)) ==# g:GrooVim_IndentGuideChar
-      call add(columns, c)
+      call add(columns, c - off)
     endif
   endfor
   call GT_Ok("on screen, shiftwidth=" . pair[0] . ": guides every " . pair[0],

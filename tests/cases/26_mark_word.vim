@@ -25,11 +25,14 @@ func! GT_Painted(line, plainLine)
   setlocal nolist
   redraw
 
-  let l:plain = screenattr(a:plainLine, 1)
+  " Screen columns are not text columns: a margin for the signs sits before the
+  " text. "screenpos" says where character 1 really landed.
+  let l:off = screenpos(win_getid(), a:line, 1).col - 1
+  let l:plain = screenattr(a:plainLine, 1 + l:off)
   let l:cols = []
-  for l:c in range(1, 40)
+  for l:c in range(1 + l:off, 40 + l:off)
     if screenattr(a:line, l:c) != l:plain && screenchar(a:line, l:c) != 32
-      call add(l:cols, l:c)
+      call add(l:cols, l:c - l:off)
     endif
   endfor
 
