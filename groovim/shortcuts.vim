@@ -2,7 +2,42 @@ let g:GrooVim_CommandZMoment = 0
 let g:GrooVim_CommandZChar = ""
 let g:GrooVim_CommandZUnblock = 1
 let g:GrooVim_CommandZFCaller = ""
+" Note: The cursor keeps the colour of the mode the key was pressed in, for as
+" long as the shortcut takes.
+"
+" Note: A shortcut fired from insert mode arrives through a "<C-o>", which steps
+" out of insert, and then GrooVim WAITS for the second key of the combination --
+" in slices, with a "sleep" between them, and a "sleep" is exactly when Vim runs
+" its timers. So the cursor was painted by the mode of that moment, which is
+" normal: measured, "orange, green, orange" on a command that never left insert.
+"
+" Note: The "finally" is not decoration. Interrupting a prompt with Ctrl-C walks
+" out of here, and a flag left standing would keep the cursor orange in every
+" mode from then on -- the same trap that once left CommandZ blocked for good.
+"
+" Note: Only from insert. A shortcut fired from normal mode has nothing to hold,
+" and one fired from visual really does end the selection -- the ":" of its
+" mapping does it -- so normal is the truth there! By Questor
 func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
+
+  if a:modType ==# "i"
+    let g:GrooVim_CursorColorHoldInsert = 1
+  endif
+
+  try
+    call GrooVim_CommandZRun(a:GrooVim_CommandZFCallerNow, a:modType)
+  finally
+    if a:modType ==# "i"
+      let g:GrooVim_CursorColorHoldInsert = 0
+      if exists("*GrooVim_CursorColorSoon")
+        call GrooVim_CursorColorSoon()
+      endif
+    endif
+  endtry
+
+endfunc
+
+func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
   let l:GrooVim_CommandZNowChar = ""
 

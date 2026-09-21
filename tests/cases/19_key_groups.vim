@@ -324,6 +324,42 @@ func! GT_Body()
   call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
     \ "   (" . line("$") . " lines)")
 
+  " ---- and what the duplicate must NOT do
+  "
+  " It used to open a line and paste into it -- "yyo<Esc>p" -- and OPENING a line
+  " under a comment makes Vim write the comment leader on it. That is the "o" of
+  " "formatoptions", which for a Vim file is "croql": duplicating the line
+  " " uma nota" gave "" uma nota", with the quote doubled. It depended on the file
+  " type, because the leader does. "p" puts a whole line under this one on its
+  " own, and there was never any need to open one first.
+  "
+  " And where you were is where you stay: "p" leaves the cursor on the COPY.
+  enew!
+  setlocal filetype=vim
+  call setline(1, ['" uma nota do vim', '" outra'])
+  call cursor(1, 9)
+  call GT_Press("\<F3>d")
+  call GT_Ok("duplicating a comment does not double its leader",
+    \ getline(2) ==# getline(1),
+    \ "   [" . getline(2) . "]   (it came back as \"\"" . " uma nota do vim\")")
+  call GT_Ok("  and the cursor did not move", [line("."), col(".")] ==# [1, 9],
+    \ "   (line " . line(".") . " column " . col(".") . ", and it was 1 and 9)")
+
+  " The same for a selection, which is the other half of the same key.
+  enew!
+  setlocal filetype=vim
+  call setline(1, ['" um', '" dois', '" tres'])
+  call cursor(1, 2)
+  call feedkeys("V", "x")
+  call cursor(2, 2)
+  call GT_Press("\<F3>d")
+  call GT_Ok("duplicating a selection copies it under itself",
+    \ getline(1, "$") ==# ['" um', '" dois', '" um', '" dois', '" tres'],
+    \ "   " . string(getline(1, "$")))
+  call GT_Ok("  and the cursor did not move either",
+    \ [line("."), col(".")] ==# [2, 2],
+    \ "   (line " . line(".") . " column " . col(".") . ", and it was 2 and 2)")
+
   " ---- the version, in one place
   "
   " The help of F9 used to carry a second copy of it, typed by hand, and that is

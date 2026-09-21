@@ -372,6 +372,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
 \"\n*o*  |g:GrooVim_ShowSpaceAndTab| - 1 draws a dot on every space and an arrow on every tab, which is \"Show Space and Tab\" of Notepad++. ON by default, which is where GrooVim parts from it: a space and a tab look the same and are not;".
 \"\n*o*  |g:GrooVim_EdgeColumn| - the column the vertical line is drawn on, |79| by default, or 0 for no line. It is the \"Vertical Edge\" of Notepad++, and it is drawn on EVERY row -- a short line gets it too;".
+\"\n*o*  |g:GrooVim_WordWrap| - 1 wraps a long line onto the next row instead of running it off the screen, which is \"Word wrap\" of Notepad++. OFF by default, asked on F5->c and then |[v]|, and it breaks at a SPACE and not in the middle of a word;".
 \"\n".
 \"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
 \"\n".

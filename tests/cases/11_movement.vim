@@ -148,16 +148,16 @@ func! GT_ColourChecks()
   " decision that chooses it.
   call GT_Ok("the flag never wins over a mode that can be seen",
     \ GT_FunctionText("GrooVim_CursorColorForMode")
-    \   =~ 'GroovyMoveOnInsert == 1 && !l:visual',
+    \   =~ 'CursorColorHoldInsert == 1 && !l:visual',
     \ "   (with the flag standing and the mode visual, visual wins)")
   call GT_Ok("  and visual is asked about before the flag is",
     \ match(GT_FunctionText("GrooVim_CursorColorForMode"), "l:visual =")
-    \ < match(GT_FunctionText("GrooVim_CursorColorForMode"), "GroovyMoveOnInsert"), "")
+    \ < match(GT_FunctionText("GrooVim_CursorColorForMode"), "CursorColorHoldInsert"), "")
   call GT_Ok("and the movement PAINTS by the mode it ends in",
-    \ GT_FunctionText("GrooVim_GroovyMove") =~ "CursorColorForMode",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ "CursorColorSoon",
     \ "   (giving the colours back is not painting: nothing repaints on its own)")
-  call GT_Ok("  on a timer, after the mode has settled",
-    \ GT_FunctionText("GrooVim_GroovyMove") =~ 'timer_start(0[^)]*CursorColorForMode',
+  call GT_Ok("  when the mode has SETTLED, and not on the way",
+    \ GT_FunctionText("GrooVim_CursorColorSoon") =~ 'timer_start(0',
     \ "   (traced: from inside the function, \"mode()\" answered \"n\" on a movement that ended in visual)")
   call GT_Ok("the three colours are three different ones",
     \ len(uniq(sort([g:cursorColorNV, g:cursorColorI, g:cursorColorV]))) == 3,

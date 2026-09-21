@@ -526,6 +526,13 @@ func! GrooVim_ConfigureView() range abort
 
   call GrooVim_SymbolsSet()
 
+  " Note: The "Word wrap" of the View menu of Notepad++! By Questor
+  let l:wrap = GrooVim_GetOptions("Word wrap", [0,1], 0, g:GrooVim_WordWrap)
+  let g:GrooVim_WordWrap = l:wrap
+  call GrooVim_OptsUpdate("let g:GrooVim_WordWrap =",
+   \ "let g:GrooVim_WordWrap = " . g:GrooVim_WordWrap, 0)
+  call GrooVim_WordWrapSet()
+
   " Note: The question that keeps comes HERE, in the middle, and it closes the
   " block it belongs to: the two answers above are preferences of the editor and
   " can be kept, and what follows it cannot. Asked at the end instead, it read as

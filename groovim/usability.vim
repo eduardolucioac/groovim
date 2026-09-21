@@ -5,8 +5,29 @@
 " Note: Always show what mode we're currently editing in! By Questor
 set showmode
 
-" Note: Don't wrap lines! By Questor
-set nowrap
+" Note: Word wrap, the one of the View menu of Notepad++. Off by default, which
+" is what GrooVim always did, and asked on the view screen of "F5->c".
+"
+" Note: "linebreak" goes with it, and it is not an extra: what Notepad++ does is
+" break the line at a SPACE, and Vim without "linebreak" breaks in the middle of
+" a word. The restriction that "linebreak" did nothing while "list" was on is of
+" an older Vim -- GrooVim asks for 9.2, where the two work together, and "list"
+" here is always on because the guides need it.
+"
+" Note: A plain ":set" and no autocmd to spread it. It reaches the window you are
+" on and becomes the default of every window opened afterwards, which is what a
+" preference should do -- and it leaves the help window alone, which asks for
+" "wrap" of its own and would lose it to anything that reimposed this on every
+" "WinEnter"! By Questor
+let g:GrooVim_WordWrap = get(g:, "GrooVim_WordWrap", 0)
+func! GrooVim_WordWrapSet() abort
+  if g:GrooVim_WordWrap
+    set wrap linebreak
+  else
+    set nowrap nolinebreak
+  endif
+endfunc
+call GrooVim_WordWrapSet()
 
 " Note: Allow backspacing over everything in insert mode! By Questor
 set backspace=indent,eol,start

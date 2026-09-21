@@ -139,7 +139,7 @@ call GT_Ok("the file screen does not ask about the language",
 call GT_Ok("  and the view screen does",
   \ GT_FunctionText("GrooVim_ConfigureView") =~ "IsLanguageAnswer", "")
 
-call feedkeys("\<CR>\<CR>a\<CR>python\<CR>", "t")
+call feedkeys("\<CR>\<CR>\<CR>a\<CR>python\<CR>", "t")
 call GrooVim_ConfigureView()
 call feedkeys("", "x")
 call GT_Ok("choosing it changes the file type", &filetype ==# "python",
@@ -147,13 +147,13 @@ call GT_Ok("choosing it changes the file type", &filetype ==# "python",
 call GT_Ok("  and does NOT mark the buffer as changed", &modified == 0,
   \ "   (a language is not written into the file; it is how Vim reads it)")
 
-call feedkeys("\<CR>\<CR>a\<CR>none\<CR>", "t")
+call feedkeys("\<CR>\<CR>\<CR>a\<CR>none\<CR>", "t")
 call GrooVim_ConfigureView()
 call feedkeys("", "x")
 call GT_Ok("\"none\" takes it off", &filetype ==# "",
   \ "   [" . &filetype . "]")
 
-call feedkeys("\<CR>\<CR>a\<CR>\<CR>", "t")
+call feedkeys("\<CR>\<CR>\<CR>a\<CR>\<CR>", "t")
 let g:GT_WAS = &filetype
 call GrooVim_ConfigureView()
 call feedkeys("", "x")

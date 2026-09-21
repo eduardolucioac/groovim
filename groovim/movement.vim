@@ -89,7 +89,7 @@ let g:GrooVim_GroovyMoveColumn = 0
 " Note: Raised by those same mappings, and it says that the trip out of insert is
 " ours: while it is up, the cursor is NOT painted with the colour of normal mode!
 " By Questor
-let g:GrooVim_GroovyMoveOnInsert = 0
+let g:GrooVim_CursorColorHoldInsert = 0
 func! GrooVim_GroovyMoveMarkColumn() abort
   let g:GrooVim_GroovyMoveColumn = getcurpos()[4]
 
@@ -100,7 +100,7 @@ func! GrooVim_GroovyMoveMarkColumn() abort
   "
   " Note: It has to be HERE, before the "<C-o>": from inside the movement it would
   " already be too late! By Questor
-  let g:GrooVim_GroovyMoveOnInsert = 1
+  let g:GrooVim_CursorColorHoldInsert = 1
   let &t_EI = "\<Esc>]12;" . g:cursorColorI . "\x7"
 
   return ""
@@ -108,8 +108,8 @@ endfunc
 
 " Note: Gives the cursor back to the colours of each mode! By Questor
 func! GrooVim_GroovyMoveColorsBack() abort
-  if g:GrooVim_GroovyMoveOnInsert == 1
-    let g:GrooVim_GroovyMoveOnInsert = 0
+  if g:GrooVim_CursorColorHoldInsert == 1
+    let g:GrooVim_CursorColorHoldInsert = 0
     let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
   endif
 endfunc
@@ -337,8 +337,8 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     " answer "n", because the mode has not settled while the mapping that called
     " us is still running. A timer of zero runs on the next pass of the main
     " loop, where what Vim answers is what you are actually in! By Questor
-    if get(g:, "GrooVim_CursorColorEnabled", 0) && exists("*GrooVim_CursorColorForMode")
-      call timer_start(0, {t -> GrooVim_CursorColorForMode()})
+    if get(g:, "GrooVim_CursorColorEnabled", 0) && exists("*GrooVim_CursorColorSoon")
+      call GrooVim_CursorColorSoon()
     endif
   endtry
 

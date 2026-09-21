@@ -94,6 +94,9 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
 
  * `g:GrooVim_IndentGuideChar` - the char of the guide, or `""` to turn the guides off;
  * `g:GrooVim_IndentExpandTab` - 1 for spaces, 0 for a real tab;
+ * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
+   it off the screen, breaking at a space and not inside a word. It is the "Word
+   wrap" of Notepad++, off by default, and it is asked on **F5 c** and then **[v]**;
 
 The width, whether Tab puts spaces, and whether the guides are drawn are asked on
 a screen of their own, with **F5 i**. It is the "Tab Settings" of Notepad++.

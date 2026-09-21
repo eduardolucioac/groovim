@@ -262,7 +262,7 @@ func! GrooVim_CursorColorForMode() abort
   " insert", and if it is ever left standing -- an interrupted movement used to
   " leave it so -- believing it over "mode()" painted the cursor green in visual
   " mode, which is blue. What Vim reports wins! By Questor
-  if g:GrooVim_GroovyMoveOnInsert == 1 && !l:visual
+  if g:GrooVim_CursorColorHoldInsert == 1 && !l:visual
     call GrooVim_CursorColorEmit(g:cursorColorI)
     return
   endif
@@ -276,10 +276,35 @@ func! GrooVim_CursorColorForMode() abort
   endif
 endfunc
 
+" Note: Paints by the mode the editor SETTLES in, and not by every mode it goes
+" through on the way.
+"
+" Note: A shortcut fired from insert mode passes through normal mode to do its
+" work and comes back -- so the cursor went orange, green, orange, and what you
+" see is a blink of the wrong colour on a command that never left the mode it was
+" called from. Every movement key out of insert does the same, and so does every
+" command of the F keys.
+"
+" Note: The timer is RESTARTED at each change, so a command that changes the mode
+" three times paints once, at the end, by the mode it really ended in. Zero is
+" enough: a timer of zero runs on the next pass of the main loop, which is after
+" the command has finished. If the mode is the same as it was, the colour is the
+" same, and nothing is ever seen to change! By Questor
+let g:GrooVim_CursorColorTimer = -1
+func! GrooVim_CursorColorSoon() abort
+  if g:GrooVim_CursorColorTimer != -1
+    try
+      call timer_stop(g:GrooVim_CursorColorTimer)
+    catch
+    endtry
+  endif
+  let g:GrooVim_CursorColorTimer = timer_start(0, {t -> GrooVim_CursorColorForMode()})
+endfunc
+
 " Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
 " insert mode! By Questor
 func! GrooVim_CursorColorNow() abort
-  if g:GrooVim_GroovyMoveOnInsert == 1
+  if g:GrooVim_CursorColorHoldInsert == 1
     return
   endif
   call GrooVim_CursorColorEmit(g:cursorColorNV)
@@ -303,7 +328,11 @@ if g:GrooVim_CursorColorEnabled
     if exists("##ModeChanged")
       " Note: With "ModeChanged" available this covers every mode, so "t_SI" and
       " "t_EI" are left alone to avoid painting the cursor twice! By Questor
-      autocmd ModeChanged * call GrooVim_CursorColorForMode()
+      "
+      " Note: And through "Soon", which waits for the mode to settle: see there
+      " for why a command that comes back to the mode it was called from must not
+      " show a colour of its own! By Questor
+      autocmd ModeChanged * call GrooVim_CursorColorSoon()
     endif
   augroup end
   if !exists("##ModeChanged")

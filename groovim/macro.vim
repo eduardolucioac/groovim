@@ -180,9 +180,27 @@ endfunc
 " Note: A function because the dispatch spelled these three lines out TWICE, once
 " for normal mode and once for insert, letter for letter! By Questor
 func! GrooVim_DuplicateLine() abort
+
+  " Note: "yyp" and not "yyo<Esc>p". The "o" OPENS a line, and opening a line
+  " under a comment makes Vim write the comment leader on it -- that is the "o"
+  " of "formatoptions", which for a Vim file is "croql". Measured: duplicating
+  " the line " uma nota do vim" gave "" uma nota do vim", with the quote
+  " doubled. And it depended on the file type, because the leader does: the same
+  " duplication in a python file came back clean.
+  "
+  " Note: "p" puts a whole line under this one on its own. There was never any
+  " need to open one first! By Questor
+  "
+  " Note: The whole view and not only the cursor, so that the line you were on
+  " is still the line you are on, in the same column, and the window has not
+  " moved: "p" leaves the cursor on the COPY, which is not where you were! By
+  " Questor
+  let l:view = winsaveview()
   let l:saved_reg = GrooVim_ClipGet()
-  exec "norm yyo\<Esc>p"
+  exec "norm! yyp"
+  call winrestview(l:view)
   call GrooVim_ClipSet(l:saved_reg)
+
 endfunc
 
 " Note: The selection, copied under itself -- and then the key of the last command
@@ -195,9 +213,18 @@ func! GrooVim_DuplicateSelection() abort
 endfunc
 
 func! GrooVim_DuplicateVisualSelection() range abort
+
+  " Note: The same as the line above it: where you were is where you stay. The
+  " put leaves the cursor on the COPY, and the view is taken after the "gv"
+  " because the ":" of the shortcut had already dropped the cursor on the first
+  " line of the range! By Questor
+  exec "norm! gv"
+  let l:view = winsaveview()
   let l:saved_reg = GrooVim_ClipGet()
-  exec "norm! gvygv\<Esc>p"
+  exec "norm! ygv\<Esc>p"
+  call winrestview(l:view)
   call GrooVim_ClipSet(l:saved_reg)
+
 endfunc
 
 " Note: Reads the .vimrc again, in every tab.
