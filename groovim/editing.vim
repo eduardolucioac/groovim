@@ -168,6 +168,22 @@ vmap <silent> <C-Left> b
 " Note: Allows "multimode" use of enter key in a conventional way! By Questor
 nnoremap <silent> <script> <Enter> :call GrooVim_NormalEnterOnNormalMode()<cr>
 func! GrooVim_NormalEnterOnNormalMode() abort
+
+  " Note: In a quickfix window, Enter belongs to Vim: it OPENS the line you are
+  " on. And it is not a mapping there, it is what the window does -- so a
+  " mapping of ours, which is global, went over it and the list could not be
+  " used at all. Measured on the bookmark list: the Enter answered "This one
+  " cannot be changed!" and nothing opened.
+  "
+  " Note: This is every quickfix and location list, not only that one: the list
+  " of a "make", of a "grep", of anything. A buffer with keys of its own -- the
+  " tree of NERDTree -- needs nothing here, because a mapping of a BUFFER
+  " already wins over a global one! By Questor
+  if &buftype ==# "quickfix"
+    exec "normal! \<CR>"
+    return
+  endif
+
   if !GrooVim_CanChange() | return | endif
   exec "norm i\<cr>\<Esc>"
 endfunc

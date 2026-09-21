@@ -64,6 +64,29 @@ func! GT_Body()
     \ GT_FunctionText("GrooVim_CanChange") =~ "readonly",
     \ "   (a file opened with \"view\" refuses just the same)")
 
+  " ---- and the quickfix window, where Enter belongs to Vim
+  "
+  " In a quickfix window Enter OPENS the line you are on, and it is not a mapping
+  " there -- it is what the window does. A mapping of ours is global, so it went
+  " over it and the list could not be used at all: measured on the bookmark list,
+  " the Enter answered "This one cannot be changed!" and nothing opened. This is
+  " every quickfix and location list, not only that one.
+  enew!
+  file /tmp/GrooVim_quickfix_case.txt
+  call setline(1, ["um", "dois", "tres"])
+  call setqflist([{"filename": expand("%:p"), "lnum": 2, "text": "a segunda"}])
+  copen
+  call GT_Ok("setup: the list is a quickfix window", &buftype ==# "quickfix",
+    \ "   [" . &buftype . "]")
+  call GT_Ok("  and Enter there is NOT a mapping of the buffer",
+    \ get(maparg("<Enter>", "n", 0, 1), "buffer", 0) == 0,
+    \ "   (which is why a global one went over it)")
+  call cursor(1, 1)
+  call feedkeys("\<Enter>", "x")
+  call GT_Ok("Enter opens the line the list points at", line(".") == 2 &&
+    \ &buftype ==# "", "   (line " . line(".") . ", buftype [" . &buftype . "])")
+  cclose
+
   " ---- and a buffer that DOES accept changes is not touched by any of this
   enew!
   call setline(1, ["uma linha"])

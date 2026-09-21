@@ -195,10 +195,32 @@ func! GT_Body()
   " you mark and then walk between, which is the "Search -> Bookmark" of
   " Notepad++. Every one of them belongs to a plugin, and every one says so.
   call GT_Ok("F4 is the tree and the bookmarks",
-    \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "down", "up", "l", "c"],
+    \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "down", "up", "i", "l", "c"],
     \ "   " . string(map(GT_Of("F4"), 'v:val.key')))
   call GT_Ok("  and each one names the plugin it needs",
     \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == len(GT_Of("F4")), "")
+
+  " ---- and the two keys you walk the marks with
+  "
+  " Walking them is what you do over and over, so they are one key each. They
+  " take the "m" that sets a mark of Vim and the "M" that jumps to the middle of
+  " the screen: a trade made with open eyes, because this plugin replaces what
+  " marks were FOR -- and ":mark a" still writes one from the command line.
+  "
+  " F4 and the arrows do the same and stay: the menu of F10 and the list of F9
+  " are written from the F keys, and a plain letter would be in neither.
+  if g:enable_vim_bookmarks
+    call GT_Ok("m walks to the next mark", maparg("m", "n") =~ "BookmarkNext",
+      \ "   [" . maparg("m", "n") . "]")
+    call GT_Ok("  and M to the one before", maparg("M", "n") =~ "BookmarkPrev",
+      \ "   [" . maparg("M", "n") . "]")
+    call GT_Ok("  and F4 says the same thing, in every mode",
+      \ !empty(filter(copy(GT_Of("F4")), 'v:val.key ==# "down"')), "")
+    call GT_Ok("  while the marks of Vim answer on the command line",
+      \ exists(":mark") == 2, "   (\":mark a\" still writes one)")
+  else
+    call GT_Note("vim-bookmarks is not here, so its keys did not run")
+  endif
 
   " ---- a shortcut whose work belongs to a plugin says so
   "
@@ -249,12 +271,20 @@ func! GT_Body()
     \ !GrooVim_ShortcutAvailable(l:tree), "")
   call GT_Ok("  F9 does not write down what cannot be done",
     \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") < 0, "")
+  " The group goes when its LAST shortcut goes, and F4 holds two plugins now --
+  " the tree and the bookmarks -- so both have to be off for it to empty.
+  let g:GT_KEPT_BOOKMARKS = g:enable_vim_bookmarks
+  let g:enable_vim_bookmarks = 0
   call GT_Ok("  and the group goes with its last shortcut",
     \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") < 0,
     \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')) .
     \ "   (a heading over nothing, and a menu that opens empty)")
   call GT_Ok("  the menu offers nothing under F4",
     \ empty(GrooVim_MenuOf("F4", 1)[0]), "")
+  let g:enable_vim_bookmarks = g:GT_KEPT_BOOKMARKS
+  call GT_Ok("  but with the bookmarks alone it is still a group",
+    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0,
+    \ "   (the tree is still off here)")
 
   let g:GrooVim_GrooVimBarMsgValue = ""
   call GT_Press("\<F4>n")

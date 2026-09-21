@@ -135,6 +135,7 @@ Script features!
  * Comment lines
 
     - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim;
+    - m and M (normal mode) - Walk to the next marked line and to the one before, using vim-bookmarks. F4 and the arrows do the same in every mode. These two take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
 
 F'S Shortcuts (CommandZ)!
 -----
@@ -191,8 +192,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `Down` - Goes to the next marked line *(normal mode/insert/visual)*;
     - `Up` - Goes to the previous marked line *(normal mode/insert/visual)*;
+    - `i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `l` - Lists every marked line, to walk between them *(normal mode/insert/visual)*;
-    - `c` - Takes every mark off this file *(normal mode/insert/visual)*;
+    - `c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;
 
  * **F5** and then... *(What acts on the EDITOR -- tabs, leaving -- and the settings)*
 

@@ -116,6 +116,22 @@ let g:bookmark_auto_save_file = g:GrooVim_State . "/bookmarks"
 let g:bookmark_sign = "\u2691"
 let g:bookmark_highlight_lines = 0
 
+" Note: And the two keys you walk the marks with, because walking them is what
+" you do over and over: "m" for the next one and "M" for the one before. F4 and
+" the arrows do the same and stay, for the menu of F10 and the list of F9 read
+" the F keys, and because they answer in the three modes.
+"
+" Note: These two are of NORMAL mode, and they take "m" and "M" from Vim -- the
+" "m" that sets a mark and the "M" that jumps to the middle of the screen. It is
+" a trade made with open eyes: this plugin replaces what marks were FOR, with a
+" sign you can see and a list you can walk, and ":mark a" still writes one from
+" the command line. Inside NERDTree the "m" of its own menu is untouched, because
+" a mapping of a BUFFER wins over a global one! By Questor
+if g:enable_vim_bookmarks
+  nnoremap <silent> m :BookmarkNext<cr>
+  nnoremap <silent> M :BookmarkPrev<cr>
+endif
+
 "* NERDTree
 
 " Note: Store the bookmarks file! By Questor

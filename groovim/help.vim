@@ -82,11 +82,14 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F4", "key": "up", "modes": "niv", "run": 'BookmarkPrev',
  \  "what": "Goes to the previous marked line",
  \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
+ \ {"group": "F4", "key": "i", "modes": "niv", "run": 'BookmarkAnnotate',
+ \  "what": "Writes a note on the marked line, or changes it (*bookmark*)",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
  \ {"group": "F4", "key": "l", "modes": "niv", "run": 'BookmarkShowAll',
  \  "what": "Lists every marked line, to walk between them",
  \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
- \ {"group": "F4", "key": "c", "break": 1, "modes": "niv", "run": 'BookmarkClear',
- \  "what": "Takes every mark off this file",
+ \ {"group": "F4", "key": "c", "break": 1, "modes": "niv", "run": 'BookmarkClearAll',
+ \  "what": "Takes every mark off EVERY file, and asks first",
  \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
  \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",
@@ -439,6 +442,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Comment lines".
 \"\n".
 \"\n   |-|<Alt-Up> (normal mode/insert/visual) - Comment lines using *tcomment.vim* ;".
+\"\n   |-||m| and |M| (normal mode) - Walk to the next marked line and to the one before, using *vim-bookmarks* . F4 and the arrows do the same in every mode. These two take the |m| that sets a mark of Vim and the |M| that jumps to the middle of the screen: the bookmarks replace what marks were FOR, and|:mark|a|still writes one from the command line;".
 \"\n".
 \"\n * F\'S Shortcuts (CommandZ)!~".
 \"\n".
