@@ -48,6 +48,11 @@ func! GrooVim_BookmarksDefine() abort
   " find at a glance, not the same thing in another shade! By Questor
   highlight default link GrooVim_BookmarkSignHl Identifier
   highlight GrooVim_BookmarkNoteSignHl ctermfg=yellow guifg=yellow ctermbg=NONE guibg=NONE
+
+  " Note: And the balloon that shows what is written, in the same yellow: dark
+  " letters on it, because a balloon is a piece of paper laid over the text and
+  " not a hole in it! By Questor
+  highlight GrooVim_BookmarkNotePopup ctermfg=black ctermbg=yellow guifg=#232629 guibg=#f6d32d
   call sign_define("GrooVim_Bookmark",
    \ {"text": strwidth(g:GrooVim_BookmarkSign) == 1 ? g:GrooVim_BookmarkSign : ">",
    \  "texthl": "GrooVim_BookmarkSignHl"})
@@ -326,7 +331,15 @@ func! GrooVim_BookmarkPanelBar() abort
 endfunc
 
 func! GrooVim_BookmarkPanelSetup() abort
+
   call GrooVim_PanelSetup()
+
+  " Note: And the one colour this panel has that the other does not: what is
+  " WRITTEN on a line. The same yellow as the "i" drawn in the margin, so that
+  " the two are plainly the same thing said in two places! By Questor
+  syntax match GrooVimPanelNote "\[i: .*\]$"
+  highlight default link GrooVimPanelNote GrooVim_BookmarkNoteSignHl
+
   let &l:statusline = "%!GrooVim_BookmarkPanelBar()"
   nnoremap <buffer> <silent> <Enter> :call GrooVim_BookmarkNavigate()<cr>
   nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_BookmarkNavigate()<cr>
@@ -511,6 +524,64 @@ endfunc
 nnoremap <silent> m :call GrooVim_BookmarkWalk(1)<cr>
 nnoremap <silent> M :call GrooVim_BookmarkWalk(0)<cr>
 
+" Note: What is written on a line is SHOWN when you stand on it.
+"
+" Note: A note you cannot read without opening a list is half a note. The "i" in
+" the margin says there is something written; this says what. It is the shape a
+" linter uses to tell you what is wrong with a line, and the reason is the same:
+" the place to read about a line is beside the line.
+"
+" Note: It goes up and comes down by itself, on the cursor moving. Only when the
+" LINE changes, or walking along the same line would take it down and put it up
+" again at every step.
+"
+" Note: And only for a file that HAS marks. This runs on every movement of the
+" cursor, in every buffer, so the first thing it asks is the cheapest one there
+" is -- and a file nobody has marked is out before anything else happens! By
+" Questor
+let s:notePopup = 0
+let s:noteLine = 0
+
+func! GrooVim_BookmarkNoteHide() abort
+  if s:notePopup
+    try
+      call popup_close(s:notePopup)
+    catch
+    endtry
+    let s:notePopup = 0
+    let s:noteLine = 0
+  endif
+endfunc
+
+func! GrooVim_BookmarkNoteShow() abort
+
+  if !exists("*popup_atcursor")
+    return
+  endif
+
+  if line(".") == s:noteLine && s:notePopup
+    return
+  endif
+  call GrooVim_BookmarkNoteHide()
+
+  let l:file = expand("%:p")
+  if l:file ==# "" || !has_key(g:GrooVim_Bookmarks, l:file)
+    return
+  endif
+
+  let l:one = GrooVim_BookmarkAt(l:file, line("."))
+  if empty(l:one) || l:one.note ==# ""
+    return
+  endif
+
+  let s:noteLine = line(".")
+  let s:notePopup = popup_atcursor(" " . l:one.note . " ",
+   \ {"highlight": "GrooVim_BookmarkNotePopup", "border": [],
+   \  "borderchars": ["─", "│", "─", "│", "┌", "┐", "┘", "└"],
+   \  "moved": "any", "line": "cursor+1", "close": "click"})
+
+endfunc
+
 " Note: The margin is always THERE, and not only when a sign is in it. With
 " "auto" it appears and vanishes with the signs, and the whole text of the file
 " slides two columns sideways when it does! By Questor
@@ -527,6 +598,8 @@ endfunc
 augroup GrooVim_Bookmarks
   autocmd!
   autocmd BufWinEnter,BufReadPost * call GrooVim_BookmarksPlace()
+  autocmd CursorMoved * call GrooVim_BookmarkNoteShow()
+  autocmd InsertEnter,WinLeave * call GrooVim_BookmarkNoteHide()
   autocmd ColorScheme * call GrooVim_BookmarksColours() | call GrooVim_BookmarksDefine()
   autocmd VimLeavePre * call GrooVim_BookmarksSave()
 augroup end

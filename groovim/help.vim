@@ -20,7 +20,7 @@
 let g:GrooVim_ShortcutGroups = [
  \ ["F2", "Editing, and what acts on the FILE itself", "Edit"],
  \ ["F3", "The editing you reach for most, and searching", "Search"],
- \ ["F4", "The installed plugins and what they do", "Plugins"],
+ \ ["F4", "The tools beside the text: the file tree, the marked lines", "Utils"],
  \ ["F5", "What acts on the EDITOR -- tabs, leaving -- and the settings", "Editor"]
  \ ]
 
@@ -71,15 +71,15 @@ let g:GrooVim_Shortcuts = [
  \  ]},
  \ {"group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
  \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
- \  "what": "Opens/closes the *NERDTree*",
+ \  "what": "Opens/closes the *file tree*",
  \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
- \ {"group": "F4", "key": "b", "modes": "niv", "run": 'call GrooVim_BookmarkToggle()',
+ \ {"group": "F4", "key": "b", "break": 1, "modes": "niv", "run": 'call GrooVim_BookmarkToggle()',
  \  "what": "Marks the line, or takes the mark off (*bookmark*)"},
  \ {"group": "F4", "key": "i", "modes": "niv", "run": 'call GrooVim_BookmarkAnnotate()',
  \  "what": "Writes a note on the marked line, or changes it (*bookmark*)"},
  \ {"group": "F4", "key": "l", "modes": "niv", "run": 'call GrooVim_BookmarkList()',
  \  "what": "Lists every marked line, to walk between them"},
- \ {"group": "F4", "key": "c", "break": 1, "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
+ \ {"group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
  \  "what": "Takes every mark off EVERY file, and asks first"},
  \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",

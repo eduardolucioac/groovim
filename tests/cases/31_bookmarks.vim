@@ -171,6 +171,52 @@ func! GT_AfterNote()
   call GT_Ok("and they come back when they are read again", GT_Lines() ==# [2, 5],
     \ "   " . string(GT_Lines()))
 
+  " ---- and the panel has colours, because what is in it has shape
+  call GT_Ok("the panel is painted", !empty(filter(split(execute("syntax list"), "\n"),
+    \ 'v:val =~ "GrooVimPanel"')),
+    \ "   (a heading, a file name, the rules, the numbers and the arrow)")
+  call GT_Ok("  and a note is painted in the yellow of its sign",
+    \ GT_FunctionText("GrooVim_BookmarkPanelSetup") =~ "GrooVimPanelNote", "")
+
+  " ---- and the vertical edge does not belong in a list
+  "
+  " It marks where a line of text gets too long, which means nothing in a window
+  " that holds no text of yours.
+  call GT_Ok("no vertical edge over the list", &colorcolumn ==# "",
+    \ "   [colorcolumn=" . &colorcolumn . "]")
+  exec "edit! " . g:GT_FILE
+  call GT_Ok("  and it is still there over a file", &colorcolumn ==# string(g:GrooVim_EdgeColumn),
+    \ "   [colorcolumn=" . &colorcolumn . "]")
+
+  " ---- what is written on a line is SHOWN when you stand on it
+  "
+  " A note you cannot read without opening a list is half a note. The "i" in the
+  " margin says there is something written; the balloon says what.
+  call cursor(1, 1)
+  call timer_start(150, {t -> feedkeys("j", "t")})
+  call timer_start(400, "GT_NoteBalloonAway")
+endfunc
+
+func! GT_NoteBalloonAway(t)
+  call GT_Ok("no balloon on a line with nothing written on it",
+    \ len(popup_list()) == 0, "   (line " . line(".") . ")")
+  call timer_start(150, {t -> [cursor(4, 1), feedkeys("j", "t")]})
+  call timer_start(400, "GT_NoteBalloonUp")
+endfunc
+
+func! GT_NoteBalloonUp(t)
+  let l:up = popup_list()
+  call GT_Ok("standing on the marked line shows what is written on it",
+    \ len(l:up) == 1 &&
+    \ join(getbufline(winbufnr(l:up[0]), 1, "$")) =~ "olhar isto",
+    \ "   (line " . line(".") . ", " . len(l:up) . " balloon)")
+  call timer_start(150, {t -> feedkeys("j", "t")})
+  call timer_start(400, "GT_NoteBalloonGone")
+endfunc
+
+func! GT_NoteBalloonGone(t)
+  call GT_Ok("  and it goes when you walk away", len(popup_list()) == 0,
+    \ "   (line " . line(".") . ")")
   call delete(g:GT_FILE)
   call GT_Done()
 endfunc

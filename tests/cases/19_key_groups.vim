@@ -201,6 +201,22 @@ func! GT_Body()
     \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == 1,
     \ "   (the tree; the marks are GrooVim's own code)")
 
+  " ---- what F4 is called, and what its first entry is called
+  "
+  " It was "Plugins", which said where the code came from instead of what the
+  " keys do -- and the tree stopped being the only thing under it the day the
+  " marks arrived.
+  call GT_Ok("F4 is called by what it is FOR",
+    \ !empty(filter(copy(g:GrooVim_ShortcutGroups),
+    \   'v:val[0] ==# "F4" && v:val[2] ==# "Utils"')),
+    \ "   " . string(filter(copy(g:GrooVim_ShortcutGroups), 'v:val[0] ==# "F4"')[0]))
+  call GT_Ok("  and the tree by what it is, not by the plugin that draws it",
+    \ filter(copy(GT_Of("F4")), 'v:val.key ==# "n"')[0].what =~ "file tree", "")
+  call GT_Ok("and the menu divides the tree from the marks",
+    \ get(filter(copy(GT_Of("F4")), 'v:val.key ==# "b"')[0], "break", 0) == 1 &&
+    \ get(filter(copy(GT_Of("F4")), 'v:val.key ==# "c"')[0], "break", 0) == 0,
+    \ "   (the rule comes BEFORE the first mark, not after the last)")
+
   " The marks have a case of their own now: they are GrooVim's own code and not
   " a plugin any more, so what belongs here is only where their keys live.
   call GT_Ok("and the marks are not a plugin any more",
@@ -249,7 +265,9 @@ func! GT_Body()
     \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0,
     \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')))
   call GT_Ok("  and F9 writes it down",
-    \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") >= 0, "")
+    \ stridx(GrooVim_ShortcutsHelp(), "file tree") >= 0,
+    \ "   (the tree is named by what it IS: the plugin that draws it is an\n" .
+    \ "    answer to \"with what\", and nobody asked)")
 
   let g:enable_nerdtree_vim = 0
   call GT_Ok("with the plugin off, the shortcut is not on offer",
@@ -275,7 +293,7 @@ func! GT_Body()
 
   " ---- and the README goes on naming it, because it describes the PROJECT
   call GT_Ok("  the README still lists it, plugin or no plugin",
-    \ !empty(filter(copy(GrooVim_ShortcutsMarkdown()), 'v:val =~ "NERDTree"')),
+    \ !empty(filter(copy(GrooVim_ShortcutsMarkdown()), 'v:val =~ "file tree"')),
     \ "   (F9 is this machine; the README is the project)")
 
   let g:enable_nerdtree_vim = 1

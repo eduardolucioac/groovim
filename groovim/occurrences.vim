@@ -155,6 +155,43 @@ func! GrooVim_PanelSetup() abort
     exec "xnoremap <buffer> <silent> " . l:key . " <Nop>"
   endfor
 
+  call GrooVim_PanelColours()
+
+endfunc
+
+" Note: A panel is not a file, and reading one as if it were leaves a wall of one
+" colour. What is in it has SHAPE: a heading, the name of a file, the rules that
+" separate one file from the next, the number of each line and the arrow on the
+" one you came from -- and each of those is worth its own colour, the way the
+" results of Notepad++ are.
+"
+" Note: The rules are put on the BUFFER and not on a file type of its own: a
+" panel is built and filled by GrooVim, so there is nothing to detect and nobody
+" else to hand this to.
+"
+" Note: "default link" so that a colour scheme can say otherwise, and to the
+" groups Vim already has: what is a file name here is what a file name is
+" anywhere, and a scheme that knows about "Directory" already knows what to do
+" with it! By Questor
+func! GrooVim_PanelColours() abort
+
+  syntax clear
+
+  " Note: The heading BEFORE the plain rule: Vim takes the first item that
+  " matches at a place, and a heading is a rule with a name in the middle of
+  " it! By Questor
+  syntax match GrooVimPanelTitle "^-\+\[ .\{-} \]-\+$"
+  syntax match GrooVimPanelRule "^-\+$"
+  syntax match GrooVimPanelFile "^/.*$"
+  syntax match GrooVimPanelHere "^->"
+  syntax match GrooVimPanelWhere "|\d\+|"
+
+  highlight default link GrooVimPanelTitle Statement
+  highlight default link GrooVimPanelRule Comment
+  highlight default link GrooVimPanelFile Directory
+  highlight default link GrooVimPanelHere Todo
+  highlight default link GrooVimPanelWhere Number
+
 endfunc
 
 " Note: And what the occurrence list puts on top of it: the bar it writes, and

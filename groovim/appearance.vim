@@ -154,17 +154,29 @@ call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 " Note: Set it to 0 to take the line away! By Questor
 let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
 
-" Note: A dark grey and not the blue that was here. The old one painted a handful
-" of characters, one per long line; this one is a column down the whole window,
-" and at that size a strong colour stops being a hint and becomes the thing you
-" look at! By Questor
-highlight ColorColumn ctermbg=236 guibg=#303030
+" Note: A teal, and darker than the text it stands beside.
+"
+" Note: It was a dark grey, which on a dark background is barely a line at all,
+" and before that a blue so strong that a column down the whole window became the
+" thing you looked at. A hue of its own reads as a RULE and not as a shadow, and
+" being dark keeps it behind the text.
+"
+" Note: One cell wide, and there is no way around that: a terminal has no half
+" column to draw in. What can be chosen is the colour, and this is the choice! By
+" Questor
+highlight ColorColumn ctermbg=23 guibg=#005f5f
 
 " Note: "colorcolumn" is window local, so it is set on entering a window, the
-" same way the symbols are! By Questor
+" same way the symbols are.
+"
+" Note: And ONLY where a file is edited. The line marks where a line of text gets
+" too long, which means nothing in a window that holds no text of yours: it was
+" being drawn down the occurrence list, the list of marks, the tree and the help,
+" over lists whose lines are as long as they need to be! By Questor
 func! GrooVim_EdgeSet() abort
   try
-    let &l:colorcolumn = g:GrooVim_EdgeColumn > 0 ? string(g:GrooVim_EdgeColumn) : ""
+    let &l:colorcolumn = g:GrooVim_EdgeColumn > 0 && &buftype ==# ""
+     \ ? string(g:GrooVim_EdgeColumn) : ""
   catch
   endtry
 endfunc

@@ -38,7 +38,7 @@ func! GT_Body()
   " ---- the bar
   let [l:text, l:at] = GrooVim_MenuBarText()
   call GT_Ok("the bar names the four sections",
-    \ l:text ==# " F2 Edit  F3 Search  F4 Plugins  F5 Editor ", "   [" . l:text . "]")
+    \ l:text ==# " F2 Edit  F3 Search  F4 Utils  F5 Editor ", "   [" . l:text . "]")
   call GT_Ok("and says where each one begins", len(l:at) == 4 && l:at[0][0] == 1 &&
     \ strpart(l:text, l:at[3][0] - 1, 3) ==# " F5", "   " . string(l:at))
 

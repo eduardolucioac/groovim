@@ -186,9 +186,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
     - `End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
 
- * **F4** and then... *(The installed plugins and what they do)*
+ * **F4** and then... *(The tools beside the text: the file tree, the marked lines)*
 
-    - `n` - Opens/closes the NERDTree *(normal mode/insert/visual)*;
+    - `n` - Opens/closes the file tree *(normal mode/insert/visual)*;
     - `b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `l` - Lists every marked line, to walk between them *(normal mode/insert/visual)*;
