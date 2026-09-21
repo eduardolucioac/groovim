@@ -36,20 +36,23 @@ let g:GrooVim_Bookmarks = get(g:, "GrooVim_Bookmarks", {})
 let s:group = "GrooVim_Bookmarks"
 
 let g:GrooVim_BookmarkSign = get(g:, "GrooVim_BookmarkSign", "⚑")
-let g:GrooVim_BookmarkNoteSign = get(g:, "GrooVim_BookmarkNoteSign", "+")
+let g:GrooVim_BookmarkNoteSign = get(g:, "GrooVim_BookmarkNoteSign", "i")
 
 " Note: Every sign has to be ONE cell wide. The margin is two cells and Vim puts
 " a space after the sign, so a sign of two cells leaves the text of that one line
 " shifted against every other line of the file. Measured on the sign the plugin
 " ships, "☰": "strwidth" says 2 against 1 for the flag! By Questor
 func! GrooVim_BookmarksDefine() abort
+  " Note: The flag of a plain mark keeps the colour it had. The one of a line
+  " with something written on it is YELLOW and says "i": it is another thing to
+  " find at a glance, not the same thing in another shade! By Questor
   highlight default link GrooVim_BookmarkSignHl Identifier
-  highlight default link GrooVim_BookmarkNoteSignHl Todo
+  highlight GrooVim_BookmarkNoteSignHl ctermfg=yellow guifg=yellow ctermbg=NONE guibg=NONE
   call sign_define("GrooVim_Bookmark",
    \ {"text": strwidth(g:GrooVim_BookmarkSign) == 1 ? g:GrooVim_BookmarkSign : ">",
    \  "texthl": "GrooVim_BookmarkSignHl"})
   call sign_define("GrooVim_BookmarkNote",
-   \ {"text": strwidth(g:GrooVim_BookmarkNoteSign) == 1 ? g:GrooVim_BookmarkNoteSign : "+",
+   \ {"text": strwidth(g:GrooVim_BookmarkNoteSign) == 1 ? g:GrooVim_BookmarkNoteSign : "i",
    \  "texthl": "GrooVim_BookmarkNoteSignHl"})
 endfunc
 
@@ -243,31 +246,166 @@ func! GrooVim_BookmarkWalk(forward) abort
 
 endfunc
 
-" Note: Every mark of every file, in the quickfix list -- which is the list Vim
-" itself uses for anything you walk through, so Enter opens the line and the
-" keys you already know work on it.
+" Note: The list of marks, built the way the occurrence list of F3 is built --
+" the same panel, the same shape and the same keys, because a list of places in
+" your files is a list of places in your files. What differs is what is listed
+" and what Enter does with it.
 "
-" Note: With a name written on it. A quickfix window says on its bar the COMMAND
-" that filled it when nobody says otherwise! By Questor
-func! GrooVim_BookmarkList() abort
+" Note: It was a quickfix window before, which is what Vim offers and what that
+" plugin used. A quickfix window writes on its bar the COMMAND that filled it,
+" knows nothing about separating one file from another, and does not put a mark
+" on the line you came from! By Questor
+let s:panel = "GrooVim_BookmarksList"
+let s:lines = ""
+let s:nav = []
 
-  let l:entries = []
+" Note: One line of the list, and its entry in the navigation array beside it.
+" An entry is "line,path" and a "0" is a line you cannot jump from -- a
+" separator, the name of a file. Read from the ENDS, because a path is allowed
+" to carry a comma of its own! By Questor
+func! GrooVim_BookmarkPanelLine(number, text, path) abort
+  if a:number > 0
+    let l:prefix = "|" . a:number . "|        "
+    let s:lines = s:lines . strpart(l:prefix, 0, 8) . a:text . "\n"
+    call add(s:nav, a:number . "," . a:path)
+  else
+    let s:lines = s:lines . a:text . "\n"
+    call add(s:nav, "0")
+  endif
+endfunc
+
+" Note: What a marked line shows: the text of the line, and what is written on it
+" after it. A line with a note is still a line, and hiding it behind the note
+" leaves you reading a note with no idea where it is! By Questor
+func! GrooVim_BookmarkPanelText(one) abort
+  let l:text = a:one.text ==# "" ? "empty line" : a:one.text
+  return a:one.note ==# "" ? l:text : l:text . " [i: " . a:one.note . "]"
+endfunc
+
+func! GrooVim_BookmarkPanelBuild() abort
+
+  let s:lines = ""
+  let s:nav = []
+  let l:first = 1
+
   for l:file in sort(keys(g:GrooVim_Bookmarks))
     call GrooVim_BookmarksRefresh(l:file)
-    for l:one in sort(copy(GrooVim_BookmarksOf(l:file)), {a, b -> a.line - b.line})
-      call add(l:entries, {"filename": l:file, "lnum": l:one.line,
-       \ "text": l:one.note ==# "" ? (l:one.text ==# "" ? "empty line" : l:one.text)
-       \                           : "Note: " . l:one.note})
+    let l:marks = sort(copy(GrooVim_BookmarksOf(l:file)), {a, b -> a.line - b.line})
+    if empty(l:marks)
+      continue
+    endif
+    call GrooVim_BookmarkPanelLine(0, l:first
+     \ ? "-------------------------------------------[ Bookmarks ]-------------------------------------------"
+     \ : "-----------------------------------------------------------------------------------------------------", "")
+    let l:first = 0
+    call GrooVim_BookmarkPanelLine(0, l:file, "")
+    call GrooVim_BookmarkPanelLine(0, "-----------------------------------------------------------------------", "")
+    for l:one in l:marks
+      call GrooVim_BookmarkPanelLine(l:one.line, GrooVim_BookmarkPanelText(l:one), l:file)
     endfor
   endfor
 
-  if empty(l:entries)
+  return !empty(s:nav)
+
+endfunc
+
+" Note: "Bookmarks (N marks in M files)", the way the bar of the occurrence list
+" says "Search ... (N hits in M files ...)". Everything comes from the navigation
+" array that was already built! By Questor
+func! GrooVim_BookmarkPanelBar() abort
+  let l:marks = 0
+  let l:files = {}
+  for l:entry in s:nav
+    if l:entry !=# "0"
+      let l:marks = l:marks + 1
+      let l:files[join(split(l:entry, ",")[1:], ",")] = 1
+    endif
+  endfor
+  return "Bookmarks (" . l:marks . (l:marks == 1 ? " mark in " : " marks in ") .
+   \ len(l:files) . (len(l:files) == 1 ? " file)" : " files)")
+endfunc
+
+func! GrooVim_BookmarkPanelSetup() abort
+  call GrooVim_PanelSetup()
+  let &l:statusline = "%!GrooVim_BookmarkPanelBar()"
+  nnoremap <buffer> <silent> <Enter> :call GrooVim_BookmarkNavigate()<cr>
+  nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_BookmarkNavigate()<cr>
+endfunc
+
+" Note: Every mark of every file! By Questor
+func! GrooVim_BookmarkList() abort
+
+  if !GrooVim_BookmarkPanelBuild()
     call GrooVim_GrooVimBarMsg("No marks anywhere!", 4)
     return
   endif
 
-  call setqflist([], " ", {"title": "Bookmarks", "items": l:entries})
-  belowright copen
+  " Note: The list of a tab is ONE list: asked for again, it is filled again
+  " where it already is instead of a second one being opened under it! By Questor
+  if GrooVim_PanelFocus(s:panel, 0)
+    call GrooVim_BookmarkPanelFill()
+    return
+  endif
+
+  call GrooVim_PutOnEditWindow()
+  setlocal ma
+  exec "set splitbelow"
+  silent exec "split " . s:panel
+  call GrooVim_BookmarkPanelFill()
+  setlocal cursorline
+  call GrooVim_BookmarkPanelSetup()
+
+endfunc
+
+" Note: "norm!" and not "norm": inside the panel the keys that edit are mapped to
+" nothing, and without the "!" this would run through them and do nothing at
+" all! By Questor
+func! GrooVim_BookmarkPanelFill() abort
+  setlocal ma
+  exec "norm! ggdG"
+  exec "put =s:lines"
+  exec "norm! ggdd"
+  setlocal noma nomodified
+endfunc
+
+" Note: Opens the marked line of the line the cursor is on -- Enter, or a double
+" click, which is what the key means in every list of GrooVim.
+"
+" Note: And the list is built again with an "->" on the line you jumped FROM, so
+" that coming back to it you can see where you were. It is what the occurrence
+" list does! By Questor
+func! GrooVim_BookmarkNavigate() abort
+
+  let l:at = getpos(".")
+  let l:index = l:at[1] - 1
+  if l:index < 0 || l:index >= len(s:nav) || s:nav[l:index] ==# "0"
+    return
+  endif
+
+  let l:entry = split(s:nav[l:index], ",")
+  let l:line = l:entry[0]
+  let l:path = join(l:entry[1:], ",")
+
+  call GrooVim_BookmarkPanelFill()
+  call setpos(".", l:at)
+  setlocal ma
+  exec "norm! 0i->"
+  setlocal noma nomodified
+
+  " Note: The file may not be open any more. Notepad++ opens the document again
+  " when you click a result of a file that is not open, and this does the same --
+  " above the list, so the list stays where it is! By Questor
+  if !GrooVim_PanelFocus(l:path, 1)
+    if GrooVim_SearchGuyTabHasFile()
+      exec "tabnew " . fnameescape(l:path)
+    else
+      call GrooVim_PanelFocus(s:panel, 0)
+      exec "aboveleft split " . fnameescape(l:path)
+    endif
+  endif
+
+  call setpos(".", [0, str2nr(l:line), 1, 0])
+  normal! ^
 
 endfunc
 

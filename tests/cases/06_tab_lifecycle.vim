@@ -28,7 +28,7 @@ call GT_Ok("the other tab was left alone", GT_Layout() ==# "[a.txt+GrooVim_Searc
 exec "tabnew " . g:GT_FIX . "/b.txt"
 sleep 80m
 call GT_Ok("built tab 2 again", tabpagenr("$") == 2, "   " . GT_Layout())
-call GrooVim_SearchGuyFocusWindow(g:GT_FIX . "/b.txt", 1)
+call GrooVim_PanelFocus(g:GT_FIX . "/b.txt", 1)
 quit
 sleep 80m
 call GT_Ok(":q on the file closed the TAB", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")   " . GT_Layout())
@@ -43,7 +43,7 @@ call GT_Ok("opened the closed file again", expand('%:t') ==# "b.txt", "   [" . e
 call GT_Ok("the reopened tab came WITH the list", GT_PanelsInTab() == 1, "   (panels " . GT_PanelsInTab() . ")   " . GT_Layout())
 
 " ---- the list alone does not hold the tab open
-call GrooVim_SearchGuyFocusWindow(g:GT_FIX . "/b.txt", 1)
+call GrooVim_PanelFocus(g:GT_FIX . "/b.txt", 1)
 quit
 sleep 80m
 call GT_Ok("the list alone did not hold the tab", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")   " . GT_Layout())

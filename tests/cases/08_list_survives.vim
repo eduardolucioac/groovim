@@ -12,13 +12,13 @@ sleep 80m
 call GT_Ok("setup: two tabs with a list", tabpagenr("$") == 2, "   " . GT_Layout())
 
 " ---- close the file of tab 2: the tab goes, because there is another one
-call GrooVim_SearchGuyFocusWindow(g:GT_FIX . "/b.txt", 1)
+call GrooVim_PanelFocus(g:GT_FIX . "/b.txt", 1)
 quit
 sleep 80m
 call GT_Ok("with another tab: the tab of the closed file goes", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")   " . GT_Layout())
 
 " ---- close the LAST file: the list STAYS
-call GrooVim_SearchGuyFocusWindow(g:GT_FIX . "/a.txt", 1)
+call GrooVim_PanelFocus(g:GT_FIX . "/a.txt", 1)
 quit
 sleep 120m
 call GT_Ok("last file closed, the list STAYS", GT_PanelsInTab() == 1, "   " . GT_Layout())

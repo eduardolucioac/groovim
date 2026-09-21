@@ -180,7 +180,7 @@ endfunc
 
 " Goes to the list window of the current tab. Returns 1 when it got there.
 func! GT_GoToList()
-  return GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
+  return GrooVim_PanelFocus("GrooVim_SearchGuyResults", 0)
 endfunc
 
 " Builds the state a search with list would leave, without relying on the keys.

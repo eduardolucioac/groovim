@@ -106,8 +106,14 @@ func! GrooVim_SearchGuySync() abort
 endfunc
 
 " Note: Turns the window into what it really is: a list you read and navigate,
-" never one you type into! By Questor
-func! GrooVim_SearchGuyPanelSetup() abort
+" never one you type into.
+"
+" Note: Written for the occurrence list and used by the list of marks too. What
+" is here is what ANY panel of GrooVim needs -- a buffer that is not a file, that
+" cannot be typed into, and where every key that would change text does nothing.
+" What each panel puts on top of it is its own: the bar it writes and what Enter
+" does on a line! By Questor
+func! GrooVim_PanelSetup() abort
 
   " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
   " forgot to save: it was showing up as modified and listed in ":ls"! By Questor
@@ -118,15 +124,6 @@ func! GrooVim_SearchGuyPanelSetup() abort
   setlocal bufhidden=wipe
   setlocal noswapfile
   setlocal nobuflisted
-
-  " Note: The bar of the list says what Notepad++ says on its "Search results":
-  " the value, the hits, the files. Line, column and percentage mean nothing
-  " here! By Questor
-  let &l:statusline = "%!GrooVim_SearchGuyBar()"
-
-  " Note: "Enter" to jump to the occurrence, which is what the key means
-  " everywhere else in a list. A double click does the same! By Questor
-  nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
 
   " Note: The buffer is already "nomodifiable", so these keys could only produce
   " an "E21" error. Turned off, they simply do nothing.
@@ -160,6 +157,24 @@ func! GrooVim_SearchGuyPanelSetup() abort
 
 endfunc
 
+" Note: And what the occurrence list puts on top of it: the bar it writes, and
+" what Enter does on a line! By Questor
+func! GrooVim_SearchGuyPanelSetup() abort
+
+  call GrooVim_PanelSetup()
+
+  " Note: The bar of the list says what Notepad++ says on its "Search results":
+  " the value, the hits, the files. Line, column and percentage mean nothing
+  " here! By Questor
+  let &l:statusline = "%!GrooVim_SearchGuyBar()"
+
+  " Note: "Enter" to jump to the occurrence, which is what the key means
+  " everywhere else in a list. A double click does the same! By Questor
+  nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
+  nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_SearchGuyNavigate()<cr>
+
+endfunc
+
 " Note: "Search \"value\" (N hits in M files of K searched)", the way Notepad++
 " reports it. Everything comes from the navigation array that was already being
 " built: an entry is either an occurrence ("tab,file,line,column") or a "0" for
@@ -190,7 +205,7 @@ endfunc
 " Note: Walks the windows of the CURRENT tab looking for one, and says whether it
 " found it. The name is a pattern for the list and an exact full path for a file!
 " By Questor
-func! GrooVim_SearchGuyFocusWindow(name, byPath) abort
+func! GrooVim_PanelFocus(name, byPath) abort
   for l:window in range(1, winnr("$"))
     exec l:window . "wincmd w"
     if a:byPath
@@ -221,7 +236,7 @@ func! GrooVim_SearchGuyFindFile(path) abort
   let l:tabNow = tabpagenr()
   for l:tab in range(1, tabpagenr("$"))
     exec "tabn " . l:tab
-    if GrooVim_SearchGuyFocusWindow(a:path, 1)
+    if GrooVim_PanelFocus(a:path, 1)
       return 1
     endif
   endfor
@@ -343,7 +358,7 @@ func! GrooVim_SearchGuyNavigate() range abort
 
       " Note: Only if this tab still has a list. Rebuilding it is what puts the
       " "->" on the line you are jumping from! By Questor
-      if GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
+      if GrooVim_PanelFocus("GrooVim_SearchGuyResults", 0)
         setlocal ma
         " Note: "norm!" for the same reason as in "GrooVim_SearchGuySync()":
         " these run inside the list, where "d", "i" and friends are mapped to
@@ -370,7 +385,7 @@ func! GrooVim_SearchGuyNavigate() range abort
           " kept the results. The file joins it right here, above the list, so the
           " results stay where they are instead of being left behind in a tab of
           " their own! By Questor
-          call GrooVim_SearchGuyFocusWindow("GrooVim_SearchGuyResults", 0)
+          call GrooVim_PanelFocus("GrooVim_SearchGuyResults", 0)
           exec "aboveleft split " . fnameescape(l:entryPath)
         endif
       endif
@@ -382,7 +397,7 @@ func! GrooVim_SearchGuyNavigate() range abort
         call GrooVim_SearchGuySync()
         " Note: "Sync" leaves you inside the list it has just built, so come back
         " to the file before placing the cursor on the occurrence! By Questor
-        call GrooVim_SearchGuyFocusWindow(l:entryPath, 1)
+        call GrooVim_PanelFocus(l:entryPath, 1)
       endif
 
       call setpos(".", [0, l:entryLine, l:entryColumn])

@@ -17,7 +17,7 @@ call GT_Ok("the tab line does not name the list", GrooVim_TabLine() !~ "SearchGu
 call GT_Ok("the list does not count as a window", GrooVim_TabLine() !~ " 2 ", "   [" . substitute(GrooVim_TabLine(), '%#\w*#\|%\d*T', '', 'g') . "]")
 
 " ---- the "+" for modified still shows
-call GrooVim_SearchGuyFocusWindow(g:GT_FIX . "/b.txt", 1)
+call GrooVim_PanelFocus(g:GT_FIX . "/b.txt", 1)
 call append(1, "dirty")
 call GT_Ok("the tab line shows the + for modified", GrooVim_TabLine() =~ "+", "   [" . substitute(GrooVim_TabLine(), '%#\w*#\|%\d*T', '', 'g') . "]")
 

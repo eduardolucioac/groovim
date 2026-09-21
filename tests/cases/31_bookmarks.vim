@@ -108,24 +108,49 @@ func! GT_AfterNote()
   call GT_Ok("  and it is not a grey band",
     \ synIDattr(synIDtrans(hlID("SignColumn")), "bg", "cterm") ==# "", "")
 
-  " ---- the list, and the signs that must NOT go down while it has the focus
+  " ---- the list, built the way the occurrence list of F3 is built
+  "
+  " The same panel, the same shape and the same keys, because a list of places in
+  " your files is a list of places in your files. It was a quickfix window
+  " before, which writes on its bar the COMMAND that filled it, knows nothing
+  " about separating one file from another and puts no mark on the line you came
+  " from.
   call GrooVim_BookmarkList()
-  call GT_Ok("the list opens as a quickfix window", &buftype ==# "quickfix",
-    \ "   [" . &buftype . "]")
-  call GT_Ok("  called by its name", get(w:, "quickfix_title", "") ==# "Bookmarks",
-    \ "   [" . get(w:, "quickfix_title", "") . "]")
-  call GT_Ok("  with a line for each mark, the note among them",
-    \ len(getqflist()) == 2 &&
-    \ !empty(filter(map(getqflist(), 'v:val.text'), 'v:val =~ "olhar isto"')),
-    \ "   " . string(map(getqflist(), 'v:val.text')))
+  call GT_Ok("the list is a panel of GrooVim, not a quickfix window",
+    \ bufname("%") =~ "GrooVim_BookmarksList" && &buftype ==# "nofile",
+    \ "   [" . bufname("%") . "] buftype [" . &buftype . "]")
+  call GT_Ok("  and it is set up like the occurrence list",
+    \ GT_FunctionText("GrooVim_BookmarkPanelSetup") =~ "GrooVim_PanelSetup",
+    \ "   (one place says what a panel of GrooVim is)")
+
+  let g:GT_PANEL = getline(1, "$")
+  call GT_Ok("  with a heading of its own", g:GT_PANEL[0] =~ "\\[ Bookmarks \\]",
+    \ "   [" . g:GT_PANEL[0][0:60] . "]")
+  call GT_Ok("  the file named under it", g:GT_PANEL[1] ==# g:GT_FILE,
+    \ "   [" . g:GT_PANEL[1] . "]")
+  call GT_Ok("  and a line for each mark, numbered", g:GT_PANEL[3] =~ '^|2|' &&
+    \ g:GT_PANEL[4] =~ '^|5|', "   " . string(g:GT_PANEL[3:4]))
+  call GT_Ok("a note comes WITH the line it is on",
+    \ g:GT_PANEL[4] =~ 'cinco \[i: olhar isto\]',
+    \ "   [" . g:GT_PANEL[4] . "]   (a note with no line leaves you reading a note)")
+  call GT_Ok("and the bar says what is in the list",
+    \ GrooVim_BookmarkPanelBar() ==# "Bookmarks (2 marks in 1 file)",
+    \ "   [" . GrooVim_BookmarkPanelBar() . "]")
+
   call GT_Ok("  and the marks are STILL on the file", GT_Signs() ==# [2, 5],
     \ "   " . string(GT_Signs()) . "   (the plugin left none while the list had the focus)")
 
-  call cursor(1, 1)
+  call cursor(4, 1)
   call feedkeys("\<Enter>", "x")
   call GT_Ok("Enter on a line of the list opens it",
     \ expand("%:p") ==# g:GT_FILE && line(".") == 2,
     \ "   (" . expand("%:t") . " line " . line(".") . ")")
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  call GT_Ok("  and the list keeps an arrow on the line you came from",
+    \ getline(4) =~ '^->|2|', "   [" . getline(4) . "]")
+  call GT_Ok("  and a double click inside it does what Enter does",
+    \ maparg("<2-LeftMouse>", "n") =~ "BookmarkNavigate",
+    \ "   [" . maparg("<2-LeftMouse>", "n") . "]")
 
   " ---- what is kept on disk
   call GrooVim_BookmarksSave()
