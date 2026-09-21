@@ -435,8 +435,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n*o*  Features".
 \"\n ".
-\"\n |-|Allows replication of the last command just by pressing the last |F| used. If in a given interval a key combination is not informed the last command is repeated;".
-\"\n |-|If |F| is hold down the command is replicated several times;".
+\"\n |-|Every |F| key remembers the last command IT ran, and runs it again when you press it with no key after it. |F2| repeats what |F2| did and |F3| what |F3| did -- one memory each, so a command of another group can never come out of this one;".
+\"\n |-|Pressing the same |F| key TWICE repeats at once, without waiting for a second key that is not coming. And if you hold it down the command is replicated several times;".
 \"\n |-|You have a whole second to press the second key. GrooVim waits for it instead of giving up, which matters on the long trips of the keyboard -- an |F| key at one corner and an arrow at the other. Change it with|let|g:GrooVim_CommandZWait|=|1500| ;".
 \"\n".
 \ GrooVim_ShortcutsHelp() .

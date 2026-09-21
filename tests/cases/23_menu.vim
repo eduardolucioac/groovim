@@ -155,7 +155,6 @@ func! GT_Body()
   endwhile
   call GT_Ok("Down walked to it, stepping over the rules", GT_MenuAt() == l:which,
     \ "   (line " . GT_MenuAt() . " of " . l:which . " in " . l:tries . " steps)")
-  let g:GrooVim_CommandZMoment = 0
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<CR>")
   call feedkeys("", "x")
   call GT_Ok("choosing it opened a tab, like pressing F5 and then n",
@@ -204,7 +203,6 @@ func! GT_Body()
   endfor
   call test_setmouse(popup_getpos(GT_MenuDrop()).core_line + l:which - 1,
     \ popup_getpos(GT_MenuDrop()).core_col + 2)
-  let g:GrooVim_CommandZMoment = 0
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
   call feedkeys("", "x")
   call GT_Ok("a click on a line runs it", tabpagenr("$") == 2,

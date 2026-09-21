@@ -165,16 +165,31 @@ endfunc
 " hands! By Questor
 
 " Note: How long GrooVim waits for the SECOND key of a shortcut, in
-" milliseconds. Raise it if a shortcut of yours is being lost between the F key
-" and the letter! By Questor
+" milliseconds. It is the ONLY number the F keys have: the waiting is done in
+" slices of twenty, and when the time runs out with nothing typed, the F key
+" repeats the last command IT ran.
+"
+" Note: A whole second is not generosity, it is a measurement. With 400 here, a
+" second key pressed 600ms after the F key is LOST -- and losing it costs more
+" now than it did, because what runs in its place is the repetition. The long
+" trips of a keyboard, an F key at one corner and an arrow at the other, take
+" longer than they feel like they do.
+"
+" Note: Two numbers used to sit beside this one, and neither was about you.
+"
+" Note: "CommandZSettle" waited 400ms before looking for the key the FIRST time,
+" because a terminal sends an F key as an escape sequence and reading before it
+" has all landed reads nothing. Measured with real keys through a real terminal:
+" 0ms fails, 5ms already works on all four F keys, the longest sequence
+" included. So the 400 were eighty times what was needed, and EVERY shortcut
+" paid them before doing anything. The first slice of the waiting does that job
+" now.
+"
+" Note: "CommandZRepeat" was a window for pressing the same F key twice to mean
+" "do that again", and it could never be met: the clock ran from the first press,
+" which itself burned the 400ms above, so it always read 402 to 404ms against a
+" limit of 400. Repeating cost 1.3 seconds and went through the waiting every
+" time. The same F key pressed again is read as a KEY now, and repeats at once --
+" nothing is timed! By Questor
 let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 1000)
-
-" Note: How long it waits before LOOKING for that key the first time. A terminal
-" sends an arrow or an F key as an escape sequence, and reading before it has all
-" landed reads nothing! By Questor
-let g:GrooVim_CommandZSettle = get(g:, "GrooVim_CommandZSettle", 400)
-
-" Note: How close together the SAME F key has to be pressed to mean "do that
-" again", in milliseconds! By Questor
-let g:GrooVim_CommandZRepeat = get(g:, "GrooVim_CommandZRepeat", 400)
 

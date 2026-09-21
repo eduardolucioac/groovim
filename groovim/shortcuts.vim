@@ -1,7 +1,4 @@
-let g:GrooVim_CommandZMoment = 0
-let g:GrooVim_CommandZChar = ""
 let g:GrooVim_CommandZUnblock = 1
-let g:GrooVim_CommandZFCaller = ""
 " Note: The cursor keeps the colour of the mode the key was pressed in, for as
 " long as the shortcut takes.
 "
@@ -37,57 +34,76 @@ func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
 
 endfunc
 
+" Note: What each F key repeats. One entry per group, because F2 remembering what
+" F3 did is not a memory, it is a mix-up: measured with real keys, "F3 d" and then
+" "F2 c" and then F3 alone did NOTHING, because the F2 had taken the only slot
+" there was and a slot of another key is thrown away! By Questor
+let g:GrooVim_CommandZChars = {"F2": "", "F3": "", "F4": "", "F5": ""}
+
+" Note: The key each group is pressed with, so that a key read here can be told
+" apart from the letter of a shortcut! By Questor
+let s:GrooVim_CommandZKeys = {"F2": "\<f2>", "F3": "\<f3>", "F4": "\<f4>", "F5": "\<f5>"}
+
+" Note: For the two commands that have to put their own key back: a macro replays
+" F keys, and replaying them writes over what the group was repeating! By Questor
+func! GrooVim_CommandZRemember(group, char) abort
+  let g:GrooVim_CommandZChars[a:group] = a:char
+endfunc
+
+func! GrooVim_CommandZForget(group) abort
+  let g:GrooVim_CommandZChars[a:group] = ""
+endfunc
+
 func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
-
-  let l:GrooVim_CommandZNowChar = ""
-
-  " Note: This logic allows rerun the last command just using an F key (1, 2, 3...). If
-  " there is a single F? in few milliseconds, the last command is executed without
-  " waiting for a new key to compose a command. If a new key was informed fast enough
-  " it rerun the last command! If an different F? is informed it will wait for a key
-  " combination to compose the command! By Questor
-
-  let l:GrooVim_CommandZMomentNow = GrooVim_GetMilliseconds()
 
   " Note: Clears the screen before reading the next key of the combination! By Questor
   redraw!
 
-  if (l:GrooVim_CommandZMomentNow - g:GrooVim_CommandZMoment) > g:GrooVim_CommandZRepeat || g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow
+  " Note: Waits for the second key, in slices of twenty milliseconds.
+  "
+  " Note: The FIRST slice is what lets the key arrive. A terminal sends an F key
+  " as an escape sequence, and reading before it has all landed reads nothing --
+  " measured with real keys through a real terminal, with no wait at all the
+  " second key is never seen. Five milliseconds were already enough on all four F
+  " keys; twenty is the slice, and the slice does that job.
+  "
+  " Note: And it goes on waiting to the end of the budget, because one flat sleep
+  " gives up on anyone slower than itself: measured, a second key pressed 600ms
+  " after the F key is lost with a budget of 400! By Questor
+  let l:key = ""
+  let l:waited = 0
+  while l:key == "" && l:waited < g:GrooVim_CommandZWait
+    sleep 20m
+    let l:waited = l:waited + 20
+    let l:key = getchar(0)
+  endwhile
 
-    " Note: Waits for the second key, and goes on waiting in small slices.
-    "
-    " Note: The first sleep is what lets the key ARRIVE -- a terminal sends an
-    " arrow as an escape sequence, and reading before it has all landed reads
-    " nothing. It is also what settles whatever the mapping itself left behind:
-    " asking "getchar" straight away, with no sleep at all, picked up the wrong
-    " key and the real one then ran as itself. Measured, and the whole battery
-    " said so.
-    "
-    " Note: What is NEW is everything after it. One flat sleep gave up on anyone
-    " slower than itself, and the second key then ran as itself: "F2" and then
-    " the Up arrow -- the longest trip on this keyboard -- was lost past 400ms
-    " while the arrow went on to move the cursor, and the tab closers went the
-    " same way back when they lived on the Shifted keys. Now the waiting goes on
-    " in 20ms slices until the key comes or the patience runs out! By Questor
-    exec "sleep " . g:GrooVim_CommandZSettle . "m"
-    let l:GrooVim_CommandZNowChar = getchar(0)
-    let l:waited = g:GrooVim_CommandZSettle
-    while l:GrooVim_CommandZNowChar == "" && l:waited < g:GrooVim_CommandZWait
-      exec "sleep 20m"
-      let l:waited = l:waited + 20
-      let l:GrooVim_CommandZNowChar = getchar(0)
-    endwhile
-    if l:GrooVim_CommandZNowChar != "" && l:GrooVim_CommandZNowChar != "\<f2>" && l:GrooVim_CommandZNowChar != "\<f3>" && l:GrooVim_CommandZNowChar != "\<f4>" && l:GrooVim_CommandZNowChar != "\<f5>"
-      let g:GrooVim_CommandZChar = l:GrooVim_CommandZNowChar
+  " Note: What was pressed, and what it means.
+  "
+  " Note: The SAME F key again means "do that again". It is read as a key and not
+  " timed, so it repeats at once and there is nothing new to remember.
+  "
+  " Note: ANOTHER F key is not a second key at all -- it is another shortcut
+  " starting -- so nothing is repeated and the key is handed back, to run as
+  " itself. It used to be swallowed here.
+  "
+  " Note: Anything else IS the second key, and it becomes what this F key repeats
+  " from now on.
+  "
+  " Note: And nothing at all, the budget spent, repeats what this key last ran.
+  " That is the whole of "do that again": press the key, do not press another! By
+  " Questor
+  if l:key != "" && l:key !=# get(s:GrooVim_CommandZKeys, a:GrooVim_CommandZFCallerNow, "")
+    if index(values(s:GrooVim_CommandZKeys), l:key) >= 0
+      call feedkeys(l:key, "t")
+      return
     endif
-    if g:GrooVim_CommandZFCaller != a:GrooVim_CommandZFCallerNow && l:GrooVim_CommandZNowChar == ""
-      let g:GrooVim_CommandZChar = ""
-    endif
+    let g:GrooVim_CommandZChars[a:GrooVim_CommandZFCallerNow] = l:key
   endif
-  " Note: To debug! By Questor
-  " echo g:GrooVim_CommandZChar
-  let g:GrooVim_CommandZMoment = l:GrooVim_CommandZMomentNow
-  if g:GrooVim_CommandZChar != "" && g:GrooVim_CommandZUnblock == 1
+
+  let l:char = get(g:GrooVim_CommandZChars, a:GrooVim_CommandZFCallerNow, "")
+
+  if l:char != "" && g:GrooVim_CommandZUnblock == 1
     " Note: Prevents rerun a command while another is in progress! By Questor
     " Note: The "try/finally" is what keeps a Ctrl-C from locking CommandZ for
     " good: interrupting a prompt raises an exception, the function used to be
@@ -110,7 +126,7 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
     for l:one in g:GrooVim_Shortcuts
 
       if l:one.group !=# a:GrooVim_CommandZFCallerNow
-       \ || !GrooVim_ShortcutIsKey(g:GrooVim_CommandZChar, l:one.key)
+       \ || !GrooVim_ShortcutIsKey(l:char, l:one.key)
        \ || stridx(l:one.modes, a:modType) < 0
         continue
       endif
@@ -133,7 +149,6 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
       let g:GrooVim_CommandZUnblock = 1
     endtry
   endif
-  let g:GrooVim_CommandZFCaller = a:GrooVim_CommandZFCallerNow
 
 endfunc
 

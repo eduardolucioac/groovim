@@ -324,6 +324,55 @@ func! GT_Body()
   call GT_Ok("F2 d does not duplicate any more", line("$") == l:before + 1,
     \ "   (" . line("$") . " lines)")
 
+  " ---- "do that again", and whose "that" it is
+  "
+  " Each F key remembers the last command IT ran. There used to be ONE memory for
+  " all four, plus a clock: measured with real keys, "F3 d" and then "F2 c" and
+  " then F3 alone did nothing at all, because the F2 had taken the only slot
+  " there was, and a slot belonging to another key was thrown away.
+  "
+  " The clock is gone too. It decided whether the same key pressed twice repeated
+  " AT ONCE or went through the whole wait first, and it could never be met: it
+  " ran from the first press, which itself spent 400ms before looking for the
+  " second key, so it always read 402 to 404ms against a limit of 400.
+  enew!
+  call setline(1, ["um", "dois", "tres"])
+  call cursor(1, 1)
+  call GT_Press("\<F3>d")
+  call GT_Ok("setup: F3 d duplicated the line", line("$") == 4, "   " . string(getline(1, "$")))
+  call GT_Press("\<F2>c")
+  call GT_Ok("setup: and F2 c ran in between", GrooVim_ClipGet() =~ "dois",
+    \ "   (it copies the whole buffer)")
+  " The key ALONE is called and not pressed. "feedkeys(..., \"x\")" runs the keys
+  " and then, when the typeahead empties while Vim is waiting for a character,
+  " hands it an <Esc> so that a script cannot hang -- measured: the F key read 27
+  " as its second key and remembered THAT. With real keys through a real terminal
+  " it repeats; the harness is what cannot press nothing.
+  call GrooVim_CommandZ("F3", "n")
+  call GT_Ok("F3 alone repeats what F3 did, not what F2 did", line("$") == 5,
+    \ "   " . string(getline(1, "$")) . "   (one memory each)")
+  call GT_Ok("  and F2 kept its own", g:GrooVim_CommandZChars["F2"] != "" &&
+    \ g:GrooVim_CommandZChars["F3"] != "" &&
+    \ g:GrooVim_CommandZChars["F2"] != g:GrooVim_CommandZChars["F3"],
+    \ "   (F2 [" . g:GrooVim_CommandZChars["F2"] . "] F3 [" . g:GrooVim_CommandZChars["F3"] . "])")
+
+  " Pressed twice, it repeats without waiting for a key that is not coming.
+  call GT_Press("\<F3>\<F3>")
+  call GT_Ok("the same key twice repeats as well", line("$") == 6,
+    \ "   (" . line("$") . " lines)")
+
+  " And another F key is not a second key: it is another shortcut starting, and
+  " it used to be swallowed here.
+  let l:lines = line("$")
+  call GT_Press("\<F3>\<F2>c")
+  call GT_Ok("another F key after F3 runs as ITSELF", line("$") == l:lines,
+    \ "   (" . line("$") . " lines, and F3 did not repeat)")
+
+  call GT_Ok("and the F keys have ONE number left",
+    \ exists("g:GrooVim_CommandZWait") && !exists("g:GrooVim_CommandZSettle")
+    \   && !exists("g:GrooVim_CommandZRepeat"),
+    \ "   (how long it waits for the second key: " . g:GrooVim_CommandZWait . "ms)")
+
   " ---- and what the duplicate must NOT do
   "
   " It used to open a line and paste into it -- "yyo<Esc>p" -- and OPENING a line

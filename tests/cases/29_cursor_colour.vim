@@ -20,7 +20,6 @@ func! GrooVim_CursorColorEmit(color) abort
 endfunc
 
 func! GT_Press(keys)
-  let g:GrooVim_CommandZMoment = 0
   call feedkeys(a:keys, "t")
 endfunc
 

@@ -253,18 +253,6 @@ func! GrooVim_EscapeSubstituteReplacement(valueToTreat) abort
   return l:replacement
 endfunc
 
-" Note: Milliseconds, used by the CommandZ timing. This used to call
-" "/bin/date", which means forking a shell on EVERY F key press. "reltime()" is
-" built into Vim and costs nothing! By Questor
-func! GrooVim_GetMilliseconds() abort
-  if exists("*reltimefloat")
-    return float2nr(reltimefloat(reltime()) * 1000)
-  endif
-  " Note: Vim without "+reltime": one second of resolution still keeps the
-  " CommandZ repetition usable! By Questor
-  return localtime() * 1000
-endfunc
-
 " Note: Allows a "super leader" that fires in any mode! With this approach I can map a
 " larger amount of keys combinations! Note the use of the keys z, a and t in leader
 " commands required for certain worarounds! By Questor

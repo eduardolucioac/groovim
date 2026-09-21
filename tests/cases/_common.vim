@@ -108,15 +108,18 @@ func! GT_WhenTry(condition, nextStep, try)
   call timer_start(50, {t -> GT_WhenTry(a:condition, a:nextStep, a:try + 1)})
 endfunc
 
-" Presses an F-key shortcut, with the "do that again" logic kept out of the way.
+" Presses an F-key shortcut.
 "
-" Pressing the same F key twice within "g:GrooVim_CommandZRepeat" means "repeat
-" the last command", and two feedkeys() calls in a row from a case are
-" milliseconds apart -- so the second shortcut silently repeated the first.
-" Measured: a Title Case that followed a lowercase left the word lowercase, and
-" the case was accusing the product of a defect that was in the test.
+" There used to be a clock here to defeat: pressing the same F key twice within
+" "g:GrooVim_CommandZRepeat" meant "repeat the last command", and two feedkeys()
+" calls in a row from a case are milliseconds apart -- so the second shortcut
+" silently repeated the first. Measured: a Title Case that followed a lowercase
+" left the word lowercase, and the case was accusing the product of a defect that
+" was in the test.
+"
+" Nothing is timed any more. A shortcut repeats when its OWN key is pressed with
+" no key after it, which a case does on purpose or not at all.
 func! GT_Press(keys)
-  let g:GrooVim_CommandZMoment = 0
   call feedkeys(a:keys, "x")
 endfunc
 

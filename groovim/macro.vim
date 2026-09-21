@@ -40,10 +40,11 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
   if a:repeatExecution == 0
     exec "norm @a"
-    " Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
-    " lost in the execution of the command, not allowing simple repetition and so
-    " the workaround! By Questor
-    let g:GrooVim_CommandZChar = "119"
+    " Note: Running a macro REPLAYS keys, F keys among them, and replaying one
+    " writes over what its group was repeating. So F2 is told again that it was
+    " "w" -- this very command -- or pressing F2 alone afterwards would do
+    " whatever the macro happened to press last! By Questor
+    call GrooVim_CommandZRemember("F2", "119")
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
@@ -156,10 +157,9 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
     endif
 
-    " Note: For unknown reasons the value of the variable "g: GrooVim_CommandZChar"
-    " lost in the execution of the command, not allowing simple repetition and so
-    " the workaround! By Questor
-    let g:GrooVim_CommandZChar = "101"
+    " Note: The same as above, for the macro that runs a number of times! By
+    " Questor
+    call GrooVim_CommandZRemember("F2", "101")
 
     let g:GrooVim_XenPlayRunningWithSearch = 0
 
@@ -209,7 +209,7 @@ endfunc
 " what anybody means by "do that again"! By Questor
 func! GrooVim_DuplicateSelection() abort
   call GrooVim_DuplicateVisualSelection()
-  let g:GrooVim_CommandZChar = ""
+  call GrooVim_CommandZForget("F3")
 endfunc
 
 func! GrooVim_DuplicateVisualSelection() range abort
