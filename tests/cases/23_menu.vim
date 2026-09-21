@@ -242,8 +242,11 @@ func! GT_Body()
   " is "timeoutlen" -- a second, with "^[" sitting in the corner.
   call GT_Ok("the wait for the rest of a key is short", &ttimeout && &ttimeoutlen <= 200,
     \ "   (ttimeout=" . &ttimeout . " ttimeoutlen=" . &ttimeoutlen . ")")
+  " Not a number of its own: what is checked is that the two waits are not the
+  " same thing. One is the rest of a key code, which a keyboard sends in one go;
+  " the other is a hand travelling from an F key to a letter.
   call GT_Ok("  and it is not the wait for the second key of a shortcut",
-    \ g:GrooVim_CommandZWait >= 1000,
+    \ g:GrooVim_CommandZWait > &ttimeoutlen,
     \ "   (" . g:GrooVim_CommandZWait . "ms, a hand travelling)")
 
   " ---- the colours

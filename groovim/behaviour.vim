@@ -11,8 +11,8 @@
 " Note: 150 and not less, measured by feeding an arrow one byte at a time: at 50
 " the key falls apart as soon as its bytes arrive 80ms apart, at 100 it goes at
 " 120ms, at 150 it holds. A keyboard sends the whole run in one go, but a slow
-" link does not -- and 150ms of waiting for an Esc is nothing beside the second
-" it was! By Questor
+" link does not -- and 150ms of waiting for an Esc is nothing beside the whole
+" second it was! By Questor
 set ttimeout
 set ttimeoutlen=150
 

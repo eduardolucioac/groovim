@@ -169,11 +169,20 @@ endfunc
 " slices of twenty, and when the time runs out with nothing typed, the F key
 " repeats the last command IT ran.
 "
-" Note: A whole second is not generosity, it is a measurement. With 400 here, a
-" second key pressed 600ms after the F key is LOST -- and losing it costs more
-" now than it did, because what runs in its place is the repetition. The long
-" trips of a keyboard, an F key at one corner and an arrow at the other, take
-" longer than they feel like they do.
+" Note: It is also how long "do that again" takes when you ask for it by WAITING,
+" because the two are the same instant: the moment the window closes is the
+" moment the key repeats. There is no second wait after the first.
+"
+" Note: Raise it if a second key of yours is being lost. Measured: with 400 here,
+" a second key pressed 600ms after the F key does not arrive in time, and what
+" runs in its place is the repetition -- the previous command instead of the one
+" you were typing. The long trips of a keyboard, an F key at one corner and an
+" arrow at the other, take longer than they feel like they do, and 1000 is the
+" number that held all of them.
+"
+" Note: And you can ask for "do that again" WITHOUT waiting at all: press the
+" same F key twice. That path takes 22ms and owes nothing to this number! By
+" Questor
 "
 " Note: Two numbers used to sit beside this one, and neither was about you.
 "
@@ -191,5 +200,5 @@ endfunc
 " limit of 400. Repeating cost 1.3 seconds and went through the waiting every
 " time. The same F key pressed again is read as a KEY now, and repeats at once --
 " nothing is timed! By Questor
-let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 1000)
+let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
 
