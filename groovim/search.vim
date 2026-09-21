@@ -231,6 +231,11 @@ endfunc
 " Note: Searches for current selection or word under cursor! By Questor
 let g:search_Direction = get(g:, "search_Direction", "f")
 let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
+
+" Note: The "Match whole word only" of Notepad++: with it on, "cat" stops finding
+" the "cat" inside "concatenate". Off by default, like the case, and asked on the
+" search screen of "F5->c" beside it! By Questor
+let g:searchReplace_WholeWord = get(g:, "searchReplace_WholeWord", 0)
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range abort
 

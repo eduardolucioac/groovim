@@ -191,8 +191,14 @@ func! GT_Body()
   " ---- the debugger of 2014 is gone
   call GT_Ok("no debugger left in the source",
     \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
-  call GT_Ok("F4 answers for the tree alone",
-    \ map(GT_Of("F4"), 'v:val.key') ==# ["n"], "   " . string(map(GT_Of("F4"), 'v:val.key')))
+  " F4 is where what OPENS something lives: the tree, and the bookmarks -- lines
+  " you mark and then walk between, which is the "Search -> Bookmark" of
+  " Notepad++. Every one of them belongs to a plugin, and every one says so.
+  call GT_Ok("F4 is the tree and the bookmarks",
+    \ map(GT_Of("F4"), 'v:val.key') ==# ["n", "b", "down", "up", "l", "c"],
+    \ "   " . string(map(GT_Of("F4"), 'v:val.key')))
+  call GT_Ok("  and each one names the plugin it needs",
+    \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == len(GT_Of("F4")), "")
 
   " ---- a shortcut whose work belongs to a plugin says so
   "

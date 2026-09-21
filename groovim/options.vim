@@ -247,6 +247,9 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
     call GrooVim_OptsUpdate("set noignorecase", "set ignorecase", 0)
   endif
 
+  let g:searchReplace_WholeWord = GrooVim_GetOptions("Whole word only (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_WholeWord)
+  call GrooVim_OptsUpdate("let g:searchReplace_WholeWord =", "let g:searchReplace_WholeWord = " . g:searchReplace_WholeWord, 0)
+
   let g:searchReplace_InAllOpened = GrooVim_GetOptions("In all tabs (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_InAllOpened)
   call GrooVim_OptsUpdate("let g:searchReplace_InAllOpened =", "let g:searchReplace_InAllOpened = " . g:searchReplace_InAllOpened, 0)
 

@@ -166,4 +166,43 @@ call GT_Ok("  and noerrorbells alone would not have done it",
   \ &errorbells == 0,
   \ "   (it only covers errors that come WITH a message)")
 
+" ---- "Whole word only", the checkbox of Notepad++ that was missing
+"
+" The search and the replace build what they look for in ONE function, so the
+" whole word is put on there and the two agree by construction. "\\<" and "\\>"
+" are the edges of a word to Vim: with them, "cat" stops finding the "cat" inside
+" "concatenate".
+let g:GT_KEPT_WW = g:searchReplace_WholeWord
+
+let g:searchReplace_WholeWord = 0
+let g:GT_PAT = GrooVim_EscapeSubstituteValueToSearch("cat")
+call GT_Ok("off: the pattern is the value itself", g:GT_PAT ==# "cat",
+  \ "   [" . g:GT_PAT . "]")
+call GT_Ok("  and it finds the cat inside concatenate",
+  \ match("concatenate", g:GT_PAT) >= 0, "")
+
+let g:searchReplace_WholeWord = 1
+let g:GT_PAT = GrooVim_EscapeSubstituteValueToSearch("cat")
+call GT_Ok("on: the pattern carries the edges of a word", g:GT_PAT ==# '\<cat\>',
+  \ "   [" . g:GT_PAT . "]")
+call GT_Ok("  and it does NOT find it inside concatenate",
+  \ match("concatenate", g:GT_PAT) < 0, "")
+call GT_Ok("  but still finds it on its own", match("the cat sat", g:GT_PAT) >= 0, "")
+call GT_Ok("  and an empty value is left alone",
+  \ GrooVim_EscapeSubstituteValueToSearch("") ==# "",
+  \ "   (edges around nothing would match nothing)")
+call GT_Ok("and the search screen asks about it",
+  \ GT_FunctionText("GrooVim_ConfigureSearchReplace") =~ "searchReplace_WholeWord", "")
+
+let g:searchReplace_WholeWord = g:GT_KEPT_WW
+
+" ---- and the copy of a file arrives with a name already written
+"
+" "Save a Copy As" of Notepad++ opens with the name of the file in it. The second
+" argument of "input()" is the text the answer starts with, and it was not being
+" used: the name had to be typed again, letter for letter.
+call GT_Ok("the copy suggests the name of the file",
+  \ GT_FunctionText("GrooVim_SaveACopy") =~ 'input(.*expand("%:t")',
+  \ "   (an unnamed buffer has none to offer, and then it starts empty)")
+
 call GT_Done()

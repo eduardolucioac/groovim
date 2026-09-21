@@ -362,6 +362,8 @@ endfunc
 " would send an OSC 52 COPY on every paste! By Questor
 func! GrooVim_ClipPaste(mode) abort
 
+  if !GrooVim_CanChange() | return | endif
+
   let l:text = GrooVim_ClipGet()
   if l:text ==# ""
     " Note: When OSC 52 is the method, empty has a REASON worth saying. A copy

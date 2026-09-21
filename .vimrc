@@ -41,51 +41,42 @@ let g:grooVimVersion = "v3.0.0b"
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! Questor
+" Note: What this list holds is what is still OPEN. Twenty entries were closed
+" at once, each one read against the code instead of against memory: some had
+" been built (the indent per file type, the six distributions, the shell calls
+" that are gone), some were about keys that no longer exist, and some were
+" decided against and are not coming.
+"
+" Note: The ones that were BUILT the day this list was cut: a name suggested for
+" the copy of a file, "whole word only" on the search, the bookmarks of F4, and
+" the keys that edit saying so instead of answering "E21" inside a buffer that
+" refuses to change.
+"
+" Note: Nothing is written here that the code already answers. A list that
+" repeats the code goes stale in the dark; this one is for what the code does
+" NOT say! By Questor
 
-" Bug: The "F3+c" ("GrooVim_CommandZ()") functionality must be disabled for NerdTree (interface problems)! Questor
-
-" ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! Questor
-
-" ToDo: Create a configuration scheme according to the type of file. This scheme  must be in the end of ".vimrc"
-" to work properly! Questor
-
-" ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease
-" of maintenance! (EXAMINE THIS POSSIBILITY) Questor
-
-" ToDo: Improve syntax and lexers (mainly for python)! By Questor
-
-" ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
-
-" ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done
-" using a script that works according with user distro/UI! By Questor
-
-" Bug: "Enter" (carriage return) on normal mode fails for certain types of files ("GrooVim_NormalEnterOnNormalMode()")! By Questor
-
-" ToDo: Show cursor position (blink a "scope")! (NOT A PRIORITY) By Questor
-
-" ToDo: Improve the presentation of the tabs flaps. Using a similar idea to a scroll bar? (EXAMINE THIS POSSIBILITY) By Questor
+" Note: The README carried a list of its own, and the two had DRIFTED: twenty
+" eight entries there against twenty one here, with eight that had never been
+" written down in this file at all. They say the same thing now! By Questor
 
 " ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
-" Bug: Treating problem of slowness with long lines! By Questor
+" ToDo: Create a shortcut to moving between matching braces! By Questor
 
-" ToDo: Create verification of operating system for commands (shell/"system()" calls) that depend on it! By Questor
+" ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
 
-" ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at
-" vim startup (see "GrooVim_OptsUpdate()")! By Questor
+" ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
-" ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
+" ToDo: In "visual mode" "End" key must go one column less! By Questor
 
-" ToDo: Mark lines and navigate to these (bookmarks). Use "mark.vim"? By Questor
+" ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
 
-" ToDo: Create "expand/collapse an area" ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
+" ToDo: Open file passing path (use F's shortcut)! By Questor
 
-" ToDo: Test GrooVim for multiple distributions! By Questor
+" ToDo: "Power Search" -- open in Vim, from a Vim shortcut, the results of a "find" command! By Questor
 
-" Bug: Adjust colum when use "Enter" (carriage return) on end of lines! By Questor
-
-" ToDo: Treating when duplicate a selection using "F2+d" and there is a line just below the selection! By Questor
+" ToDo: Try to use the wombat256 color scheme! By Questor
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "MAIN

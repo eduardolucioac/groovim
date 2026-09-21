@@ -188,6 +188,11 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
  * **F4** and then... *(The installed plugins and what they do)*
 
     - `n` - Opens/closes the NERDTree *(normal mode/insert/visual)*;
+    - `b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
+    - `Down` - Goes to the next marked line *(normal mode/insert/visual)*;
+    - `Up` - Goes to the previous marked line *(normal mode/insert/visual)*;
+    - `l` - Lists every marked line, to walk between them *(normal mode/insert/visual)*;
+    - `c` - Takes every mark off this file *(normal mode/insert/visual)*;
 
  * **F5** and then... *(What acts on the EDITOR -- tabs, leaving -- and the settings)*
 
@@ -259,62 +264,28 @@ If you liked it, consider helping the project!
 Task List/Bugs List!
 -----
 
- * TODO: Open file passing path (use F's shortcut)! By Questor
- 
- * TODO: "Power Search" open in vim from a vim shortcut the results off a "find" command! By Questor
- 
- * TODO: In "visual mode" "End" key must go "have to go" one column less! By Questor
- 
- * TODO: Try to use wombat256 color scheme! By Questor
-    https://raw.githubusercontent.com/Lucidyan/vpyde3/master/data/wombat256mod.vim
-
- * ToDo: On "copy file" ("GrooVim_SaveACopy()") functionality suggest a name to new file automatically! By Questor
-
- * ToDo: Provide the search "for whole word only" ("GrooVim_SearchWithMyOptions()")! By Questor
-
- * ToDo: Create a shortcut to moving between matching braces! By Questor
-
- * ToDo: Create a configuration scheme according to the type of file. This scheme must be in the end of ".vimrc" to work properly! By Questor
-
- * ToDo: Using python scripts to substitute functions that use the terminal/shell to improve the operation and ease of maintenance! (EXAMINE THIS POSSIBILITY) By Questor
-
- * ToDo: Improve syntax and lexers (mainly for python)! By Questor
-
- * ToDo: Create configurable settings for each distribution (extendable to help)! By Questor
-
- * ToDo: Create OS context shortcuts (second button click context) and use double-click to open any file! This can be done using a script that works according with user distro/UI! By Questor
-
- * Bug: "Enter" (carriage return) on normal mode fails for certain types of files ("GrooVim_NormalEnterOnNormalMode()")! By Questor
-
- * ToDo: Show cursor position (blink a "scope")! (NOT A PRIORITY) By Questor
-
- * ToDo: Improve the presentation of the tabs flaps. Using a similar idea to a scroll bar? (EXAMINE THIS POSSIBILITY) By Questor
+What is still open. Twenty entries were closed at once, each one read against the
+code instead of against memory: some had been built, some were about keys that no
+longer exist, and some were decided against and are not coming. Nothing is
+written here that the code already answers.
 
  * ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
 
- * Bug: Treating problem of slowness with long lines! By Questor
-
- * ToDo: Create verification of operating system for commands (shell/"system()" calls) that depend on it! By Questor
-
- * ToDo: Create command that completely disables GrooVim. This command needs to write this option to disk to disable GrooVim at Vim startup (see "GrooVim_OptsUpdate()")! By Questor
-
- * ToDo: Review the commands that dependents of "learderkey" combinations ("GrooVim_CommandZ()")! (NOT A PRIORITY) By Questor
-
- * ToDo: Mark LINES and navigate between them (bookmarks). Marking every occurrence of a WORD is done, with "F3 m"! By Questor
-
- * ToDo: Create "expand/collapse an area" ("" TEXT AREA {{{ }}}") features and shorcuts! By Questor
-
- * ToDo: Test GrooVim for multiple distributions! By Questor
-
- * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
-
- * ToDo: Treat situations where "xset -q | grep "Caps Lock:   on"" command is not possible to check the state of capslock key! By Questor
-
- * ToDo: Create a feature to user choose between predefined syntax options... Example... Use 0 for "set syntax=html", Use one 1 to "set syntax=python"... and so on! By Questor
+ * ToDo: Create a shortcut to moving between matching braces! By Questor
 
  * ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
 
+ * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
+
+ * ToDo: In "visual mode" "End" key must go one column less! By Questor
+
  * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
+
+ * ToDo: Open file passing path (use F's shortcut)! By Questor
+
+ * ToDo: "Power Search" -- open in Vim, from a Vim shortcut, the results of a "find" command! By Questor
+
+ * ToDo: Try to use the wombat256 color scheme! By Questor
 
 <a name="buildInstallVIM"></a>
 How GrooVim is installed!
@@ -522,8 +493,8 @@ That is the whole installation. What it leaves on your machine:
 The checkout is not needed afterwards -- everything is **copied**, so you can move
 it or throw it away. To update, pull and run `./install.sh` again.
 
-The three plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**
-and **vim-move** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
+The four plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**,
+**vim-move** and **vim-bookmarks** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
 `./install.sh` again updates them. Use `--no-plugins` to leave them out: nothing
 GrooVim promises rests on one, and a shortcut whose plugin is not there says
 which one is missing instead of running.

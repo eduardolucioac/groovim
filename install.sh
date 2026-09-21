@@ -67,6 +67,7 @@ GROOVIM_PLUGINS="
 nerdtree|https://github.com/preservim/nerdtree.git|the file tree of F4->n
 tcomment_vim|https://github.com/tomtom/tcomment_vim.git|the comment toggle, which Vim has no command of its own for
 vim-move|https://github.com/matze/vim-move.git|moving a line or a selection up and down
+vim-bookmarks|https://github.com/MattesGroeger/vim-bookmarks.git|the bookmarks of F4->b, marked lines you can walk between
 "
 # Building takes minutes. An installation that is already there and serves is not
 # built again unless you say so.

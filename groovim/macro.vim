@@ -282,7 +282,14 @@ func! GrooVim_SaveACopy() range abort
       if l:valueToPath == ""
         let l:definePathWarning = " (DEFINE A PATH TOO!)"
       endif
-      let l:valueToName = input("NAME of the file copy to be saved" . l:definePathWarning . ": ")
+      " Note: The name of the file you are on comes WRITTEN in the answer, ready
+      " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
+      " does. The second argument of "input()" is the text it starts with.
+      "
+      " Note: An unnamed buffer has no name to offer, and then it starts empty as
+      " it always did! By Questor
+      let l:valueToName = input("NAME of the file copy to be saved" .
+       \ l:definePathWarning . ": ", expand("%:t"))
       if ("" . l:valueToName . "") != ""
         if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
           let l:stopWhile = 1

@@ -1,3 +1,35 @@
+" Note: The buffer you are on may refuse to be changed. The tree of NERDTree,
+" the occurrence list and the help are all like that, and a key that edits met
+" them with "E21: Cannot make changes, 'modifiable' is off" over the bar --
+" measured: Enter, Tab, Shift-Tab, Backspace, Del, Ctrl-x, Ctrl-v, p, Ctrl-r and
+" the shortcuts that edit, eleven keys of a conventional editor answering with
+" the error number of another editor entirely.
+"
+" Note: ONE function decides and says so, and it is reached two ways: the keys
+" that call a function of GrooVim ask it at the door, and the shortcuts of the F
+" keys are caught by the net at the end of the dispatch -- which needs no list of
+" what edits and what does not, and holds for shortcuts written after today.
+"
+" Note: "readonly" as well as "modifiable": a file opened with "view", or one
+" without write permission, refuses just the same! By Questor
+func! GrooVim_CanChange() abort
+  if &modifiable && !&readonly
+    return 1
+  endif
+  call GrooVim_CannotChangeSay()
+  return 0
+endfunc
+
+func! GrooVim_CannotChangeSay() abort
+  call GrooVim_GrooVimBarMsg("This one cannot be changed!", 4)
+endfunc
+
+" Note: For the keys that are raw keys and not a call: an "<expr>" mapping hands
+" back the keys themselves, or nothing at all when the buffer refuses! By Questor
+func! GrooVim_KeysIfCanChange(keys) abort
+  return GrooVim_CanChange() ? a:keys : ""
+endfunc
+
 " Note: Scrolls with the wheel allowing the cursor over "invalid" areas! By Questor
 func! GrooVim_ScrollAdm(mod, direction) range abort
   if &virtualedit == "onemore"
@@ -47,6 +79,7 @@ endfunc
 " Note: Allows redo in a conventional way in the visual mode! By Questor
 vnoremap <silent> <C-r> :<C-u>call GrooVim_VisualRedo()<cr>v
 func! GrooVim_VisualRedo() range abort
+  if !GrooVim_CanChange() | return | endif
   exec "norm \<C-r>"
 endfunc
 
@@ -59,6 +92,7 @@ endfunc
 " Note: Allows redo in a conventional way in the insert mode! By Questor
 inoremap <silent> <script> <C-r> <Esc><bar>:call GrooVim_InsertRedo()<cr>i
 func! GrooVim_InsertRedo() abort
+  if !GrooVim_CanChange() | return | endif
   exec "norm \<C-r>"
 endfunc
 
@@ -88,7 +122,7 @@ inoremap <silent> <C-v> <C-o>:call GrooVim_ClipPaste("i")<cr>
 
 " Note: Allows cut to insert mode in a conventional manner (Ctrl-x/Ctrl-v cycle)
 " (do not need the "Shift" key)! By Questor
-vnoremap <silent> <C-x> di
+vnoremap <silent> <expr> <C-x> GrooVim_KeysIfCanChange("di")
 
 " Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v cycle)
 " (do not need the "Shift" key)! By Questor
@@ -134,17 +168,20 @@ vmap <silent> <C-Left> b
 " Note: Allows "multimode" use of enter key in a conventional way! By Questor
 nnoremap <silent> <script> <Enter> :call GrooVim_NormalEnterOnNormalMode()<cr>
 func! GrooVim_NormalEnterOnNormalMode() abort
+  if !GrooVim_CanChange() | return | endif
   exec "norm i\<cr>\<Esc>"
 endfunc
 
 " Note: "Normal" backspace/delete in visual mode! By Questor
-vmap <silent> <script> <Backspace> "_x
-vmap <silent> <script> <Del> "_d
+vnoremap <silent> <expr> <Backspace> GrooVim_KeysIfCanChange('"_x')
+vnoremap <silent> <expr> <Del> GrooVim_KeysIfCanChange('"_d')
 
 " Note: Allows "multimode" use of backspace key in a conventional way! By Questor
 nmap <silent> <script> <Backspace> :call GrooVim_NormalBackspace()<cr>
 
 func! GrooVim_NormalBackspace() abort
+
+  if !GrooVim_CanChange() | return | endif
 
   let l:continue = 1
 
@@ -202,6 +239,8 @@ vnoremap <silent> <C-S-Down> :<C-U>call GrooVim_TabMove(-1)<cr>gv
 " Note: Allows "multimode" use of the Del key! By Questor
 func! GrooVim_NormalDel() abort
 
+  if !GrooVim_CanChange() | return | endif
+
   let l:continue = 1
 
   " Note: This workaround is necessary when the line is empty to remove it! By Questor
@@ -231,6 +270,7 @@ nnoremap <silent> <Tab> :call GrooVim_NormalTab()<cr>
 
 " Note: Allows Tab on normal mode when the line is empty! By Questor
 func! GrooVim_NormalTab() abort
+  if !GrooVim_CanChange() | return | endif
   if col(".") == 1 && getline(".") == ""
     exec "normal i\<Tab>"
   else
@@ -241,10 +281,10 @@ func! GrooVim_NormalTab() abort
   endif
 endfunc
 
-inoremap <silent> <S-Tab> <C-o><<
-nnoremap <silent> <S-Tab> <<
-vnoremap <silent> <Tab> >><Esc>gv
-vnoremap <silent> <S-Tab> <<<Esc>gv
+inoremap <silent> <expr> <S-Tab> GrooVim_KeysIfCanChange("\<C-o><<")
+nnoremap <silent> <expr> <S-Tab> GrooVim_KeysIfCanChange("<<")
+vnoremap <silent> <expr> <Tab> GrooVim_KeysIfCanChange(">>\<Esc>gv")
+vnoremap <silent> <expr> <S-Tab> GrooVim_KeysIfCanChange("<<\<Esc>gv")
 
 " Note: Allows Tab on normal mode when the line is empty! By Questor
 inoremap <silent> <S-Down> <Esc>v:<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v

@@ -140,7 +140,17 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
         break
       endif
 
-      call GrooVim_ShortcutRun(l:one, a:modType)
+      " Note: The net. A shortcut that edits meets a buffer which refuses with
+      " "E21", and the error of Vim is not an answer to give anybody. Caught
+      " HERE, at the one door every shortcut goes through, so that no list of
+      " what edits and what does not has to be kept -- and a shortcut written
+      " tomorrow is covered by it too. "E45" is the same thing said by a file
+      " that is read only! By Questor
+      try
+        call GrooVim_ShortcutRun(l:one, a:modType)
+      catch /E21:\|E45:/
+        call GrooVim_CannotChangeSay()
+      endtry
       break
 
     endfor

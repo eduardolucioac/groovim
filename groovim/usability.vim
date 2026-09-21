@@ -95,6 +95,27 @@ endtry
 "PLUGINS CONFIGURATION
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+"* vim-bookmarks
+
+" Note: The bookmarks: lines you mark and then walk between, with a sign drawn in
+" the margin. It is what the "Search -> Bookmark" menu of Notepad++ does.
+"
+" Note: Its own keys are OFF. The plugin asks for "mm", "mn", "mp" and more, and
+" every one of them takes the "m" of Vim -- which is how you SET A MARK. A plugin
+" that comes to help with marks must not eat the marks; the bookmarks answer on
+" F4 here, like everything else of GrooVim.
+"
+" Note: And the file it saves them in lives with the rest of what GrooVim keeps,
+" beside the undo history and the bookmarks of the tree, instead of dropping a
+" ".vim-bookmarks" in the home directory! By Questor
+let g:bookmark_no_default_key_mappings = 1
+let g:bookmark_auto_save_file = g:GrooVim_State . "/bookmarks"
+
+" Note: The sign is the one Notepad++ draws, and the line is not painted: a
+" bookmark says WHERE, it does not take the colours of the text away! By Questor
+let g:bookmark_sign = "\u2691"
+let g:bookmark_highlight_lines = 0
+
 "* NERDTree
 
 " Note: Store the bookmarks file! By Questor

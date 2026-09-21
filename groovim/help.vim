@@ -73,6 +73,21 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
  \  "what": "Opens/closes the *NERDTree*",
  \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
+ \ {"group": "F4", "key": "b", "modes": "niv", "run": 'BookmarkToggle',
+ \  "what": "Marks the line, or takes the mark off (*bookmark*)",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
+ \ {"group": "F4", "key": "down", "modes": "niv", "run": 'BookmarkNext',
+ \  "what": "Goes to the next marked line",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
+ \ {"group": "F4", "key": "up", "modes": "niv", "run": 'BookmarkPrev',
+ \  "what": "Goes to the previous marked line",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
+ \ {"group": "F4", "key": "l", "modes": "niv", "run": 'BookmarkShowAll',
+ \  "what": "Lists every marked line, to walk between them",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
+ \ {"group": "F4", "key": "c", "break": 1, "modes": "niv", "run": 'BookmarkClear',
+ \  "what": "Takes every mark off this file",
+ \  "needs": {"switch": "enable_vim_bookmarks", "name": "the vim-bookmarks plugin"}},
  \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",
  \  "notes": [
@@ -285,6 +300,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
+\"\n      |-|*bookmarks*".
+\"\n         |[https://github.com/MattesGroeger/vim-bookmarks]|".
 \"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves. *Pathogen* is recognized if you already use it, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
 \"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
 \"\n".

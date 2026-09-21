@@ -238,9 +238,24 @@ endfunc
 
 " Note: Create a search pattern! The "/" is escaped because it separates a
 " search command and the "#" because it separates a ":substitute" command! By Questor
+"
+" Note: And the whole word, when it is asked for: "\<" and "\>" are the edges of
+" a word to Vim, so "cat" stops finding the "cat" inside "concatenate". It is the
+" "Match whole word only" of Notepad++.
+"
+" Note: HERE and not at each caller, because this one function is where the
+" search and the replace both build what they look for -- one place, and the two
+" of them agree by construction.
+"
+" Note: The edges only mean something beside a letter, a digit or an underscore.
+" Asking for the whole word of "a+b" builds a pattern that matches nothing, and
+" that is what Notepad++ does with it too! By Questor
 func! GrooVim_EscapeSubstituteValueToSearch(valueToTreat) abort
   let l:pattern = escape(a:valueToTreat, '\\/.*$^~[]#')
   let l:pattern = substitute(l:pattern, "\n$", "", "")
+  if g:searchReplace_WholeWord == 1 && l:pattern != ""
+    let l:pattern = '\<' . l:pattern . '\>'
+  endif
   return l:pattern
 endfunc
 
