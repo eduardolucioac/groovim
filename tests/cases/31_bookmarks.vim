@@ -177,10 +177,25 @@ func! GT_AfterNote()
     \ "   (a heading, a file name, the rules, the numbers and the arrow)")
   call GT_Ok("  and a note is painted in the yellow of its sign",
     \ GT_FunctionText("GrooVim_BookmarkPanelSetup") =~ "GrooVimPanelNote", "")
+  " ---- and each panel wears a colour of its own
+  "
+  " The heading and the rules carry it: the list of the search in yellow, this
+  " one in green. Two panels of the same shape, told apart before you read a word
+  " of either. The heading and the rules MATCH inside each one, because a heading
+  " is a rule with a name in the middle of it.
   call GT_Ok("  the heading takes the colour of the rules around it",
-    \ synIDattr(synIDtrans(hlID("GrooVimBookmarkTitle")), "fg", "cterm")
-    \   ==# synIDattr(synIDtrans(hlID("GrooVimPanelRule")), "fg", "cterm"),
+    \ synIDattr(synIDtrans(hlID("GrooVimPanelBookmarkTitle")), "fg", "cterm")
+    \   ==# synIDattr(synIDtrans(hlID("GrooVimPanelBookmarkRule")), "fg", "cterm"),
     \ "   (a heading IS a rule with a name in the middle of it)")
+  call GT_Ok("  and the two panels are NOT the same colour",
+    \ synIDattr(synIDtrans(hlID("GrooVimPanelBookmarkRule")), "fg", "cterm")
+    \   !=# synIDattr(synIDtrans(hlID("GrooVimPanelSearchRule")), "fg", "cterm"),
+    \ "   (marks " . synIDattr(synIDtrans(hlID("GrooVimPanelBookmarkRule")), "fg", "cterm") .
+    \ ", search " . synIDattr(synIDtrans(hlID("GrooVimPanelSearchRule")), "fg", "cterm") . ")")
+  call GT_Ok("  and what is the same in both is named for the PART",
+    \ synIDattr(synIDtrans(hlID("GrooVimPanelFile")), "fg", "cterm") !=# "" &&
+    \ synIDattr(synIDtrans(hlID("GrooVimPanelWhere")), "fg", "cterm") !=# "",
+    \ "   (a file name is a file name and a line number is a line number)")
   call GT_Ok("  and the arrow is yellow letters with nothing behind them",
     \ synIDattr(synIDtrans(hlID("GrooVimPanelHere")), "bg", "cterm") ==# "",
     \ "   (\"Todo\" is yellow the other way round, and a band shouts)")

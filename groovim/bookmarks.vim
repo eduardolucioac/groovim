@@ -332,29 +332,17 @@ endfunc
 
 func! GrooVim_BookmarkPanelSetup() abort
 
-  call GrooVim_PanelSetup()
+  " Note: Green, which is the colour of this list -- the heading and the rules
+  " both, so that the one above the file name and the one below it read as the
+  " same thing. The list of the search is yellow, and that is the whole of
+  " telling one from the other at a glance! By Questor
+  call GrooVim_PanelSetup("Bookmark", "Comment")
 
   " Note: And the one colour this panel has that the other does not: what is
   " WRITTEN on a line. The same yellow as the "i" drawn in the margin, so that
   " the two are plainly the same thing said in two places! By Questor
   syntax match GrooVimPanelNote "\[i: .*\]$"
   highlight default link GrooVimPanelNote GrooVim_BookmarkNoteSignHl
-
-  " Note: And the heading of THIS panel takes the colour of the rules around it,
-  " which is the same colour the flag in the margin has. A heading IS a rule with
-  " a name in the middle of it, and having the one above the file name in one
-  " colour and the one below it in another was reading as two different things.
-  "
-  " Note: Only this panel. The one of the search keeps the colour every panel
-  " has, which is what was asked for! By Questor
-  " Note: The generic heading comes OFF this buffer first. Vim paints with the
-  " first item that matches at a place, and the one every panel has was defined
-  " before this one -- so ours would never be reached. Syntax items belong to a
-  " BUFFER, so taking it off here leaves the panel of the search as it was! By
-  " Questor
-  syntax clear GrooVimPanelTitle
-  syntax match GrooVimBookmarkTitle "^-\+\[ .\{-} \]-\+$"
-  highlight default link GrooVimBookmarkTitle GrooVimPanelRule
 
   let &l:statusline = "%!GrooVim_BookmarkPanelBar()"
   nnoremap <buffer> <silent> <Enter> :call GrooVim_BookmarkNavigate()<cr>

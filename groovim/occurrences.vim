@@ -113,7 +113,7 @@ endfunc
 " cannot be typed into, and where every key that would change text does nothing.
 " What each panel puts on top of it is its own: the bar it writes and what Enter
 " does on a line! By Questor
-func! GrooVim_PanelSetup() abort
+func! GrooVim_PanelSetup(name, hue) abort
 
   " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
   " forgot to save: it was showing up as modified and listed in ":ls"! By Questor
@@ -165,7 +165,7 @@ func! GrooVim_PanelSetup() abort
     exec "xnoremap <buffer> <silent> " . l:key . " <Nop>"
   endfor
 
-  call GrooVim_PanelColours()
+  call GrooVim_PanelColours(a:name, a:hue)
 
 endfunc
 
@@ -183,27 +183,40 @@ endfunc
 " groups Vim already has: what is a file name here is what a file name is
 " anywhere, and a scheme that knows about "Directory" already knows what to do
 " with it! By Questor
-func! GrooVim_PanelColours() abort
+func! GrooVim_PanelColours(name, hue) abort
 
   syntax clear
 
+  " Note: The heading and the rules carry the colour OF THE PANEL: the list of
+  " the search in yellow, the list of marks in green. Two panels of the same
+  " shape, told apart before you read a word of either.
+  "
+  " Note: Which is why these two groups are named for the panel and not for the
+  " part: a highlight group belongs to Vim as a whole, so one name cannot be
+  " yellow here and green there. The syntax ITEMS are of the buffer; the groups
+  " they paint with are of the panel.
+  "
   " Note: The heading BEFORE the plain rule: Vim takes the first item that
   " matches at a place, and a heading is a rule with a name in the middle of
   " it! By Questor
-  syntax match GrooVimPanelTitle "^-\+\[ .\{-} \]-\+$"
-  syntax match GrooVimPanelRule "^-\+$"
+  exec 'syntax match GrooVimPanel' . a:name . 'Title "^-\+\[ .\{-} \]-\+$"'
+  exec 'syntax match GrooVimPanel' . a:name . 'Rule "^-\+$"'
+  exec "highlight default link GrooVimPanel" . a:name . "Title " . a:hue
+  exec "highlight default link GrooVimPanel" . a:name . "Rule " . a:hue
+
+  " Note: And what is the same in both, because a file name is a file name and a
+  " line number is a line number! By Questor
   syntax match GrooVimPanelFile "^/.*$"
   syntax match GrooVimPanelHere "^->"
   syntax match GrooVimPanelWhere "|\d\+|"
 
-  highlight default link GrooVimPanelTitle Statement
-  highlight default link GrooVimPanelRule Comment
   highlight default link GrooVimPanelFile Directory
+  highlight default link GrooVimPanelWhere Number
+
   " Note: Yellow letters and nothing behind them. It was linked to "Todo", which
   " is yellow the other way round -- dark letters on a yellow band -- and a band
   " on the line you came from shouts where a mark only has to point! By Questor
   highlight default GrooVimPanelHere ctermfg=yellow guifg=#ffff60
-  highlight default link GrooVimPanelWhere Number
 
 endfunc
 
@@ -211,7 +224,9 @@ endfunc
 " what Enter does on a line! By Questor
 func! GrooVim_SearchGuyPanelSetup() abort
 
-  call GrooVim_PanelSetup()
+  " Note: Yellow, which is the colour of this list. The list of marks is green,
+  " and that is the whole of telling one from the other at a glance! By Questor
+  call GrooVim_PanelSetup("Search", "Statement")
 
   " Note: The bar of the list says what Notepad++ says on its "Search results":
   " the value, the hits, the files. Line, column and percentage mean nothing
