@@ -447,7 +447,12 @@ func! GrooVim_TabDo(command) abort
 endfunc
 com! -nargs=+ -complete=command Tabdo call GrooVim_TabDo(<q-args>)
 
-nnoremap <silent> <script> <2-Leftmouse> :call GrooVim_SelectNSearch(0, "n")<cr>
-inoremap <silent> <script> <2-Leftmouse> <Esc>:call GrooVim_SelectNSearch(0, "i")<cr>
-vnoremap <silent> <script> <2-Leftmouse> :<C-u>call GrooVim_SelectNSearch(0, "v")<cr>
+" Note: The double click is Vim's own.
+"
+" Note: There was a mapping here that did "viw" -- which is what Vim does on a
+" double click anyway, ":h double-click" -- and, before that, SLEPT 250ms
+" reading the keyboard, in case a "z" came: then it searched for the word. So
+" every double click waited a quarter of a second to do what Vim does at once,
+" for a key nothing ever wrote down. Searching for the word under the cursor is
+" F3->m and the panel it opens! By Questor
 

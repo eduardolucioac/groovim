@@ -224,10 +224,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F3->f` - Opens for search *(normal mode/insert/visual)*;
     - `F3->h` - Opens to replace *(normal mode/insert/visual)*;
         - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
-    - `F3->End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
     - `n` - Goes to the next of what was searched for *(normal mode)*;
     - `N` - Goes to the one before it *(normal mode)*;
-    - `Double click` - A double click takes the word and searches for it *(normal mode/insert/visual)*;
 
  * **Move** *(Walking the text: the smooth movement, the pages, the brackets)*
 

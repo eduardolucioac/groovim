@@ -100,6 +100,39 @@ func! GT_Body()
   quit
   call GrooVim_MarkClear()
 
+  " ---- and the double click is Vim's own again
+  "
+  " There was a mapping on it that ran "viw" -- which is what Vim does on a
+  " double click anyway, ":h double-click" -- and before that SLEPT 250ms
+  " reading the keyboard, in case a "z" came, and then searched for the word. So
+  " every double click waited a quarter of a second to do what Vim does at once,
+  " for a key nothing ever wrote down.
+  "
+  " And the mapping cost more than the wait: Vim extends a double click to the
+  " MATCHING bracket when you click on one, and "viw" took that away. Measured
+  " through a real terminal on "chamada(um, dois)": clicking the "(" now yanks
+  " "(um, dois)", and under the mapping it yanked "chamada".
+  enew!
+  call GT_Ok("no mapping stands in front of the double click",
+    \ maparg("<2-LeftMouse>", "n") ==# "" && maparg("<2-LeftMouse>", "i") ==# "" &&
+    \ maparg("<2-LeftMouse>", "v") ==# "",
+    \ "   [" . maparg("<2-LeftMouse>", "n") . "]")
+  call GT_Ok("  and the function behind it went with it",
+    \ !exists("*GrooVim_SelectNSearch"),
+    \ "   (nothing could reach it any more: the key was the only caller)")
+  call GT_Ok("  and no shortcut on the list names it",
+    \ empty(filter(copy(g:GrooVim_Shortcuts),
+    \   'has_key(v:val, "run") && type(v:val.run) == type("")
+    \   && v:val.run =~ "SelectNSearch"')), "")
+  call GT_Ok("and the mouse is still on, or none of it would work",
+    \ &mouse !=# "", "   [mouse=" . &mouse . "]")
+
+  " The panels keep a double click of their own, which is another thing: there
+  " it means "take me to this line", and it is written on the buffer alone.
+  call GT_Ok("the panels keep their own, on their own buffer",
+    \ GT_FunctionText("GrooVim_SearchGuyPanelSetup") =~ "2-LeftMouse",
+    \ "   (there it means \"take me to this line\")")
+
   call GT_Done()
 endfunc
 

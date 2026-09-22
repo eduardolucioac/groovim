@@ -165,7 +165,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Select to end of line", "what": "Selects on to the end of the line"},
  \
 "\ ---- Search
- \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "menu": "Clear highlights", "what": "Removes search highlights"},
+ \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "menu": "Clear search highlights", "what": "Removes search highlights"},
  \ {"where": "Search", "group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord(l:mode)',
  \  "menu": "Mark all occurrences", "what": "Mark every occurrence of the word under the cursor",
  \  "notes": [
@@ -178,14 +178,11 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
  \  ]},
- \ {"where": "Search", "group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "menu": "Find the word under the cursor", "what": "Select and search the word under the cursor (case sensitive)"},
  \
  \ {"where": "Search", "keys": "n", "break": 1, "modes": "n",
  \  "menu": "Find next", "what": "Goes to the next of what was searched for"},
  \ {"where": "Search", "keys": "N", "modes": "n",
  \  "menu": "Find previous", "what": "Goes to the one before it"},
- \ {"where": "Search", "keys": "<2-Leftmouse>", "break": 1, "modes": "niv",
- \  "menu": "Find the word clicked", "what": "A double click takes the word and searches for it"},
  \
 "\ ---- Move
  \ {"where": "Move", "keys": "<A-S-Up>", "modes": "niv",
