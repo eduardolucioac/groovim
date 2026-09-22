@@ -239,7 +239,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Alt+Right` - One step right, the same *(normal mode/insert/visual)*;
     - `Ctrl+Left` - A word back *(normal mode/insert/visual)*;
     - `Ctrl+Right` - A word forward *(normal mode/insert/visual)*;
-    - `End` - To the REAL end of the line, past the last character *(normal mode)*;
     - `Ctrl+B` - From one bracket to the one that closes it, and back *(normal mode/insert/visual)*;
 
  * **View** *(What is beside the text: the tree, the marked lines, the tabs, the help)*
@@ -249,8 +248,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;
     - `F4->c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;
-    - `F5->t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
-        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
     - `m` - To the next marked line *(normal mode)*;
     - `M` - To the marked line before it *(normal mode)*;
     - `Ctrl+Up` - The next tab *(normal mode/insert/visual)*;
@@ -258,6 +255,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Shift+Up` - Moves this tab one place to the right *(normal mode/insert/visual)*;
     - `Ctrl+Shift+Down` - Moves it one place to the left *(normal mode/insert/visual)*;
     - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
+    - `F5->t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
+        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
     - `Alt+,` - To the window before this one, going round *(normal mode/insert/visual)*;
         - Note: It was Ctrl+W , which only ever went one way. And the Ctrl+W of Vim is back to being what it is everywhere else: the key every window command begins with;
     - `Alt+.` - To the next window, going round *(normal mode/insert/visual)*;

@@ -205,8 +205,6 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Word left", "what": "A word back"},
  \ {"where": "Move", "keys": "<C-Right>", "modes": "niv",
  \  "menu": "Word right", "what": "A word forward"},
- \ {"where": "Move", "keys": "<End>", "modes": "n",
- \  "menu": "End of line", "what": "To the REAL end of the line, past the last character"},
  \ {"where": "Move", "keys": "<C-b>", "break": 1, "modes": "niv",
  \  "menu": "Go to matching bracket", "what": "From one bracket to the one that closes it, and back"},
  \
@@ -222,11 +220,6 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Bookmark list", "what": "Lists every marked line, or takes the list away"},
  \ {"where": "View", "group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
  \  "menu": "Clear all bookmarks", "what": "Takes every mark off EVERY file, and asks first"},
- \ {"where": "View", "group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
- \  "menu": "Pin this tab", "what": "Allows always returning to a particular tab using <Alt-Down>",
- \  "notes": [
- \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
- \  ]},
  \
  \ {"where": "View", "keys": "m", "break": 1, "modes": "n",
  \  "menu": "Next bookmark", "what": "To the next marked line"},
@@ -242,6 +235,11 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Move tab left", "what": "Moves it one place to the left"},
  \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
  \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t"},
+ \ {"where": "View", "group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
+ \  "menu": "Pin this tab", "what": "Allows always returning to a particular tab using <Alt-Down>",
+ \  "notes": [
+ \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
+ \  ]},
  \ {"where": "View", "keys": "<A-,>", "break": 1, "modes": "niv",
  \  "menu": "Window back",
  \  "what": "To the window before this one, going round",
@@ -257,7 +255,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Menu", "what": "Opens this menu"},
  \
 "\ ---- Settings
- \ {"where": "Settings", "group": "F5", "key": "r", "break": 1, "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "menu": "Reload the files", "what": "Reloads the file|.vimrc|in all tabs"},
+ \ {"where": "Settings", "group": "F5", "key": "r", "break": 1, "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "menu": "Reload GrooVim", "what": "Reloads the file|.vimrc|in all tabs"},
  \ {"where": "Settings", "group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
  \  "menu": "Settings...", "what": "Opens the settings -- ALL of them",
  \  "notes": [
