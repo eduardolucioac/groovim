@@ -209,8 +209,20 @@ endfunc
 " line would otherwise run past the edge and it is the RIGHT side that is lost --
 " which is the shortcut, the one thing a menu of a keyboard editor is for! By
 " Questor
+" Note: What a line of the menu READS. It is not the description: that one
+" explains, and is what the help of F9 and the README are written from, while
+" this one NAMES -- "Save as..." against "Saves under another name and goes on
+" editing THAT one".
+"
+" Note: The two go together and neither is the other cut short: a menu of a
+" conventional editor is a column of names, and the three dots at the end of one
+" are the convention that says it will ask you something! By Questor
+func! GrooVim_ShortcutMenu(one) abort
+  return GrooVim_ShortcutPlain(get(a:one, "menu", a:one.what))
+endfunc
+
 func! GrooVim_MenuLine(one, room) abort
-  let l:what = GrooVim_ShortcutPlain(a:one.what)
+  let l:what = GrooVim_ShortcutMenu(a:one)
   if strchars(l:what) > a:room
     let l:what = strcharpart(l:what, 0, a:room - 1) . "…"
   endif
@@ -228,7 +240,7 @@ func! GrooVim_MenuOf(group, startColumn) abort
   for l:one in g:GrooVim_Shortcuts
     if l:one.where ==# a:group && GrooVim_ShortcutAvailable(l:one)
       call add(l:entries, l:one)
-      let l:what = max([l:what, strchars(GrooVim_ShortcutPlain(l:one.what))])
+      let l:what = max([l:what, strchars(GrooVim_ShortcutMenu(l:one))])
       let l:keys = max([l:keys, strchars(GrooVim_ShortcutShown(l:one))])
     endif
   endfor

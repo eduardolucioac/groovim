@@ -82,6 +82,36 @@ func! GT_Body()
     \ l:tight =~ "…" && l:tight =~ "F5->n",
     \ "   [" . l:tight . "]   (losing the right side would lose the shortcut)")
 
+  " ---- the menu NAMES, and the description explains
+  "
+  " Every line of the menu used to be the description of the shortcut, which is
+  " written to explain and not to be read in a column: "Saves under another name
+  " and goes on editing THAT one", where a menu says "Save as...". The two are
+  " both on the list now, and neither is the other cut short.
+  let l:noLabel = filter(copy(g:GrooVim_Shortcuts), '!has_key(v:val, "menu")')
+  call GT_Ok("every shortcut carries the name the menu shows it by",
+    \ empty(l:noLabel), "   " . (empty(l:noLabel)
+    \ ? "(" . len(g:GrooVim_Shortcuts) . " of them)"
+    \ : string(map(l:noLabel, 'GrooVim_ShortcutShown(v:val)'))))
+  let l:long = filter(copy(g:GrooVim_Shortcuts), 'strchars(v:val.menu) > 30')
+  call GT_Ok("  and it is a name and not a sentence", empty(l:long),
+    \ "   " . (empty(l:long) ? "(the longest: " .
+    \ max(map(copy(g:GrooVim_Shortcuts), 'strchars(v:val.menu)')) . " letters)"
+    \ : string(map(l:long, 'v:val.menu'))))
+  call GT_Ok("  and it is not the description again",
+    \ empty(filter(copy(g:GrooVim_Shortcuts), 'v:val.menu ==# v:val.what')),
+    \ "   (if the two say the same thing, one of them is doing nothing)")
+  call GT_Ok("and the line of the menu reads the name",
+    \ GrooVim_MenuLine({"menu": "Save as...", "group": "F5", "key": "a",
+    \   "what": "Saves under another name and goes on editing THAT one"}, 20)
+    \   =~ "Save as\.\.\." ,
+    \ "   [" . trim(GrooVim_MenuLine({"menu": "Save as...", "group": "F5",
+    \   "key": "a", "what": "Saves under another name"}, 20)) . "]")
+  call GT_Ok("  while the help of F9 goes on writing the description",
+    \ stridx(GrooVim_ShortcutsHelp(), "Saves under another name") >= 0 &&
+    \ stridx(GrooVim_ShortcutsHelp(), "Save as...") < 0,
+    \ "   (a name in a column, a sentence in the help: the two complete each other)")
+
   " ---- nothing carries the markup the help needs
   let l:littered = []
   for l:one in g:GrooVim_Shortcuts
