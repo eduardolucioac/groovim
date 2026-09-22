@@ -78,7 +78,7 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F4", "key": "i", "modes": "niv", "run": 'call GrooVim_BookmarkAnnotate()',
  \  "what": "Writes a note on the marked line, or changes it (*bookmark*)"},
  \ {"group": "F4", "key": "l", "modes": "niv", "run": 'call GrooVim_BookmarkList()',
- \  "what": "Lists every marked line, to walk between them"},
+ \  "what": "Lists every marked line, or takes the list away"},
  \ {"group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
  \  "what": "Takes every mark off EVERY file, and asks first"},
  \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',

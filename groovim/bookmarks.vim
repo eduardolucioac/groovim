@@ -349,18 +349,29 @@ func! GrooVim_BookmarkPanelSetup() abort
   nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_BookmarkNavigate()<cr>
 endfunc
 
-" Note: Every mark of every file! By Questor
+" Note: Every mark of every file -- and the same key takes the list away again.
+"
+" Note: A key that opens a list and does nothing the second time leaves you
+" hunting for another one to close it. Asked for again it was FILLING the list it
+" had already built, which is work nobody asked for and which spoke: "4 fewer
+" lines", "5 more lines", "--No lines in buffer--" over the bar, from the very
+" commands that empty and fill the buffer! By Questor
 func! GrooVim_BookmarkList() abort
 
-  if !GrooVim_BookmarkPanelBuild()
-    call GrooVim_GrooVimBarMsg("No marks anywhere!", 4)
+  " Note: Open -> closed, and the cursor goes back to a window with a file in it
+  " instead of being left wherever the closing happened to leave it.
+  "
+  " Note: "silent!" because closing the LAST window of a tab is refused, and
+  " being refused is the right answer there: a tab with nothing but this list in
+  " it keeps it! By Questor
+  if GrooVim_PanelFocus(s:panel, 0)
+    silent! close
+    call GrooVim_PutOnEditWindow()
     return
   endif
 
-  " Note: The list of a tab is ONE list: asked for again, it is filled again
-  " where it already is instead of a second one being opened under it! By Questor
-  if GrooVim_PanelFocus(s:panel, 0)
-    call GrooVim_BookmarkPanelFill()
+  if !GrooVim_BookmarkPanelBuild()
+    call GrooVim_GrooVimBarMsg("No marks anywhere!", 4)
     return
   endif
 
@@ -377,11 +388,14 @@ endfunc
 " Note: "norm!" and not "norm": inside the panel the keys that edit are mapped to
 " nothing, and without the "!" this would run through them and do nothing at
 " all! By Questor
+" Note: "silent" because emptying a buffer and filling it again SPEAKS -- "4
+" fewer lines", "5 more lines", and "--No lines in buffer--" when it was already
+" empty. None of that is news to anybody reading a list of marks! By Questor
 func! GrooVim_BookmarkPanelFill() abort
   setlocal ma
-  exec "norm! ggdG"
-  exec "put =s:lines"
-  exec "norm! ggdd"
+  silent! exec "norm! ggdG"
+  silent! exec "put =s:lines"
+  silent! exec "norm! ggdd"
   setlocal noma nomodified
 endfunc
 

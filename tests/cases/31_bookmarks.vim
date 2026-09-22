@@ -171,6 +171,29 @@ func! GT_AfterNote()
   call GT_Ok("and they come back when they are read again", GT_Lines() ==# [2, 5],
     \ "   " . string(GT_Lines()))
 
+  " ---- and the same key takes the list away again
+  "
+  " A key that opens a list and does nothing the second time leaves you hunting
+  " for another one to close it. Asked for again it was FILLING the list it had
+  " already built -- work nobody asked for, and work that SPOKE: "4 fewer lines",
+  " "5 more lines", "--No lines in buffer--" over the bar, from the very commands
+  " that empty the buffer and fill it.
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  call GT_Ok("setup: the list is open", bufname("%") =~ "GrooVim_BookmarksList", "")
+  call GrooVim_BookmarkList()
+  call GT_Ok("the same key takes the list away",
+    \ empty(filter(range(1, winnr("$")),
+    \   'bufname(winbufnr(v:val)) =~ "GrooVim_BookmarksList"')),
+    \ "   (" . winnr("$") . " windows left)")
+  call GT_Ok("  and the cursor goes back to the file",
+    \ expand("%:p") ==# g:GT_FILE, "   [" . expand("%:t") . "]")
+  call GrooVim_BookmarkList()
+  call GT_Ok("  and again brings it back",
+    \ bufname("%") =~ "GrooVim_BookmarksList", "   [" . bufname("%") . "]")
+  call GT_Ok("and filling it says nothing over the bar",
+    \ GT_FunctionText("GrooVim_BookmarkPanelFill") =~ "silent",
+    \ "   (emptying a buffer and filling it again speaks)")
+
   " ---- and the panel has colours, because what is in it has shape
   call GT_Ok("the panel is painted", !empty(filter(split(execute("syntax list"), "\n"),
     \ 'v:val =~ "GrooVimPanel"')),
