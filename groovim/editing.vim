@@ -51,9 +51,39 @@ endfunc
 " Note: Serves to avoid the side effect of capslock status checking! By Questor
 nnoremap <silent> <LeftMouse> :let g:onMoveScreen = 1<cr><LeftMouse>
 
-nnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
-inoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
-vnoremap <silent> <C-b> <Esc>:call GrooVim_SetVisualBlock()<cr><C-v>
+" Note: Takes the line away, and what was in the transfer area stays there.
+"
+" Note: The "_" register is the one Vim throws things into, and GrooVim sends
+" every delete to it on purpose: in a conventional editor deleting a line does
+" not cost you what you copied ten minutes ago.
+"
+" Note: Over a selection it takes every line the selection touches, whole, which
+" is what "the line" means when more than one is in hand! By Questor
+func! GrooVim_SuppressLine(mode) abort
+  if !GrooVim_CanChange() | return | endif
+  if a:mode ==# "v"
+    " Note: "V" turns the selection into WHOLE lines before it goes. Selecting
+    " three characters of a line and asking for the line to be taken away has to
+    " take the line, not the three characters! By Questor
+    exec "normal! gvV\"_d"
+  else
+    exec "normal! \"_dd"
+  endif
+endfunc
+
+" Note: From one bracket to the one that closes it, and back: "(" to ")", "[" to
+" "]", "{" to "}". Vim already PAINTS the pair under the cursor; this walks to
+" it.
+"
+" Note: It is the "%" of Vim, which needs no help from anybody, given a key a
+" conventional editor would look for. In insert mode it goes out and back with a
+" "<C-o>", and in visual it takes the selection with it -- which is how you grab
+" a whole block from one bracket to the other.
+"
+" Note: This key used to be the visual block, which is now on F2->b! By Questor
+nnoremap <silent> <C-b> %
+inoremap <silent> <C-b> <C-o>%
+vnoremap <silent> <C-b> %
 
 " Note: When enter "visual block" mode and allows select any area! By Questor
 func! GrooVim_SetVisualBlock() range abort

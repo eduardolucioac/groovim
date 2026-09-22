@@ -87,7 +87,7 @@ func! GT_ConcludeLong(t)
   " ---- and in BLOCK mode, the other "(PRIORITY)" of 2014
   let g:GT_POS = []
   call feedkeys("\<Esc>", "t")
-  call timer_start(100,  {t -> [cursor(5, 24), feedkeys("\<C-b>", "t")]})
+  call timer_start(100,  {t -> [cursor(5, 24), GT_Press("\<F2>b")]})
   call timer_start(300,  "GT_Sample")
   call timer_start(400,  {t -> feedkeys("\<C-A-Down>", "t")})
   call timer_start(700,  "GT_Sample")
@@ -117,7 +117,8 @@ endfunc
 
 func! GT_ConcludeBlock(t)
   let p = g:GT_POS
-  call GT_Ok("block: Ctrl-b entered visual block", p[0].mode ==# "\<C-v>", "   (mode [" . strtrans(p[0].mode) . "])")
+  call GT_Ok("block: F2 b entered visual block", p[0].mode ==# "\<C-v>",
+    \ "   (mode [" . strtrans(p[0].mode) . "])   (it used to be Ctrl-b, which now walks brackets)")
   call GT_Ok("block: went down to the short line", p[1].line == 6, GT_Show(p[1]))
   call GT_Ok("block: sat over an area with no text", p[1].virtcol == 24 && p[1].virtcol > p[1].end, GT_Show(p[1]))
   call GT_Ok("block: down to the long one, column 24", p[2].line == 7 && p[2].col == 24, GT_Show(p[2]))

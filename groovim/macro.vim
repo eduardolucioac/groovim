@@ -244,71 +244,113 @@ nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
 " Note: Save to disk and open in a new tab a copy of the current file! By Questor
+" Note: Where to put a file and what to call it, asked once and used by both the
+" copy and the "save as".
+"
+" Note: It was written inside the copy, and the "save as" would have been the
+" same forty lines a second time -- with the second one drifting from the first
+" the day one of them was touched. What differs between them is one word in the
+" question and what is DONE with the answer; the asking is the same.
+"
+" Note: The answers come back as [path, name]. There is no way out but a valid
+" answer or a Ctrl-C, which walks out of here and out of whoever called! By
+" Questor
+func! GrooVim_AskFileWhere(what) abort
+
+  let l:valueToPath = ""
+  let l:stopWhile = 0
+  while l:stopWhile == 0
+    let l:valueToPath = input("PATH to save your " . a:what . " (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+    if l:valueToPath == "0"
+      if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
+        let l:stopWhile = 1
+        let l:valueToPath = GrooVim_ClipGet()
+      else
+        call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+        " Note: The "redraw!" is to ensure that the message is displayed! By Questor
+        redraw!
+      endif
+    elseif l:valueToPath == "1"
+      let l:stopWhile = 1
+      let l:valueToPath = ""
+    elseif l:valueToPath == "2"
+      let l:stopWhile = 1
+      let l:valueToPath = expand("%:h") . "/"
+    elseif ("" . l:valueToPath . "") != ""
+      if !empty(matchstr(l:valueToPath, "\/$"))
+        let l:stopWhile = 1
+      else
+        call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+        redraw!
+      endif
+    endif
+  endwhile
+
+  let l:definePathWarning = ""
+  let l:valueToName = ""
+  let l:stopWhile = 0
+  while l:stopWhile == 0
+    if l:valueToPath == ""
+      let l:definePathWarning = " (DEFINE A PATH TOO!)"
+    endif
+    " Note: The name of the file you are on comes WRITTEN in the answer, ready to
+    " be edited or accepted -- which is what "Save a Copy As" of Notepad++ does.
+    " The second argument of "input()" is the text it starts with.
+    "
+    " Note: An unnamed buffer has no name to offer, and then it starts empty as it
+    " always did! By Questor
+    let l:valueToName = input("NAME of the " . a:what . " to be saved" .
+     \ l:definePathWarning . ": ", expand("%:t"))
+    if ("" . l:valueToName . "") != ""
+      if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
+        let l:stopWhile = 1
+      else
+        call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
+        redraw!
+      endif
+    endif
+  endwhile
+
+  return [l:valueToPath, l:valueToName]
+
+endfunc
+
+" Note: Save to disk and open in a new tab a copy of the current file! By Questor
 func! GrooVim_SaveACopy() range abort
 
-    let l:valueToPath = ""
-    let l:stopWhile = 0
-    while l:stopWhile == 0
-      let l:valueToPath = input("PATH to save your file copy (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
-      if l:valueToPath == "0"
-        if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
-          let l:stopWhile = 1
-          let l:valueToPath = GrooVim_ClipGet()
-        else
-          call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-          " Note: The "redraw!" is to ensure that the message is displayed! By Questor
-          redraw!
-        endif
-      elseif l:valueToPath == "1"
-        let l:stopWhile = 1
-        let l:valueToPath = ""
-      elseif l:valueToPath == "2"
-        let l:stopWhile = 1
-        let l:valueToPath = expand("%:h") . "/"
-      elseif ("" . l:valueToPath . "") != ""
-        if !empty(matchstr(l:valueToPath, "\/$"))
-          let l:stopWhile = 1
-        else
-          call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-          redraw!
-        endif
-      endif
-    endwhile
+  let [l:path, l:name] = GrooVim_AskFileWhere("file copy")
 
-    let l:definePathWarning = ""
-    let l:valueToName = ""
-    let l:stopWhile = 0
-    while l:stopWhile == 0
-      if l:valueToPath == ""
-        let l:definePathWarning = " (DEFINE A PATH TOO!)"
-      endif
-      " Note: The name of the file you are on comes WRITTEN in the answer, ready
-      " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
-      " does. The second argument of "input()" is the text it starts with.
-      "
-      " Note: An unnamed buffer has no name to offer, and then it starts empty as
-      " it always did! By Questor
-      let l:valueToName = input("NAME of the file copy to be saved" .
-       \ l:definePathWarning . ": ", expand("%:t"))
-      if ("" . l:valueToName . "") != ""
-        if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
-          let l:stopWhile = 1
-        else
-          call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
-          redraw!
-        endif
-      endif
-    endwhile
+  try
+    exec "w " . l:path . l:name
+    exec "tabnew " . l:path . l:name
+    call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
+    redraw!
+  catch
+    call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
+    redraw!
+  endtry
 
-    try
-      exec "w " . l:valueToPath . l:valueToName
-      exec "tabnew " . l:valueToPath . l:valueToName
-      call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
-      redraw!
-    catch
-      call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
-      redraw!
-    endtry
+endfunc
+
+" Note: Saves under another name and GOES ON EDITING that one, which is what
+" "Save As" means everywhere. The copy of F2->y is the other half of the idea:
+" it writes the file and leaves you where you were.
+"
+" Note: ":saveas" is the command of Vim for exactly this -- it renames the buffer
+" and writes it -- so what was open before stays on disk as it was, and the tab
+" you are on is the new file from here! By Questor
+func! GrooVim_SaveAs() range abort
+
+  let [l:path, l:name] = GrooVim_AskFileWhere("file")
+
+  try
+    exec "saveas " . fnameescape(l:path . l:name)
+    call GrooVim_GrooVimBarMsg("Saved as \"" . l:name . "\"! You are editing it now.", 4)
+    redraw!
+  catch
+    call GrooVim_GrooVimBarMsg("It can't be saved! Reason: \"" . v:exception . "\"", 4)
+    redraw!
+  endtry
 
 endfunc
 

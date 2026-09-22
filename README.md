@@ -112,7 +112,7 @@ a `modeline`, a file type plugin or a `:set shiftwidth=` you type.
 Relevant changes in the default Vim behavior!
 -----
 
- - Use Ctrl+b to enable visual block mode (not Ctrl+v);
+ - Use F2 b to enable visual block mode (not Ctrl+v). Ctrl+b walks from one bracket to the one that closes it -- `(` to `)`, `[` to `]`, `{` to `}` -- and takes the selection with it in visual mode;
  - When changes from visual mode to insert mode the cursor do not move;
  - Use the system clipboard whenever it can be reached, see <a href="#clipboard">**"About the clipboard"**</a>;
  - The "insert" (includes typed text) and "paste" from the same cursor position;
@@ -168,6 +168,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `w` - Run a macro *(normal mode/insert/visual)*;
     - `e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
     - `p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
+    - `s` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
+    - `b` - Selects a BLOCK: a rectangle of the text, corner to corner *(normal mode/insert/visual)*;
+    - `l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
     - `y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
 
  * **F3** and then... *(The editing you reach for most, and searching)*
@@ -264,28 +267,16 @@ If you liked it, consider helping the project!
 Task List/Bugs List!
 -----
 
-What is still open. Twenty entries were closed at once, each one read against the
-code instead of against memory: some had been built, some were about keys that no
-longer exist, and some were decided against and are not coming. Nothing is
-written here that the code already answers.
+Empty, and that is not an accident: every entry was read against the code, one by
+one, and answered.
 
- * ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
+Of the twenty nine there were -- twenty one in the `.vimrc` and eight more that
+this file carried alone -- twelve had already been built and nobody had crossed
+them off, five were built the day the list was read, two were defects and were
+fixed, and ten were looked at and decided against.
 
- * ToDo: Create a shortcut to moving between matching braces! By Questor
-
- * ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
-
- * ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
-
- * ToDo: In "visual mode" "End" key must go one column less! By Questor
-
- * ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
-
- * ToDo: Open file passing path (use F's shortcut)! By Questor
-
- * ToDo: "Power Search" -- open in Vim, from a Vim shortcut, the results of a "find" command! By Questor
-
- * ToDo: Try to use the wombat256 color scheme! By Questor
+A list that repeats the code goes stale in the dark. This one is for what the
+code does not say, and right now there is nothing of the kind.
 
 <a name="buildInstallVIM"></a>
 How GrooVim is installed!

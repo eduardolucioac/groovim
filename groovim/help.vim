@@ -47,6 +47,12 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
  \ {"group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
  \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
+ \ {"group": "F2", "key": "s", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
+ \  "what": "Saves under another name and goes on editing THAT one"},
+ \ {"group": "F2", "key": "b", "modes": "niv", "run": 'call GrooVim_SetVisualBlock() | exec "normal! \<C-v>"',
+ \  "what": "Selects a BLOCK: a rectangle of the text, corner to corner"},
+ \ {"group": "F2", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
+ \  "what": "Takes the line away, without touching the transfer area"},
  \ {"group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "what": "Save to disk and open in a new tab a copy of the current file"},
  \ {"group": "F3", "key": "a", "modes": "niv", "run": 'exec "norm ggVG$"', "what": "Select all text in the current buffer"},
  \ {"group": "F3", "key": "d", "modes": "niv", "run": {"n": 'call GrooVim_DuplicateLine()', "i": 'call GrooVim_DuplicateLine()', "v": 'call GrooVim_DuplicateSelection()'},
@@ -335,7 +341,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * Relevant changes in the default Vim behavior!~".
 \"\n".
-\"\n   |-|Use |Ctrl+b| to enable visual block mode;".
+\"\n   |-|Use |F2->b| to enable visual block mode. |Ctrl+b| walks from one bracket to the one that closes it -- |(| to |)| , |[| to |]| , |{| to |}| -- and takes the selection with it in visual mode;".
 \"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
 \"\n   |-|Use the system clipboard when it can be reached, see |Clipboard|below;".
 \"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".

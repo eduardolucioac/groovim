@@ -202,7 +202,11 @@ let g:searchReplace_WholeWord = g:GT_KEPT_WW
 " argument of "input()" is the text the answer starts with, and it was not being
 " used: the name had to be typed again, letter for letter.
 call GT_Ok("the copy suggests the name of the file",
-  \ GT_FunctionText("GrooVim_SaveACopy") =~ 'input(.*expand("%:t")',
+  \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'input(.*expand("%:t")',
   \ "   (an unnamed buffer has none to offer, and then it starts empty)")
+call GT_Ok("  and the \"save as\" asks the same question, in the same place",
+  \ GT_FunctionText("GrooVim_SaveAs") =~ "GrooVim_AskFileWhere" &&
+  \ GT_FunctionText("GrooVim_SaveACopy") =~ "GrooVim_AskFileWhere",
+  \ "   (it was forty lines that would have become forty twice)")
 
 call GT_Done()

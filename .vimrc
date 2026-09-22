@@ -41,42 +41,19 @@ let g:grooVimVersion = "v3.0.0b"
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: What this list holds is what is still OPEN. Twenty entries were closed
-" at once, each one read against the code instead of against memory: some had
-" been built (the indent per file type, the six distributions, the shell calls
-" that are gone), some were about keys that no longer exist, and some were
-" decided against and are not coming.
+" Note: Empty, and that is not an accident: every entry was read against the
+" code, one by one, and answered.
 "
-" Note: The ones that were BUILT the day this list was cut: a name suggested for
-" the copy of a file, "whole word only" on the search, the bookmarks of F4, and
-" the keys that edit saying so instead of answering "E21" inside a buffer that
-" refuses to change.
+" Note: Of the twenty nine there were -- twenty one here and eight more that the
+" README carried alone -- twelve had already been built and nobody had crossed
+" them off, five were built the day the list was read, two were defects and were
+" fixed, and ten were looked at and decided against. What was left of the last
+" ones on the day this became empty: a jump between brackets, which Vim does with
+" "%" and only wanted a key, and a "save as" beside the "save a copy" that was
+" already there.
 "
-" Note: Nothing is written here that the code already answers. A list that
-" repeats the code goes stale in the dark; this one is for what the code does
-" NOT say! By Questor
-
-" Note: The README carried a list of its own, and the two had DRIFTED: twenty
-" eight entries there against twenty one here, with eight that had never been
-" written down in this file at all. They say the same thing now! By Questor
-
-" ToDo: Allow all script features to work with "virtualedit=all"? (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
-
-" ToDo: Create a shortcut to moving between matching braces! By Questor
-
-" ToDo: Create shortcuts for navigation in search results for maintaining Vim insert mode! By Questor
-
-" ToDo: Delete and close current file/Rename the current file and open it with the new name! (EXAMINE THIS POSSIBILITY/NOT A PRIORITY) By Questor
-
-" ToDo: In "visual mode" "End" key must go one column less! By Questor
-
-" ToDo: Map the mouse wheel to scroll up or down the screen during the replace (use ^E and ^D)! By Questor
-
-" ToDo: Open file passing path (use F's shortcut)! By Questor
-
-" ToDo: "Power Search" -- open in Vim, from a Vim shortcut, the results of a "find" command! By Questor
-
-" ToDo: Try to use the wombat256 color scheme! By Questor
+" Note: A list that repeats the code goes stale in the dark. This one is for what
+" the code does NOT say, and right now there is nothing of the kind! By Questor
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "MAIN
