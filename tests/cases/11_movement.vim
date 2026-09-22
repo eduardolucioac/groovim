@@ -368,6 +368,51 @@ func! GT_ViewConclude()
     call GT_Ok("  and back up is the same page",
       \ line(".") == s:was - s:page, "   (" . s:was . " -> " . line(".") . ")")
   endfor
+
+  " ---- and the FIRST press turns the page, not the second
+  "
+  " From the top line, a page down is still on the screen: the cursor walked to
+  " the bottom of it and the text stayed where it was, so it took a second press
+  " to start scrolling. A page key turns the window in every editor there is.
+  call cursor(1, 1)
+  call GT_Ok("setup: at the top of the file and of the screen",
+    \ line("w0") == 1 && winline() == 1, "")
+  call GT_Press("\<PageDown>")
+  call GT_Ok("one press and the window has turned",
+    \ line("w0") == 1 + s:page, "   (top line 1 -> " . line("w0") . ")")
+  call GT_Ok("  with the cursor on the row of the screen it left",
+    \ winline() == 1, "   (row " . winline() . ")")
+
+  " From the middle of the screen, the row is kept just the same.
+  call cursor(1, 1)
+  normal! zt
+  call cursor(10, 1)
+  let s:row = winline()
+  call GT_Press("\<PageDown>")
+  call GT_Ok("from the middle of the screen, the row is kept",
+    \ winline() == s:row, "   (row " . s:row . " -> " . winline() . ")")
+  call GT_Ok("  and the window moved by what the CURSOR moved",
+    \ line("w0") == 1 + s:page, "   (top line " . line("w0") . ")")
+
+  " At the end of the file the cursor stops early, and the window stops with it.
+  call cursor(line("$") - 5, 1)
+  normal! zz
+  let s:top = line("w0")
+  let s:row = winline()
+  call GT_Press("\<PageDown>")
+  call GT_Ok("at the end of the file the cursor stops on the last line",
+    \ line(".") == line("$"), "   (line " . line(".") . " of " . line("$") . ")")
+  call GT_Ok("  and the window stopped with it, by the same five lines",
+    \ line("w0") == s:top + 5 && winline() == s:row,
+    \ "   (top " . s:top . " -> " . line("w0") . ", row " . winline() . ")")
+
+  " And a movement that is not a page leaves the window where it is, which is
+  " what the smooth one was made to do.
+  call cursor(1, 1)
+  normal! zt
+  call GT_Press("\<C-A-Down>")
+  call GT_Ok("a single step does not drag the screen about",
+    \ line("w0") == 1, "   (top line " . line("w0") . ")")
   call GT_Ok("and it is read at the moment the key is pressed",
     \ GT_FunctionText("GrooVim_GroovyMove") =~ "winheight(0)",
     \ "   (not written down, and not read once at startup)")

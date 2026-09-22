@@ -197,6 +197,11 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
       let l:verticalMovementFactor = max([winheight(0) - 2, 1])
     endif
 
+    " Note: Where the page started, so that the window can be carried along with
+    " it below! By Questor
+    let l:pageTopWas = line("w0")
+    let l:pageLineWas = line(".")
+
     if a:mod == "n" || a:mod == "i"
 
       if a:direction == "l"
@@ -302,6 +307,28 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
       " is nothing to come back from! By Questor
       call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
 
+    endif
+
+    " Note: A page turns the WINDOW, and not only the cursor.
+    "
+    " Note: The first press did nothing to the screen: from the top line, twenty
+    " lines down is still on the screen, so the cursor simply walked to the
+    " bottom of it and the text stayed where it was. It took a SECOND press to
+    " start scrolling -- and that is not what a page key does in any editor.
+    "
+    " Note: The window is moved by the same number of lines the cursor moved, so
+    " the cursor comes out on the very row of the screen it left. Taken from the
+    " movement itself and not from the page asked for: at the end of the file
+    " the cursor stops early, and the window has to stop with it.
+    "
+    " Note: Only a page does this. The smooth movement and the single step are
+    " there to walk the text you are LOOKING at, and were made not to drag the
+    " screen about while the cursor is still on it! By Questor
+    if a:GrooVim_GroovyMoveType == 2
+      let l:pageMoved = line(".") - l:pageLineWas
+      if l:pageMoved != 0
+        call winrestview({"topline": max([l:pageTopWas + l:pageMoved, 1])})
+      endif
     endif
 
     let g:onMoveScreen = 1
