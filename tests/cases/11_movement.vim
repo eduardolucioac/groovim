@@ -348,6 +348,33 @@ func! GT_ViewConclude()
     call GT_Note("tcomment is not here, so its checks did not run")
   endif
 
+  " ---- a page is the window, and the window is the terminal
+  "
+  " It was fifteen lines, written down: the same key jumped past the screen on a
+  " small terminal and left a third of it unread on a big one, and making the
+  " window bigger changed nothing. What decides how much a page is, is the page.
+  enew!
+  call setline(1, map(range(1, 300), '"linha " . v:val'))
+  for s:high in [24, 40]
+    let &lines = s:high
+    call cursor(1, 1)
+    let s:page = winheight(0) - 2
+    call GT_Press("\<PageDown>")
+    call GT_Ok("on a terminal of " . s:high . " lines, a page is " . s:page,
+      \ line(".") == 1 + s:page,
+      \ "   (window " . winheight(0) . " lines, cursor 1 -> " . line(".") . ")")
+    let s:was = line(".")
+    call GT_Press("\<PageUp>")
+    call GT_Ok("  and back up is the same page",
+      \ line(".") == s:was - s:page, "   (" . s:was . " -> " . line(".") . ")")
+  endfor
+  call GT_Ok("and it is read at the moment the key is pressed",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ "winheight(0)",
+    \ "   (not written down, and not read once at startup)")
+  call GT_Ok("  two lines short of the whole window",
+    \ GT_FunctionText("GrooVim_GroovyMove") =~ "winheight(0) - 2",
+    \ "   (the lines that were at the bottom are at the top when you arrive)")
+
   let &lines = g:GT_KEPT_LINES
   call GT_Done()
 endfunc

@@ -48,14 +48,17 @@ inoremap <silent> <expr> <A-S-Down> (g:GrooVim_GroovyMoveEnabled ? "<C-r>=GrooVi
 inoremap <silent> <expr> <A-S-Up> (g:GrooVim_GroovyMoveEnabled ? "<C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove(\"i\", \"u\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
 inoremap <silent> <expr> <A-S-Right> (g:GrooVim_GroovyMoveEnabled ? "<C-o>:call GrooVim_GroovyMove(\"i\", \"r\", 0, 0)<cr>" : "<C-o>:let g:onMoveScreen = 1<cr>")
 
-nnoremap <silent> <PageDown> :call GrooVim_GroovyMove("n", "d", 1, 0)<cr>
-nnoremap <silent> <PageUp> :call GrooVim_GroovyMove("n", "u", 1, 0)<cr>
+" Note: The page keys move by a PAGE -- the last number, 2 -- which is the
+" window as it is at the moment they are pressed, and not fifteen lines! By
+" Questor
+nnoremap <silent> <PageDown> :call GrooVim_GroovyMove("n", "d", 1, 2)<cr>
+nnoremap <silent> <PageUp> :call GrooVim_GroovyMove("n", "u", 1, 2)<cr>
 
-vnoremap <PageDown> <Cmd>call GrooVim_GroovyMove("v", "d", 1, 0)<cr>
-vnoremap <PageUp> <Cmd>call GrooVim_GroovyMove("v", "u", 1, 0)<cr>
+vnoremap <PageDown> <Cmd>call GrooVim_GroovyMove("v", "d", 1, 2)<cr>
+vnoremap <PageUp> <Cmd>call GrooVim_GroovyMove("v", "u", 1, 2)<cr>
 
-inoremap <silent> <PageDown> <C-o>:call GrooVim_GroovyMove("i", "d", 1, 0)<cr>
-inoremap <silent> <PageUp> <C-o>:call GrooVim_GroovyMove("i", "u", 1, 0)<cr>
+inoremap <silent> <PageDown> <C-o>:call GrooVim_GroovyMove("i", "d", 1, 2)<cr>
+inoremap <silent> <PageUp> <C-o>:call GrooVim_GroovyMove("i", "u", 1, 2)<cr>
 
 nnoremap <silent> <C-A-Left> :call GrooVim_GroovyMove("n", "l", 0, 1)<cr>
 nnoremap <silent> <C-A-Down> :call GrooVim_GroovyMove("n", "d", 0, 1)<cr>
@@ -167,12 +170,31 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     let l:horizontalSmoothnessFactor = 2
     let l:verticalSmoothnessFactor = 10
 
+    " Note: How far a movement goes: a stretch (0), one step (1), or a PAGE (2).
+    "
+    " Note: A page is not a number written down here -- it is what the window is
+    " showing at the moment the key is pressed. It used to be the fifteen lines
+    " of the stretch, so the same key jumped past the screen on a small terminal
+    " and left half of it unread on a big one, and resizing the window changed
+    " nothing. What decides how much a page is, is the page.
+    "
+    " Note: Two lines short of the whole window, and that is not a rounding: the
+    " lines that were at the bottom are at the top when you arrive, so the eye
+    " has a foothold and nothing is read twice or missed. It is what the "Ctrl+F"
+    " of Vim does, and what every editor that turns pages does.
+    "
+    " Note: "winheight(0)" is the window and not the terminal: with a split, or
+    " with a panel of GrooVim open beside the text, a page is what THIS window
+    " shows, which is the one you are reading! By Questor
     if a:GrooVim_GroovyMoveType == 0
       let l:horizontalMovementFactor = 20
       let l:verticalMovementFactor = 15
     elseif a:GrooVim_GroovyMoveType == 1
       let l:horizontalMovementFactor = 1
       let l:verticalMovementFactor = 1
+    elseif a:GrooVim_GroovyMoveType == 2
+      let l:horizontalMovementFactor = max([winwidth(0) - 2, 1])
+      let l:verticalMovementFactor = max([winheight(0) - 2, 1])
     endif
 
     if a:mod == "n" || a:mod == "i"
