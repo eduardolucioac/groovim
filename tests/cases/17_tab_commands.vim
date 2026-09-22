@@ -160,6 +160,15 @@ func! GT_Body()
       \ maparg("<A-,>", s:mode) =~ "C-W.W" && maparg("<A-.>", s:mode) =~ "C-W.w",
       \ "   [" . maparg("<A-,>", s:mode) . "] [" . maparg("<A-.>", s:mode) . "]")
   endfor
+  " And the key has to ARRIVE. Vim does not read an "Esc" in front of a
+  " character as Alt -- ":h :map-alt-keys" names Konsole as one of the terminals
+  " that send it that way -- so the mapping was there and the key did nothing.
+  " What answers it is the sequence being declared as the key itself.
+  let s:said = execute("set <A-,>?") . execute("set <A-.>?")
+  call GT_Ok("  and GrooVim tells Vim which sequence the key IS",
+    \ s:said =~ "\\^\\[," && s:said =~ "\\^\\[\\.",
+    \ "   [" . trim(substitute(s:said, "\n", " ", "g")) . "]")
+
   call GT_Ok("  and they go opposite ways",
     \ maparg("<A-,>", "n") !=# maparg("<A-.>", "n"),
     \ "   (W is the window before this one, w the next)")

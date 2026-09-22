@@ -143,7 +143,34 @@ endfunc
 " it, and with no entry what arrives is the bare "," -- measured in its own
 " default.keytab, which names no Comma and no Period. Alt is sent as an "Esc"
 " in front of the character, which every terminal does and which crosses an SSH
-" the same way! By Questor
+" the same way.
+"
+" Note: And the line below is what makes it arrive as a KEY. Vim does not read
+" an "Esc" in front of a character as Alt: ":h :map-alt-keys" names Konsole and
+" says so -- "some mainstream terminals like gnome-terminal and konsole use the
+" ESC prefix", and Vim "doesn't know what happened". The mapping was there and
+" the key did nothing; measured, window 1 of 2 before and window 1 after.
+" Telling Vim which sequence the key IS, the mapping answers: measured again,
+" window 2 and then back to 1.
+"
+" Note: Alt with an ARROW never needed this -- "Alt+Left" and the others are
+" sent as one whole escape sequence that Vim already knows. It is the printable
+" characters that arrive as two.
+"
+" Note: The price is that an "Esc" typed and a "," typed right after it, inside
+" "ttimeoutlen", now read as Alt and comma. That is the price of every Alt
+" mapping in every terminal, and 150ms is a long time for two fingers.
+"
+" Note: In a "try", and only in a terminal: a Vim with no terminal codes to set
+" throws, and there the key works on its own! By Questor
+if !has("gui_running")
+  try
+    exec "set <A-,>=\<Esc>,"
+    exec "set <A-.>=\<Esc>."
+  catch
+  endtry
+endif
+
 nnoremap <silent> <A-,> <C-w>W
 inoremap <silent> <A-,> <Esc><C-w>W
 vnoremap <silent> <A-,> <Esc><C-w>W
