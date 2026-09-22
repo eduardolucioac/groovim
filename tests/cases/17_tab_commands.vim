@@ -149,6 +149,52 @@ func! GT_Body()
     \ 'get(v:val, "group", "") ==# "F5" && v:val.key ==# "e" && v:val.run =~ "wa"')),
     \ "   (a is now close everything)")
 
+  " ---- walking the windows of a tab, both ways
+  "
+  " It was "Ctrl+W", which only ever went forward. Alt and not Ctrl because a
+  " terminal cannot send "Ctrl" with a comma: the keyboard table of Konsole has
+  " no entry for Comma or Period, and with no entry what arrives is the bare
+  " character -- so a "<C-,>" mapping would never fire, here or over an SSH.
+  for s:mode in ["n", "i", "v"]
+    call GT_Ok("Alt+, and Alt+. walk the windows in mode " . s:mode,
+      \ maparg("<A-,>", s:mode) =~ "C-W.W" && maparg("<A-.>", s:mode) =~ "C-W.w",
+      \ "   [" . maparg("<A-,>", s:mode) . "] [" . maparg("<A-.>", s:mode) . "]")
+  endfor
+  call GT_Ok("  and they go opposite ways",
+    \ maparg("<A-,>", "n") !=# maparg("<A-.>", "n"),
+    \ "   (W is the window before this one, w the next)")
+  call GT_Ok("and Ctrl+W is Vim's own again",
+    \ maparg("<C-w>", "n") ==# "" && maparg("<C-w>", "i") ==# "",
+    \ "   (the key every window command begins with, and the\n" .
+    \ "    \"delete the word behind\" of every terminal in insert)")
+
+  " Really walked, and not only mapped.
+  tabonly! | only!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  split
+  call GT_Ok("setup: two windows", winnr("$") == 2, "   (" . winnr("$") . ")")
+  let s:where = winnr()
+  call GT_Press("\<A-.>")
+  call GT_Ok("Alt+. moved to the other one", winnr() != s:where,
+    \ "   (window " . s:where . " -> " . winnr() . ")")
+  call GT_Press("\<A-,>")
+  call GT_Ok("  and Alt+, came back", winnr() == s:where,
+    \ "   (window " . winnr() . ")")
+  only!
+
+  " ---- and what left the list of shortcuts
+  "
+  " "Select an area" and "the gv of Vim" went with the key that called them, and
+  " so did the code behind the first: a function nothing can reach is not a
+  " feature, it is weight.
+  call GT_Ok("nothing is left calling the range selection",
+    \ !exists("*GrooVim_SelectRange") && !exists("g:GrooVim_SelectRangeInitialize"),
+    \ "   (it went with F3 and Del, which is the only key that ever called it)")
+  call GT_Ok("  and no shortcut names it",
+    \ empty(filter(copy(g:GrooVim_Shortcuts),
+    \   'has_key(v:val, "run") && type(v:val.run) == type("")
+    \   && v:val.run =~ "SelectRange"')), "")
+
   call GT_Done()
 endfunc
 

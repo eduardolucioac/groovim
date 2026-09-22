@@ -131,6 +131,15 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Undo", "what": "Undoes the last change"},
  \ {"where": "Edit", "keys": "<C-r>", "modes": "niv",
  \  "menu": "Redo", "what": "Does again what was undone"},
+ \ {"where": "Edit", "keys": "<S-Up>", "break": 1, "modes": "niv",
+ \  "menu": "Insert mode, in and out",
+ \  "what": "Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops",
+ \  "notes": [
+ \   "The pair of |Shift+Down| : one walks towards typing, the other towards selecting, and either walks back"
+ \  ]},
+ \ {"where": "Edit", "keys": "<S-Down>", "modes": "niv",
+ \  "menu": "Selection mode, in and out",
+ \  "what": "Goes into the selection and comes out of it: from normal or from insert it starts selecting, and from a selection it stops"},
  \ {"where": "Edit", "keys": "<A-Up>", "break": 1, "modes": "niv",
  \  "menu": "Comment/uncomment", "what": "Comments the line, or the selection, and uncomments it",
  \  "needs": {"switch": "enable_tcomment_vim", "name": "the tcomment plugin"}},
@@ -142,19 +151,10 @@ let g:GrooVim_Shortcuts = [
  \  "needs": {"switch": "enable_move_vim", "name": "the vim-move plugin"}},
  \
 "\ ---- Select
- \ {"where": "Select", "group": "F2", "key": "end", "modes": "niv", "run": 'exec "norm viw"', "menu": "Select word", "what": "Selects the word under the cursor"},
  \ {"where": "Select", "group": "F2", "key": "b", "modes": "niv", "run": 'call GrooVim_SetVisualBlock() | exec "normal! \<C-v>"',
  \  "menu": "Column (block) select", "what": "Selects a BLOCK: a rectangle of the text, corner to corner"},
  \ {"where": "Select", "group": "F3", "key": "a", "modes": "niv", "run": 'exec "norm ggVG$"', "menu": "Select all", "what": "Select all text in the current buffer"},
- \ {"where": "Select", "group": "F3", "key": "del", "modes": "ni", "run": 'call GrooVim_SelectRange(l:mode)', "menu": "Select an area", "what": "Selects an area"},
- \ {"where": "Select", "group": "F3", "key": "v", "modes": "ni", "run": 'exec "norm gv"', "menu": "Select the last area again", "what": "Reselect area, the |gv| of Vim"},
  \
- \ {"where": "Select", "keys": "v", "break": 1, "modes": "n",
- \  "menu": "Start selecting", "what": "Starts selecting from where the cursor is"},
- \ {"where": "Select", "keys": "<S-Down>", "modes": "niv",
- \  "menu": "Select down", "what": "Selects downwards, the way Shift does everywhere"},
- \ {"where": "Select", "keys": "<S-Up>", "modes": "niv",
- \  "menu": "Select up", "what": "Selects upwards"},
  \ {"where": "Select", "keys": "<A-Left>", "break": 1, "modes": "niv",
  \  "menu": "Select word left", "what": "Selects the word to the left"},
  \ {"where": "Select", "keys": "<A-Right>", "modes": "niv",
@@ -249,8 +249,15 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Move tab left", "what": "Moves it one place to the left"},
  \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
  \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t"},
- \ {"where": "View", "keys": "<C-w>", "break": 1, "modes": "niv",
- \  "menu": "Other window", "what": "To the other window of this tab"},
+ \ {"where": "View", "keys": "<A-,>", "break": 1, "modes": "niv",
+ \  "menu": "Window back",
+ \  "what": "To the window before this one, going round",
+ \  "notes": [
+ \   "It was |Ctrl+W| , which only ever went one way. And the |Ctrl+W| of Vim is back to being what it is everywhere else: the key every window command begins with"
+ \  ]},
+ \ {"where": "View", "keys": "<A-.>", "modes": "niv",
+ \  "menu": "Window forward",
+ \  "what": "To the next window, going round"},
  \ {"where": "View", "keys": "<F9>", "break": 1, "modes": "n",
  \  "menu": "Help", "what": "Opens this help, and closes it"},
  \ {"where": "View", "keys": "<F10>", "modes": "niv",

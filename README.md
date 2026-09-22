@@ -199,20 +199,17 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+V` - Pastes what is in the transfer area *(normal mode/insert/visual)*;
     - `Ctrl+U` - Undoes the last change *(normal mode/insert/visual)*;
     - `Ctrl+R` - Does again what was undone *(normal mode/insert/visual)*;
+    - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;
+        - Note: The pair of Shift+Down : one walks towards typing, the other towards selecting, and either walks back;
+    - `Shift+Down` - Goes into the selection and comes out of it: from normal or from insert it starts selecting, and from a selection it stops *(normal mode/insert/visual)*;
     - `Alt+Up` - Comments the line, or the selection, and uncomments it *(normal mode/insert/visual)*;
     - `Ctrl+K` - Moves the line, or the selection, up *(normal mode/insert/visual)*;
     - `Ctrl+J` - Moves it down *(normal mode/insert/visual)*;
 
  * **Select** *(Taking hold of text: all of it, a block, a word, an area)*
 
-    - `F2->End` - Selects the word under the cursor *(normal mode/insert/visual)*;
     - `F2->b` - Selects a BLOCK: a rectangle of the text, corner to corner *(normal mode/insert/visual)*;
     - `F3->a` - Select all text in the current buffer *(normal mode/insert/visual)*;
-    - `F3->Del` - Selects an area *(normal mode/insert)*;
-    - `F3->v` - Reselect area, the gv of Vim *(normal mode/insert)*;
-    - `v` - Starts selecting from where the cursor is *(normal mode)*;
-    - `Shift+Down` - Selects downwards, the way Shift does everywhere *(normal mode/insert/visual)*;
-    - `Shift+Up` - Selects upwards *(normal mode/insert/visual)*;
     - `Alt+Left` - Selects the word to the left *(normal mode/insert/visual)*;
     - `Alt+Right` - Selects the word to the right *(normal mode/insert/visual)*;
     - `Alt+Home` - Selects back to the start of the line *(normal mode/insert)*;
@@ -265,7 +262,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Shift+Up` - Moves this tab one place to the right *(normal mode/insert/visual)*;
     - `Ctrl+Shift+Down` - Moves it one place to the left *(normal mode/insert/visual)*;
     - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
-    - `Ctrl+W` - To the other window of this tab *(normal mode/insert/visual)*;
+    - `Alt+,` - To the window before this one, going round *(normal mode/insert/visual)*;
+        - Note: It was Ctrl+W , which only ever went one way. And the Ctrl+W of Vim is back to being what it is everywhere else: the key every window command begins with;
+    - `Alt+.` - To the next window, going round *(normal mode/insert/visual)*;
     - `F9` - Opens this help, and closes it *(normal mode)*;
     - `F10` - Opens this menu *(normal mode/insert/visual)*;
 

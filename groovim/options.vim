@@ -35,48 +35,6 @@ func! GrooVim_SelectNSearch(type, mode) range abort
   endif
 endfunc
 
-" Note: Select a range based on first and last positions! By Questor
-let g:lastCursorPos = [0,0]
-let g:GrooVim_SelectRangeInitialize = 1
-func! GrooVim_SelectRange(mod) range abort
-
-  let l:selDirection = "nothing"
-  if g:GrooVim_SelectRangeInitialize == 0 && a:mod == "i"
-    let l:cursorPosInsert = getpos(".")
-    if g:lastCursorPos[1] < l:cursorPosInsert[1]
-      let l:selDirection = "lessMoreLine"
-    elseif g:lastCursorPos[1] > l:cursorPosInsert[1]
-      let l:selDirection = "moreLessLine"
-    elseif g:lastCursorPos[1] == l:cursorPosInsert[1]
-      if g:lastCursorPos[2] < l:cursorPosInsert[2]
-        let l:selDirection = "lessMoreCol"
-      elseif g:lastCursorPos[2] > l:cursorPosInsert[2]
-        let l:selDirection = "moreLessCol"
-      endif
-    endif
-  endif
-
-  if g:GrooVim_SelectRangeInitialize == 1
-    let g:lastCursorPos = getpos(".")
-    let g:GrooVim_SelectRangeInitialize = 0
-    echomsg "Beginning of the range selected!"
-  elseif g:GrooVim_SelectRangeInitialize == 0
-    let l:cursorPos = getpos(".")
-    call setpos('.', g:lastCursorPos)
-    if (l:selDirection == "moreLessLine" || l:selDirection == "moreLessCol") && a:mod == "i"
-      exec "norm \<Left>"
-    endif
-    exec "norm v"
-    call setpos('.', l:cursorPos)
-    if (l:selDirection == "lessMoreLine" || l:selDirection == "lessMoreCol") && a:mod == "i"
-      exec "norm \<Left>"
-    endif
-    let g:GrooVim_SelectRangeInitialize = 1
-    echomsg "Range selected!"
-  endif
-
-endfunc
-
 " Note: Where the options you chose to KEEP are written.
 "
 " Note: Under "GrooVim/" and not under "plugin/", where it used to live: Vim

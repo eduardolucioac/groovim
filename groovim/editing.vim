@@ -132,10 +132,24 @@ func! GrooVim_SpaceOnNormalMode() abort
   exec "norm i\<Space>"
 endfunc
 
-" Note: Allows faster switching between windows with "Ctrl+w"! By Questor
-nnoremap <silent> <C-w> <C-w><C-w>
-inoremap <silent> <C-w> <Esc><C-w><C-w>
-vnoremap <silent> <C-w> <Esc><C-w><C-w>
+" Note: Walking the windows of a tab, both ways.
+"
+" Note: It was "Ctrl+w", which only ever went FORWARD -- and took from Vim the
+" key every window command of it begins with, and from insert mode the "delete
+" the word behind" that every terminal has. Both are back to being themselves.
+"
+" Note: Alt and not Ctrl, and this is not a taste: a terminal has no way of
+" sending "Ctrl" with a comma. The keyboard table of Konsole has no entry for
+" it, and with no entry what arrives is the bare "," -- measured in its own
+" default.keytab, which names no Comma and no Period. Alt is sent as an "Esc"
+" in front of the character, which every terminal does and which crosses an SSH
+" the same way! By Questor
+nnoremap <silent> <A-,> <C-w>W
+inoremap <silent> <A-,> <Esc><C-w>W
+vnoremap <silent> <A-,> <Esc><C-w>W
+nnoremap <silent> <A-.> <C-w>w
+inoremap <silent> <A-.> <Esc><C-w>w
+vnoremap <silent> <A-.> <Esc><C-w>w
 
 " Note: Allows yank a line without the return character! By Questor
 nnoremap <silent> yy 0y$
