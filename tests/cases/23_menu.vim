@@ -1,5 +1,9 @@
-" The menu: a bar across the top with the four groups, and under the one you are
-" on, what it holds -- the shape of the menu of Notepad++ and of vim-quickui.
+" The menu: a bar across the top with the sections, and under the one you are on,
+" what it holds -- the shape of the menu of Notepad++ and of vim-quickui.
+"
+" The sections are not the four F keys any more. They are what GrooVim DOES --
+" File, Edit, Select, Search, Move, View, Settings -- so the keys pressed
+" straight, Ctrl+C and the arrows with their modifiers, show on it too.
 "
 " Written out of the same list as the help of F9. Choosing an entry presses the
 " keys of the shortcut, so the menu can never do something the keyboard would
@@ -9,7 +13,7 @@ call GT_Name(expand("<sfile>:t:r"))
 
 " Which section is open, read from the entries the menu put up.
 func! GT_MenuSection()
-  return empty(g:GrooVim_MenuEntries) ? "" : g:GrooVim_MenuEntries[0].group
+  return empty(g:GrooVim_MenuEntries) ? "" : g:GrooVim_MenuEntries[0].where
 endfunc
 
 " Which line of the list the cursor is on. A popup is a window of its own, so it
@@ -37,10 +41,16 @@ func! GT_Body()
 
   " ---- the bar
   let [l:text, l:at] = GrooVim_MenuBarText()
-  call GT_Ok("the bar names the four sections",
-    \ l:text ==# " F2 Edit  F3 Search  F4 Utils  F5 Editor ", "   [" . l:text . "]")
-  call GT_Ok("and says where each one begins", len(l:at) == 4 && l:at[0][0] == 1 &&
-    \ strpart(l:text, l:at[3][0] - 1, 3) ==# " F5", "   " . string(l:at))
+  " The name of the section and nothing else. It used to read " F2 Edit ", which
+  " taught that F2 was Edit -- and could, while a section WAS an F key.
+  call GT_Ok("the bar names the sections, and only names them",
+    \ l:text ==# " " . join(map(copy(g:GrooVim_MenuSections), 'v:val[0]'), "  ") . " ",
+    \ "   [" . l:text . "]")
+  call GT_Ok("  and no F key is written on it", l:text !~ 'F[2-5]',
+    \ "   (which F key goes with what is under each section, on the lines)")
+  call GT_Ok("and says where each one begins",
+    \ len(l:at) == len(g:GrooVim_MenuSections) && l:at[0][0] == 1 &&
+    \ strpart(l:text, l:at[1][0] - 1, 5) ==# " Edit", "   " . string(l:at))
 
   " ---- a line: what it does on the left, the keys on the right
   call GT_Ok("the shortcut is written the way the messages write it",
@@ -48,6 +58,21 @@ func! GT_Body()
     \ "   [" . GrooVim_ShortcutShown({"group": "F5", "key": "n"}) . "]")
   call GT_Ok("a named key keeps its capital",
     \ GrooVim_ShortcutShown({"group": "F2", "key": "up"}) ==# "F2->Up", "")
+
+  " ---- and a key pressed straight is written the way a keyboard is read
+  "
+  " "<C-c>" is how Vim spells it and nobody else does. On the menu of an editor
+  " it says Ctrl+C, which is what is printed on the key.
+  for s:pair in [["<C-c>", "Ctrl+C"], ["<C-S-Up>", "Ctrl+Shift+Up"],
+   \ ["<A-S-Down>", "Alt+Shift+Down"], ["<C-A-Left>", "Ctrl+Alt+Left"],
+   \ ["<S-Tab>", "Shift+Tab"], ["<2-Leftmouse>", "Double click"], ["n", "n"]]
+    call GT_Ok("  " . s:pair[0] . " reads " . s:pair[1],
+      \ GrooVim_ShortcutShown({"keys": s:pair[0]}) ==# s:pair[1],
+      \ "   [" . GrooVim_ShortcutShown({"keys": s:pair[0]}) . "]")
+  endfor
+  call GT_Ok("and choosing one presses the key itself",
+    \ GrooVim_ShortcutKeys({"keys": "<C-c>"}) ==# "\<C-c>" &&
+    \ GrooVim_ShortcutKeys({"keys": "n"}) ==# "n", "")
   let l:line = GrooVim_MenuLine({"group": "F5", "key": "n", "what": "Open a new tab"}, 20)
   call GT_Ok("the line puts the keys on the right",
     \ l:line ==# "  Open a new tab" . repeat(" ", 10) . "F5->n  ",
@@ -61,7 +86,7 @@ func! GT_Body()
   let l:littered = []
   for l:one in g:GrooVim_Shortcuts
     if GrooVim_MenuLine(l:one, 80) =~ '[|*]'
-      call add(l:littered, l:one.group . "->" . l:one.key)
+      call add(l:littered, GrooVim_ShortcutShown(l:one))
     endif
   endfor
   call GT_Ok("no line has help markup left in it", empty(l:littered),
@@ -83,7 +108,7 @@ func! GT_Body()
     \ "   (line " . l:barPos.line . " col " . l:barPos.col . ")")
   call GT_Ok("the list is right under it", popup_getpos(l:drop).line == 2,
     \ "   (line " . popup_getpos(l:drop).line . ")")
-  call GT_Ok("it opens on the first section", GT_MenuSection() ==# "F2",
+  call GT_Ok("it opens on the first section", GT_MenuSection() ==# "File",
     \ "   [" . GT_MenuSection() . "]")
   call GT_Ok("with one line per key of that section, its rules and the border",
     \ popup_getpos(l:drop).height == len(g:GrooVim_MenuEntries) + 2,
@@ -94,36 +119,55 @@ func! GT_Body()
   call GT_Ok("the section is broken into blocks by rules", l:rules > 0,
     \ "   (" . l:rules . " rules)")
   let l:drawn = getbufline(winbufnr(l:drop), 1, "$")
+  " Asked for and not counted to: which line a rule falls on is the shape of the
+  " section, and that moves whenever a shortcut is added to it.
+  let l:first = 0
+  for l:i in range(len(g:GrooVim_MenuEntries))
+    if get(g:GrooVim_MenuEntries[l:i], "rule", 0)
+      let l:first = l:i
+      break
+    endif
+  endfor
   call GT_Ok("  and a rule is a line of its own, not an entry",
-    \ l:drawn[3] =~ "^─\\+$" && get(g:GrooVim_MenuEntries[3], "rule", 0),
-    \ "   [" . l:drawn[3][0:20] . "]")
+    \ l:first > 0 && l:drawn[l:first] =~ "^─\\+$",
+    \ "   (line " . (l:first + 1) . ") [" . l:drawn[l:first][0:20] . "]")
   call GT_Ok("  no rule is the first line", !get(g:GrooVim_MenuEntries[0], "rule", 0),
     \ "   (a menu does not open with a line across it)")
 
   " ---- Right and Left walk the bar, and it wraps round
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Right>")
-  call GT_Ok("Right goes to the next section", GT_MenuSection() ==# "F3", "   [" . GT_MenuSection() . "]")
+  call GT_Ok("Right goes to the next section", GT_MenuSection() ==# "Edit", "   [" . GT_MenuSection() . "]")
   call GT_Ok("  and the list moved under it",
     \ popup_getpos(GT_MenuDrop()).col == GrooVim_MenuBarText()[1][1][0],
     \ "   (col " . popup_getpos(GT_MenuDrop()).col . ")")
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Left>")
-  call GT_Ok("Left comes back", GT_MenuSection() ==# "F2", "   [" . GT_MenuSection() . "]")
+  call GT_Ok("Left comes back", GT_MenuSection() ==# "File", "   [" . GT_MenuSection() . "]")
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Left>")
-  call GT_Ok("and from the first, Left wraps to the last", GT_MenuSection() ==# "F5",
+  call GT_Ok("and from the first, Left wraps to the last", GT_MenuSection() ==# "Settings",
     \ "   [" . GT_MenuSection() . "]")
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Right>")
-  call GT_Ok("from the last, Right wraps to the first", GT_MenuSection() ==# "F2",
+  call GT_Ok("from the last, Right wraps to the first", GT_MenuSection() ==# "File",
     \ "   [" . GT_MenuSection() . "]")
 
-  " ---- the F key of a section jumps straight to it
+  " ---- an F key jumps to where that F key mostly lives
+  "
+  " It used to jump to the section OF that key, and could, while a section was an
+  " F key. An F key is spread over several sections now, so what is kept is the
+  " hand: each one lands where it has most of its shortcuts, which is what the
+  " four used to be called.
+  for s:pair in [["F5", "File"], ["F2", "Edit"], ["F3", "Search"], ["F4", "View"]]
+    call GT_Ok(s:pair[0] . " jumps to " . s:pair[1],
+      \ GrooVim_MenuSectionOfFKey(s:pair[0]) ==# s:pair[1],
+      \ "   [" . GrooVim_MenuSectionOfFKey(s:pair[0]) . "]")
+  endfor
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<F5>")
-  call GT_Ok("F5 jumps to its own section", GT_MenuSection() ==# "F5",
-    \ "   [" . GT_MenuSection() . "]   (the same key that runs its shortcuts)")
+  call GT_Ok("  and pressing it really opens that one", GT_MenuSection() ==# "File",
+    \ "   [" . GT_MenuSection() . "]")
 
   " ---- and the list really is the one of that section
   let l:lines = getbufline(winbufnr(GT_MenuDrop()), 1, "$")
   call GT_Ok("its first line is the first key of the list",
-    \ l:lines[0] =~ "Save to disk" && l:lines[0] =~ "F5->s", "   [" . trim(l:lines[0]) . "]")
+    \ l:lines[0] =~ "name or path" && l:lines[0] =~ "F2->p", "   [" . trim(l:lines[0]) . "]")
 
   " ---- choosing an entry presses the keys
   "
@@ -144,7 +188,7 @@ func! GT_Body()
       let l:which = l:i + 1
     endif
   endfor
-  call GT_Ok("found \"open a new tab\" in the F5 section", l:which > 0, "   (line " . l:which . ")")
+  call GT_Ok("found \"open a new tab\" in it", l:which > 0, "   (line " . l:which . ")")
 
   " Down one at a time until the cursor is on it -- counting the steps would be
   " wrong, because Down STEPS OVER the rules.
@@ -167,18 +211,27 @@ func! GT_Body()
   " "test_setmouse" is what lets a case click: it puts the mouse where it says,
   " and "getmousepos()" -- which is what the menu reads -- answers from there.
   call GrooVim_Menu()
-  call GT_Ok("setup: the menu is up on F2", GT_MenuSection() ==# "F2", "")
+  call GT_Ok("setup: the menu is up on the first section",
+    \ GT_MenuSection() ==# "File", "")
 
   let [l:text, l:at] = GrooVim_MenuBarText()
+  let l:third = GrooVim_MenuSectionsHere()[2][0]
   call test_setmouse(1, l:at[2][0] + 2)
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
-  call GT_Ok("a click on the bar opens that section", GT_MenuSection() ==# "F4",
-    \ "   [" . GT_MenuSection() . "]   (clicked column " . (l:at[2][0] + 2) . ", where F4 is)")
+  call GT_Ok("a click on the bar opens that section", GT_MenuSection() ==# l:third,
+    \ "   [" . GT_MenuSection() . "]   (clicked column " . (l:at[2][0] + 2) .
+    \ ", where " . l:third . " is)")
 
+  let l:fourth = GrooVim_MenuSectionsHere()[3][0]
   call test_setmouse(1, l:at[3][0] + 2)
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<LeftMouse>")
-  call GT_Ok("  and another click, another section", GT_MenuSection() ==# "F5",
+  call GT_Ok("  and another click, another section", GT_MenuSection() ==# l:fourth,
     \ "   [" . GT_MenuSection() . "]")
+
+  " Back to the section that holds "open a new tab", which the two clicks below
+  " are aimed at.
+  call GrooVim_MenuFilter(GT_MenuDrop(), "\<F5>")
+  call GT_Ok("  setup: back on the section of the tabs", GT_MenuSection() ==# "File", "")
 
   " a click on a rule chooses nothing and leaves the menu up
   let l:rule = 0

@@ -150,83 +150,144 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 
 <!-- shortcuts: written by tools/sync-readme.sh, do not edit by hand -->
 
- * **F2** and then... *(Editing, and what acts on the FILE itself)*
+ * **File** *(The file itself: saving it, opening another, leaving)*
 
-    - `h` - Aligns to left *(normal mode/insert/visual)*;
-    - `k` - Aligns to right *(normal mode/insert/visual)*;
-    - `j` - Aligns to center *(normal mode/insert/visual)*;
-    - `Up` - Changes to uppercase *(normal mode/insert/visual)*;
-    - `Down` - Changes to lowercase *(normal mode/insert/visual)*;
-    - `t` - Title Case: the first letter of every word up, the rest down *(normal mode/insert/visual)*;
-        - Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so "don't" becomes "Don'T";
-        - Note: The three of them leave the cursor where it was;
-    - `c` - Copy all text in the current buffer *(normal mode/insert/visual)*;
-    - `End` - Selects the word under the cursor *(normal mode/insert/visual)*;
-    - `q` - Start and stop recording a macro *(normal mode/insert/visual)*;
-        - Note: The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own;
-        - Note: What is recorded goes into the register a , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one;
-    - `w` - Run a macro *(normal mode/insert/visual)*;
-    - `e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
-    - `p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
-    - `b` - Selects a BLOCK: a rectangle of the text, corner to corner *(normal mode/insert/visual)*;
-    - `l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
-    - `y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
-
- * **F3** and then... *(The editing you reach for most, and searching)*
-
-    - `a` - Select all text in the current buffer *(normal mode/insert/visual)*;
-    - `d` - Duplicates the current line/selection *(normal mode/insert/visual)*;
-        - Note: If in the visual mode can not be replicated;
-    - `Del` - Selects an area *(normal mode/insert)*;
-    - `v` - Reselect area, the gv of Vim *(normal mode/insert)*;
-    - `/` - Removes search highlights *(normal mode/insert/visual)*;
-    - `m` - Mark every occurrence of the word under the cursor *(normal mode/insert/visual)*;
-        - Note: In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
-        - Note: It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the "Style all occurrences of token" of Notepad++;
-    - `f` - Opens for search *(normal mode/insert/visual)*;
-    - `h` - Opens to replace *(normal mode/insert/visual)*;
-        - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
-    - `End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
-
- * **F4** and then... *(The tools beside the text: the file tree, the marked lines)*
-
-    - `n` - Opens/closes the file tree *(normal mode/insert/visual)*;
-    - `b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
-    - `i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
-    - `l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;
-    - `c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;
-
- * **F5** and then... *(What acts on the EDITOR -- tabs, leaving -- and the settings)*
-
-    - `s` - Save to disk *(normal mode/insert/visual)*;
+    - `F2->p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
+    - `F2->y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
+    - `F5->s` - Save to disk *(normal mode/insert/visual)*;
         - Note: In visual mode it writes the SELECTION to a file of its own;
-    - `e` - Save every changed file *(normal mode/insert/visual)*;
-    - `a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
+    - `F5->e` - Save every changed file *(normal mode/insert/visual)*;
+    - `F5->a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
         - Note: Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
-    - `n` - Open a new tab *(normal mode/insert/visual)*;
+    - `F5->n` - Open a new tab *(normal mode/insert/visual)*;
         - Note: A document you have not saved yet is called new 1 , new 2 ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
-    - `t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
-        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
-    - `q` - Close the window *(normal mode/insert/visual)*;
-    - `w` - Close the tab you are in *(normal mode/insert/visual)*;
+    - `F5->q` - Close the window *(normal mode/insert/visual)*;
+    - `F5->w` - Close the tab you are in *(normal mode/insert/visual)*;
         - Note: On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls new 1;
-    - `o` - Close all other tabs *(normal mode/insert/visual)*;
-    - `.` - Close every tab to the RIGHT of this one *(normal mode/insert/visual)*;
-    - `,` - Close every tab to the LEFT of this one *(normal mode/insert/visual)*;
+    - `F5->o` - Close all other tabs *(normal mode/insert/visual)*;
+    - `F5->.` - Close every tab to the RIGHT of this one *(normal mode/insert/visual)*;
+    - `F5->,` - Close every tab to the LEFT of this one *(normal mode/insert/visual)*;
         - Note: The keys of <<> and <>> without the Shift: the comma is to the left of the dot, which is the way each one closes;
-    - `x` - Close everything and leave *(normal mode/insert/visual)*;
+    - `F5->x` - Close everything and leave *(normal mode/insert/visual)*;
         - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
-    - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
-    - `c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
+    - `F5->[` - Saves the current session *(normal mode/insert/visual)*;
+    - `F5->]` - Brings the last saved session back *(normal mode/insert/visual)*;
+        - Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;
+
+ * **Edit** *(Changing the text: the transfer area, undo, the indent, the case)*
+
+    - `F2->h` - Aligns to left *(normal mode/insert/visual)*;
+    - `F2->k` - Aligns to right *(normal mode/insert/visual)*;
+    - `F2->j` - Aligns to center *(normal mode/insert/visual)*;
+    - `F2->Up` - Changes to uppercase *(normal mode/insert/visual)*;
+    - `F2->Down` - Changes to lowercase *(normal mode/insert/visual)*;
+    - `F2->t` - Title Case: the first letter of every word up, the rest down *(normal mode/insert/visual)*;
+        - Note: In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so "don't" becomes "Don'T";
+        - Note: The three of them leave the cursor where it was;
+    - `F2->c` - Copy all text in the current buffer *(normal mode/insert/visual)*;
+    - `F2->q` - Start and stop recording a macro *(normal mode/insert/visual)*;
+        - Note: The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own;
+        - Note: What is recorded goes into the register a , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one;
+    - `F2->w` - Run a macro *(normal mode/insert/visual)*;
+    - `F2->e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
+    - `F2->l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
+    - `F3->d` - Duplicates the current line/selection *(normal mode/insert/visual)*;
+        - Note: If in the visual mode can not be replicated;
+    - `Ctrl+C` - Copies what is selected, and leaves the cursor where it was *(visual)*;
+    - `Ctrl+X` - Cuts what is selected *(visual)*;
+    - `Ctrl+V` - Pastes what is in the transfer area *(normal mode/insert/visual)*;
+    - `p` - Pastes too, on the key Vim pastes with *(normal mode/visual)*;
+    - `Ctrl+U` - Undoes the last change *(normal mode/insert/visual)*;
+    - `Ctrl+R` - Does again what was undone *(normal mode/insert/visual)*;
+    - `Tab` - Pushes the line, or the selection, one indent to the right *(normal mode/visual)*;
+    - `Shift+Tab` - Pulls it one indent back *(normal mode/insert/visual)*;
+    - `Enter` - Splits the line where the cursor is, in normal mode too *(normal mode)*;
+    - `Space` - Types a space, in normal mode too *(normal mode)*;
+    - `Del` - Takes away the character, or the selection *(normal mode/visual)*;
+    - `Backspace` - Takes away the character before the cursor *(normal mode/visual)*;
+    - `d` - Deletes, and what you had copied stays where it was *(normal mode)*;
+    - `x` - Deletes a character, and leaves the transfer area alone *(normal mode/visual)*;
+    - `yy` - Copies the line, without the break at the end of it *(normal mode)*;
+    - `Alt+Up` - Comments the line, or the selection, and uncomments it *(normal mode/insert/visual)*;
+    - `Ctrl+K` - Moves the line, or the selection, up *(normal mode/insert/visual)*;
+    - `Ctrl+J` - Moves it down *(normal mode/insert/visual)*;
+
+ * **Select** *(Taking hold of text: all of it, a block, a word, an area)*
+
+    - `F2->End` - Selects the word under the cursor *(normal mode/insert/visual)*;
+    - `F2->b` - Selects a BLOCK: a rectangle of the text, corner to corner *(normal mode/insert/visual)*;
+    - `F3->a` - Select all text in the current buffer *(normal mode/insert/visual)*;
+    - `F3->Del` - Selects an area *(normal mode/insert)*;
+    - `F3->v` - Reselect area, the gv of Vim *(normal mode/insert)*;
+    - `v` - Starts selecting from where the cursor is *(normal mode)*;
+    - `Shift+Down` - Selects downwards, the way Shift does everywhere *(normal mode/insert/visual)*;
+    - `Shift+Up` - Selects upwards *(normal mode/insert/visual)*;
+    - `Alt+Left` - Selects the word to the left *(normal mode/insert/visual)*;
+    - `Alt+Right` - Selects the word to the right *(normal mode/insert/visual)*;
+    - `Alt+Home` - Selects back to the start of the line *(normal mode/insert)*;
+    - `Alt+End` - Selects on to the end of the line *(normal mode/insert)*;
+
+ * **Search** *(Finding and replacing, and the marks a search leaves)*
+
+    - `F3->/` - Removes search highlights *(normal mode/insert/visual)*;
+    - `F3->m` - Mark every occurrence of the word under the cursor *(normal mode/insert/visual)*;
+        - Note: In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
+        - Note: It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the "Style all occurrences of token" of Notepad++;
+    - `F3->f` - Opens for search *(normal mode/insert/visual)*;
+    - `F3->h` - Opens to replace *(normal mode/insert/visual)*;
+        - Note: The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
+    - `F3->End` - Select and search the word under the cursor (case sensitive) *(normal mode/insert/visual)*;
+    - `n` - Goes to the next of what was searched for *(normal mode)*;
+    - `N` - Goes to the one before it *(normal mode)*;
+    - `Double click` - A double click takes the word and searches for it *(normal mode/insert/visual)*;
+
+ * **Move** *(Walking the text: the smooth movement, the pages, the brackets)*
+
+    - `Alt+Shift+Up` - Walks up, smoothly, and takes the selection along *(normal mode/insert/visual)*;
+    - `Alt+Shift+Down` - Walks down the same way *(normal mode/insert/visual)*;
+    - `Alt+Shift+Left` - Walks left the same way *(normal mode/insert/visual)*;
+    - `Alt+Shift+Right` - Walks right the same way *(normal mode/insert/visual)*;
+    - `Ctrl+Alt+Up` - One step up, over areas with no text *(normal mode/insert/visual)*;
+    - `Ctrl+Alt+Down` - One step down, the same *(normal mode/insert/visual)*;
+    - `Ctrl+Alt+Left` - One step left, the same *(normal mode/insert/visual)*;
+    - `Ctrl+Alt+Right` - One step right, the same *(normal mode/insert/visual)*;
+    - `PageUp` - A page up *(normal mode/insert/visual)*;
+    - `PageDown` - A page down *(normal mode/insert/visual)*;
+    - `Ctrl+Left` - A word back *(normal mode/insert/visual)*;
+    - `Ctrl+Right` - A word forward *(normal mode/insert/visual)*;
+    - `End` - To the REAL end of the line, past the last character *(normal mode)*;
+    - `Ctrl+B` - From one bracket to the one that closes it, and back *(normal mode/insert/visual)*;
+
+ * **View** *(What is beside the text: the tree, the marked lines, the tabs, the help)*
+
+    - `F4->n` - Opens/closes the file tree *(normal mode/insert/visual)*;
+    - `F4->b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
+    - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
+    - `F4->l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;
+    - `F4->c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;
+    - `F5->t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
+        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
+    - `m` - To the next marked line *(normal mode)*;
+    - `M` - To the marked line before it *(normal mode)*;
+    - `Ctrl+Up` - The next tab *(normal mode/insert/visual)*;
+    - `Ctrl+Down` - The tab before it *(normal mode/insert/visual)*;
+    - `Ctrl+Shift+Up` - Moves this tab one place to the right *(normal mode/insert/visual)*;
+    - `Ctrl+Shift+Down` - Moves it one place to the left *(normal mode/insert/visual)*;
+    - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
+    - `Ctrl+W` - To the other window of this tab *(normal mode/insert/visual)*;
+    - `F9` - Opens this help, and closes it *(normal mode)*;
+    - `F10` - Opens this menu *(normal mode/insert/visual)*;
+
+ * **Settings** *(What GrooVim is: every setting, and reading it again)*
+
+    - `F5->r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
+    - `F5->c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
         - Note: It asks which of them first: [i]ndent , the width and what <Tab> puts; [v]iew , what is DRAWN and is not in the file, the language among it; [f]ile , the encoding and what ends a line IN the file you have open; [s]earch ; [r]eplace ; [g]eneral . Then it opens that screen;
         - Note: The indent one is the "Tab Settings" of Notepad++, and the view one is its "View, Show Symbol";
         - Note: On every screen, leaving an answer EMPTY keeps the value shown as "in use". At the end a summary of what you chose is held on screen until you press <Enter>;
         - Note: [f]ile is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there;
         - Note: There is one door and only one. Each screen used to have a key of its own, so the letters f , h and i of this group are free again;
-    - `[` - Saves the current session *(normal mode/insert/visual)*;
-    - `]` - Brings the last saved session back *(normal mode/insert/visual)*;
-        - Note: The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;
 
 <!-- shortcuts: end -->
 

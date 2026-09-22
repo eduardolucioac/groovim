@@ -97,12 +97,12 @@ endfunc
 " Note: The F groups that have anything left in them here. A group whose every
 " shortcut belongs to a plugin that is not installed would otherwise be a
 " heading over nothing in the help, and an empty menu to open! By Questor
-func! GrooVim_ShortcutGroupsHere() abort
+func! GrooVim_MenuSectionsHere() abort
   let l:out = []
-  for l:group in g:GrooVim_ShortcutGroups
+  for l:section in g:GrooVim_MenuSections
     for l:one in g:GrooVim_Shortcuts
-      if l:one.group ==# l:group[0] && GrooVim_ShortcutAvailable(l:one)
-        call add(l:out, l:group)
+      if l:one.where ==# l:section[0] && GrooVim_ShortcutAvailable(l:one)
+        call add(l:out, l:section)
         break
       endif
     endfor
@@ -138,18 +138,55 @@ endfunc
 " then the letter -- or the real key code, for the ones that are not letters! By
 " Questor
 func! GrooVim_ShortcutKeys(one) abort
+
+  " Note: A key of its own -- "<C-c>", "<A-S-Up>", "m" -- and not a pair of an F
+  " key and a letter. Written the way Vim writes a key, so that what the menu
+  " feeds is what the keyboard would have sent! By Questor
+  if has_key(a:one, "keys")
+    return a:one.keys =~ "^<" ? eval('"\' . a:one.keys . '"') : a:one.keys
+  endif
+
   let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
    \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
   let l:second = has_key(l:named, a:one.key)
    \ ? eval('"\<' . l:named[a:one.key] . '>"') : a:one.key
   return eval('"\<' . a:one.group . '>"') . l:second
+
 endfunc
 
 " Note: How a shortcut is written for a human: "F5->n", the notation every
 " message of GrooVim uses! By Questor
+" Note: How a key is written where somebody reads it: "F2->c", "Ctrl+C",
+" "Alt+Shift+Up", "m".
+"
+" Note: Built from the key itself and not written by hand beside it. A label
+" typed into each entry is a second place for the same fact, and the day a key
+" moves the label stays! By Questor
 func! GrooVim_ShortcutShown(one) abort
+
+  if has_key(a:one, "keys")
+    if a:one.keys !~ "^<"
+      return a:one.keys
+    endif
+    if a:one.keys ==# "<2-Leftmouse>"
+      return "Double click"
+    endif
+    let l:text = substitute(a:one.keys, '^<\|>$', "", "g")
+    let l:text = substitute(l:text, '^C-A-', "Ctrl+Alt+", "")
+    let l:text = substitute(l:text, '^C-S-', "Ctrl+Shift+", "")
+    let l:text = substitute(l:text, '^A-S-', "Alt+Shift+", "")
+    let l:text = substitute(l:text, '^C-', "Ctrl+", "")
+    let l:text = substitute(l:text, '^A-', "Alt+", "")
+    let l:text = substitute(l:text, '^S-', "Shift+", "")
+    " Note: A lone letter after a modifier is shown as a capital, the way every
+    " keyboard is painted: "Ctrl+c" is read as "Ctrl" and then "c", which is not
+    " a key anybody has! By Questor
+    return substitute(l:text, '\(+\)\(\a\)$', '\1\u\2', "")
+  endif
+
   let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
   return a:one.group . "->" . get(l:named, a:one.key, a:one.key)
+
 endfunc
 
 " Note: The same words without the marks the help syntax of Vim needs. A "|" and
@@ -189,7 +226,7 @@ func! GrooVim_MenuOf(group, startColumn) abort
   let l:what = 0
   let l:keys = 0
   for l:one in g:GrooVim_Shortcuts
-    if l:one.group ==# a:group && GrooVim_ShortcutAvailable(l:one)
+    if l:one.where ==# a:group && GrooVim_ShortcutAvailable(l:one)
       call add(l:entries, l:one)
       let l:what = max([l:what, strchars(GrooVim_ShortcutPlain(l:one.what))])
       let l:keys = max([l:keys, strchars(GrooVim_ShortcutShown(l:one))])
@@ -208,8 +245,12 @@ endfunc
 func! GrooVim_MenuBarText() abort
   let l:text = ""
   let l:at = []
-  for l:group in GrooVim_ShortcutGroupsHere()
-    let l:piece = " " . l:group[0] . " " . l:group[2] . " "
+  for l:group in GrooVim_MenuSectionsHere()
+    " Note: The name of the section and nothing else. It used to be " F2 Edit ",
+    " which taught that F2 was Edit -- and could, because a section WAS an F key.
+    " A section holds keys of every shape now, and each line under it carries the
+    " keys that do it! By Questor
+    let l:piece = " " . l:group[0] . " "
     call add(l:at, [strchars(l:text) + 1, strchars(l:piece)])
     let l:text = l:text . l:piece
   endfor
@@ -305,7 +346,7 @@ augroup END
 " By Questor
 func! GrooVim_MenuOpen(section) abort
 
-  let l:groups = GrooVim_ShortcutGroupsHere()
+  let l:groups = GrooVim_MenuSectionsHere()
   let l:count = len(l:groups)
   let s:menuSection = (a:section + l:count) % l:count
   let l:group = l:groups[s:menuSection]
@@ -402,10 +443,66 @@ func! GrooVim_MenuStep(step) abort
 
   let s:menuLine = l:line
   call win_execute(s:menuDrop, "call cursor(" . s:menuLine . ", 1)")
+
+  " Note: And the list is scrolled to where the cursor went.
+  "
+  " Note: A popup does NOT follow its cursor the way a window does: moving it
+  " with "win_execute" leaves what is shown exactly where it was. Measured, on a
+  " screen of 24 lines with a section of 30 entries: thirty four steps down and
+  " the first line shown was still the first line of the list -- everything past
+  " the twenty third was out of reach, on a menu whose whole point is to show
+  " what there is.
+  "
+  " Note: "core_height" and not "height": the border and the padding are not
+  " lines of the list! By Questor
+  let l:pos = popup_getpos(s:menuDrop)
+  if !empty(l:pos)
+    if s:menuLine < l:pos.firstline
+      call popup_setoptions(s:menuDrop, {"firstline": s:menuLine})
+    elseif s:menuLine >= l:pos.firstline + l:pos.core_height
+      call popup_setoptions(s:menuDrop,
+       \ {"firstline": s:menuLine - l:pos.core_height + 1})
+    endif
+  endif
+
 endfunc
 
 " Note: Left and Right walk the bar, an F key jumps to its own section, the mouse
 " clicks where it likes, and the rest is what a menu does! By Questor
+" Note: Which F key was pressed, if it was one! By Questor
+func! GrooVim_MenuFKeyPressed(key) abort
+  for l:fKey in ["F2", "F3", "F4", "F5"]
+    if a:key ==# eval('"\<' . l:fKey . '>"')
+      return l:fKey
+    endif
+  endfor
+  return ""
+endfunc
+
+" Note: The section that F key has most of its shortcuts in -- counted and not
+" written down, so that moving a shortcut from one section to another moves this
+" with it! By Questor
+func! GrooVim_MenuSectionOfFKey(fKey) abort
+  let l:count = {}
+  for l:one in g:GrooVim_Shortcuts
+    if get(l:one, "group", "") !=# a:fKey || !GrooVim_ShortcutAvailable(l:one)
+      continue
+    endif
+    let l:count[l:one.where] = get(l:count, l:one.where, 0) + 1
+  endfor
+  " Note: Walked in the order of the sections and not in the order of the keys of
+  " a dictionary, which Vim does not promise -- a draw has to fall the same way
+  " every time! By Questor
+  let l:best = ""
+  for l:where in map(copy(g:GrooVim_MenuSections), 'v:val[0]')
+    if !has_key(l:count, l:where) | continue | endif
+    if l:best ==# "" || l:count[l:where] > l:count[l:best]
+      let l:best = l:where
+    endif
+  endfor
+  return l:best
+endfunc
+
 func! GrooVim_MenuFilter(id, key) abort
 
   if a:key ==# "\<Left>"
@@ -436,14 +533,22 @@ func! GrooVim_MenuFilter(id, key) abort
     return 1
   endif
 
-  let l:which = 0
-  for l:group in GrooVim_ShortcutGroupsHere()
-    if a:key ==# eval('"\<' . l:group[0] . '>"')
+  " Note: An F key opens the section where that F key mostly lives.
+  "
+  " Note: It used to open the section OF that key, and could, because a section
+  " was an F key. Now a section holds keys of every shape and an F key is spread
+  " over several of them -- so what is kept is the hand: F2 lands on "Edit", F3
+  " on "Search", F4 on "View", F5 on "File", which is where each one has most of
+  " its shortcuts and is what the four used to be called! By Questor
+  let l:fKey = GrooVim_MenuFKeyPressed(a:key)
+  if l:fKey !=# ""
+    let l:where = GrooVim_MenuSectionOfFKey(l:fKey)
+    let l:which = index(map(copy(GrooVim_MenuSectionsHere()), 'v:val[0]'), l:where)
+    if l:which >= 0
       call GrooVim_MenuOpen(l:which)
       return 1
     endif
-    let l:which = l:which + 1
-  endfor
+  endif
 
   " Note: The mouse. A click on the bar opens that section, a click on a line
   " runs it, and a click anywhere else leaves -- which is what clicking outside a

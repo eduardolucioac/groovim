@@ -1,9 +1,10 @@
-" Each F key is a group with a meaning, and the shortcuts inside it obey.
+" The list of shortcuts is the only place a shortcut lives, and this is what
+" guards that the list itself holds together.
 "
-"   F2  editing, and what acts on the FILE itself
-"   F3  the editing you reach for most, and searching
-"   F4  the installed plugins
-"   F5  what acts on the EDITOR -- tabs, leaving -- and the settings
+" An entry is of one of two shapes: an F key, which carries "group" and "key"
+" and the line to "run", or a key pressed straight -- Ctrl+C, Alt+Shift+Up, "n"
+" -- which carries "keys" and is mapped elsewhere, the list only saying it is
+" there. Both carry "where", the section of the menu they show under.
 "
 " There used to be three hundred lines of "if the key is this, do that" beside
 " the list the help is written from, and every shortcut lived in both. They
@@ -13,8 +14,15 @@
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
+" Note: Only the F key entries have a "group": the ones pressed straight do not
+" belong to any F key, so the key has to be ASKED for and not read! By Questor
 func! GT_Of(group)
-  return filter(copy(g:GrooVim_Shortcuts), 'v:val.group ==# "' . a:group . '"')
+  return filter(copy(g:GrooVim_Shortcuts),
+    \ 'get(v:val, "group", "") ==# "' . a:group . '"')
+endfunc
+
+func! GT_FKeys()
+  return filter(copy(g:GrooVim_Shortcuts), 'has_key(v:val, "group")')
 endfunc
 
 func! GT_Body()
@@ -29,20 +37,38 @@ func! GT_Body()
   call GT_Ok("the list of shortcuts is there",
     \ exists("g:GrooVim_Shortcuts") && len(g:GrooVim_Shortcuts) > 20,
     \ "   (" . len(g:GrooVim_Shortcuts) . " shortcuts)")
-  call GT_Ok("the four groups are there, each with a heading and a label",
-    \ len(g:GrooVim_ShortcutGroups) == 4 &&
-    \ len(filter(copy(g:GrooVim_ShortcutGroups), 'len(v:val) == 3')) == 4,
-    \ "   " . string(map(copy(g:GrooVim_ShortcutGroups), 'v:val[0] . " " . v:val[2]')))
+  " The sections are what the menu is divided into, and they are not the F keys
+  " any more: a section holds keys of every shape, so that the menu shows what
+  " GrooVim does and not what the four F keys do.
+  call GT_Ok("the sections are there, each with a name and a description",
+    \ len(g:GrooVim_MenuSections) >= 5 &&
+    \ len(filter(copy(g:GrooVim_MenuSections), 'len(v:val) == 2')) ==
+    \   len(g:GrooVim_MenuSections),
+    \ "   " . string(map(copy(g:GrooVim_MenuSections), 'v:val[0]')))
   call GT_Ok("and every shortcut belongs to one of them",
     \ empty(filter(copy(g:GrooVim_Shortcuts),
-    \ 'index(map(copy(g:GrooVim_ShortcutGroups), "v:val[0]"), v:val.group) < 0')), "")
+    \ 'index(map(copy(g:GrooVim_MenuSections), "v:val[0]"), v:val.where) < 0')),
+    \ "   " . string(filter(map(copy(g:GrooVim_Shortcuts), 'v:val.where'),
+    \   'index(map(copy(g:GrooVim_MenuSections), "v:val[0]"), v:val) < 0')))
+  call GT_Ok("  and no section is a heading over nothing",
+    \ empty(filter(map(copy(g:GrooVim_MenuSections), 'v:val[0]'),
+    \   'empty(filter(copy(g:GrooVim_Shortcuts), "v:val.where ==# " . string(v:val)))')),
+    \ "   (every one of them has shortcuts under it)")
+  call GT_Ok("and the keys pressed straight are on the list too",
+    \ len(filter(copy(g:GrooVim_Shortcuts), 'has_key(v:val, "keys")')) > 20,
+    \ "   (" . len(GT_FKeys()) . " under an F key, " .
+    \ len(filter(copy(g:GrooVim_Shortcuts), 'has_key(v:val, "keys")')) . " pressed straight)")
 
   " ---- every entry is complete
   let l:short = []
   for l:one in g:GrooVim_Shortcuts
-    for l:field in ["group", "key", "modes", "run", "what"]
+    let l:fields = has_key(l:one, "keys") ? ["where", "keys", "modes", "what"]
+     \ : ["where", "group", "key", "modes", "run", "what"]
+    for l:field in l:fields
       if !has_key(l:one, l:field)
-        call add(l:short, get(l:one, "group", "?") . "->" . get(l:one, "key", "?") . " has no " . l:field)
+        call add(l:short, get(l:one, "keys",
+         \ get(l:one, "group", "?") . "->" . get(l:one, "key", "?")) .
+         \ " has no " . l:field)
       endif
     endfor
   endfor
@@ -58,12 +84,13 @@ func! GT_Body()
   for l:one in g:GrooVim_Shortcuts
     for l:mode in ["n", "i", "v"]
       if stridx(l:one.modes, l:mode) < 0 | continue | endif
-      let l:signature = l:one.group . "|" . l:one.key . "|" . l:mode
+      let l:signature = has_key(l:one, "keys") ? l:one.keys . "|" . l:mode
+       \ : l:one.group . "|" . l:one.key . "|" . l:mode
       if has_key(l:seen, l:signature) | call add(l:twice, l:signature) | endif
       let l:seen[l:signature] = 1
     endfor
   endfor
-  call GT_Ok("no key answers twice in the same group and mode", empty(l:twice),
+  call GT_Ok("no key answers twice in the same section and mode", empty(l:twice),
     \ "   " . (empty(l:twice) ? "(" . len(l:seen) . " key and mode pairs)" : string(l:twice)))
 
   " ---- and every mode a shortcut claims really has something to run
@@ -73,7 +100,7 @@ func! GT_Body()
   " does nothing at all when you press it there, and says nothing about it.
   let l:uncovered = []
   for l:one in g:GrooVim_Shortcuts
-    if type(l:one.run) != type({}) | continue | endif
+    if !has_key(l:one, "run") || type(l:one.run) != type({}) | continue | endif
     for l:mode in ["n", "i", "v"]
       if stridx(l:one.modes, l:mode) < 0 | continue | endif
       let l:found = 0
@@ -90,13 +117,13 @@ func! GT_Body()
 
   " ---- the keys are ones the dispatch can recognise
   let l:strange = []
-  for l:one in g:GrooVim_Shortcuts
+  for l:one in GT_FKeys()
     if !GrooVim_ShortcutIsKey(strchars(l:one.key) == 1 ? char2nr(l:one.key) :
       \ eval('"\<' . toupper(l:one.key[0]) . l:one.key[1:] . '>"'), l:one.key)
       call add(l:strange, l:one.group . "->" . l:one.key)
     endif
   endfor
-  call GT_Ok("the dispatch recognises every key of the list", empty(l:strange),
+  call GT_Ok("the dispatch recognises every key of the F groups", empty(l:strange),
     \ "   " . (empty(l:strange) ? "" : string(l:strange)))
 
   " ---- what the messages send you to has to exist
@@ -201,15 +228,15 @@ func! GT_Body()
     \ len(filter(copy(GT_Of("F4")), 'has_key(v:val, "needs")')) == 1,
     \ "   (the tree; the marks are GrooVim's own code)")
 
-  " ---- what F4 is called, and what its first entry is called
+  " ---- where F4 shows, and what its first entry is called
   "
-  " It was "Plugins", which said where the code came from instead of what the
-  " keys do -- and the tree stopped being the only thing under it the day the
-  " marks arrived.
-  call GT_Ok("F4 is called by what it is FOR",
-    \ !empty(filter(copy(g:GrooVim_ShortcutGroups),
-    \   'v:val[0] ==# "F4" && v:val[2] ==# "Utils"')),
-    \ "   " . string(filter(copy(g:GrooVim_ShortcutGroups), 'v:val[0] ==# "F4"')[0]))
+  " Its section was "Plugins" and then "Utils", which said where the code came
+  " from instead of what the keys do. It shows under "View" now, beside the tabs
+  " and the help -- what is BESIDE the text, which is what the tree and the list
+  " of marked lines are.
+  call GT_Ok("F4 shows under the section of what is beside the text",
+    \ empty(filter(GT_Of("F4"), 'v:val.where !=# "View"')),
+    \ "   " . string(map(GT_Of("F4"), 'v:val.key . " " . v:val.where')))
   call GT_Ok("  and the tree by what it is, not by the plugin that draws it",
     \ filter(copy(GT_Of("F4")), 'v:val.key ==# "n"')[0].what =~ "file tree", "")
   call GT_Ok("and the menu divides the tree from the marks",
@@ -241,7 +268,7 @@ func! GT_Body()
   " it for somebody else's machine to find.
   let l:gone = []
   for l:one in g:GrooVim_Shortcuts
-    if !GrooVim_ShortcutAvailable(l:one) | continue | endif
+    if !GrooVim_ShortcutAvailable(l:one) || !has_key(l:one, "run") | continue | endif
     let l:runs = type(l:one.run) == type({}) ? values(l:one.run) : [l:one.run]
     for l:line in l:runs
       let l:at = 0
@@ -250,7 +277,7 @@ func! GT_Body()
         if l:name ==# "" | break | endif
         let l:at = match(l:line, 'GrooVim_\w\+\ze(', l:at) + len(l:name)
         if !exists("*" . l:name)
-          call add(l:gone, l:one.group . "->" . l:one.key . " calls " . l:name)
+          call add(l:gone, GrooVim_ShortcutShown(l:one) . " calls " . l:name)
         endif
       endwhile
     endfor
@@ -261,9 +288,9 @@ func! GT_Body()
   " ---- with the plugin off, the shortcut goes quiet instead of breaking
   call GT_Ok("setup: the battery runs with the tree on", g:enable_nerdtree_vim == 1,
     \ "   (run.sh puts a pack directory in the throwaway GROOVIM_HOME)")
-  call GT_Ok("  so F4 is one of the groups on offer",
-    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0,
-    \ "   " . string(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]')))
+  call GT_Ok("  so the section it shows under is on offer",
+    \ index(map(copy(GrooVim_MenuSectionsHere()), 'v:val[0]'), "View") >= 0,
+    \ "   " . string(map(copy(GrooVim_MenuSectionsHere()), 'v:val[0]')))
   call GT_Ok("  and F9 writes it down",
     \ stridx(GrooVim_ShortcutsHelp(), "file tree") >= 0,
     \ "   (the tree is named by what it IS: the plugin that draws it is an\n" .
@@ -274,15 +301,17 @@ func! GT_Body()
     \ !GrooVim_ShortcutAvailable(l:tree), "")
   call GT_Ok("  F9 does not write down what cannot be done",
     \ stridx(GrooVim_ShortcutsHelp(), "NERDTree") < 0, "")
-  " The group goes when its LAST shortcut goes. F4 also holds the marks, which
-  " belong to nobody but GrooVim, so what is checked is the tree leaving the
-  " group and not the group emptying.
+  " The section goes when its LAST shortcut goes. "View" also holds the marks,
+  " the tabs and the help, so what is checked is the tree leaving the menu and
+  " not the section emptying.
   call GT_Ok("  and the tree is no longer on offer under it",
-    \ empty(filter(copy(GrooVim_MenuOf("F4", 1)[0]), 'v:val.key ==# "n"')),
+    \ empty(filter(copy(GrooVim_MenuOf("View", 1)[0]),
+    \   'get(v:val, "group", "") ==# "F4" && v:val.key ==# "n"')),
     \ "   (a heading over nothing is what this guards against)")
   call GT_Ok("  while the marks under it stay, being nobody's plugin",
-    \ len(GrooVim_MenuOf("F4", 1)[0]) == 4,
-    \ "   (" . len(GrooVim_MenuOf("F4", 1)[0]) . " of them: b, i, l and c)")
+    \ len(filter(copy(GrooVim_MenuOf("View", 1)[0]),
+    \   'get(v:val, "group", "") ==# "F4"')) == 4,
+    \ "   (b, i, l and c)")
 
   let g:GrooVim_GrooVimBarMsgValue = ""
   call GT_Press("\<F4>n")
@@ -298,7 +327,7 @@ func! GT_Body()
 
   let g:enable_nerdtree_vim = 1
   call GT_Ok("back on, and it is on offer again", GrooVim_ShortcutAvailable(l:tree) &&
-    \ index(map(copy(GrooVim_ShortcutGroupsHere()), 'v:val[0]'), "F4") >= 0, "")
+    \ index(map(copy(GrooVim_MenuSectionsHere()), 'v:val[0]'), "View") >= 0, "")
 
   " ---- one door into the settings, and only one
   "

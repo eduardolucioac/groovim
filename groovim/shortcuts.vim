@@ -125,7 +125,11 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
     " once, and the help, the menu and this all read it! By Questor
     for l:one in g:GrooVim_Shortcuts
 
-      if l:one.group !=# a:GrooVim_CommandZFCallerNow
+      " Note: Only what is reached by an F key. The list holds the whole map of
+      " GrooVim now -- "Ctrl+C", "Alt+Shift+Up", "m" and the rest are on it, for
+      " the menu and the help to show -- and those are mapped where they are
+      " mapped and never come through here! By Questor
+      if !has_key(l:one, "group") || l:one.group !=# a:GrooVim_CommandZFCallerNow
        \ || !GrooVim_ShortcutIsKey(l:char, l:one.key)
        \ || stridx(l:one.modes, a:modType) < 0
         continue

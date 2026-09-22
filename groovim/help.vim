@@ -17,116 +17,268 @@
 " Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
 " It is not decoration: the case that checks this list against the code reads it,
 " and writing it wrong is a failure! By Questor
-let g:GrooVim_ShortcutGroups = [
- \ ["F2", "Editing, and what acts on the FILE itself", "Edit"],
- \ ["F3", "The editing you reach for most, and searching", "Search"],
- \ ["F4", "The tools beside the text: the file tree, the marked lines", "Utils"],
- \ ["F5", "What acts on the EDITOR -- tabs, leaving -- and the settings", "Editor"]
+" Note: The sections of the menu of F10, and they are not the F keys any more.
+"
+" Note: They were: the menu had four sections because there are four F keys, and
+" every line of it was a shortcut of one of them. So the menu showed what the F
+" keys do and NOT what GrooVim does -- and the keys a conventional editor is
+" pressed with, Ctrl+C, the arrows with their modifiers, "n" and "m", were
+" nowhere. It is the map of the editor now, which is what the menu bar of
+" Notepad++ is.
+"
+" Note: A section no longer says which F key it belongs to, and there is nothing
+" to say: a section holds keys of every shape. Which F key goes with what is
+" deducible from the lines under it -- they carry the keys that do them, and
+" nearly every line of "Edit" carries an F2.
+"
+" Note: Written "an F2" and not with the arrow after it: a case of the battery
+" reads every shortcut named anywhere in the source and refuses one that is not
+" on the list -- and a sentence ABOUT the notation would be read as one more use
+" of it! By Questor
+let g:GrooVim_MenuSections = [
+ \ ["File", "The file itself: saving it, opening another, leaving"],
+ \ ["Edit", "Changing the text: the transfer area, undo, the indent, the case"],
+ \ ["Select", "Taking hold of text: all of it, a block, a word, an area"],
+ \ ["Search", "Finding and replacing, and the marks a search leaves"],
+ \ ["Move", "Walking the text: the smooth movement, the pages, the brackets"],
+ \ ["View", "What is beside the text: the tree, the marked lines, the tabs, the help"],
+ \ ["Settings", "What GrooVim is: every setting, and reading it again"]
  \ ]
 
 let g:GrooVim_Shortcuts = [
- \ {"group": "F2", "key": "h", "modes": "niv", "run": ':left', "what": "Aligns to left"},
- \ {"group": "F2", "key": "k", "modes": "niv", "run": ':right', "what": "Aligns to right"},
- \ {"group": "F2", "key": "j", "modes": "niv", "run": ':center', "what": "Aligns to center"},
- \ {"group": "F2", "key": "up", "break": 1, "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("U")', "v": 'call GrooVim_ToUpperLower("Upper")'}, "what": "Changes to uppercase"},
- \ {"group": "F2", "key": "down", "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("u")', "v": 'call GrooVim_ToUpperLower("Lower")'}, "what": "Changes to lowercase"},
- \ {"group": "F2", "key": "t", "modes": "niv", "run": 'call GrooVim_ToTitleCase(l:mode)',
- \  "what": "Title Case: the first letter of every word up, the rest down",
- \  "notes": [
- \   "In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\"",
- \   "The three of them leave the cursor where it was"
- \  ]},
- \ {"group": "F2", "key": "c", "break": 1, "modes": "niv", "run": 'call GrooVim_ClipSet(join(getline(1, "$"), "\n"))', "what": "Copy all text in the current buffer"},
- \ {"group": "F2", "key": "end", "modes": "niv", "run": 'exec "norm viw"', "what": "Selects the word under the cursor"},
- \ {"group": "F2", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_XenRec()',
- \  "what": "Start and stop recording a macro",
- \  "notes": [
- \   "The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own",
- \   "What is recorded goes into the register |a| , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one"
- \  ]},
- \ {"group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
- \ {"group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
- \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
- \ {"group": "F2", "key": "b", "modes": "niv", "run": 'call GrooVim_SetVisualBlock() | exec "normal! \<C-v>"',
- \  "what": "Selects a BLOCK: a rectangle of the text, corner to corner"},
- \ {"group": "F2", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
- \  "what": "Takes the line away, without touching the transfer area"},
- \ {"group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "what": "Save to disk and open in a new tab a copy of the current file"},
- \ {"group": "F3", "key": "a", "modes": "niv", "run": 'exec "norm ggVG$"', "what": "Select all text in the current buffer"},
- \ {"group": "F3", "key": "d", "modes": "niv", "run": {"n": 'call GrooVim_DuplicateLine()', "i": 'call GrooVim_DuplicateLine()', "v": 'call GrooVim_DuplicateSelection()'},
- \  "what": "Duplicates the current line/selection",
- \  "notes": [
- \   "If in the visual mode can not be replicated"
- \  ]},
- \ {"group": "F3", "key": "del", "modes": "ni", "run": 'call GrooVim_SelectRange(l:mode)', "what": "Selects an area"},
- \ {"group": "F3", "key": "v", "modes": "ni", "run": 'exec "norm gv"', "what": "Reselect area, the |gv| of Vim"},
- \ {"group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "what": "Removes search highlights"},
- \ {"group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord(l:mode)',
- \  "what": "Mark every occurrence of the word under the cursor",
- \  "notes": [
- \   "In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
- \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the \"Style all occurrences of token\" of Notepad++"
- \  ]},
- \ {"group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "what": "Opens for search"},
- \ {"group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
- \  "what": "Opens to replace",
- \  "notes": [
- \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
- \  ]},
- \ {"group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
- \ {"group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
- \  "what": "Opens/closes the *file tree*",
- \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
- \ {"group": "F4", "key": "b", "break": 1, "modes": "niv", "run": 'call GrooVim_BookmarkToggle()',
- \  "what": "Marks the line, or takes the mark off (*bookmark*)"},
- \ {"group": "F4", "key": "i", "modes": "niv", "run": 'call GrooVim_BookmarkAnnotate()',
- \  "what": "Writes a note on the marked line, or changes it (*bookmark*)"},
- \ {"group": "F4", "key": "l", "modes": "niv", "run": 'call GrooVim_BookmarkList()',
- \  "what": "Lists every marked line, or takes the list away"},
- \ {"group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
- \  "what": "Takes every mark off EVERY file, and asks first"},
- \ {"group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
+ \
+"\ ---- File
+ \ {"where": "File", "group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
+ \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "what": "Save to disk and open in a new tab a copy of the current file"},
+ \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "what": "Save to disk",
  \  "notes": [
  \   "In visual mode it writes the SELECTION to a file of its own"
  \  ]},
- \ {"group": "F5", "key": "e", "modes": "niv", "run": ':wa', "what": "Save every changed file"},
- \ {"group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
+ \ {"where": "File", "group": "F5", "key": "e", "modes": "niv", "run": ':wa', "what": "Save every changed file"},
+ \ {"where": "File", "group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
  \  "what": "Saves under another name and goes on editing THAT one",
  \  "notes": [
  \   "Beside |F5->s| , which saves, and |F5->e| , which saves every changed file. The COPY is |F2->y| : that one writes the file and leaves you where you were"
  \  ]},
- \ {"group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
+ \ {"where": "File", "group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "what": "Open a new tab",
  \  "notes": [
  \   "A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
  \   "The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again"
  \  ]},
- \ {"group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
- \  "what": "Allows always returning to a particular tab using <Alt-Down>",
- \  "notes": [
- \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
- \  ]},
- \ {"group": "F5", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_CloseAsking("q")', "what": "Close the window"},
- \ {"group": "F5", "key": "w", "modes": "niv", "run": 'call GrooVim_TabClose()',
+ \ {"where": "File", "group": "F5", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_CloseAsking("q")', "what": "Close the window"},
+ \ {"where": "File", "group": "F5", "key": "w", "modes": "niv", "run": 'call GrooVim_TabClose()',
  \  "what": "Close the tab you are in",
  \  "notes": [
  \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls |new|1|"
  \  ]},
- \ {"group": "F5", "key": "o", "modes": "niv", "run": 'call GrooVim_CloseAsking("tabonly")', "what": "Close all other tabs"},
- \ {"group": "F5", "key": ".", "modes": "niv", "run": 'call GrooVim_TabCloseSide(1)', "what": "Close every tab to the RIGHT of this one"},
- \ {"group": "F5", "key": ",", "modes": "niv", "run": 'call GrooVim_TabCloseSide(-1)',
+ \ {"where": "File", "group": "F5", "key": "o", "modes": "niv", "run": 'call GrooVim_CloseAsking("tabonly")', "what": "Close all other tabs"},
+ \ {"where": "File", "group": "F5", "key": ".", "modes": "niv", "run": 'call GrooVim_TabCloseSide(1)', "what": "Close every tab to the RIGHT of this one"},
+ \ {"where": "File", "group": "F5", "key": ",", "modes": "niv", "run": 'call GrooVim_TabCloseSide(-1)',
  \  "what": "Close every tab to the LEFT of this one",
  \  "notes": [
  \   "The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes"
  \  ]},
- \ {"group": "F5", "key": "x", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
+ \ {"where": "File", "group": "F5", "key": "x", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
  \  "what": "Close everything and leave",
  \  "notes": [
  \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"
  \  ]},
- \ {"group": "F5", "key": "r", "break": 1, "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
- \ {"group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
+ \ {"where": "File", "group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "what": "Saves the current session"},
+ \ {"where": "File", "group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
+ \  "what": "Brings the last saved session back",
+ \  "notes": [
+ \   "The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
+ \  ]},
+ \
+"\ ---- Edit
+ \ {"where": "Edit", "group": "F2", "key": "h", "modes": "niv", "run": ':left', "what": "Aligns to left"},
+ \ {"where": "Edit", "group": "F2", "key": "k", "modes": "niv", "run": ':right', "what": "Aligns to right"},
+ \ {"where": "Edit", "group": "F2", "key": "j", "modes": "niv", "run": ':center', "what": "Aligns to center"},
+ \ {"where": "Edit", "group": "F2", "key": "up", "break": 1, "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("U")', "v": 'call GrooVim_ToUpperLower("Upper")'}, "what": "Changes to uppercase"},
+ \ {"where": "Edit", "group": "F2", "key": "down", "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("u")', "v": 'call GrooVim_ToUpperLower("Lower")'}, "what": "Changes to lowercase"},
+ \ {"where": "Edit", "group": "F2", "key": "t", "modes": "niv", "run": 'call GrooVim_ToTitleCase(l:mode)',
+ \  "what": "Title Case: the first letter of every word up, the rest down",
+ \  "notes": [
+ \   "In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\"",
+ \   "The three of them leave the cursor where it was"
+ \  ]},
+ \ {"where": "Edit", "group": "F2", "key": "c", "break": 1, "modes": "niv", "run": 'call GrooVim_ClipSet(join(getline(1, "$"), "\n"))', "what": "Copy all text in the current buffer"},
+ \ {"where": "Edit", "group": "F2", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_XenRec()',
+ \  "what": "Start and stop recording a macro",
+ \  "notes": [
+ \   "The same F2->q does both: the first press starts the recording and says so, the second ends it. It used to take a key of its own",
+ \   "What is recorded goes into the register |a| , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one"
+ \  ]},
+ \ {"where": "Edit", "group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
+ \ {"where": "Edit", "group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
+ \ {"where": "Edit", "group": "F2", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
+ \  "what": "Takes the line away, without touching the transfer area"},
+ \ {"where": "Edit", "group": "F3", "key": "d", "modes": "niv", "run": {"n": 'call GrooVim_DuplicateLine()', "i": 'call GrooVim_DuplicateLine()', "v": 'call GrooVim_DuplicateSelection()'},
+ \  "what": "Duplicates the current line/selection",
+ \  "notes": [
+ \   "If in the visual mode can not be replicated"
+ \  ]},
+ \
+ \ {"where": "Edit", "keys": "<C-c>", "break": 1, "modes": "v",
+ \  "what": "Copies what is selected, and leaves the cursor where it was"},
+ \ {"where": "Edit", "keys": "<C-x>", "modes": "v",
+ \  "what": "Cuts what is selected"},
+ \ {"where": "Edit", "keys": "<C-v>", "modes": "niv",
+ \  "what": "Pastes what is in the transfer area"},
+ \ {"where": "Edit", "keys": "p", "modes": "nv",
+ \  "what": "Pastes too, on the key Vim pastes with"},
+ \ {"where": "Edit", "keys": "<C-u>", "break": 1, "modes": "niv",
+ \  "what": "Undoes the last change"},
+ \ {"where": "Edit", "keys": "<C-r>", "modes": "niv",
+ \  "what": "Does again what was undone"},
+ \ {"where": "Edit", "keys": "<Tab>", "break": 1, "modes": "nv",
+ \  "what": "Pushes the line, or the selection, one indent to the right"},
+ \ {"where": "Edit", "keys": "<S-Tab>", "modes": "niv",
+ \  "what": "Pulls it one indent back"},
+ \ {"where": "Edit", "keys": "<Enter>", "break": 1, "modes": "n",
+ \  "what": "Splits the line where the cursor is, in normal mode too"},
+ \ {"where": "Edit", "keys": "<Space>", "modes": "n",
+ \  "what": "Types a space, in normal mode too"},
+ \ {"where": "Edit", "keys": "<Del>", "break": 1, "modes": "nv",
+ \  "what": "Takes away the character, or the selection"},
+ \ {"where": "Edit", "keys": "<Backspace>", "modes": "nv",
+ \  "what": "Takes away the character before the cursor"},
+ \ {"where": "Edit", "keys": "d", "modes": "n",
+ \  "what": "Deletes, and what you had copied stays where it was"},
+ \ {"where": "Edit", "keys": "x", "modes": "nv",
+ \  "what": "Deletes a character, and leaves the transfer area alone"},
+ \ {"where": "Edit", "keys": "yy", "modes": "n",
+ \  "what": "Copies the line, without the break at the end of it"},
+ \ {"where": "Edit", "keys": "<A-Up>", "break": 1, "modes": "niv",
+ \  "what": "Comments the line, or the selection, and uncomments it",
+ \  "needs": {"switch": "enable_tcomment_vim", "name": "the tcomment plugin"}},
+ \ {"where": "Edit", "keys": "<C-k>", "break": 1, "modes": "niv",
+ \  "what": "Moves the line, or the selection, up",
+ \  "needs": {"switch": "enable_move_vim", "name": "the vim-move plugin"}},
+ \ {"where": "Edit", "keys": "<C-j>", "modes": "niv",
+ \  "what": "Moves it down",
+ \  "needs": {"switch": "enable_move_vim", "name": "the vim-move plugin"}},
+ \
+"\ ---- Select
+ \ {"where": "Select", "group": "F2", "key": "end", "modes": "niv", "run": 'exec "norm viw"', "what": "Selects the word under the cursor"},
+ \ {"where": "Select", "group": "F2", "key": "b", "modes": "niv", "run": 'call GrooVim_SetVisualBlock() | exec "normal! \<C-v>"',
+ \  "what": "Selects a BLOCK: a rectangle of the text, corner to corner"},
+ \ {"where": "Select", "group": "F3", "key": "a", "modes": "niv", "run": 'exec "norm ggVG$"', "what": "Select all text in the current buffer"},
+ \ {"where": "Select", "group": "F3", "key": "del", "modes": "ni", "run": 'call GrooVim_SelectRange(l:mode)', "what": "Selects an area"},
+ \ {"where": "Select", "group": "F3", "key": "v", "modes": "ni", "run": 'exec "norm gv"', "what": "Reselect area, the |gv| of Vim"},
+ \
+ \ {"where": "Select", "keys": "v", "break": 1, "modes": "n",
+ \  "what": "Starts selecting from where the cursor is"},
+ \ {"where": "Select", "keys": "<S-Down>", "modes": "niv",
+ \  "what": "Selects downwards, the way Shift does everywhere"},
+ \ {"where": "Select", "keys": "<S-Up>", "modes": "niv",
+ \  "what": "Selects upwards"},
+ \ {"where": "Select", "keys": "<A-Left>", "break": 1, "modes": "niv",
+ \  "what": "Selects the word to the left"},
+ \ {"where": "Select", "keys": "<A-Right>", "modes": "niv",
+ \  "what": "Selects the word to the right"},
+ \ {"where": "Select", "keys": "<A-Home>", "modes": "ni",
+ \  "what": "Selects back to the start of the line"},
+ \ {"where": "Select", "keys": "<A-End>", "modes": "ni",
+ \  "what": "Selects on to the end of the line"},
+ \
+"\ ---- Search
+ \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "what": "Removes search highlights"},
+ \ {"where": "Search", "group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord(l:mode)',
+ \  "what": "Mark every occurrence of the word under the cursor",
+ \  "notes": [
+ \   "In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
+ \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the \"Style all occurrences of token\" of Notepad++"
+ \  ]},
+ \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "what": "Opens for search"},
+ \ {"where": "Search", "group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
+ \  "what": "Opens to replace",
+ \  "notes": [
+ \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
+ \  ]},
+ \ {"where": "Search", "group": "F3", "key": "end", "modes": "niv", "run": 'call GrooVim_SelectNSearch(1, l:mode)', "what": "Select and search the word under the cursor (case sensitive)"},
+ \
+ \ {"where": "Search", "keys": "n", "break": 1, "modes": "n",
+ \  "what": "Goes to the next of what was searched for"},
+ \ {"where": "Search", "keys": "N", "modes": "n",
+ \  "what": "Goes to the one before it"},
+ \ {"where": "Search", "keys": "<2-Leftmouse>", "break": 1, "modes": "niv",
+ \  "what": "A double click takes the word and searches for it"},
+ \
+"\ ---- Move
+ \ {"where": "Move", "keys": "<A-S-Up>", "modes": "niv",
+ \  "what": "Walks up, smoothly, and takes the selection along"},
+ \ {"where": "Move", "keys": "<A-S-Down>", "modes": "niv",
+ \  "what": "Walks down the same way"},
+ \ {"where": "Move", "keys": "<A-S-Left>", "modes": "niv",
+ \  "what": "Walks left the same way"},
+ \ {"where": "Move", "keys": "<A-S-Right>", "modes": "niv",
+ \  "what": "Walks right the same way"},
+ \ {"where": "Move", "keys": "<C-A-Up>", "break": 1, "modes": "niv",
+ \  "what": "One step up, over areas with no text"},
+ \ {"where": "Move", "keys": "<C-A-Down>", "modes": "niv",
+ \  "what": "One step down, the same"},
+ \ {"where": "Move", "keys": "<C-A-Left>", "modes": "niv",
+ \  "what": "One step left, the same"},
+ \ {"where": "Move", "keys": "<C-A-Right>", "modes": "niv",
+ \  "what": "One step right, the same"},
+ \ {"where": "Move", "keys": "<PageUp>", "break": 1, "modes": "niv",
+ \  "what": "A page up"},
+ \ {"where": "Move", "keys": "<PageDown>", "modes": "niv",
+ \  "what": "A page down"},
+ \ {"where": "Move", "keys": "<C-Left>", "break": 1, "modes": "niv",
+ \  "what": "A word back"},
+ \ {"where": "Move", "keys": "<C-Right>", "modes": "niv",
+ \  "what": "A word forward"},
+ \ {"where": "Move", "keys": "<End>", "modes": "n",
+ \  "what": "To the REAL end of the line, past the last character"},
+ \ {"where": "Move", "keys": "<C-b>", "break": 1, "modes": "niv",
+ \  "what": "From one bracket to the one that closes it, and back"},
+ \
+"\ ---- View
+ \ {"where": "View", "group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
+ \  "what": "Opens/closes the *file tree*",
+ \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
+ \ {"where": "View", "group": "F4", "key": "b", "break": 1, "modes": "niv", "run": 'call GrooVim_BookmarkToggle()',
+ \  "what": "Marks the line, or takes the mark off (*bookmark*)"},
+ \ {"where": "View", "group": "F4", "key": "i", "modes": "niv", "run": 'call GrooVim_BookmarkAnnotate()',
+ \  "what": "Writes a note on the marked line, or changes it (*bookmark*)"},
+ \ {"where": "View", "group": "F4", "key": "l", "modes": "niv", "run": 'call GrooVim_BookmarkList()',
+ \  "what": "Lists every marked line, or takes the list away"},
+ \ {"where": "View", "group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
+ \  "what": "Takes every mark off EVERY file, and asks first"},
+ \ {"where": "View", "group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
+ \  "what": "Allows always returning to a particular tab using <Alt-Down>",
+ \  "notes": [
+ \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
+ \  ]},
+ \
+ \ {"where": "View", "keys": "m", "break": 1, "modes": "n",
+ \  "what": "To the next marked line"},
+ \ {"where": "View", "keys": "M", "modes": "n",
+ \  "what": "To the marked line before it"},
+ \ {"where": "View", "keys": "<C-Up>", "break": 1, "modes": "niv",
+ \  "what": "The next tab"},
+ \ {"where": "View", "keys": "<C-Down>", "modes": "niv",
+ \  "what": "The tab before it"},
+ \ {"where": "View", "keys": "<C-S-Up>", "modes": "niv",
+ \  "what": "Moves this tab one place to the right"},
+ \ {"where": "View", "keys": "<C-S-Down>", "modes": "niv",
+ \  "what": "Moves it one place to the left"},
+ \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
+ \  "what": "Back to the tab set with F5->t"},
+ \ {"where": "View", "keys": "<C-w>", "break": 1, "modes": "niv",
+ \  "what": "To the other window of this tab"},
+ \ {"where": "View", "keys": "<F9>", "break": 1, "modes": "n",
+ \  "what": "Opens this help, and closes it"},
+ \ {"where": "View", "keys": "<F10>", "modes": "niv",
+ \  "what": "Opens this menu"},
+ \
+"\ ---- Settings
+ \ {"where": "Settings", "group": "F5", "key": "r", "break": 1, "modes": "niv", "run": {"i": 'call feedkeys("\<Esc>\\zvvi")', "nv": 'call feedkeys("\\zvv")'}, "what": "Reloads the file|.vimrc|in all tabs"},
+ \ {"where": "Settings", "group": "F5", "key": "c", "modes": "niv", "run": 'call GrooVim_Configure()',
  \  "what": "Opens the settings -- ALL of them",
  \  "notes": [
  \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[v]iew| , what is DRAWN and is not in the file, the language among it; |[f]ile| , the encoding and what ends a line IN the file you have open; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
@@ -134,26 +286,24 @@ let g:GrooVim_Shortcuts = [
  \   "On every screen, leaving an answer EMPTY keeps the value shown as \"in use\". At the end a summary of what you chose is held on screen until you press <Enter>",
  \   "|[f]ile| is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there",
  \   "There is one door and only one. Each screen used to have a key of its own, so the letters |f| , |h| and |i| of this group are free again"
- \  ]},
- \ {"group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "what": "Saves the current session"},
- \ {"group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
- \  "what": "Brings the last saved session back",
- \  "notes": [
- \   "The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
  \  ]}
  \ ]
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
 " named key gets its capital back; punctuation is wrapped in bars, because the
 " help syntax of Vim would otherwise eat a "/" or a "[" ! By Questor
-func! GrooVim_ShortcutKeyShown(key) abort
-  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
-   \ "left": "Left", "right": "Right", "home": "Home", "insert": "Insert"}
-  let l:name = get(l:named, a:key, a:key)
-  if a:key =~ '^\w\+$'
+" Note: Written by the same function the MENU writes with, so that a key is
+" spelled one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is
+" a key of its own.
+"
+" Note: The bars around it are what the help syntax of Vim highlights with, and
+" they only go on where the word would not be picked out otherwise! By Questor
+func! GrooVim_ShortcutKeyShown(one) abort
+  let l:name = GrooVim_ShortcutShown(a:one)
+  if l:name =~ '^\w\+$'
     return "        <" . l:name . "> - "
   endif
-  return "       |<" . l:name . ">|- "
+  return "       |" . l:name . "|- "
 endfunc
 
 " Note: Which modes a key answers in, spelled the way the help spells it! By
@@ -182,18 +332,17 @@ func! GrooVim_ShortcutsMarkdown() abort
 
   let l:out = []
 
-  for l:group in g:GrooVim_ShortcutGroups
+  for l:group in g:GrooVim_MenuSections
     call add(l:out, "")
-    call add(l:out, " * **" . l:group[0] . "** and then... *(" .
+    call add(l:out, " * **" . l:group[0] . "** *(" .
      \ GrooVim_ShortcutPlain(l:group[1]) . ")*")
     call add(l:out, "")
 
     for l:one in g:GrooVim_Shortcuts
-      if l:one.group !=# l:group[0]
+      if l:one.where !=# l:group[0]
         continue
       endif
-      let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
-      call add(l:out, "    - `" . get(l:named, l:one.key, l:one.key) . "` - " .
+      call add(l:out, "    - `" . GrooVim_ShortcutShown(l:one) . "` - " .
        \ GrooVim_ShortcutPlain(l:one.what) . " *" .
        \ GrooVim_ShortcutModes(l:one.modes) . "*;")
       for l:note in get(l:one, "notes", [])
@@ -217,16 +366,16 @@ func! GrooVim_ShortcutsHelp() abort
   " empty by that. The README is the other way round -- see the Markdown above,
   " which writes every one of them, because it describes the project and not
   " one machine! By Questor
-  for l:group in GrooVim_ShortcutGroupsHere()
+  for l:group in GrooVim_MenuSectionsHere()
     call add(l:out, "")
-    call add(l:out, "    <" . l:group[0] . "> and then...")
+    call add(l:out, "    *" . l:group[0] . "*")
     call add(l:out, "      Note: " . l:group[1] . ";")
 
     for l:one in g:GrooVim_Shortcuts
-      if l:one.group !=# l:group[0] || !GrooVim_ShortcutAvailable(l:one)
+      if l:one.where !=# l:group[0] || !GrooVim_ShortcutAvailable(l:one)
         continue
       endif
-      call add(l:out, GrooVim_ShortcutKeyShown(l:one.key) . l:one.what .
+      call add(l:out, GrooVim_ShortcutKeyShown(l:one) . l:one.what .
        \ " " . GrooVim_ShortcutModes(l:one.modes) . ";")
       for l:note in get(l:one, "notes", [])
         call add(l:out, "            Note: " . l:note . ";")
