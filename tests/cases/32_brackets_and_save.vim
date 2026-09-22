@@ -85,6 +85,10 @@ func! GT_AfterSaveAs()
   call GT_Ok("  and the one you came from is as it was",
     \ readfile(g:GT_FILE) ==# ["uma linha"], "   " . string(readfile(g:GT_FILE)) .
     \ "   (a copy is the other key, F2->y: that one leaves you where you were)")
+  call GT_Ok("and it sits with the other two that save",
+    \ !empty(filter(copy(g:GrooVim_Shortcuts),
+    \   'v:val.group ==# "F5" && v:val.key ==# "a" && v:val.what =~ "another name"')),
+    \ "   (F5->s saves, F5->e saves every changed file, F5->a saves as)")
   call GT_Ok("and the two ask the SAME question, in one place",
     \ GT_FunctionText("GrooVim_SaveAs") =~ "GrooVim_AskFileWhere" &&
     \ GT_FunctionText("GrooVim_SaveACopy") =~ "GrooVim_AskFileWhere",

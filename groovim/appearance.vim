@@ -41,9 +41,6 @@ set belloff=all
 set noerrorbells
 set novisualbell
 
-" ToDo: Line break? By Questor
-" set tm=500
-
 " Note: Allow the cursor to go into "invalid" places! By Questor
 " set virtualedit=all
 

@@ -47,8 +47,6 @@ let g:GrooVim_Shortcuts = [
  \ {"group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "what": "Run a macro"},
  \ {"group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "what": "Run a macro certain number of times or repeatedly until the last line"},
  \ {"group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
- \ {"group": "F2", "key": "s", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
- \  "what": "Saves under another name and goes on editing THAT one"},
  \ {"group": "F2", "key": "b", "modes": "niv", "run": 'call GrooVim_SetVisualBlock() | exec "normal! \<C-v>"',
  \  "what": "Selects a BLOCK: a rectangle of the text, corner to corner"},
  \ {"group": "F2", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
@@ -93,6 +91,11 @@ let g:GrooVim_Shortcuts = [
  \   "In visual mode it writes the SELECTION to a file of its own"
  \  ]},
  \ {"group": "F5", "key": "e", "modes": "niv", "run": ':wa', "what": "Save every changed file"},
+ \ {"group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
+ \  "what": "Saves under another name and goes on editing THAT one",
+ \  "notes": [
+ \   "Beside |F5->s| , which saves, and |F5->e| , which saves every changed file. The COPY is |F2->y| : that one writes the file and leaves you where you were"
+ \  ]},
  \ {"group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "what": "Open a new tab",
  \  "notes": [
@@ -117,7 +120,7 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "The keys of |<<>| and |<>>| without the Shift: the comma is to the left of the dot, which is the way each one closes"
  \  ]},
- \ {"group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
+ \ {"group": "F5", "key": "x", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
  \  "what": "Close everything and leave",
  \  "notes": [
  \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"

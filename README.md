@@ -168,7 +168,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `w` - Run a macro *(normal mode/insert/visual)*;
     - `e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
     - `p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
-    - `s` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
     - `b` - Selects a BLOCK: a rectangle of the text, corner to corner *(normal mode/insert/visual)*;
     - `l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
     - `y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
@@ -202,6 +201,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `s` - Save to disk *(normal mode/insert/visual)*;
         - Note: In visual mode it writes the SELECTION to a file of its own;
     - `e` - Save every changed file *(normal mode/insert/visual)*;
+    - `a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
+        - Note: Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
     - `n` - Open a new tab *(normal mode/insert/visual)*;
         - Note: A document you have not saved yet is called new 1 , new 2 ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - Note: The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
@@ -214,7 +215,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `.` - Close every tab to the RIGHT of this one *(normal mode/insert/visual)*;
     - `,` - Close every tab to the LEFT of this one *(normal mode/insert/visual)*;
         - Note: The keys of <<> and <>> without the Shift: the comma is to the left of the dot, which is the way each one closes;
-    - `a` - Close everything and leave *(normal mode/insert/visual)*;
+    - `x` - Close everything and leave *(normal mode/insert/visual)*;
         - Note: Every way of closing ASKS about unsaved text: save, throw away, or go back;
     - `r` - Reloads the file .vimrc in all tabs *(normal mode/insert/visual)*;
     - `c` - Opens the settings -- ALL of them *(normal mode/insert/visual)*;
