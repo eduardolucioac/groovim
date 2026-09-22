@@ -237,8 +237,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Alt+Down` - One step down, the same *(normal mode/insert/visual)*;
     - `Ctrl+Alt+Left` - One step left, the same *(normal mode/insert/visual)*;
     - `Ctrl+Alt+Right` - One step right, the same *(normal mode/insert/visual)*;
-    - `PageUp` - A page up *(normal mode/insert/visual)*;
-    - `PageDown` - A page down *(normal mode/insert/visual)*;
     - `Ctrl+Left` - A word back *(normal mode/insert/visual)*;
     - `Ctrl+Right` - A word forward *(normal mode/insert/visual)*;
     - `End` - To the REAL end of the line, past the last character *(normal mode)*;
