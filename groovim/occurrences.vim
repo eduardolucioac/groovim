@@ -125,6 +125,16 @@ func! GrooVim_PanelSetup() abort
   setlocal noswapfile
   setlocal nobuflisted
 
+  " Note: And no vertical edge. It marks where a line of text gets too long,
+  " which means nothing in a list whose lines are as long as they need to be.
+  "
+  " Note: Said HERE and not left to the rule that draws it. That rule runs on
+  " entering a window and asks whether the buffer is a file -- and when it runs,
+  " the window has just been split and the buffer is still an ordinary one: what
+  " makes it a panel is this very function, a moment later. So the panel takes
+  " the line off itself, which holds whatever order things happen in! By Questor
+  setlocal colorcolumn=
+
   " Note: The buffer is already "nomodifiable", so these keys could only produce
   " an "E21" error. Turned off, they simply do nothing.
   "
@@ -189,7 +199,10 @@ func! GrooVim_PanelColours() abort
   highlight default link GrooVimPanelTitle Statement
   highlight default link GrooVimPanelRule Comment
   highlight default link GrooVimPanelFile Directory
-  highlight default link GrooVimPanelHere Todo
+  " Note: Yellow letters and nothing behind them. It was linked to "Todo", which
+  " is yellow the other way round -- dark letters on a yellow band -- and a band
+  " on the line you came from shouts where a mark only has to point! By Questor
+  highlight default GrooVimPanelHere ctermfg=yellow guifg=#ffff60
   highlight default link GrooVimPanelWhere Number
 
 endfunc

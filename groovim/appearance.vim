@@ -154,17 +154,17 @@ call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 " Note: Set it to 0 to take the line away! By Questor
 let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
 
-" Note: A teal, and darker than the text it stands beside.
+" Note: A dark grey and not the blue that was here. The old one painted a handful
+" of characters, one per long line; this one is a column down the whole window,
+" and at that size a strong colour stops being a hint and becomes the thing you
+" look at.
 "
-" Note: It was a dark grey, which on a dark background is barely a line at all,
-" and before that a blue so strong that a column down the whole window became the
-" thing you looked at. A hue of its own reads as a RULE and not as a shadow, and
-" being dark keeps it behind the text.
-"
-" Note: One cell wide, and there is no way around that: a terminal has no half
-" column to draw in. What can be chosen is the colour, and this is the choice! By
+" Note: A teal was tried in its place, on the idea that a hue of its own would
+" read as a rule. It read as a stripe: one cell is all a terminal has to draw in
+" -- there is no half column -- so at that width the quiet colour is the one that
+" behaves like a line and the vivid one becomes a band. Back to the grey! By
 " Questor
-highlight ColorColumn ctermbg=23 guibg=#005f5f
+highlight ColorColumn ctermbg=236 guibg=#303030
 
 " Note: "colorcolumn" is window local, so it is set on entering a window, the
 " same way the symbols are.

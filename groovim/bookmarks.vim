@@ -340,6 +340,22 @@ func! GrooVim_BookmarkPanelSetup() abort
   syntax match GrooVimPanelNote "\[i: .*\]$"
   highlight default link GrooVimPanelNote GrooVim_BookmarkNoteSignHl
 
+  " Note: And the heading of THIS panel takes the colour of the rules around it,
+  " which is the same colour the flag in the margin has. A heading IS a rule with
+  " a name in the middle of it, and having the one above the file name in one
+  " colour and the one below it in another was reading as two different things.
+  "
+  " Note: Only this panel. The one of the search keeps the colour every panel
+  " has, which is what was asked for! By Questor
+  " Note: The generic heading comes OFF this buffer first. Vim paints with the
+  " first item that matches at a place, and the one every panel has was defined
+  " before this one -- so ours would never be reached. Syntax items belong to a
+  " BUFFER, so taking it off here leaves the panel of the search as it was! By
+  " Questor
+  syntax clear GrooVimPanelTitle
+  syntax match GrooVimBookmarkTitle "^-\+\[ .\{-} \]-\+$"
+  highlight default link GrooVimBookmarkTitle GrooVimPanelRule
+
   let &l:statusline = "%!GrooVim_BookmarkPanelBar()"
   nnoremap <buffer> <silent> <Enter> :call GrooVim_BookmarkNavigate()<cr>
   nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_BookmarkNavigate()<cr>

@@ -177,6 +177,13 @@ func! GT_AfterNote()
     \ "   (a heading, a file name, the rules, the numbers and the arrow)")
   call GT_Ok("  and a note is painted in the yellow of its sign",
     \ GT_FunctionText("GrooVim_BookmarkPanelSetup") =~ "GrooVimPanelNote", "")
+  call GT_Ok("  the heading takes the colour of the rules around it",
+    \ synIDattr(synIDtrans(hlID("GrooVimBookmarkTitle")), "fg", "cterm")
+    \   ==# synIDattr(synIDtrans(hlID("GrooVimPanelRule")), "fg", "cterm"),
+    \ "   (a heading IS a rule with a name in the middle of it)")
+  call GT_Ok("  and the arrow is yellow letters with nothing behind them",
+    \ synIDattr(synIDtrans(hlID("GrooVimPanelHere")), "bg", "cterm") ==# "",
+    \ "   (\"Todo\" is yellow the other way round, and a band shouts)")
 
   " ---- and the vertical edge does not belong in a list
   "
@@ -184,6 +191,9 @@ func! GT_AfterNote()
   " that holds no text of yours.
   call GT_Ok("no vertical edge over the list", &colorcolumn ==# "",
     \ "   [colorcolumn=" . &colorcolumn . "]")
+  call GT_Ok("  and the panel is what takes it off itself",
+    \ GT_FunctionText("GrooVim_PanelSetup") =~ "colorcolumn",
+    \ "   (the rule that draws it runs before the buffer is a panel at all)")
   exec "edit! " . g:GT_FILE
   call GT_Ok("  and it is still there over a file", &colorcolumn ==# string(g:GrooVim_EdgeColumn),
     \ "   [colorcolumn=" . &colorcolumn . "]")
