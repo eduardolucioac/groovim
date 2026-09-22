@@ -1,8 +1,8 @@
 " Note: The windows that are accessories of a tab and not documents of yours. In
 " one place because more than one thing needs to know it! By Questor
 func! GrooVim_IsHelperBuffer(name) abort
-  return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "NERD_tree_" ||
-   \ a:name =~ "GrooVimHelp"
+  return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "GrooVim_BookmarksList" ||
+   \ a:name =~ "NERD_tree_" || a:name =~ "GrooVimHelp"
 endfunc
 
 " Note: Try to ensure that open in an editor window! By Questor

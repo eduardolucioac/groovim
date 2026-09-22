@@ -265,8 +265,107 @@ endfunc
 func! GT_NoteBalloonGone(t)
   call GT_Ok("  and it goes when you walk away", len(popup_list()) == 0,
     \ "   (line " . line(".") . ")")
+  call GT_Dock()
+endfunc
+
+" ---- the list is a DOCK, not a window of one tab
+"
+" It is asked for once and belongs to every tab, including the ones opened after
+" -- which is what the "Search results" of Notepad++ does, and what the
+" occurrence list of F3 does when it is told to.
+func! GT_ListsPerTab()
+  let l:where = []
+  for l:tab in range(1, tabpagenr("$"))
+    for l:buffer in tabpagebuflist(l:tab)
+      if bufname(l:buffer) =~ "GrooVim_BookmarksList"
+        call add(l:where, l:tab)
+      endif
+    endfor
+  endfor
+  return l:where
+endfunc
+
+func! GT_Dock()
+  exec "edit! " . g:GT_FILE
+  if g:GrooVim_BookmarkListOpen
+    call GrooVim_BookmarkList()
+  endif
+  exec "tabnew " . g:GT_FILE
+  tabfirst
+  call GT_Ok("setup: two tabs and no list", empty(GT_ListsPerTab()) &&
+    \ tabpagenr("$") == 2, "   (" . tabpagenr("$") . " tabs)")
+
+  call GrooVim_BookmarkList()
+  call GT_Ok("the list asked for in one tab is in every tab",
+    \ len(GT_ListsPerTab()) == tabpagenr("$"),
+    \ "   (tabs with a list: " . string(GT_ListsPerTab()) . " of " . tabpagenr("$") . ")")
+  call GT_Ok("  and the cursor goes into it, because you asked to read it",
+    \ bufname("%") =~ "GrooVim_BookmarksList", "   [" . bufname("%") . "]")
+  call GT_Ok("  each tab with a list OF ITS OWN",
+    \ len(uniq(sort(map(copy(GT_ListsPerTab()), 'v:val')))) == tabpagenr("$"),
+    \ "   (one buffer shared would show the arrow of one tab in all of them)")
+
+  exec "tabnew " . g:GT_FILE
+  call GT_When('len(GT_ListsPerTab()) == tabpagenr("$")', "GT_DockNewTab")
+endfunc
+
+func! GT_DockNewTab()
+  call GT_Ok("a tab opened AFTER gets it as it arrives",
+    \ len(GT_ListsPerTab()) == tabpagenr("$"),
+    \ "   (tabs with a list: " . string(GT_ListsPerTab()) . " of " . tabpagenr("$") . ")")
+
+  call GrooVim_BookmarkList()
+  call GT_Ok("and taking it away takes it from every tab", empty(GT_ListsPerTab()),
+    \ "   (" . tabpagenr("$") . " tabs, none with a list)")
+
+  " ---- and what the list must not do to the cursor
+  call GrooVim_BookmarkList()
+  call GrooVim_PutOnEditWindow()
+  let l:was = bufname("%")
+  call GrooVim_BookmarkListSync()
+  call GT_Ok("the sync leaves you where it found you", bufname("%") ==# l:was,
+    \ "   [" . bufname("%") . "]   (it runs on a timer, at moments nobody chose)")
+
+  " ---- marking with the list open shows up in it
+  exec "edit! " . g:GT_FILE
+  call cursor(3, 1)
+  call GrooVim_BookmarkToggle()
+  call GT_Ok("a mark made with the list open is in the list",
+    \ !empty(filter(GT_PanelLines(), 'v:val =~ "^|3|"')),
+    \ "   " . string(GT_PanelLines()))
+  call GT_Ok("  and the cursor did not move to the list to do it",
+    \ expand("%:p") ==# g:GT_FILE, "   [" . expand("%:t") . "]")
+  call cursor(3, 1)
+  call GrooVim_BookmarkToggle()
+  call GT_Ok("  and taking it off takes it out of the list",
+    \ empty(filter(GT_PanelLines(), 'v:val =~ "^|3|"')),
+    \ "   " . string(GT_PanelLines()))
+
+  " ---- and a panel is not a file, so it cannot be marked
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call cursor(1, 1)
+  call GrooVim_BookmarkToggle()
+  call GT_Ok("a panel cannot be marked",
+    \ !has_key(g:GrooVim_Bookmarks, expand("%:p")) &&
+    \ g:GrooVim_GrooVimBarMsgValue =~ "cannot be marked",
+    \ "   [" . trim(g:GrooVim_GrooVimBarMsgValue) . "]")
+  call GT_Ok("  and it is \"buftype\" that tells them apart",
+    \ GT_FunctionText("GrooVim_BookmarksFileHere") =~ "buftype",
+    \ "   (\"GrooVim_BookmarksList1\" is a name, so asking for a name is not enough)")
+
+  call GrooVim_BookmarkList()
+  tabonly!
   call delete(g:GT_FILE)
   call GT_Done()
+endfunc
+
+func! GT_PanelLines()
+  let l:back = win_getid()
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  let l:lines = filter(getline(1, "$"), 'v:val =~ "^|"')
+  call win_gotoid(l:back)
+  return l:lines
 endfunc
 
 call GT_AfterStartup("GT_Body")

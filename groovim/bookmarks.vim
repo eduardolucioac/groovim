@@ -61,10 +61,20 @@ func! GrooVim_BookmarksDefine() abort
    \  "texthl": "GrooVim_BookmarkNoteSignHl"})
 endfunc
 
-" Note: The file this buffer is, as a path. A buffer with no name cannot be
-" marked: there would be nothing to write down and nothing to come back to! By
-" Questor
+" Note: The file this buffer is, as a path, and an empty string when there is no
+" file to speak of. A buffer with no name cannot be marked: there would be
+" nothing to write down and nothing to come back to.
+"
+" Note: And neither can a buffer that is not a FILE. The tree, the help and the
+" panels of GrooVim all have names -- "GrooVim_BookmarksList1" is a name -- so
+" asking for the name was not enough: measured, a mark landed on line 1 of the
+" list of marks itself, and the next time the list was built that line came back
+" as a mark, with the heading of the list as its text. What tells them apart is
+" "buftype", which is empty only for a real file! By Questor
 func! GrooVim_BookmarksFileHere() abort
+  if &buftype !=# ""
+    return ""
+  endif
   return expand("%:p")
 endfunc
 
@@ -162,7 +172,7 @@ func! GrooVim_BookmarkToggle() abort
 
   let l:file = GrooVim_BookmarksFileHere()
   if l:file ==# ""
-    call GrooVim_GrooVimBarMsg("Save the file first: a mark needs something to come back to!", 5)
+    call GrooVim_GrooVimBarMsg("This one cannot be marked: a mark needs a file to come back to!", 5)
     return
   endif
 
@@ -183,6 +193,7 @@ func! GrooVim_BookmarkToggle() abort
   endif
 
   call GrooVim_BookmarksSave()
+  call GrooVim_BookmarkListRefresh()
 
 endfunc
 
@@ -197,7 +208,7 @@ func! GrooVim_BookmarkAnnotate() abort
 
   let l:file = GrooVim_BookmarksFileHere()
   if l:file ==# ""
-    call GrooVim_GrooVimBarMsg("Save the file first: a mark needs something to come back to!", 5)
+    call GrooVim_GrooVimBarMsg("This one cannot be marked: a mark needs a file to come back to!", 5)
     return
   endif
 
@@ -221,6 +232,7 @@ func! GrooVim_BookmarkAnnotate() abort
   call GrooVim_BookmarkSignSet(l:file, l:one)
   call GrooVim_BookmarksSave()
   call GrooVim_GrooVimBarMsg(l:note ==# "" ? "Note taken off!" : "Note written!", 4)
+  call GrooVim_BookmarkListRefresh()
 
 endfunc
 
@@ -261,6 +273,20 @@ endfunc
 " knows nothing about separating one file from another, and does not put a mark
 " on the line you came from! By Questor
 let s:panel = "GrooVim_BookmarksList"
+
+" Note: Whether the list is up. It is asked for once and then belongs to every
+" tab, so it cannot be "is there a window here" -- a tab that has never seen it
+" has to know to get one! By Questor
+let g:GrooVim_BookmarkListOpen = 0
+
+" Note: Up while the list is being brought into line across the tabs. The pass
+" that does it is a "tabdo", and entering a tab is what asks for the sync in the
+" first place -- so without this the pass asks for itself, once per tab, on a
+" timer that runs later and undoes what the pass had just settled. Measured: the
+" cursor was put into the list as asked and then taken out of it a moment later
+" by a sync nobody had asked for. The occurrence list carries a flag of its own
+" for the same reason! By Questor
+let s:syncing = 0
 let s:lines = ""
 let s:nav = []
 
@@ -358,31 +384,132 @@ endfunc
 " commands that empty and fill the buffer! By Questor
 func! GrooVim_BookmarkList() abort
 
-  " Note: Open -> closed, and the cursor goes back to a window with a file in it
-  " instead of being left wherever the closing happened to leave it.
+  " Note: Open -> closed, and in EVERY tab, not only the one you are on. It is a
+  " dock and not a window of a tab: Notepad++ shows its panels beside whatever
+  " document you are looking at, and the occurrence list of F3 does the same.
   "
-  " Note: "silent!" because closing the LAST window of a tab is refused, and
-  " being refused is the right answer there: a tab with nothing but this list in
-  " it keeps it! By Questor
-  if GrooVim_PanelFocus(s:panel, 0)
-    silent! close
+  " Note: The cursor goes back to a window with a file in it instead of being
+  " left wherever the closing happened to leave it! By Questor
+  if g:GrooVim_BookmarkListOpen
+    let g:GrooVim_BookmarkListOpen = 0
+    call GrooVim_BookmarkListEverywhere()
     call GrooVim_PutOnEditWindow()
     return
   endif
+
 
   if !GrooVim_BookmarkPanelBuild()
     call GrooVim_GrooVimBarMsg("No marks anywhere!", 4)
     return
   endif
 
+  let g:GrooVim_BookmarkListOpen = 1
+  call GrooVim_BookmarkListEverywhere()
+
+  " Note: And the cursor goes INTO the list, because you asked for it to read it.
+  " The sync leaves you where it found you -- it runs on its own, at moments
+  " nobody chose -- so the one moment somebody DID choose says so here! By
+  " Questor
+  call GrooVim_PanelFocus(s:panel, 0)
+
+endfunc
+
+" Note: The pass over every tab, with the flag up so that entering each of them
+" does not ask for the pass again! By Questor
+func! GrooVim_BookmarkListEverywhere() abort
+  let s:syncing = 1
+  try
+    call GrooVim_TabDo("call GrooVim_BookmarkListSync()")
+  finally
+    let s:syncing = 0
+  endtry
+endfunc
+
+" Note: The list in front of you follows what you do to the marks. Mark a line
+" with the list open and the line is in it; take the mark off and it is gone.
+"
+" Note: Only the tab you are on. The others are brought into line when you reach
+" them, which is what the sync is for -- and walking every tab at every mark
+" would be a lot of work for a list nobody is looking at! By Questor
+func! GrooVim_BookmarkListRefresh() abort
+  if !g:GrooVim_BookmarkListOpen
+    return
+  endif
+  let l:back = win_getid()
+  call GrooVim_BookmarkPanelBuild()
+  if GrooVim_PanelFocus(s:panel, 0)
+    call GrooVim_BookmarkPanelFill()
+  endif
+  call win_gotoid(l:back)
+endfunc
+
+" Note: Brings this tab into line with whether the list is open or not: it gets
+" one if it has none, it loses the one it has, and a tab opened after the list
+" was asked for gets it as it arrives.
+"
+" Note: One buffer PER TAB, named for it. One buffer shared by every tab would
+" show the arrow of the tab you jumped from in all of them, and closing the last
+" window of it would wipe what the others were showing -- which is why the
+" occurrence list names its own the same way! By Questor
+func! GrooVim_BookmarkListSync() abort
+
+  " Note: Whatever this does, it leaves you where it found you.
+  "
+  " Note: It walks the windows of the tab to find the list, and walking them
+  " MOVES you -- and this runs on its own, from a timer, at moments nobody chose:
+  " entering a tab fires it, and so does the "tabdo" that brings every tab into
+  " line. Measured: a mark was put on line 1 of the list itself, because the
+  " timer had run during the wait for the second key of the shortcut and left the
+  " cursor in the list while the key was still on its way! By Questor
+  let l:back = win_getid()
+  try
+    call GrooVim_BookmarkListSyncHere()
+  finally
+    if !win_gotoid(l:back)
+      call GrooVim_PutOnEditWindow()
+    endif
+  endtry
+
+endfunc
+
+func! GrooVim_BookmarkListSyncHere() abort
+
+  let l:here = GrooVim_PanelFocus(s:panel, 0)
+
+  if !g:GrooVim_BookmarkListOpen
+    if l:here
+      " Note: "silent!" because closing the LAST window of a tab is refused, and
+      " being refused is the right answer there: a tab with nothing but this list
+      " in it keeps it! By Questor
+      silent! close
+    endif
+    return
+  endif
+
+  if l:here
+    call GrooVim_BookmarkPanelFill()
+    return
+  endif
+
   call GrooVim_PutOnEditWindow()
   setlocal ma
   exec "set splitbelow"
-  silent exec "split " . s:panel
+  silent exec "split " . s:panel . tabpagenr()
   call GrooVim_BookmarkPanelFill()
   setlocal cursorline
   call GrooVim_BookmarkPanelSetup()
 
+endfunc
+
+" Note: And a tab reached later gets it too, which is the whole of being a dock.
+"
+" Note: Through a timer for the reason the occurrence list uses one: "tabnew
+" {file}" fires "TabEnter" BEFORE the file is loaded, and building the list right
+" there puts it in a window the file then lands on top of! By Questor
+func! GrooVim_BookmarkListOnTab(timer) abort
+  if g:GrooVim_BookmarkListOpen && !s:syncing
+    call GrooVim_BookmarkListSync()
+  endif
 endfunc
 
 " Note: "norm!" and not "norm": inside the panel the keys that edit are mapped to
@@ -472,6 +599,7 @@ func! GrooVim_BookmarkClearAll() abort
   let g:GrooVim_Bookmarks = {}
   call GrooVim_BookmarksSave()
   call GrooVim_GrooVimBarMsg("All " . l:total . " marks taken off!", 4)
+  call GrooVim_BookmarkListRefresh()
 
 endfunc
 
@@ -617,6 +745,7 @@ augroup GrooVim_Bookmarks
   autocmd!
   autocmd BufWinEnter,BufReadPost * call GrooVim_BookmarksPlace()
   autocmd CursorMoved * call GrooVim_BookmarkNoteShow()
+  autocmd TabEnter * call timer_start(0, "GrooVim_BookmarkListOnTab")
   autocmd InsertEnter,WinLeave * call GrooVim_BookmarkNoteHide()
   autocmd ColorScheme * call GrooVim_BookmarksColours() | call GrooVim_BookmarksDefine()
   autocmd VimLeavePre * call GrooVim_BookmarksSave()
