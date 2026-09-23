@@ -8,13 +8,30 @@
 " wait for the second key of a shortcut, which is a hand travelling and has its
 " own patience in "g:GrooVim_CommandZWait".
 "
-" Note: 150 and not less, measured by feeding an arrow one byte at a time: at 50
-" the key falls apart as soon as its bytes arrive 80ms apart, at 100 it goes at
-" 120ms, at 150 it holds. A keyboard sends the whole run in one go, but a slow
-" link does not -- and 150ms of waiting for an Esc is nothing beside the whole
-" second it was! By Questor
+" Note: This wait is also how long the cursor sits in the WRONG column every
+" time you leave insert mode. Vim steps one column left on the way out, paints
+" it, and only when the wait is over does it finish the key and run what GrooVim
+" hangs on "InsertLeave", which puts the column back. Measured in the bytes Vim
+" writes to the terminal: the cursor painted at column 10 at 26ms and at column
+" 11 at 176ms, and the gap is this number exactly -- 50 gives 50ms, 25 gives
+" 25ms. That is the jump to the left and back that can be SEEN on every "Esc",
+" and it is not seen on "Shift+Up", which leaves insert just the same: that one
+" arrives as a whole escape sequence, there is nothing to wait for, and the
+" correction lands in the same paint.
+"
+" Note: And the other side of the same number, measured by feeding an arrow one
+" byte at a time: the key falls apart when its bytes arrive further apart than
+" this. At 50 it holds to 50ms between bytes and tears at 55; at 150 it held to
+" 150. A keyboard sends the whole run in one go and a link is what can tear it
+" -- and a torn arrow in insert mode does not move the cursor, it TYPES "[B"
+" into the file.
+"
+" Note: 50, which is where those two meet: half the jump of a tenth of a second
+" that could be seen, against a tearing that asks for a link so slow that the
+" bytes of ONE key arrive twenty of these apart. If an arrow ever writes letters
+" over a bad line, this is the one number to raise! By Questor
 set ttimeout
-set ttimeoutlen=150
+set ttimeoutlen=50
 
 " Note: The "transfer area" (clipboard) is reached through a cascade, so that
 " GrooVim depends on NO external package and works with no graphical session at

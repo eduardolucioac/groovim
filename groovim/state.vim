@@ -211,10 +211,27 @@ func! GrooVim_InsertEnterPerforms() abort
   endif
 endfunc
 
-" Note: Repositions the cursor in the correct location when exiting insert mode! By Questor
+" Note: Puts the cursor back where you were typing, when insert mode ends.
+"
+" Note: Vim moves it one column LEFT on the way out -- in insert the cursor sits
+" BETWEEN two characters and in normal mode it sits ON one -- and "virtualedit"
+" does not change that: measured, with "onemore" on and this function taken out,
+" a cursor left at column 5 came back at 4. The mark "^" is where insert mode
+" ended, which is the column you were writing in.
+"
+" Note: Moved and not TYPED. It was "norm `^", and a ":normal" run from an
+" autocommand paints the screen before it runs: the terminal was given the
+" cursor at the column Vim had just stepped back to, and only then the column
+" this puts it in. That is the jump to the left and back that could be SEEN on
+" every "Esc" -- measured in the bytes Vim writes: "line 1 column 10" twice, and
+" then "line 1 column 11". With "setpos" there is no typing and no paint in the
+" middle, and the terminal is only ever given the column you ended on! By Questor
 autocmd! InsertLeave * call GrooVim_InsertLeavePerforms()
 func! GrooVim_InsertLeavePerforms() abort
-  exec "norm `^"
+  let l:whereTyping = getpos("'^")
+  if l:whereTyping[1] > 0
+    call setpos(".", l:whereTyping)
+  endif
 endfunc
 
 " Note: Ensures state of "virtualedit" before any editing! By Questor
