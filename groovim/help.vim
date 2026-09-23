@@ -233,13 +233,13 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Move tab right", "what": "Moves this tab one place to the right"},
  \ {"where": "View", "keys": "<C-S-Down>", "modes": "niv",
  \  "menu": "Move tab left", "what": "Moves it one place to the left"},
- \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
- \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t"},
  \ {"where": "View", "group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
  \  "menu": "Pin this tab", "what": "Allows always returning to a particular tab using <Alt-Down>",
  \  "notes": [
  \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
  \  ]},
+ \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
+ \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t"},
  \ {"where": "View", "keys": "<A-,>", "break": 1, "modes": "niv",
  \  "menu": "Window back",
  \  "what": "To the window before this one, going round",

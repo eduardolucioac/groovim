@@ -254,9 +254,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Down` - The tab before it *(normal mode/insert/visual)*;
     - `Ctrl+Shift+Up` - Moves this tab one place to the right *(normal mode/insert/visual)*;
     - `Ctrl+Shift+Down` - Moves it one place to the left *(normal mode/insert/visual)*;
-    - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
     - `F5->t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
         - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
+    - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
     - `Alt+,` - To the window before this one, going round *(normal mode/insert/visual)*;
         - Note: It was Ctrl+W , which only ever went one way. And the Ctrl+W of Vim is back to being what it is everywhere else: the key every window command begins with;
     - `Alt+.` - To the next window, going round *(normal mode/insert/visual)*;
