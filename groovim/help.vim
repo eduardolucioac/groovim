@@ -131,6 +131,23 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Undo", "what": "Undoes the last change"},
  \ {"where": "Edit", "keys": "<C-r>", "modes": "niv",
  \  "menu": "Redo", "what": "Does again what was undone"},
+ \ {"where": "Edit", "group": "F2", "key": "n", "break": 1, "modes": "n",
+ \  "run": 'call GrooVim_MultiColumnStart()',
+ \  "menu": "Write on several lines",
+ \  "what": "Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below",
+ \  "notes": [
+ \   "The line you started on is the anchor and does not move: |Down| and |Up| move the OTHER end, so three down and one up leaves two lines taken",
+ \   "A line too short to reach the column takes the text at ITS end, so no line is left out",
+ \   "|Esc| ends it"
+ \  ]},
+ \ {"where": "Edit", "group": "F2", "key": "m", "modes": "n",
+ \  "run": 'call GrooVim_MultiPoint()',
+ \  "menu": "Write in several places",
+ \  "what": "Marks one more place to write in: mark as many as you like, walk between them as you always do, and then type",
+ \  "notes": [
+ \   "Beside |F2->n| , which takes whole lines. This one is for places that have nothing to do with each other",
+ \   "|Esc| ends it"
+ \  ]},
  \ {"where": "Edit", "keys": "<S-Up>", "break": 1, "modes": "niv",
  \  "menu": "Insert mode, in and out",
  \  "what": "Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops",

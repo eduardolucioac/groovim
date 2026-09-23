@@ -41,19 +41,7 @@ let g:grooVimVersion = "v3.0.0b"
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Empty, and that is not an accident: every entry was read against the
-" code, one by one, and answered.
-"
-" Note: Of the twenty nine there were -- twenty one here and eight more that the
-" README carried alone -- twelve had already been built and nobody had crossed
-" them off, five were built the day the list was read, two were defects and were
-" fixed, and ten were looked at and decided against. What was left of the last
-" ones on the day this became empty: a jump between brackets, which Vim does with
-" "%" and only wanted a key, and a "save as" beside the "save a copy" that was
-" already there.
-"
-" Note: A list that repeats the code goes stale in the dark. This one is for what
-" the code does NOT say, and right now there is nothing of the kind! By Questor
+" <EMPTY>
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "MAIN
@@ -63,8 +51,8 @@ let g:grooVimVersion = "v3.0.0b"
 "GENERAL BEHAVIOR
 "$$$$$$$$$$$$$"
 
-" Note: Use vim settings, rather then vi settings (much better!)! This must be
-" first, because it changes other options as a side effect! By Questor
+" Note: Use vim settings, rather then vi settings - much better. This must be
+" first, because it changes other options as a side effect.
 set nocompatible
 
 " Note: GrooVim keeps a directory of its own, and does NOT share the one of the
@@ -222,6 +210,7 @@ let s:GrooVim_Parts = [
  \ ["movement",    "moving the cursor and the text: GroovyMove, word selection"],
  \ ["state",       "what GrooVim knows about itself: messages, Caps Lock, the bar"],
  \ ["editing",     "the keys that edit: undo, delete, Tab, entering visual mode"],
+ \ ["multiedit",   "writing in several places at once: the multiple carets"],
  \ ["options",     "the questions the configuration screens ask, and the answers"],
  \ ["search",      "searching, and the highlight that follows it"],
  \ ["occurrences", "the occurrence list: the panel of Notepad++"],

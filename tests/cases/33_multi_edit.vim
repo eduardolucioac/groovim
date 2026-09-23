@@ -1,0 +1,208 @@
+" Writing in several places at once: the multiple carets of Notepad++.
+"
+" Two keys and one machinery. F2->n takes whole LINES, which is the
+" "Shift+Alt+arrows" of Notepad++: the line you start on is the anchor, the
+" arrows move the other end, and the carets are the lines between the two.
+" F2->m takes one place at a time, which is its "Ctrl+click": mark as many as
+" you like, walk between them however you walk, and then type.
+"
+" What Vim has instead is the visual BLOCK, and it is not this: you cannot type
+" into it -- an "I" or an "A" is asked for first, and the other lines only
+" change when you press "Esc". Measured, entering the block and typing "XYZ":
+" the "X" ran as the "x" of Vim and took a character off each line.
+exec "source " . expand("<sfile>:p:h") . "/_common.vim"
+call GT_Name(expand("<sfile>:t:r"))
+
+" The carets are written by a timer, which runs when Vim is waiting -- so a case
+" that types and looks at once looks too early.
+func! GT_Settle()
+  sleep 60m
+endfunc
+
+" A whole session in ONE press, because insert mode does not survive between
+" two: a fed key runs and returns, insert ends with it, and ending insert is
+" what puts the carets down. With the keys in one run -- the F key, its letter,
+" the arrows, the text and the "Esc" -- it is the same journey a hand makes.
+"
+" What cannot be looked at from inside such a run is what the carets were in the
+" MIDDLE of it; that is asked of the functions themselves, further down.
+
+" A buffer with these lines in it and NOTHING to undo: the lines being put there
+" is a change like any other, and an undo that walks past the text under test
+" empties the buffer and every check after it reads "".
+func! GT_Fresh(lines)
+  enew!
+  call setline(1, a:lines)
+  let l:levels = &undolevels
+  set undolevels=-1
+  exec "normal! a \<BS>\<Esc>"
+  let &undolevels = l:levels
+  call cursor(1, 1)
+endfunc
+
+func! GT_Body()
+
+  " ---- the two keys are on the list, in the section about changing text
+  for s:pair in [["n", "several lines"], ["m", "several places"]]
+    let s:one = filter(copy(g:GrooVim_Shortcuts),
+      \ 'get(v:val, "group", "") ==# "F2" && get(v:val, "key", "") ==# "' . s:pair[0] . '"')
+    call GT_Ok("F2->" . s:pair[0] . " writes in " . s:pair[1],
+      \ len(s:one) == 1 && s:one[0].where ==# "Edit" &&
+      \ s:one[0].menu =~ s:pair[1], "   " . string(map(copy(s:one), 'v:val.menu')))
+  endfor
+  call GT_Ok("and the column asks for insert itself",
+    \ GT_FunctionText("GrooVim_MultiColumnStart") =~ "startinsert",
+    \ "   (in Notepad++ you hold the keys and type: there is no \"i\" to press,\n" .
+    \ "    and asking for one would be the block of Vim again. Measured with a\n" .
+    \ "    real F2 through a real terminal: the mode went to insert by itself)")
+
+  " ---- a column of lines, typed in one go
+  call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
+    \ "quatro delta fim", "zz"])
+  call GT_Press("\<F2>n\<Down>\<Down>>>\<Esc>")
+  call GT_Ok("what you type goes to every line the arrows took in",
+    \ getline(1) ==# ">>um alfa fim" && getline(2) ==# ">>dois beta fim" &&
+    \ getline(3) ==# ">>tres gama fim" && getline(4) ==# "quatro delta fim",
+    \ "   " . string(getline(1, 4)))
+  call GT_Ok("  and a single undo takes back every one of them",
+    \ GT_Undo() ==# "um alfa fim" && getline(3) ==# "tres gama fim",
+    \ "   " . string(getline(1, 3)) .
+    \ "   (one change: the other lines were written inside the same insert)")
+
+  " ---- the text and the "Esc" arriving together lose nothing
+  call cursor(1, 1)
+  call GT_Press("\<F2>n\<Down>RAPIDO\<Esc>")
+  call GT_Ok("text and Esc in one burst lose nothing",
+    \ getline(1) ==# "RAPIDOum alfa fim" && getline(2) ==# "RAPIDOdois beta fim",
+    \ "   " . string(getline(1, 2)) .
+    \ "   (the queue is emptied by a timer, and a timer runs when Vim waits:\n" .
+    \ "    an Esc pressed at once arrives BEFORE the wait does)")
+  call GT_Ok("  and what does it is written where the end is",
+    \ GT_FunctionText("GrooVim_MultiEnd") =~ "MultiFlush", "")
+  call GT_Undo()
+
+  " ---- the backspace takes one off every line
+  call cursor(1, 1)
+  call GT_Press("\<F2>n\<Down>XY\<BS>Z\<Esc>")
+  call GT_Ok("the backspace takes one off every line as well",
+    \ getline(1) ==# "XZum alfa fim" && getline(2) ==# "XZdois beta fim",
+    \ "   " . string(getline(1, 2)) .
+    \ "   (nothing types it, so \"InsertCharPre\" never hears it: it has a\n" .
+    \ "    mapping of its own)")
+  call GT_Undo()
+
+  " ---- a line too short takes the text at its own end
+  call cursor(4, 8)
+  call GT_Press("\<F2>n\<Down><>\<Esc>")
+  call GT_Ok("a line too short to reach the column takes it at ITS end",
+    \ getline(4) ==# "quatro <>delta fim" && getline(5) ==# "zz<>",
+    \ "   " . string(getline(4, 5)) . "   (no line is left out)")
+  call GT_Undo()
+
+  " ---- the anchor stays where it started, and the arrows move the other end
+  "
+  " Asked of the functions, because this is the MIDDLE of a run of typing and a
+  " fed key cannot be stopped there.
+  call cursor(2, 1)
+  call GrooVim_MultiColumnStart()
+  call GT_Ok("the anchor is the line you started on",
+    \ GrooVim_MultiState().anchor[0] == 2 && empty(g:GrooVim_MultiPoints),
+    \ "   " . string(GrooVim_MultiState().anchor) .
+    \ "   (and no caret yet: only the cursor)")
+  call GrooVim_MultiFar(1)
+  call GrooVim_MultiFar(1)
+  call GT_Ok("  two down takes in the two lines below",
+    \ map(copy(g:GrooVim_MultiPoints), 'v:val[0]') == [3, 4],
+    \ "   " . string(g:GrooVim_MultiPoints))
+  call GrooVim_MultiFar(-1)
+  call GT_Ok("  and one up gives one back",
+    \ map(copy(g:GrooVim_MultiPoints), 'v:val[0]') == [3],
+    \ "   " . string(g:GrooVim_MultiPoints) .
+    \ "   (the anchor does not move: the other end does)")
+  call GrooVim_MultiFar(-1)
+  call GrooVim_MultiFar(-1)
+  call GT_Ok("  and past the anchor it takes the line ABOVE",
+    \ map(copy(g:GrooVim_MultiPoints), 'v:val[0]') == [1],
+    \ "   " . string(g:GrooVim_MultiPoints) .
+    \ "   (one key grows it and shrinks it, which is how Notepad++ behaves)")
+  call GT_Ok("  and the carets are painted on the character they sit on",
+    \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')),
+    \ "   (a terminal has ONE cursor: the others are a colour)")
+  call GrooVim_MultiClear()
+  " The column above asked for insert and nothing typed it away: a "startinsert"
+  " waits for its moment, and its moment would be the very next key -- which is
+  " the F2 below, landing in insert mode, where "F2->m" does not live.
+  stopinsert
+  call GT_Ok("  and taken off when it ends",
+    \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')) &&
+    \ maparg("<Down>", "i") ==# "" && maparg("<Esc>", "n") ==# "",
+    \ "   (the arrows are the arrows of everybody again)")
+
+  " ---- places that have nothing to do with each other
+  call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim"])
+  call GT_Press("\<F2>m")
+  call GT_Ok("F2 m marks a place and stays in normal mode",
+    \ mode() ==# "n" && len(g:GrooVim_MultiPoints) == 1,
+    \ "   [" . mode() . "] " . string(g:GrooVim_MultiPoints) .
+    \ "   (choosing WHERE is the gesture: the keyboard has to stay the keyboard)")
+  call cursor(2, 6)
+  call GT_Press("\<F2>m")
+  call cursor(3, 1)
+  call GT_Press("\<F2>m")
+  call GT_Ok("  three places marked, and they are kept between keys",
+    \ len(g:GrooVim_MultiPoints) == 3, "   " . string(g:GrooVim_MultiPoints))
+  call GT_Press("iAQUI-\<Esc>")
+  call GT_Ok("typing lands in all three",
+    \ getline(1) ==# "AQUI-um alfa fim" && getline(2) ==# "dois AQUI-beta fim" &&
+    \ getline(3) ==# "AQUI-tres gama fim", "   " . string(getline(1, 3)))
+  call GT_Ok("  and the one under the cursor took it ONCE",
+    \ getline(3) !~ "AAQQ",
+    \ "   [" . getline(3) . "]   (Vim writes there itself, so that caret is\n" .
+    \ "    skipped -- and asked for BEFORE the carets move, or it is not found)")
+
+  " ---- two carets on one line
+  call GT_Fresh(["aaa bbb ccc", "segunda linha"])
+  call GT_Press("\<F2>m")
+  call cursor(1, 9)
+  call GT_Press("\<F2>m")
+  call GT_Press("i#\<Esc>")
+  call GT_Ok("two carets on one line both take it",
+    \ getline(1) ==# "#aaa bbb #ccc", "   [" . getline(1) . "]" .
+    \ "   (writing in the first moves the second, or it falls one behind for\n" .
+    \ "    every letter)")
+
+  " ---- and Esc with nothing typed lets go of the places
+  call GT_Fresh(["um", "dois", "tres"])
+  call GT_Press("\<F2>m")
+  call cursor(2, 1)
+  call GT_Press("\<F2>m")
+  call GT_Press("\<Esc>")
+  call GT_Ok("Esc in normal mode lets the places go",
+    \ empty(g:GrooVim_MultiPoints) && maparg("<Esc>", "n") ==# "",
+    \ "   " . string(g:GrooVim_MultiPoints))
+  call cursor(3, 1)
+  call GT_Press("iSO-AQUI\<Esc>")
+  call GT_Ok("  and what you type next goes where you are, and nowhere else",
+    \ getline(1) ==# "um" && getline(2) ==# "dois" && getline(3) ==# "SO-AQUItres",
+    \ "   " . string(getline(1, 3)))
+
+  " ---- a buffer that refuses to change says so, and marks nothing
+  call GT_Fresh(["nao me mude"])
+  setlocal nomodifiable
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call GT_Press("\<F2>m")
+  call GT_Ok("a buffer that cannot change says so instead of marking",
+    \ empty(g:GrooVim_MultiPoints) && g:GrooVim_GrooVimBarMsgValue !=# "",
+    \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+  setlocal modifiable
+
+  call GT_Done()
+endfunc
+
+" The undo, and the first line read back: it is done after every block above.
+func! GT_Undo()
+  silent! undo
+  return getline(1)
+endfunc
+
+call GT_AfterStartup("GT_Body")
