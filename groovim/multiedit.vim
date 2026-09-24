@@ -73,19 +73,81 @@ func! GrooVim_MultiClear() abort
 
 endfunc
 
-" Note: While the carets are up, the arrows GROW the column and "Esc" ends it.
-" The mappings live only for as long as the carets do: outside this, "Down" is
-" the "Down" of everybody! By Questor
+" Note: What every caret does when a key that MOVES is pressed. The motion is
+" run at each caret, from where THAT caret is -- so "word right" is each one's
+" own next word, and "end of line" is each one's own end, on lines of every
+" length! By Questor
+" Note: The keys with a modifier move EVERY caret, in both shapes of this. The
+" plain arrows are the difference between the two: in the column they are the
+" block -- "Down" takes in one more line -- and in the places they are how you
+" WALK to the next place, so there they move nobody but you.
+"
+" Note: Which is not a taste either. Marking several places is choosing where
+" they are, and arrows that drag the carets already marked would take the
+" chosen places away as you went looking for the next one! By Questor
+let s:moves = {
+ \ "<C-Left>":  "b",
+ \ "<C-Right>": "el",
+ \ "<Home>":    "0",
+ \ "<End>":     "$l"
+ \ }
+
+let s:movesColumn = {
+ \ "<Left>":    "h",
+ \ "<Right>":   "l"
+ \ }
+
+" Note: The keys taken while the carets are up, and what they were before.
+"
+" Note: Taken and GIVEN BACK, and that is not the same as unmapped: "Ctrl+Left"
+" and "Ctrl+Right" are keys GrooVim already has in insert -- the word back and
+" the word forward -- and an "iunmap" of those would not restore them, it would
+" DELETE them, for the rest of the session. "maparg" with the fourth argument
+" hands the whole mapping over, and "mapset" puts it back exactly as it was! By
+" Questor
+let s:taken = []
+let s:kept = []
+
+func! GrooVim_MultiKeysTake(key, what) abort
+
+  let l:was = maparg(a:key, "i", 0, 1)
+  if !empty(l:was)
+    call add(s:kept, l:was)
+  endif
+
+  call add(s:taken, a:key)
+  exec "inoremap <silent> " . a:key . " " . a:what
+
+endfunc
+
+" Note: While the carets are up, the arrows MOVE them all, and in the column
+" "Up" and "Down" grow the block instead -- there they are the block, here they
+" are how you get to the next place.
+"
+" Note: Through "<Cmd>" and not through a "<C-o>:". The "<C-o>" steps out of
+" insert to run one command, and stepping out FIRES "InsertLeave". ":h map-cmd"
+" never leaves the mode at all -- and a motion run from inside it moves the
+" cursor just the same: measured, a caret on another line walking to ITS next
+" word while the real cursor walked to its own, with the mode still insert! By
+" Questor
 func! GrooVim_MultiKeysOn(column) abort
 
-  " Note: Through "<Cmd>" and not through a "<C-o>:". The "<C-o>" steps out of
-  " insert to run one command, and stepping out FIRES "InsertLeave" -- which is
-  " what ends this mode. So the first arrow killed the very thing it was there
-  " to grow: measured, the carets emptied and the mapping was gone before the
-  " second press. ":h map-cmd" never leaves the mode at all! By Questor
+  let l:all = copy(s:moves)
   if a:column
-    inoremap <silent> <Down> <Cmd>call GrooVim_MultiFar(1)<cr>
-    inoremap <silent> <Up> <Cmd>call GrooVim_MultiFar(-1)<cr>
+    call extend(l:all, s:movesColumn)
+  endif
+
+  for l:key in keys(l:all)
+    call GrooVim_MultiKeysTake(l:key,
+     \ "<Cmd>call GrooVim_MultiMove(" . string(l:all[l:key]) . ")<cr>")
+  endfor
+
+  if a:column
+    call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiFar(1)<cr>")
+    call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiFar(-1)<cr>")
+  else
+    call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiWalk(1)<cr>")
+    call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiWalk(-1)<cr>")
   endif
 
   nnoremap <silent> <Esc> :call GrooVim_MultiClear()<cr>
@@ -93,9 +155,106 @@ func! GrooVim_MultiKeysOn(column) abort
 endfunc
 
 func! GrooVim_MultiKeysOff() abort
-  silent! iunmap <Down>
-  silent! iunmap <Up>
+
+  for l:key in s:taken
+    exec "silent! iunmap " . l:key
+  endfor
+  let s:taken = []
+
+  for l:was in s:kept
+    silent! call mapset("i", 0, l:was)
+  endfor
+  let s:kept = []
+
   silent! nunmap <Esc>
+
+endfunc
+
+" Note: Every caret moves, each one running the motion where IT is.
+"
+" Note: The letters still in the queue are written FIRST. They were typed where
+" the carets are NOW, and a caret that moved before they landed would write them
+" somewhere nobody asked for.
+"
+" Note: "keepjumps", because this is one key of yours and not one jump for every
+" caret there is -- Ctrl+O would otherwise walk you back through places you
+" never went! By Questor
+func! GrooVim_MultiMove(motion) abort
+
+  if empty(g:GrooVim_MultiPoints)
+    return
+  endif
+
+  if !empty(s:queue)
+    call GrooVim_MultiFlush()
+  endif
+
+  let l:cursorWas = [line("."), col(".")]
+
+  for l:which in range(len(g:GrooVim_MultiPoints))
+    let l:point = g:GrooVim_MultiPoints[l:which]
+    call cursor(l:point[0], GrooVim_MultiColumnHere(l:point[0], l:point[1]))
+    exec "keepjumps normal! " . a:motion
+    let g:GrooVim_MultiPoints[l:which] = [line("."), col(".")]
+  endfor
+
+  call cursor(l:cursorWas[0], l:cursorWas[1])
+  exec "keepjumps normal! " . a:motion
+
+  call GrooVim_MultiMerge()
+  call GrooVim_MultiDraw()
+
+endfunc
+
+" Note: Walking to the next place: the cursor alone, one line at a time, keeping
+" the column it is in.
+"
+" Note: The column is carried HERE and not left to Vim. Vim keeps it in
+" "curswant", and coming into insert through one of these keys leaves that at
+" one, whatever column you were in: measured, marking at line 1 column 4 and
+" pressing "Down" landed on line 2 column 1. Written down and read back, the
+" walk goes where a walk goes.
+"
+" Note: And it is picked up again whenever the cursor is somewhere else than
+" where the last walk left it -- which is what typing, or a word, or an end of
+" line, all do! By Questor
+let s:walkColumn = 0
+let s:walkLeft = []
+
+func! GrooVim_MultiWalk(step) abort
+
+  if [line("."), col(".")] != s:walkLeft
+    let s:walkColumn = col(".")
+  endif
+
+  let l:line = line(".") + a:step
+  if l:line < 1 || l:line > line("$")
+    return
+  endif
+
+  call cursor(l:line, min([s:walkColumn, len(getline(l:line)) + 1]))
+  let s:walkLeft = [line("."), col(".")]
+
+endfunc
+
+" Note: Two carets that land in the same place are one caret. Without this, a
+" "Home" with three carets on one line leaves three of them on its first column,
+" and every letter typed arrives three times! By Questor
+func! GrooVim_MultiMerge() abort
+
+  let l:seen = {}
+  let l:kept = []
+
+  for l:point in g:GrooVim_MultiPoints
+    let l:where = l:point[0] . ":" . l:point[1]
+    if !has_key(l:seen, l:where)
+      let l:seen[l:where] = 1
+      call add(l:kept, l:point)
+    endif
+  endfor
+
+  let g:GrooVim_MultiPoints = l:kept
+
 endfunc
 
 " Note: A column of carets, which is the "Shift+Alt+arrows" of Notepad++.

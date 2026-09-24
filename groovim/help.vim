@@ -137,6 +137,7 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below",
  \  "notes": [
  \   "The line you started on is the anchor and does not move: |Down| and |Up| move the OTHER end, so three down and one up leaves two lines taken",
+ \   "Everything else that moves moves EVERY caret, each one from where IT is: |End| is the end of each line, |Ctrl+Right| is each line's own next word, and the lines may be of any length",
  \   "A line too short to reach the column takes the text at ITS end, so no line is left out",
  \   "|Esc| ends it"
  \  ]},
@@ -146,6 +147,8 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type",
  \  "notes": [
  \   "Beside |F2->n| , which takes whole lines. This one is for places that have nothing to do with each other",
+ \   "The plain arrows walk YOU to the next place and leave the carets where they are -- choosing where they go is the whole gesture",
+ \   "|Ctrl+Left| , |Ctrl+Right| , |Home| and |End| move EVERY caret, each one from where IT is",
  \   "|Esc| ends it"
  \  ]},
  \ {"where": "Edit", "keys": "<S-Up>", "break": 1, "modes": "niv",

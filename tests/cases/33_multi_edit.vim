@@ -128,7 +128,16 @@ func! GT_Body()
   call GT_Ok("  and the carets are painted on the character they sit on",
     \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')),
     \ "   (a terminal has ONE cursor: the others are a colour)")
+  " ---- and the keys are GIVEN BACK, not thrown away
+  call GT_Ok("  the word keys of GrooVim are taken while it is up",
+    \ maparg("<C-Right>", "i") =~ "MultiMove" && maparg("<C-Left>", "i") =~ "MultiMove",
+    \ "   [" . maparg("<C-Right>", "i") . "]")
   call GrooVim_MultiClear()
+  call GT_Ok("  and given back exactly as they were",
+    \ maparg("<C-Right>", "i") =~ "C-O" && maparg("<C-Left>", "i") =~ "C-O",
+    \ "   [" . maparg("<C-Right>", "i") . "]" .
+    \ "   (an \"iunmap\" would not restore them: it would DELETE them, and\n" .
+    \ "    the word keys would be gone for the rest of the session)")
   " The column above asked for insert and nothing typed it away: a "startinsert"
   " waits for its moment, and its moment would be the very next key -- which is
   " the F2 below, landing in insert mode, where "F2->m" does not live.
@@ -137,6 +146,34 @@ func! GT_Body()
     \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')) &&
     \ maparg("<Down>", "i") ==# "" && maparg("<Esc>", "n") ==# "",
     \ "   (the arrows are the arrows of everybody again)")
+
+  " ---- every caret moves, each one from where IT is
+  "
+  " This is the whole point of carets instead of a column: "End" is the end of
+  " each line and not a column number, and "word right" is each line's own next
+  " word. The motion is run AT each caret, which is how vim-visual-multi does it
+  " too: put the cursor there, run it, see where it landed.
+  call GT_Fresh(["um alfa fim", "linha bem mais comprida", "zz"])
+  call GT_Press("\<F2>n\<Down>\<Down>\<End>;\<Esc>")
+  call GT_Ok("End takes every caret to the end of ITS line",
+    \ getline(1) ==# "um alfa fim;" && getline(2) ==# "linha bem mais comprida;" &&
+    \ getline(3) ==# "zz;", "   " . string(getline(1, 3)) .
+    \ "   (three lines of three lengths, and a \";\" on each)")
+  call GT_Undo()
+
+  call GT_Fresh(["aa bbbbbbbb cc fim", "x yy zzzzzzzzzzz fim", "abcdefg h i fim"])
+  call GT_Press("\<F2>n\<Down>\<Down>\<C-Right>\<C-Right>[x]\<Esc>")
+  call GT_Ok("two words forward is each line's OWN two words",
+    \ getline(1) ==# "aa bbbbbbbb[x] cc fim" &&
+    \ getline(2) ==# "x yy zzzzzzzzzzz[x] fim" &&
+    \ getline(3) ==# "abcdefg h[x] i fim", "   " . string(getline(1, 3)))
+  call GT_Undo()
+
+  call GT_Press("\<F2>n\<Down>\<Down>\<Home>>\<Right>\<Right>|\<Esc>")
+  call GT_Ok("Home and the plain arrows move every caret too",
+    \ getline(1) ==# ">aa| bbbbbbbb cc fim" && getline(3) ==# ">ab|cdefg h i fim",
+    \ "   " . string(getline(1, 3)))
+  call GT_Undo()
 
   " ---- places that have nothing to do with each other
   "
@@ -164,6 +201,30 @@ func! GT_Body()
   call GT_Ok("  which is why the end is asked for AFTERWARDS",
     \ GT_FunctionText("GrooVim_MultiEndedReally") =~ "mode(1)",
     \ "   (and with the LONG mode: inside a \"<C-o>\" the short one says \"n\")")
+  call GT_Undo()
+
+  " ---- walking to the next place does not drag the carets
+  "
+  " Here the plain arrows are not the block and not a movement of everybody:
+  " they are how you get to the next place. Arrows that dragged the carets
+  " already marked would take the chosen places away while you looked for the
+  " next one -- and the column of the walk is carried by hand, because coming
+  " into insert this way leaves Vim's own at one: measured, marking at line 1
+  " column 4 and pressing Down landed on line 2 column 1.
+  call GT_Fresh(["aaaa bbbb", "zz", "cccc dddd"])
+  call cursor(1, 7)
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m#\<Esc>")
+  call GT_Ok("the walk keeps its column, even over a short line",
+    \ getline(1) ==# "aaaa b#bbb" && getline(3) ==# "cccc d#ddd" &&
+    \ getline(2) ==# "zz", "   " . string(getline(1, 3)))
+  call GT_Undo()
+
+  " ---- but the keys with a modifier move every caret, here too
+  call GT_Fresh(["aa bbbb cc", "dd e ffff", "gg hhhhhh ii"])
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<C-Right><\<End>>\<Esc>")
+  call GT_Ok("Ctrl+Right and End move every place, each at its own",
+    \ getline(1) ==# "aa< bbbb cc>" && getline(3) ==# "gg< hhhhhh ii>" &&
+    \ getline(2) ==# "dd e ffff", "   " . string(getline(1, 3)))
   call GT_Undo()
 
   " ---- two carets on one line

@@ -201,10 +201,13 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+R` - Does again what was undone *(normal mode/insert/visual)*;
     - `F2->n` - Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below *(normal mode)*;
         - Note: The line you started on is the anchor and does not move: Down and Up move the OTHER end, so three down and one up leaves two lines taken;
+        - Note: Everything else that moves moves EVERY caret, each one from where IT is: End is the end of each line, Ctrl+Right is each line's own next word, and the lines may be of any length;
         - Note: A line too short to reach the column takes the text at ITS end, so no line is left out;
         - Note: Esc ends it;
     - `F2->m` - Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type *(normal mode/insert)*;
         - Note: Beside F2->n , which takes whole lines. This one is for places that have nothing to do with each other;
+        - Note: The plain arrows walk YOU to the next place and leave the carets where they are -- choosing where they go is the whole gesture;
+        - Note: Ctrl+Left , Ctrl+Right , Home and End move EVERY caret, each one from where IT is;
         - Note: Esc ends it;
     - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;
         - Note: The pair of Shift+Down : one walks towards typing, the other towards selecting, and either walks back;
