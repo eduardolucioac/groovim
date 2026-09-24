@@ -121,6 +121,41 @@ func! GT_Body()
     \ "    a line short)")
   call GT_Undo()
 
+  " ---- and at the ends of a line those two keys JOIN lines
+  "
+  " A backspace in the first column and a Del at the end do not take a character
+  " away: they take the line break away. That moves every line below, and every
+  " caret with them -- including the one the cursor is standing on, which is
+  " skipped everywhere else because Vim does its work: there Vim does the work
+  " on the TEXT and not on the caret. Measured before it was: typing after a
+  " backspace in the first column put a third letter on a line with no caret.
+  call GT_Fresh(["aaa", "bbb", "ccc", "ddd", "eee"])
+  call cursor(2, 1)
+  call GT_Press("\<F2>n\<Down>\<Down>\<BS>\<Esc>")
+  call GT_Ok("a backspace in the first column joins with the line above",
+    \ getline(1, 3) == ["aaabbbcccddd", "eee", ""] ||
+    \ getline(1, 2) == ["aaabbbcccddd", "eee"],
+    \ "   " . string(getline(1, 3)))
+  call GT_Undo()
+
+  call cursor(1, 3)
+  call GT_Press("\<F2>n\<Down>\<End>\<Del>Z\<Esc>")
+  call GT_Ok("a Del at the end joins with the line below, and what is typed\n" .
+    \ "   lands where the carets really are",
+    \ getline(1) ==# "aaaZbbbZccc" && getline(2) ==# "ddd",
+    \ "   " . string(getline(1, 3)) .
+    \ "   (two joins, and a Z at each of the two seams)")
+  call GT_Undo()
+
+  call GT_Fresh(["aaa", "bbb", "ccc"])
+  call cursor(1, 1)
+  call GT_Press("\<F2>n\<Down>\<BS>Z\<Esc>")
+  call GT_Ok("in the first line of all there is nothing to join",
+    \ getline(1) ==# "ZaaaZbbb" && getline(2) ==# "ccc",
+    \ "   " . string(getline(1, 2)) .
+    \ "   (the caret below joined; the one at the top only wrote)")
+  call GT_Undo()
+
   " ---- a line too short takes the text at its own end
   call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
     \ "quatro delta fim", "zz"])
@@ -281,6 +316,9 @@ func! GT_Body()
     \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
     \ "   " . string(map(getmatches(), 'v:val.group')))
   call GrooVim_MultiSeal()
+  call GT_Ok("  and it is the orange of the cursor that starts it",
+    \ synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") ==# "#ff8700",
+    \ "   (" . synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") . ")")
   call GT_Ok("  and once they are set, yellow",
     \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')) &&
     \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),

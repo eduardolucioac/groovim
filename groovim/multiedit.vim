@@ -38,14 +38,14 @@ let s:ids = []
 let s:queue = []
 let s:waiting = 0
 
-" Note: Two colours, because there are two moments. Green while the places are
+" Note: Two colours, because there are two moments. Orange while the places are
 " being CHOSEN, when nothing you type is written; yellow once they are set, when
 " everything you do happens in all of them. The colour is the answer to "can I
 " write now?", and it is answered without a word! By Questor
-highlight GrooVimMultiChoosing ctermbg=148 ctermfg=232 guibg=#afd700 guifg=#080808
+highlight GrooVimMultiChoosing ctermbg=208 ctermfg=232 guibg=#ff8700 guifg=#080808
 highlight GrooVimMultiCaret ctermbg=220 ctermfg=232 guibg=#f6d32d guifg=#080808
 if &t_Co < 256 && !has("gui_running")
-  highlight GrooVimMultiChoosing ctermbg=green ctermfg=black
+  highlight GrooVimMultiChoosing ctermbg=yellow ctermfg=black
   highlight GrooVimMultiCaret ctermbg=yellow ctermfg=black
 endif
 
@@ -105,7 +105,7 @@ let s:moves = {
  \ "<C-Left>":  "b",
  \ "<C-Right>": "el",
  \ "<Home>":    "0",
- \ "<End>":     "$l"
+ \ "<End>":     "end"
  \ }
 
 let s:movesColumn = {
@@ -240,15 +240,30 @@ func! GrooVim_MultiMove(motion) abort
 
   let l:cursorWas = [line("."), col(".")]
 
+  " Note: The end of a line is a COLUMN and not a motion. "$" lands on the last
+  " character and an "l" after it only goes past when "virtualedit" says it may
+  " -- so the same key left the caret one column short wherever that option was
+  " not what it usually is here, and a Del there took a character away instead
+  " of taking the line break away: measured, "bbb" coming back as "bb"! By
+  " Questor
   for l:which in range(len(g:GrooVim_MultiPoints))
     let l:point = g:GrooVim_MultiPoints[l:which]
+    if a:motion ==# "end"
+      let g:GrooVim_MultiPoints[l:which] =
+       \ [l:point[0], len(getline(l:point[0])) + 1]
+      continue
+    endif
     call cursor(l:point[0], GrooVim_MultiColumnHere(l:point[0], l:point[1]))
     exec "keepjumps normal! " . a:motion
     let g:GrooVim_MultiPoints[l:which] = [line("."), col(".")]
   endfor
 
-  call cursor(l:cursorWas[0], l:cursorWas[1])
-  exec "keepjumps normal! " . a:motion
+  if a:motion ==# "end"
+    call cursor(l:cursorWas[0], len(getline(l:cursorWas[0])) + 1)
+  else
+    call cursor(l:cursorWas[0], l:cursorWas[1])
+    exec "keepjumps normal! " . a:motion
+  endif
 
   call GrooVim_MultiMerge()
   call GrooVim_MultiDraw()
@@ -457,7 +472,7 @@ func! GrooVim_MultiTyped(char) abort
     return
   endif
 
-  call add(s:queue, [line("."), col("."), a:char])
+  call add(s:queue, [line("."), col("."), a:char, 0, []])
   call GrooVim_MultiSoon()
 
 endfunc
@@ -487,7 +502,10 @@ func! GrooVim_MultiFlush() abort
     return
   endif
 
-  for [l:atLine, l:atColumn, l:what] in s:queue
+  let s:cursorLine = line(".")
+  let s:cursorColumn = col(".")
+
+  for [l:atLine, l:atColumn, l:what, l:joinAt, l:each] in s:queue
 
     let s:lengthWas = l:what ==# "\<Tab>"
      \ ? len(getline(l:atLine)) - len(GrooVim_MultiTabAt(l:atColumn)) : 0
@@ -510,7 +528,19 @@ func! GrooVim_MultiFlush() abort
 
     " Note: The character Vim put in itself moves whatever was after it -- and
     " the caret the cursor stands on travels with the cursor! By Questor
-    if l:what ==# "\<Del>"
+    if l:what ==# "\<BS>" && l:atColumn == 1 && l:atLine > 1
+      " Note: The real cursor joined its line to the one above. Vim moved the
+      " cursor itself; every caret that was on the line that went is moved here
+      " -- INCLUDING the one the cursor stands on, which is skipped everywhere
+      " else because Vim does its work: there Vim did the work on the TEXT and
+      " not on the caret, and a caret left on a line that no longer exists
+      " writes where nobody is looking. Measured, typing after a backspace in
+      " the first column: a third letter appeared on a line with no caret! By
+      " Questor
+      call GrooVim_MultiJoined(l:atLine, l:atLine - 1, l:joinAt, -1, 0)
+    elseif l:what ==# "\<Del>" && l:joinAt > 0
+      call GrooVim_MultiJoined(l:atLine + 1, l:atLine, l:joinAt, -1, 0)
+    elseif l:what ==# "\<Del>"
       call GrooVim_MultiShift(l:atLine, l:atColumn + 1, -1, -1)
     elseif l:what ==# "\<CR>"
       " Note: The Enter of the real cursor cut its line in two: everything that
@@ -531,13 +561,54 @@ func! GrooVim_MultiFlush() abort
         continue
       endif
 
-      call GrooVim_MultiDo(l:which, l:what)
+      call GrooVim_MultiDo(l:which, l:what,
+       \ l:which < len(l:each) ? l:each[l:which] : -1)
 
     endfor
   endfor
 
   let s:queue = []
+
+  " Note: The real cursor is carried too. A caret ABOVE it that joined two lines
+  " took a line out of the file, and Vim keeps a cursor on the line NUMBER it
+  " was on -- which is somebody else's line now! By Questor
+  if [line("."), col(".")] != [s:cursorLine, s:cursorColumn]
+    call cursor(s:cursorLine, s:cursorColumn)
+  endif
+
   call GrooVim_MultiDraw()
+
+endfunc
+
+" Note: Two lines became one. Everything that was on the line that went is on
+" the one that received it, pushed along by however long that one already was;
+" and everything below it comes up one.
+"
+" Note: "alsoCursor" says whether the REAL cursor has to come up as well. When
+" the join was its own, Vim has already moved it; when it was a caret's, it has
+" not, and nobody else will! By Questor
+func! GrooVim_MultiJoined(gone, into, offset, except, alsoCursor) abort
+
+  let l:which = 0
+  for l:point in g:GrooVim_MultiPoints
+    if l:which != a:except
+      if l:point[0] == a:gone
+        let g:GrooVim_MultiPoints[l:which] = [a:into, l:point[1] + a:offset]
+      elseif l:point[0] > a:gone
+        let g:GrooVim_MultiPoints[l:which][0] = l:point[0] - 1
+      endif
+    endif
+    let l:which = l:which + 1
+  endfor
+
+  if a:alsoCursor
+    if s:cursorLine == a:gone
+      let s:cursorLine = a:into
+      let s:cursorColumn = s:cursorColumn + a:offset
+    elseif s:cursorLine > a:gone
+      let s:cursorLine = s:cursorLine - 1
+    endif
+  endif
 
 endfunc
 
@@ -545,14 +616,22 @@ endfunc
 " the key means -- and each one does it where THAT caret is, which is the whole
 " idea: a Tab fills to the next stop of its own column, and an Enter cuts its
 " own line! By Questor
-func! GrooVim_MultiDo(which, what) abort
+func! GrooVim_MultiDo(which, what, room) abort
 
   let l:point = g:GrooVim_MultiPoints[a:which]
   let l:line = getline(l:point[0])
   let l:at = GrooVim_MultiColumnHere(l:point[0], l:point[1])
 
   if a:what ==# "\<BS>"
-    if l:at > 1
+    if a:room >= 0
+      " Note: In the first column a backspace does not take a character away: it
+      " takes the LINE BREAK away, and the line goes up to join the one above.
+      " "room" is how long that one was when the key was pressed! By Questor
+      call setline(l:point[0] - 1, getline(l:point[0] - 1) . l:line)
+      exec "silent " . l:point[0] . "delete _"
+      let g:GrooVim_MultiPoints[a:which] = [l:point[0] - 1, a:room + 1]
+      call GrooVim_MultiJoined(l:point[0], l:point[0] - 1, a:room, a:which, 1)
+    elseif l:at > 1
       call setline(l:point[0],
        \ strcharpart(l:line, 0, l:at - 2) . strcharpart(l:line, l:at - 1))
       let g:GrooVim_MultiPoints[a:which][1] = l:at - 1
@@ -562,7 +641,13 @@ func! GrooVim_MultiDo(which, what) abort
   endif
 
   if a:what ==# "\<Del>"
-    if l:at <= len(l:line)
+    if a:room >= 0
+      " Note: And at the end of the line it takes the break away FORWARD: the
+      " line below comes up and joins this one! By Questor
+      call setline(l:point[0], l:line . getline(l:point[0] + 1))
+      exec "silent " . (l:point[0] + 1) . "delete _"
+      call GrooVim_MultiJoined(l:point[0] + 1, l:point[0], a:room, a:which, 1)
+    elseif l:at <= len(l:line)
       call setline(l:point[0],
        \ strcharpart(l:line, 0, l:at - 1) . strcharpart(l:line, l:at))
       call GrooVim_MultiShift(l:point[0], l:at + 1, -1, a:which)
@@ -667,16 +752,25 @@ endfunc
 "
 " Note: Each of them hands the queue what it is and then returns the key itself,
 " so the real cursor does its own work the way it always did, and the carets
-" follow in the timer afterwards! By Questor
-inoremap <silent> <expr> <BS> GrooVim_MultiKey("\<BS>")
-inoremap <silent> <expr> <Del> GrooVim_MultiKey("\<Del>")
-inoremap <silent> <expr> <CR> GrooVim_MultiKey("\<CR>")
-inoremap <silent> <expr> <Tab> GrooVim_MultiKey("\<Tab>")
+" follow in the timer afterwards.
+"
+" Note: By NAME and not by the key. The key of a backspace is a control
+" character, and a control character written into the command of a "<Cmd>" does
+" not survive the trip: measured, the function never ran at all and the burst
+" went on doing the wrong thing with nothing said about it! By Questor
+let s:keyOf = {"BS": "\<BS>", "Del": "\<Del>", "CR": "\<CR>", "Tab": "\<Tab>"}
 
-func! GrooVim_MultiKey(key) abort
+inoremap <silent> <expr> <BS> GrooVim_MultiKey("BS")
+inoremap <silent> <expr> <Del> GrooVim_MultiKey("Del")
+inoremap <silent> <expr> <CR> GrooVim_MultiKey("CR")
+inoremap <silent> <expr> <Tab> GrooVim_MultiKey("Tab")
+
+func! GrooVim_MultiKey(name) abort
+
+  let l:key = s:keyOf[a:name]
 
   if empty(g:GrooVim_MultiPoints)
-    return a:key
+    return l:key
   endif
 
   " Note: Nothing is changed while the places are still being chosen, and that
@@ -688,10 +782,59 @@ func! GrooVim_MultiKey(key) abort
     return ""
   endif
 
-  call add(s:queue, [line("."), col("."), a:key])
-  call GrooVim_MultiSoon()
+  " Note: A "<Cmd>" first, and the key itself after it.
+  "
+  " Note: The "<Cmd>" is what lets the queue be emptied BEFORE the key is looked
+  " at, and it has to be emptied: the letters waiting in it have not moved the
+  " carets yet, so a backspace arriving in the same burst would read a caret as
+  " still being in the first column and take a line break away instead of a
+  " letter. Measured, "XY" and a backspace in one go: the two lines were JOINED.
+  "
+  " Note: An "<expr>" cannot empty it -- it is under the |textlock| , and a
+  " buffer changed from there is a change that does not happen -- but a "<Cmd>"
+  " can: measured, a "setline" from inside one, with the mode still insert! By
+  " Questor
+  return "\<Cmd>call GrooVim_MultiTook('" . a:name . "')\<cr>" . l:key
 
-  return a:key
+endfunc
+
+" Note: What a key that is not a character needs to know, asked while it is
+" still true: how long the line that RECEIVES a join was -- for the real cursor
+" and for every caret -- because after the key the two lines are already one! By
+" Questor
+func! GrooVim_MultiTook(name) abort
+
+  let l:key = s:keyOf[a:name]
+
+  if empty(g:GrooVim_MultiPoints)
+    return
+  endif
+
+  if !empty(s:queue)
+    call GrooVim_MultiFlush()
+  endif
+
+  let l:joinAt = 0
+  if l:key ==# "\<BS>" && col(".") == 1 && line(".") > 1
+    let l:joinAt = len(getline(line(".") - 1))
+  elseif l:key ==# "\<Del>" && col(".") > len(getline(".")) && line(".") < line("$")
+    let l:joinAt = len(getline("."))
+  endif
+
+  let l:each = []
+  for l:point in g:GrooVim_MultiPoints
+    let l:room = -1
+    if l:key ==# "\<BS>" && l:point[1] <= 1 && l:point[0] > 1
+      let l:room = len(getline(l:point[0] - 1))
+    elseif l:key ==# "\<Del>"
+     \ && l:point[1] > len(getline(l:point[0])) && l:point[0] < line("$")
+      let l:room = len(getline(l:point[0]))
+    endif
+    call add(l:each, l:room)
+  endfor
+
+  call add(s:queue, [line("."), col("."), l:key, l:joinAt, l:each])
+  call GrooVim_MultiSoon()
 
 endfunc
 
