@@ -22,6 +22,26 @@
 " plugin does too! By Questor
 let g:GrooVim_MultiPoints = []
 
+" Note: The colour the cursor of the terminal wears while the places are set --
+" the yellow of the carets, because there it IS one of them! By Questor
+let g:GrooVim_MultiCursorSet = get(g:, "GrooVim_MultiCursorSet", "#f6d32d")
+
+" Note: What the cursor of the terminal should be painted with, asked by the
+" part that paints it. Empty means "nothing to do with me"! By Questor
+" Note: On whether this is UP, and not on whether there are carets yet: the
+" column starts with none -- they arrive with the first arrow -- and asking for
+" the carets left the cursor in the colour of insert until one appeared, which
+" is the one moment it should already have changed! By Questor
+func! GrooVim_MultiCursorColour() abort
+
+  if !s:on
+    return ""
+  endif
+
+  return s:marking ? g:cursorColorI : g:GrooVim_MultiCursorSet
+
+endfunc
+
 let s:on = 0
 let s:column = 0
 
@@ -52,6 +72,15 @@ endif
 " Note: The carets are drawn with a match, which belongs to the WINDOW and not
 " to the buffer -- and that is right here: the carets of a run of typing belong
 " to the window you are typing in! By Questor
+" Note: The cursor of the terminal is painted AFTER the mode settles, which is
+" what the part that paints it does with every colour: a "startinsert" has not
+" happened yet when the function that asked for it is still running! By Questor
+func! GrooVim_MultiCursorSoon() abort
+  if exists("*GrooVim_CursorColorSoon")
+    call GrooVim_CursorColorSoon()
+  endif
+endfunc
+
 func! GrooVim_MultiDraw() abort
 
   for l:id in s:ids
@@ -86,6 +115,12 @@ func! GrooVim_MultiClear() abort
 
   call GrooVim_MultiDraw()
   call GrooVim_MultiKeysOff()
+
+  " Note: And the cursor of the terminal goes back to the colour of the mode! By
+  " Questor
+  if exists("*GrooVim_CursorColorForMode")
+    call GrooVim_CursorColorForMode()
+  endif
 
 endfunc
 
@@ -193,10 +228,14 @@ func! GrooVim_MultiSeal() abort
   let s:marking = 0
   call GrooVim_MultiKeysOn(0)
 
-  " Note: And they change COLOUR, from the green of choosing to the yellow of
-  " writing. It is the answer to "can I write now?", given without a word! By
+  " Note: And they change COLOUR, from the orange of choosing to the yellow of
+  " writing -- the cursor of the terminal with them, because it is one of the
+  " carets too. It is the answer to "can I write now?", given without a word! By
   " Questor
   call GrooVim_MultiDraw()
+  if exists("*GrooVim_CursorColorForMode")
+    call GrooVim_CursorColorForMode()
+  endif
 
   call GrooVim_GrooVimBarMsg(len(g:GrooVim_MultiPoints) .
    \ " place(s) set: everything moves them all now -- Esc ends it!", 4)
@@ -354,6 +393,7 @@ func! GrooVim_MultiColumnStart() abort
   " whatever is waiting for a key, and the F key that brought us here is! By
   " Questor
   startinsert
+  call GrooVim_MultiCursorSoon()
 
 endfunc
 
@@ -438,6 +478,7 @@ func! GrooVim_MultiPoint() abort
   if mode(1) !~# "^ni" && mode() !~# "^i"
     startinsert
   endif
+  call GrooVim_MultiCursorSoon()
 
 endfunc
 
@@ -545,9 +586,16 @@ func! GrooVim_MultiFlush() abort
     elseif l:what ==# "\<CR>"
       " Note: The Enter of the real cursor cut its line in two: everything that
       " was below it is one line further down, and whatever sat after the cut on
-      " that very line is now on the line BELOW, counting from its start! By
-      " Questor
-      call GrooVim_MultiCut(l:atLine, l:atColumn, l:same)
+      " that very line is now on the line BELOW, counting from its start.
+      "
+      " Note: And the caret the cursor stands on goes with it -- it is skipped
+      " when the TEXT is written, because Vim writes there itself, and it is not
+      " skipped here, because Vim moved the cursor and not the caret. Left
+      " behind, it stayed on the line above the cut with the column it had, and
+      " an Enter and a backspace -- which should leave a file exactly as it was
+      " -- joined the wrong two lines: measured, "ccc ddd" and "eee fff" coming
+      " back as "ccc dddeee"! By Questor
+      call GrooVim_MultiCut(l:atLine, l:atColumn, -1, 0)
     elseif l:what ==# "\<Tab>"
       call GrooVim_MultiShift(l:atLine, l:atColumn,
        \ len(getline(l:atLine)) - s:lengthWas, -1)
@@ -660,7 +708,7 @@ func! GrooVim_MultiDo(which, what, room) abort
     call append(l:point[0], GrooVim_MultiIndentOf(l:line) . strcharpart(l:line, l:at - 1))
     let g:GrooVim_MultiPoints[a:which] =
      \ [l:point[0] + 1, len(GrooVim_MultiIndentOf(l:line)) + 1]
-    call GrooVim_MultiCut(l:point[0], l:at, a:which)
+    call GrooVim_MultiCut(l:point[0], l:at, a:which, 1)
     return
   endif
 
@@ -704,7 +752,13 @@ endfunc
 " Note: A line cut in two moves everything below it one line down, and whatever
 " was on that line AFTER the cut goes with it -- to the new line, counting from
 " where the cut left it! By Questor
-func! GrooVim_MultiCut(line, column, except) abort
+" Note: "alsoCursor" says whether the REAL cursor has to go down as well. When
+" the cut was its own, Vim has already taken it to the new line; when it was a
+" caret's, nobody has -- and a cursor left a line short joins the wrong two
+" lines the next time a backspace is pressed: measured, an Enter and a
+" backspace, which should leave a file exactly as it was, eating a line of it!
+" By Questor
+func! GrooVim_MultiCut(line, column, except, alsoCursor) abort
 
   let l:which = 0
   for l:point in g:GrooVim_MultiPoints
@@ -718,6 +772,15 @@ func! GrooVim_MultiCut(line, column, except) abort
     endif
     let l:which = l:which + 1
   endfor
+
+  if a:alsoCursor
+    if s:cursorLine > a:line
+      let s:cursorLine = s:cursorLine + 1
+    elseif s:cursorLine == a:line && s:cursorColumn >= a:column
+      let s:cursorLine = s:cursorLine + 1
+      let s:cursorColumn = s:cursorColumn - a:column + 1
+    endif
+  endif
 
 endfunc
 
@@ -895,5 +958,6 @@ endfunc
 
 " Note: For the battery to look at what cannot be read from outside! By Questor
 func! GrooVim_MultiState() abort
-  return {"on": s:on, "column": s:column, "anchor": s:anchor, "far": s:far}
+  return {"on": s:on, "column": s:column, "anchor": s:anchor, "far": s:far,
+   \ "marking": s:marking}
 endfunc

@@ -156,6 +156,28 @@ func! GT_Body()
     \ "   (the caret below joined; the one at the top only wrote)")
   call GT_Undo()
 
+  " ---- an Enter and a backspace leave the file exactly as it was
+  "
+  " The two are each other's opposite, so pressing them in turn has to come back
+  " to the same text -- and it is the hardest thing in here to get right,
+  " because both move LINES and every caret is a line number. Measured wrong
+  " twice: once the caret the cursor stands on stayed where it was and the
+  " backspace joined the wrong two lines; once the real cursor was left a line
+  " short, because a caret ABOVE it had cut a line and nobody told it.
+  call GT_Fresh(["aaa bbb", "ccc ddd", "eee fff"])
+  call cursor(1, 5)
+  call GT_Press("\<F2>n\<Down>\<Down>\<CR>\<BS>\<CR>\<BS>\<CR>\<BS>\<Esc>")
+  call GT_Ok("three Enters and three backspaces leave the file as it was",
+    \ getline(1, 3) == ["aaa bbb", "ccc ddd", "eee fff"] && line("$") == 3,
+    \ "   " . string(getline(1, "$")))
+
+  call GT_Fresh(["aaa bbb", "ccc ddd", "eee fff"])
+  call cursor(1, 5)
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<Esc>\<CR>\<BS>\<CR>\<BS>\<Esc>")
+  call GT_Ok("  and the same in places that have nothing to do with each other",
+    \ getline(1, 3) == ["aaa bbb", "ccc ddd", "eee fff"] && line("$") == 3,
+    \ "   " . string(getline(1, "$")))
+
   " ---- a line too short takes the text at its own end
   call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
     \ "quatro delta fim", "zz"])
@@ -310,12 +332,27 @@ func! GT_Body()
   call GT_Undo()
 
   " ---- and the carets say which moment it is, by colour
+  "
+  " The typeahead is emptied first: an "Esc" left over from the block above
+  " arrives AFTER the next function is called, and this one is asking what the
+  " state is between one key and the next -- with an Esc still travelling, the
+  " places were already sealed before the question.
+  call feedkeys("", "x")
+  call GrooVim_MultiClear()
+  stopinsert
   call GT_Fresh(["aaaa bbbb", "cccc dddd"])
   call GrooVim_MultiPoint()
   call GT_Ok("while choosing, the carets are green",
     \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
     \ "   " . string(map(getmatches(), 'v:val.group')))
   call GrooVim_MultiSeal()
+  call GT_Ok("  and the cursor of the terminal wears that colour too",
+    \ GT_FunctionText("GrooVim_MultiCursorColour") =~ "cursorColorI",
+    \ "   (what is drawn on the last place marked is not a caret at all: it is\n" .
+    \ "    the cursor of the terminal, and it has to be one of them to look\n" .
+    \ "    like one. Measured through a real terminal, the colours it was sent:\n" .
+    \ "    orange while choosing, \"#f6d32d\" on the Esc that sets the places,\n" .
+    \ "    and green again when it ended)")
   call GT_Ok("  and it is the orange of the cursor that starts it",
     \ synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") ==# "#ff8700",
     \ "   (" . synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") . ")")
@@ -324,6 +361,9 @@ func! GT_Body()
     \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
     \ "   " . string(map(getmatches(), 'v:val.group')) .
     \ "   (the answer to \"can I write now?\", given without a word)")
+  call GT_Ok("  and the cursor of the terminal turns with them",
+    \ GrooVim_MultiCursorColour() ==# g:GrooVim_MultiCursorSet,
+    \ "   [" . GrooVim_MultiCursorColour() . "]")
   call GrooVim_MultiClear()
   stopinsert
 

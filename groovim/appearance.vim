@@ -271,6 +271,19 @@ func! GrooVim_CursorColorForMode() abort
   " insert", and if it is ever left standing -- an interrupted movement used to
   " leave it so -- believing it over "mode()" painted the cursor green in visual
   " mode, which is blue. What Vim reports wins! By Questor
+  " Note: While there are carets up, the real cursor is ONE OF THEM and wears
+  " their colour -- orange while the places are being chosen, yellow once they
+  " are set. Without this the last place marked looked different from all the
+  " others, because what is drawn on it is not a caret at all: it is the cursor
+  " of the terminal, in the colour of insert mode! By Questor
+  if exists("*GrooVim_MultiCursorColour")
+    let l:multi = GrooVim_MultiCursorColour()
+    if l:multi !=# ""
+      call GrooVim_CursorColorEmit(l:multi)
+      return
+    endif
+  endif
+
   if g:GrooVim_CursorColorHoldInsert == 1 && !l:visual
     call GrooVim_CursorColorEmit(g:cursorColorI)
     return
