@@ -203,7 +203,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: The line you started on is the anchor and does not move: Down and Up move the OTHER end, so three down and one up leaves two lines taken;
         - Note: A line too short to reach the column takes the text at ITS end, so no line is left out;
         - Note: Esc ends it;
-    - `F2->m` - Marks one more place to write in: mark as many as you like, walk between them as you always do, and then type *(normal mode)*;
+    - `F2->m` - Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type *(normal mode/insert)*;
         - Note: Beside F2->n , which takes whole lines. This one is for places that have nothing to do with each other;
         - Note: Esc ends it;
     - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;

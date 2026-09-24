@@ -161,13 +161,16 @@ func! GrooVim_MultiFar(step) abort
 
 endfunc
 
-" Note: One caret where the cursor is, which is the "Ctrl+click" of Notepad++:
-" press it at each place you want, walk between them with anything that moves
-" the cursor, and then type -- what you write goes to every one of them.
+" Note: One caret where the cursor is, which is the "Ctrl+click" of Notepad++.
 "
-" Note: No insert here, and no arrows taken: between one caret and the next you
-" need the keyboard to be the keyboard, because choosing WHERE is the whole
-" gesture. You type when you are done choosing! By Questor
+" Note: It opens for writing at once, like the column does, and for the same
+" reason: in Notepad++ you click and type. Between one caret and the next you
+" walk with whatever moves the cursor IN insert -- the arrows, the words, the
+" ends of the line -- and press it again where you want the next one.
+"
+" Note: No arrows are taken here, and that is the difference from the column:
+" there they grow the block, and here they are how you get to the next place! By
+" Questor
 func! GrooVim_MultiPoint() abort
 
   if !GrooVim_CanChange()
@@ -191,7 +194,16 @@ func! GrooVim_MultiPoint() abort
   call GrooVim_MultiKeysOn(0)
   call GrooVim_MultiDraw()
   call GrooVim_GrooVimBarMsg(len(g:GrooVim_MultiPoints) .
-   \ " place(s) marked: mark more, then type -- Esc ends it!", 4)
+   \ " place(s): walk and press it again, or type -- Esc ends it!", 4)
+
+  " Note: Already writing, and nothing to do. "mode(1)" and not "mode()":
+  " pressed while you are typing, this arrives through the "<C-o>" of its own
+  " mapping, and inside a "<C-o>" the short mode() says "n" while the long one
+  " says "niI" -- insert is coming back on its own, and a "startinsert" here
+  " would be a second one! By Questor
+  if mode(1) !~# "^ni" && mode() !~# "^i"
+    startinsert
+  endif
 
 endfunc
 
@@ -350,12 +362,38 @@ augroup END
 " Note: The queue is emptied by a timer, and a timer runs when Vim is waiting.
 " An "Esc" pressed right after the last letter arrives before the wait does --
 " and the carets were dropped with the letter still in hand: measured, typing
-" and leaving in one go, the other lines came out short of the last characters!
-" By Questor
+" and leaving in one go, the other lines came out short of the last characters.
+"
+" Note: And whether insert really ended is asked AFTERWARDS, not now. Leaving it
+" is not the same as ending it: a "<C-o>" steps out to run one command and
+" walks straight back in, firing "InsertLeave" on the way -- and twenty six keys
+" of GrooVim are written that way, the paste, the unindent, the wheel, the page,
+" and the F keys themselves. Every one of them would have ended this. A timer of
+" zero runs after the dust settles, and by then Vim is back in insert if it was
+" ever leaving at all! By Questor
 func! GrooVim_MultiEnd() abort
+
+  if empty(g:GrooVim_MultiPoints)
+    return
+  endif
 
   if !empty(s:queue)
     call GrooVim_MultiFlush()
+  endif
+
+  call timer_start(0, {t -> GrooVim_MultiEndedReally()})
+
+endfunc
+
+" Note: "mode(1)" and not "mode()". Inside a "<C-o>" the short one says "n" --
+" it is insert-normal, and the short form calls that normal -- so asking the
+" short one threw the carets away on the very key that was adding another:
+" measured, the list going from one caret to one OTHER caret instead of two! By
+" Questor
+func! GrooVim_MultiEndedReally() abort
+
+  if mode(1) =~# "^i" || mode(1) =~# "^ni"
+    return
   endif
 
   call GrooVim_MultiClear()

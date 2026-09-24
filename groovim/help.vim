@@ -140,10 +140,10 @@ let g:GrooVim_Shortcuts = [
  \   "A line too short to reach the column takes the text at ITS end, so no line is left out",
  \   "|Esc| ends it"
  \  ]},
- \ {"where": "Edit", "group": "F2", "key": "m", "modes": "n",
+ \ {"where": "Edit", "group": "F2", "key": "m", "modes": "ni",
  \  "run": 'call GrooVim_MultiPoint()',
  \  "menu": "Write in several places",
- \  "what": "Marks one more place to write in: mark as many as you like, walk between them as you always do, and then type",
+ \  "what": "Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type",
  \  "notes": [
  \   "Beside |F2->n| , which takes whole lines. This one is for places that have nothing to do with each other",
  \   "|Esc| ends it"

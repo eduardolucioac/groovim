@@ -139,33 +139,36 @@ func! GT_Body()
     \ "   (the arrows are the arrows of everybody again)")
 
   " ---- places that have nothing to do with each other
+  "
+  " This one opens for writing as well, and that is what the arrows are FOR
+  " here: in the column they grow the block, and here they are how you get to
+  " the next place. So the whole session is one run of keys -- mark, walk, mark,
+  " type, end -- with no normal mode in the middle of it.
   call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim"])
-  call GT_Press("\<F2>m")
-  call GT_Ok("F2 m marks a place and stays in normal mode",
-    \ mode() ==# "n" && len(g:GrooVim_MultiPoints) == 1,
-    \ "   [" . mode() . "] " . string(g:GrooVim_MultiPoints) .
-    \ "   (choosing WHERE is the gesture: the keyboard has to stay the keyboard)")
-  call cursor(2, 6)
-  call GT_Press("\<F2>m")
-  call cursor(3, 1)
-  call GT_Press("\<F2>m")
-  call GT_Ok("  three places marked, and they are kept between keys",
-    \ len(g:GrooVim_MultiPoints) == 3, "   " . string(g:GrooVim_MultiPoints))
-  call GT_Press("iAQUI-\<Esc>")
-  call GT_Ok("typing lands in all three",
-    \ getline(1) ==# "AQUI-um alfa fim" && getline(2) ==# "dois AQUI-beta fim" &&
-    \ getline(3) ==# "AQUI-tres gama fim", "   " . string(getline(1, 3)))
-  call GT_Ok("  and the one under the cursor took it ONCE",
-    \ getline(3) !~ "AAQQ",
-    \ "   [" . getline(3) . "]   (Vim writes there itself, so that caret is\n" .
-    \ "    skipped -- and asked for BEFORE the carets move, or it is not found)")
+  call GT_Press("\<F2>mAQUI-\<Esc>")
+  call GT_Ok("F2 m marks a place and opens for writing at once",
+    \ getline(1) ==# "AQUI-um alfa fim", "   " . string(getline(1, 3)) .
+    \ "   (in Notepad++ you click and type: there is no \"i\" in between)")
+  call GT_Ok("  and it says so where the key is written",
+    \ GT_FunctionText("GrooVim_MultiPoint") =~ "startinsert", "")
+  call GT_Undo()
+
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>mMAIS-\<Esc>")
+  call GT_Ok("marked, walked and marked again: both places take the text",
+    \ getline(1) ==# "MAIS-um alfa fim" && getline(3) ==# "MAIS-tres gama fim" &&
+    \ getline(2) ==# "dois beta fim", "   " . string(getline(1, 3)))
+  call GT_Ok("  and the F key in the middle did not end it",
+    \ getline(1) =~ "MAIS-",
+    \ "   (it arrives through a \"<C-o>\", which fires \"InsertLeave\" on its\n" .
+    \ "    way -- and twenty six keys of GrooVim are written that way)")
+  call GT_Ok("  which is why the end is asked for AFTERWARDS",
+    \ GT_FunctionText("GrooVim_MultiEndedReally") =~ "mode(1)",
+    \ "   (and with the LONG mode: inside a \"<C-o>\" the short one says \"n\")")
+  call GT_Undo()
 
   " ---- two carets on one line
   call GT_Fresh(["aaa bbb ccc", "segunda linha"])
-  call GT_Press("\<F2>m")
-  call cursor(1, 9)
-  call GT_Press("\<F2>m")
-  call GT_Press("i#\<Esc>")
+  call GT_Press("\<F2>m" . repeat("\<Right>", 8) . "\<F2>m#\<Esc>")
   call GT_Ok("two carets on one line both take it",
     \ getline(1) ==# "#aaa bbb #ccc", "   [" . getline(1) . "]" .
     \ "   (writing in the first moves the second, or it falls one behind for\n" .
