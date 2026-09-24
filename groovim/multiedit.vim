@@ -24,6 +24,14 @@ let g:GrooVim_MultiPoints = []
 
 let s:on = 0
 let s:column = 0
+
+" Note: The places are chosen first and moved afterwards, and "Esc" is the line
+" between the two: the first one SEALS the places -- from there the arrows move
+" them all -- and the second one ends the whole thing.
+"
+" Note: One key for both because they are the same idea said twice: "I am done
+" with this". Done choosing, then done editing! By Questor
+let s:marking = 0
 let s:anchor = []
 let s:far = 0
 let s:ids = []
@@ -64,6 +72,7 @@ func! GrooVim_MultiClear() abort
   let g:GrooVim_MultiPoints = []
   let s:on = 0
   let s:column = 0
+  let s:marking = 0
   let s:anchor = []
   let s:far = 0
   let s:queue = []
@@ -133,7 +142,7 @@ endfunc
 func! GrooVim_MultiKeysOn(column) abort
 
   let l:all = copy(s:moves)
-  if a:column
+  if a:column || !s:marking
     call extend(l:all, s:movesColumn)
   endif
 
@@ -145,12 +154,40 @@ func! GrooVim_MultiKeysOn(column) abort
   if a:column
     call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiFar(1)<cr>")
     call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiFar(-1)<cr>")
-  else
+  elseif s:marking
     call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiWalk(1)<cr>")
     call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiWalk(-1)<cr>")
+
+    " Note: While the places are still being chosen, "Esc" seals them instead of
+    " ending. Through "<Cmd>", which does not leave insert at all -- so nothing
+    " has to be entered again afterwards, and nothing blinks! By Questor
+    call GrooVim_MultiKeysTake("<Esc>", "<Cmd>call GrooVim_MultiSeal()<cr>")
+  else
+    call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiMove('j')<cr>")
+    call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiMove('k')<cr>")
   endif
 
   nnoremap <silent> <Esc> :call GrooVim_MultiClear()<cr>
+
+endfunc
+
+" Note: The places are chosen; from here they move together.
+"
+" Note: The keys are handed back and taken again, because which key does what
+" is exactly what changed: the arrows were YOUR walk and are now everybody's
+" movement, and "Esc" was this, and is the end from here! By Questor
+func! GrooVim_MultiSeal() abort
+
+  if !s:on || s:column || !s:marking
+    return
+  endif
+
+  call GrooVim_MultiKeysOff()
+  let s:marking = 0
+  call GrooVim_MultiKeysOn(0)
+
+  call GrooVim_GrooVimBarMsg(len(g:GrooVim_MultiPoints) .
+   \ " place(s) set: everything moves them all now -- Esc ends it!", 4)
 
 endfunc
 
@@ -341,6 +378,15 @@ func! GrooVim_MultiPoint() abort
     call GrooVim_MultiClear()
   endif
 
+  " Note: Once the places are sealed they are the places. Saying so beats
+  " marking one more in a run where the arrows have already moved every caret
+  " somewhere else! By Questor
+  if s:on && !s:marking
+    call GrooVim_GrooVimBarMsg(
+     \ "The places are set: Esc ends it, and then you can mark again!", 4)
+    return
+  endif
+
   let l:here = [line("."), col(".")]
   for l:point in g:GrooVim_MultiPoints
     if l:point[0] == l:here[0] && l:point[1] == l:here[1]
@@ -349,11 +395,13 @@ func! GrooVim_MultiPoint() abort
   endfor
 
   let s:on = 1
+  let s:marking = 1
   call add(g:GrooVim_MultiPoints, l:here)
+  call GrooVim_MultiKeysOff()
   call GrooVim_MultiKeysOn(0)
   call GrooVim_MultiDraw()
   call GrooVim_GrooVimBarMsg(len(g:GrooVim_MultiPoints) .
-   \ " place(s): walk and press it again, or type -- Esc ends it!", 4)
+   \ " place(s): walk and press it again, or type -- Esc sets them!", 4)
 
   " Note: Already writing, and nothing to do. "mode(1)" and not "mode()":
   " pressed while you are typing, this arrives through the "<C-o>" of its own

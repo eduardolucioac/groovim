@@ -206,9 +206,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: Esc ends it;
     - `F2->m` - Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type *(normal mode/insert)*;
         - Note: Beside F2->n , which takes whole lines. This one is for places that have nothing to do with each other;
-        - Note: The plain arrows walk YOU to the next place and leave the carets where they are -- choosing where they go is the whole gesture;
-        - Note: Ctrl+Left , Ctrl+Right , Home and End move EVERY caret, each one from where IT is;
-        - Note: Esc ends it;
+        - Note: While you are still CHOOSING, the plain arrows walk you to the next place and leave the carets where they are;
+        - Note: Esc sets the places: from there everything that moves moves EVERY caret, each one from where IT is -- End is the end of each line, and Ctrl+Right each line's own next word;
+        - Note: Esc again ends it. One key for both, because it is the same thing said twice: done choosing, then done writing;
     - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;
         - Note: The pair of Shift+Down : one walks towards typing, the other towards selecting, and either walks back;
     - `Shift+Down` - Goes into the selection and comes out of it: from normal or from insert it starts selecting, and from a selection it stops *(normal mode/insert/visual)*;

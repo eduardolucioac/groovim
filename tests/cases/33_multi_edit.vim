@@ -221,11 +221,44 @@ func! GT_Body()
 
   " ---- but the keys with a modifier move every caret, here too
   call GT_Fresh(["aa bbbb cc", "dd e ffff", "gg hhhhhh ii"])
-  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<C-Right><\<End>>\<Esc>")
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<C-Right><\<End>>\<Esc>\<Esc>")
   call GT_Ok("Ctrl+Right and End move every place, each at its own",
     \ getline(1) ==# "aa< bbbb cc>" && getline(3) ==# "gg< hhhhhh ii>" &&
     \ getline(2) ==# "dd e ffff", "   " . string(getline(1, 3)))
   call GT_Undo()
+
+  " ---- the first Esc SETS the places; the second one ends
+  "
+  " Choosing where the carets go and moving them are two moments, and the key
+  " between them is the same word said twice: done choosing, then done writing.
+  " While you choose, the plain arrows are your walk; once the places are set,
+  " they move every caret.
+  call GT_Fresh(["aa bb cc dd", "ee ff gg hh", "ii jj kk ll", "mm nn oo pp"])
+  call cursor(1, 4)
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<Esc>\<Down>X\<Esc>")
+  call GT_Ok("after the first Esc the arrows move EVERY caret",
+    \ getline(2) ==# "ee Xff gg hh" && getline(4) ==# "mm Xnn oo pp" &&
+    \ getline(1) ==# "aa bb cc dd" && getline(3) ==# "ii jj kk ll",
+    \ "   " . string(getline(1, 4)) .
+    \ "   (both places walked one line down, and both took the X)")
+  call GT_Ok("  and after they are set, Esc is Vim's own again",
+    \ maparg("<Esc>", "i") ==# "",
+    \ "   (which is what makes the second one end it: it leaves insert, and\n" .
+    \ "    leaving insert is what puts the carets down. Measured through a real\n" .
+    \ "    terminal: after the second Esc, what was typed went to the cursor\n" .
+    \ "    and nowhere else)")
+  call GrooVim_MultiClear()
+  call GT_Undo()
+
+  " ---- and once they are set, they are the places
+  call GT_Fresh(["aa bb", "cc dd"])
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call GT_Press("\<F2>m\<Esc>\<F2>m")
+  call GT_Ok("marking again after they are set says so instead",
+    \ len(g:GrooVim_MultiPoints) == 1 &&
+    \ g:GrooVim_GrooVimBarMsgValue =~ "places are set",
+    \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+  call GT_Press("\<Esc>")
 
   " ---- two carets on one line
   call GT_Fresh(["aaa bbb ccc", "segunda linha"])
