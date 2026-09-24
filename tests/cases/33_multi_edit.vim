@@ -91,7 +91,39 @@ func! GT_Body()
     \ "    mapping of its own)")
   call GT_Undo()
 
+  " ---- the keys that are not characters act in every caret too
+  "
+  " "InsertCharPre" hears the letters and nothing else: measured, typing a Tab,
+  " an Enter and a Del with the event watching, and only the letter after them
+  " was heard. They have to be told one by one, or they do their work in the one
+  " place the real cursor is and nowhere else -- which is what they did.
+  call GT_Fresh(["aaaa bbbb", "cccc dddd", "eeee ffff"])
+  call cursor(1, 6)
+  call GT_Press("\<F2>n\<Down>\<Down>\<Del>\<Esc>")
+  call GT_Ok("Del takes a character off every caret",
+    \ getline(1) ==# "aaaa bbb" && getline(2) ==# "cccc ddd" &&
+    \ getline(3) ==# "eeee fff", "   " . string(getline(1, 3)))
+  call GT_Undo()
+
+  call cursor(1, 6)
+  call GT_Press("\<F2>n\<Down>\<Down>\<Tab>\<Esc>")
+  call GT_Ok("Tab fills to the next stop of each caret's OWN column",
+    \ getline(1) ==# "aaaa  bbbb" && getline(3) ==# "eeee  ffff",
+    \ "   " . string(getline(1, 3)))
+  call GT_Undo()
+
+  call cursor(1, 6)
+  call GT_Press("\<F2>n\<Down>\<Down>\<CR>\<Esc>")
+  call GT_Ok("Enter cuts every caret's own line",
+    \ getline(1, 6) == ["aaaa ", "bbbb", "cccc ", "dddd", "eeee ", "ffff"],
+    \ "   " . string(getline(1, 6)) .
+    \ "   (and the carets below a cut go down with it, or the next key lands\n" .
+    \ "    a line short)")
+  call GT_Undo()
+
   " ---- a line too short takes the text at its own end
+  call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
+    \ "quatro delta fim", "zz"])
   call cursor(4, 8)
   call GT_Press("\<F2>n\<Down><>\<Esc>")
   call GT_Ok("a line too short to reach the column takes it at ITS end",
@@ -103,6 +135,8 @@ func! GT_Body()
   "
   " Asked of the functions, because this is the MIDDLE of a run of typing and a
   " fed key cannot be stopped there.
+  call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
+    \ "quatro delta fim", "zz"])
   call cursor(2, 1)
   call GrooVim_MultiColumnStart()
   call GT_Ok("the anchor is the line you started on",
@@ -182,7 +216,7 @@ func! GT_Body()
   " the next place. So the whole session is one run of keys -- mark, walk, mark,
   " type, end -- with no normal mode in the middle of it.
   call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim"])
-  call GT_Press("\<F2>mAQUI-\<Esc>")
+  call GT_Press("\<F2>m\<Esc>AQUI-\<Esc>")
   call GT_Ok("F2 m marks a place and opens for writing at once",
     \ getline(1) ==# "AQUI-um alfa fim", "   " . string(getline(1, 3)) .
     \ "   (in Notepad++ you click and type: there is no \"i\" in between)")
@@ -190,7 +224,7 @@ func! GT_Body()
     \ GT_FunctionText("GrooVim_MultiPoint") =~ "startinsert", "")
   call GT_Undo()
 
-  call GT_Press("\<F2>m\<Down>\<Down>\<F2>mMAIS-\<Esc>")
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<Esc>MAIS-\<Esc>")
   call GT_Ok("marked, walked and marked again: both places take the text",
     \ getline(1) ==# "MAIS-um alfa fim" && getline(3) ==# "MAIS-tres gama fim" &&
     \ getline(2) ==# "dois beta fim", "   " . string(getline(1, 3)))
@@ -213,7 +247,7 @@ func! GT_Body()
   " column 4 and pressing Down landed on line 2 column 1.
   call GT_Fresh(["aaaa bbbb", "zz", "cccc dddd"])
   call cursor(1, 7)
-  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m#\<Esc>")
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<Esc>#\<Esc>")
   call GT_Ok("the walk keeps its column, even over a short line",
     \ getline(1) ==# "aaaa b#bbb" && getline(3) ==# "cccc d#ddd" &&
     \ getline(2) ==# "zz", "   " . string(getline(1, 3)))
@@ -221,11 +255,39 @@ func! GT_Body()
 
   " ---- but the keys with a modifier move every caret, here too
   call GT_Fresh(["aa bbbb cc", "dd e ffff", "gg hhhhhh ii"])
-  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<C-Right><\<End>>\<Esc>\<Esc>")
+  call GT_Press("\<F2>m\<Down>\<Down>\<F2>m\<Esc>\<C-Right><\<End>>\<Esc>")
   call GT_Ok("Ctrl+Right and End move every place, each at its own",
     \ getline(1) ==# "aa< bbbb cc>" && getline(3) ==# "gg< hhhhhh ii>" &&
     \ getline(2) ==# "dd e ffff", "   " . string(getline(1, 3)))
   call GT_Undo()
+
+  " ---- nothing is written while the places are being chosen
+  "
+  " Writing with one caret in a run that is about to have five is writing in one
+  " place and meaning five: the column of every place still to be chosen would
+  " already be wrong.
+  call GT_Fresh(["aaaa bbbb", "cccc dddd"])
+  call GT_Press("\<F2>mNAO\<Esc>SIM\<Esc>")
+  call GT_Ok("what is typed while choosing is swallowed",
+    \ getline(1) ==# "SIMaaaa bbbb",
+    \ "   " . string(getline(1, 2)) .
+    \ "   (\"NAO\" was typed before the Esc and \"SIM\" after it)")
+  call GT_Undo()
+
+  " ---- and the carets say which moment it is, by colour
+  call GT_Fresh(["aaaa bbbb", "cccc dddd"])
+  call GrooVim_MultiPoint()
+  call GT_Ok("while choosing, the carets are green",
+    \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
+    \ "   " . string(map(getmatches(), 'v:val.group')))
+  call GrooVim_MultiSeal()
+  call GT_Ok("  and once they are set, yellow",
+    \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')) &&
+    \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
+    \ "   " . string(map(getmatches(), 'v:val.group')) .
+    \ "   (the answer to \"can I write now?\", given without a word)")
+  call GrooVim_MultiClear()
+  stopinsert
 
   " ---- the first Esc SETS the places; the second one ends
   "
@@ -262,7 +324,7 @@ func! GT_Body()
 
   " ---- two carets on one line
   call GT_Fresh(["aaa bbb ccc", "segunda linha"])
-  call GT_Press("\<F2>m" . repeat("\<Right>", 8) . "\<F2>m#\<Esc>")
+  call GT_Press("\<F2>m" . repeat("\<Right>", 8) . "\<F2>m\<Esc>#\<Esc>")
   call GT_Ok("two carets on one line both take it",
     \ getline(1) ==# "#aaa bbb #ccc", "   [" . getline(1) . "]" .
     \ "   (writing in the first moves the second, or it falls one behind for\n" .

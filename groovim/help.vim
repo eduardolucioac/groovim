@@ -137,7 +137,7 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below",
  \  "notes": [
  \   "The line you started on is the anchor and does not move: |Down| and |Up| move the OTHER end, so three down and one up leaves two lines taken",
- \   "Everything else that moves moves EVERY caret, each one from where IT is: |End| is the end of each line, |Ctrl+Right| is each line's own next word, and the lines may be of any length",
+ \   "Everything else happens in every caret, each one where IT is: what you type, the |Enter| that cuts its own line, the |Tab| that fills to the next stop of its own column, the |Del| , the |Backspace| -- and |End| , which is the end of each line, on lines of any length",
  \   "A line too short to reach the column takes the text at ITS end, so no line is left out",
  \   "|Esc| ends it"
  \  ]},
@@ -147,8 +147,8 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type",
  \  "notes": [
  \   "Beside |F2->n| , which takes whole lines. This one is for places that have nothing to do with each other",
- \   "While you are still CHOOSING, the plain arrows walk you to the next place and leave the carets where they are",
- \   "|Esc| sets the places: from there everything that moves moves EVERY caret, each one from where IT is -- |End| is the end of each line, and |Ctrl+Right| each line's own next word",
+ \   "While you are still CHOOSING nothing is written and the carets are GREEN: the plain arrows walk you to the next place and leave them where they are",
+ \   "|Esc| sets the places and turns them YELLOW: from there everything you do happens in all of them -- what you type, the |Enter| , the |Del| , the |Tab| , the |Backspace| -- and everything that moves moves EVERY caret, each one from where IT is",
  \   "|Esc| again ends it. One key for both, because it is the same thing said twice: done choosing, then done writing"
  \  ]},
  \ {"where": "Edit", "keys": "<S-Up>", "break": 1, "modes": "niv",

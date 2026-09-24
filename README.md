@@ -201,13 +201,13 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+R` - Does again what was undone *(normal mode/insert/visual)*;
     - `F2->n` - Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below *(normal mode)*;
         - Note: The line you started on is the anchor and does not move: Down and Up move the OTHER end, so three down and one up leaves two lines taken;
-        - Note: Everything else that moves moves EVERY caret, each one from where IT is: End is the end of each line, Ctrl+Right is each line's own next word, and the lines may be of any length;
+        - Note: Everything else happens in every caret, each one where IT is: what you type, the Enter that cuts its own line, the Tab that fills to the next stop of its own column, the Del , the Backspace -- and End , which is the end of each line, on lines of any length;
         - Note: A line too short to reach the column takes the text at ITS end, so no line is left out;
         - Note: Esc ends it;
     - `F2->m` - Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type *(normal mode/insert)*;
         - Note: Beside F2->n , which takes whole lines. This one is for places that have nothing to do with each other;
-        - Note: While you are still CHOOSING, the plain arrows walk you to the next place and leave the carets where they are;
-        - Note: Esc sets the places: from there everything that moves moves EVERY caret, each one from where IT is -- End is the end of each line, and Ctrl+Right each line's own next word;
+        - Note: While you are still CHOOSING nothing is written and the carets are GREEN: the plain arrows walk you to the next place and leave them where they are;
+        - Note: Esc sets the places and turns them YELLOW: from there everything you do happens in all of them -- what you type, the Enter , the Del , the Tab , the Backspace -- and everything that moves moves EVERY caret, each one from where IT is;
         - Note: Esc again ends it. One key for both, because it is the same thing said twice: done choosing, then done writing;
     - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;
         - Note: The pair of Shift+Down : one walks towards typing, the other towards selecting, and either walks back;

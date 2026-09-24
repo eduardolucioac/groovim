@@ -38,8 +38,14 @@ let s:ids = []
 let s:queue = []
 let s:waiting = 0
 
-highlight GrooVimMultiCaret ctermbg=208 ctermfg=232 guibg=#ff8700 guifg=#080808
+" Note: Two colours, because there are two moments. Green while the places are
+" being CHOSEN, when nothing you type is written; yellow once they are set, when
+" everything you do happens in all of them. The colour is the answer to "can I
+" write now?", and it is answered without a word! By Questor
+highlight GrooVimMultiChoosing ctermbg=148 ctermfg=232 guibg=#afd700 guifg=#080808
+highlight GrooVimMultiCaret ctermbg=220 ctermfg=232 guibg=#f6d32d guifg=#080808
 if &t_Co < 256 && !has("gui_running")
+  highlight GrooVimMultiChoosing ctermbg=green ctermfg=black
   highlight GrooVimMultiCaret ctermbg=yellow ctermfg=black
 endif
 
@@ -53,8 +59,9 @@ func! GrooVim_MultiDraw() abort
   endfor
   let s:ids = []
 
+  let l:colour = s:marking ? "GrooVimMultiChoosing" : "GrooVimMultiCaret"
   for l:point in g:GrooVim_MultiPoints
-    call add(s:ids, matchaddpos("GrooVimMultiCaret",
+    call add(s:ids, matchaddpos(l:colour,
      \ [[l:point[0], GrooVim_MultiColumnHere(l:point[0], l:point[1]), 1]]))
   endfor
 
@@ -185,6 +192,11 @@ func! GrooVim_MultiSeal() abort
   call GrooVim_MultiKeysOff()
   let s:marking = 0
   call GrooVim_MultiKeysOn(0)
+
+  " Note: And they change COLOUR, from the green of choosing to the yellow of
+  " writing. It is the answer to "can I write now?", given without a word! By
+  " Questor
+  call GrooVim_MultiDraw()
 
   call GrooVim_GrooVimBarMsg(len(g:GrooVim_MultiPoints) .
    \ " place(s) set: everything moves them all now -- Esc ends it!", 4)
@@ -432,6 +444,19 @@ func! GrooVim_MultiTyped(char) abort
     return
   endif
 
+  " Note: While the places are being chosen, what is typed is SWALLOWED.
+  "
+  " Note: Writing with one caret in a run that is about to have five is writing
+  " in one place and meaning five: the column of every place still to be chosen
+  " would already be wrong. "v:char" emptied is the way to say no -- measured,
+  " the event firing and the line coming out exactly as it was! By Questor
+  if s:marking
+    let v:char = ""
+    call GrooVim_GrooVimBarMsg(
+     \ "Choosing where: press Esc to set the places, then write!", 3)
+    return
+  endif
+
   call add(s:queue, [line("."), col("."), a:char])
   call GrooVim_MultiSoon()
 
@@ -464,7 +489,10 @@ func! GrooVim_MultiFlush() abort
 
   for [l:atLine, l:atColumn, l:what] in s:queue
 
-    let l:step = l:what ==# "\<BS>" ? -1 : 1
+    let s:lengthWas = l:what ==# "\<Tab>"
+     \ ? len(getline(l:atLine)) - len(GrooVim_MultiTabAt(l:atColumn)) : 0
+
+    let l:step = l:what ==# "\<BS>" ? -1 : (l:what ==# "\<Del>" ? 0 : 1)
 
     " Note: WHICH caret the cursor is standing on, asked BEFORE anything moves.
     " Vim has already written there, so that one is not written again -- and
@@ -482,7 +510,20 @@ func! GrooVim_MultiFlush() abort
 
     " Note: The character Vim put in itself moves whatever was after it -- and
     " the caret the cursor stands on travels with the cursor! By Questor
-    call GrooVim_MultiShift(l:atLine, l:atColumn, l:step, -1)
+    if l:what ==# "\<Del>"
+      call GrooVim_MultiShift(l:atLine, l:atColumn + 1, -1, -1)
+    elseif l:what ==# "\<CR>"
+      " Note: The Enter of the real cursor cut its line in two: everything that
+      " was below it is one line further down, and whatever sat after the cut on
+      " that very line is now on the line BELOW, counting from its start! By
+      " Questor
+      call GrooVim_MultiCut(l:atLine, l:atColumn, l:same)
+    elseif l:what ==# "\<Tab>"
+      call GrooVim_MultiShift(l:atLine, l:atColumn,
+       \ len(getline(l:atLine)) - s:lengthWas, -1)
+    else
+      call GrooVim_MultiShift(l:atLine, l:atColumn, l:step, -1)
+    endif
 
     for l:which in range(len(g:GrooVim_MultiPoints))
 
@@ -490,29 +531,108 @@ func! GrooVim_MultiFlush() abort
         continue
       endif
 
-      let l:point = g:GrooVim_MultiPoints[l:which]
-      let l:line = getline(l:point[0])
-      let l:at = GrooVim_MultiColumnHere(l:point[0], l:point[1])
-
-      if l:step < 0
-        if l:at > 1
-          call setline(l:point[0],
-           \ strcharpart(l:line, 0, l:at - 2) . strcharpart(l:line, l:at - 1))
-          let g:GrooVim_MultiPoints[l:which][1] = l:at - 1
-          call GrooVim_MultiShift(l:point[0], l:at, -1, l:which)
-        endif
-      else
-        call setline(l:point[0],
-         \ strcharpart(l:line, 0, l:at - 1) . l:what . strcharpart(l:line, l:at - 1))
-        let g:GrooVim_MultiPoints[l:which][1] = l:at + 1
-        call GrooVim_MultiShift(l:point[0], l:at, 1, l:which)
-      endif
+      call GrooVim_MultiDo(l:which, l:what)
 
     endfor
   endfor
 
   let s:queue = []
   call GrooVim_MultiDraw()
+
+endfunc
+
+" Note: One key, at one caret. The letters put themselves in; the others do what
+" the key means -- and each one does it where THAT caret is, which is the whole
+" idea: a Tab fills to the next stop of its own column, and an Enter cuts its
+" own line! By Questor
+func! GrooVim_MultiDo(which, what) abort
+
+  let l:point = g:GrooVim_MultiPoints[a:which]
+  let l:line = getline(l:point[0])
+  let l:at = GrooVim_MultiColumnHere(l:point[0], l:point[1])
+
+  if a:what ==# "\<BS>"
+    if l:at > 1
+      call setline(l:point[0],
+       \ strcharpart(l:line, 0, l:at - 2) . strcharpart(l:line, l:at - 1))
+      let g:GrooVim_MultiPoints[a:which][1] = l:at - 1
+      call GrooVim_MultiShift(l:point[0], l:at, -1, a:which)
+    endif
+    return
+  endif
+
+  if a:what ==# "\<Del>"
+    if l:at <= len(l:line)
+      call setline(l:point[0],
+       \ strcharpart(l:line, 0, l:at - 1) . strcharpart(l:line, l:at))
+      call GrooVim_MultiShift(l:point[0], l:at + 1, -1, a:which)
+    endif
+    return
+  endif
+
+  if a:what ==# "\<CR>"
+    call setline(l:point[0], strcharpart(l:line, 0, l:at - 1))
+    call append(l:point[0], GrooVim_MultiIndentOf(l:line) . strcharpart(l:line, l:at - 1))
+    let g:GrooVim_MultiPoints[a:which] =
+     \ [l:point[0] + 1, len(GrooVim_MultiIndentOf(l:line)) + 1]
+    call GrooVim_MultiCut(l:point[0], l:at, a:which)
+    return
+  endif
+
+  if a:what ==# "\<Tab>"
+    let l:fill = GrooVim_MultiTabAt(l:at)
+    call setline(l:point[0],
+     \ strcharpart(l:line, 0, l:at - 1) . l:fill . strcharpart(l:line, l:at - 1))
+    let g:GrooVim_MultiPoints[a:which][1] = l:at + len(l:fill)
+    call GrooVim_MultiShift(l:point[0], l:at, len(l:fill), a:which)
+    return
+  endif
+
+  call setline(l:point[0],
+   \ strcharpart(l:line, 0, l:at - 1) . a:what . strcharpart(l:line, l:at - 1))
+  let g:GrooVim_MultiPoints[a:which][1] = l:at + 1
+  call GrooVim_MultiShift(l:point[0], l:at, 1, a:which)
+
+endfunc
+
+" Note: What a Tab puts in, at the column it is pressed in: the spaces up to the
+" next stop, or a Tab itself when the file is written with them. Each caret has
+" its own column, so each one fills its own distance! By Questor
+func! GrooVim_MultiTabAt(column) abort
+
+  if !&expandtab
+    return "\t"
+  endif
+
+  let l:width = &softtabstop > 0 ? &softtabstop
+   \ : (&shiftwidth > 0 ? &shiftwidth : &tabstop)
+  return repeat(" ", l:width - ((a:column - 1) % l:width))
+
+endfunc
+
+" Note: The indent a line begins with, which is what Vim copies onto the line an
+" "Enter" opens when "autoindent" is on -- and GrooVim has it on! By Questor
+func! GrooVim_MultiIndentOf(line) abort
+  return &autoindent ? matchstr(a:line, "^\\s*") : ""
+endfunc
+
+" Note: A line cut in two moves everything below it one line down, and whatever
+" was on that line AFTER the cut goes with it -- to the new line, counting from
+" where the cut left it! By Questor
+func! GrooVim_MultiCut(line, column, except) abort
+
+  let l:which = 0
+  for l:point in g:GrooVim_MultiPoints
+    if l:which != a:except
+      if l:point[0] > a:line
+        let g:GrooVim_MultiPoints[l:which][0] = l:point[0] + 1
+      elseif l:point[0] == a:line && l:point[1] >= a:column
+        let g:GrooVim_MultiPoints[l:which] =
+         \ [l:point[0] + 1, l:point[1] - a:column + 1]
+      endif
+    endif
+    let l:which = l:which + 1
+  endfor
 
 endfunc
 
@@ -538,17 +658,40 @@ func! GrooVim_MultiShift(line, column, step, except) abort
 
 endfunc
 
-" Note: The backspace has to be told, because it types nothing and
-" "InsertCharPre" never hears it! By Questor
-inoremap <silent> <expr> <BS> GrooVim_MultiBack()
-func! GrooVim_MultiBack() abort
+" Note: The keys that are not characters have to be TOLD, one by one.
+"
+" Note: "InsertCharPre" hears the letters and nothing else: measured, typing a
+" Tab, an Enter and a Del with the event watching, and only the letter after
+" them was heard. That is why they did nothing to the other carets -- they never
+" reached this at all.
+"
+" Note: Each of them hands the queue what it is and then returns the key itself,
+" so the real cursor does its own work the way it always did, and the carets
+" follow in the timer afterwards! By Questor
+inoremap <silent> <expr> <BS> GrooVim_MultiKey("\<BS>")
+inoremap <silent> <expr> <Del> GrooVim_MultiKey("\<Del>")
+inoremap <silent> <expr> <CR> GrooVim_MultiKey("\<CR>")
+inoremap <silent> <expr> <Tab> GrooVim_MultiKey("\<Tab>")
 
-  if !empty(g:GrooVim_MultiPoints)
-    call add(s:queue, [line("."), col("."), "\<BS>"])
-    call GrooVim_MultiSoon()
+func! GrooVim_MultiKey(key) abort
+
+  if empty(g:GrooVim_MultiPoints)
+    return a:key
   endif
 
-  return "\<BS>"
+  " Note: Nothing is changed while the places are still being chosen, and that
+  " includes these: an "Enter" there would move every place that is below it! By
+  " Questor
+  if s:marking
+    call GrooVim_GrooVimBarMsg(
+     \ "Choosing where: press Esc to set the places, then write!", 3)
+    return ""
+  endif
+
+  call add(s:queue, [line("."), col("."), a:key])
+  call GrooVim_MultiSoon()
+
+  return a:key
 
 endfunc
 
