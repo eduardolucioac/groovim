@@ -35,7 +35,7 @@ IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and Groo
  * The GrooVim was designed to work with tabs;
  * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
  * The GrooVim was designed to work with the best plugins;
- * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `pack/*/start` by themselves. GrooVim looks in `~/.groovim`, a directory of its own, so its plugins are not the plugins of the Vim of your system. __Pathogen__ is still recognized if you already use it, but it is not required;
+ * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `pack/*/start` by themselves. GrooVim looks in `~/.groovim`, a directory of its own, so its plugins are not the plugins of the Vim of your system;
  * GrooVim detects which plugins are installed and enables the mapping of each one by itself. Nothing that is missing causes an error, so the script works alone. You can still force any of them with "let g:enable_tcomment_vim = 0/1", or ignore all at once with "let g:enable_all_plugins = 0". Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
 
 The GrooVim solves the following "problems"!
@@ -571,10 +571,6 @@ off (or on), set its variable before GrooVim is sourced:
 let g:enable_tcomment_vim = 0
 let g:enable_all_plugins = 0    " ignore every plugin at once
 ```
-
-**Note:** If you already use **Pathogen** and keep your plugins in
-`~/.groovim/bundle`, that keeps working: GrooVim looks in both places and calls
-Pathogen only when it is actually installed.
 
 Contact
 -----

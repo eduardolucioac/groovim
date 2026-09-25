@@ -35,7 +35,6 @@
 " Note: The version, and the ONE place it is written.
 let g:grooVimVersion = "v3.0.0b"
 
-
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "TASK LIST/BUGS LIST
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -77,20 +76,15 @@ set nocompatible
 
 " ---
 
-" !!!!!!PAREI AKI!!!!!!
-" !!!!!!PAREI AKI!!!!!!
-" !!!!!!PAREI AKI!!!!!!
-" !!!!!!PAREI AKI!!!!!!
-" !!!!!!PAREI AKI!!!!!!
-" !!!!!!PAREI AKI!!!!!!
-
 " Vim 9.2 version is what "install.sh" builds, and GrooVim is reached only
 " through the "groovim" command, which runs that Vim -- so it is what GrooVim
 " gets.
 "
 " The clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
 " ":clipreset" and the "osc52" package that ships with it.
-"
+
+" ---
+
 " The encoding, and it has to be HERE: before a single part is read.
 "
 " Vim resolves a "\uXXXX" in a double-quoted string to the bytes of whatever
@@ -101,43 +95,47 @@ set nocompatible
 " it: "E1512: Wrong character width for field leadmultispace", and the guides
 " were silently gone. Worse, with no listchars of its own the window fell back
 " to the default of Vim, which draws a "$" at the end of every line.
-"
+
 " It is set again, along with the file encodings, in the "usability" part. This
 " is the one that has to come first.
 set encoding=utf-8
 set termencoding=utf-8
 
-" Note: The environment and not only "g:GrooVim_Home", because with "-u" there is
+" ---
+
+" The environment and not only "g:GrooVim_Home", because with "-u" there is
 " no file of yours running before this one: overriding the variable would mean
 " typing "--cmd" on every call. It is the same shape as "GROOVIM_VIM" and
-" "GROOVIM_VIMRC", which the "groovim" command already reads! By Questor
+" "GROOVIM_VIMRC", which the "groovim" command already reads.
 let g:GrooVim_Home = get(g:, "GrooVim_Home",
  \ $GROOVIM_HOME != "" ? expand($GROOVIM_HOME) : expand("~/.groovim"))
 
-" Note: Where THIS file is, so that GrooVim can open and reload itself.
+" ---
+
+" Where THIS file is, so that GrooVim can open and reload itself.
 "
-" Note: Not "$MYVIMRC": Vim only fills that in when it finds the vimrc on its
-" own, and the "groovim" command hands it over with "-u <path>" -- so it comes
-" out EMPTY, and ":tabedit $MYVIMRC" opened a new, empty file whose name was the
-" four letters of the variable. Measured. "<sfile>" is the file being sourced,
-" which is exactly this one, wherever it lives! By Questor
+" Not "$MYVIMRC": Vim only fills that in when it finds the vimrc on its own,
+" and the "groovim" command hands it over with "-u <path>" -- so it comes out
+" EMPTY. "<sfile>" is the file being sourced, which is exactly this one,
+" wherever it lives.
 let g:GrooVim_Vimrc = get(g:, "GrooVim_Vimrc",
  \ expand("<sfile>:p") != "" ? expand("<sfile>:p") : $MYVIMRC)
 
-" Note: And where THIS RUN writes what it leaves behind: the session, the undo,
-" the viminfo, the clipboard file. Normally the same place -- there is only one
-" of you.
+" And where THIS RUN writes what it leaves behind: the session, the undo,
+" the viminfo, the clipboard file. Normally the same place.
 "
-" Note: Under "sudo" it is not. The code, the plugins and the settings go on
-" coming from the GrooVim that was installed, which is the whole point of having
-" one installation. What must NOT come from there is what gets WRITTEN: root
+" Under "sudo" it is not. The code, the plugins and the settings go on coming
+" from the GrooVim that was installed, which is the whole point of having one
+" installation. What must NOT come from there is what gets WRITTEN: root
 " writing a session into your directory leaves it owned by root, and the next
 " time you opened GrooVim as yourself you could not write it any more.
-"
-" Note: The "groovim" command sets "GROOVIM_STATE" when whoever is running is not
-" whoever installed! By Questor
+
+" The "groovim" command sets "GROOVIM_STATE" when whoever is running is not
+" whoever installed.
 let g:GrooVim_State = get(g:, "GrooVim_State",
  \ $GROOVIM_STATE != "" ? expand($GROOVIM_STATE) : g:GrooVim_Home)
+
+" ---
 
 " Where the answers you chose to KEEP are written down. Defined here and not in
 " the "options" part, because the file is READ before any part of GrooVim runs,
@@ -155,26 +153,28 @@ let &runtimepath = g:GrooVim_Home . "," . $VIM . "/vimfiles," . $VIMRUNTIME .
  \ "," . $VIM . "/vimfiles/after," . g:GrooVim_Home . "/after"
 let &packpath = &runtimepath
 
-" Note: And a "viminfo" of its own, so the marks, the registers and the history
-" of one do not land on the other! By Questor
+" And a "viminfo" of its own, so the marks, the registers and the history of
+" one do not land on the other.
 if exists("+viminfofile")
   let &viminfofile = g:GrooVim_State . "/viminfo"
 endif
 
-" Note: Force reloading *after* the plugins loaded! Trying avoid override! By Questor
+" ---
+
+" Force reloading *after* the plugins loaded! Trying avoid override.
 filetype plugin indent on
 
-" Note: Vim 8 and later load everything under "pack/*/start" on their own, so NO
+" Vim 8 and later load everything under "pack/*/start" on their own, so NO
 " plugin manager is needed. For GrooVim that is "~/.groovim/pack/*/start", set
-" above: its plugins are its own, and not the ones of the Vim of your system. Pathogen is still honoured for whoever
-" already uses it, but it is not required anymore: this used to be an
-" unconditional call that raised "E117" twice on a machine without Pathogen,
-" which broke the "all in one" objective of GrooVim. Note that "exists()" does
-" NOT source an autoload script, so we look for the file itself! By Questor
-if globpath(&runtimepath, "autoload/pathogen.vim") != ""
-  execute pathogen#infect()
-  execute pathogen#helptags()
-endif
+" above: its plugins are its own, and not the ones of the Vim of your system.
+"
+" Pathogen was honoured here for whoever already used it, and that could not
+" happen any more: it was looked for in the "runtimepath", and "~/.vim" left it
+" the day GrooVim stopped sharing the plugins of the Vim of the system --
+" measured, the whole path being GrooVim's own directory, its three plugins,
+" and the Vim built for it. What was left was a call that could only fire for
+" somebody who had put Pathogen INSIDE the home of GrooVim, where a plugin
+" loads by itself anyway.
 
 " Note: Enable mouse! By Questor
 set mouse=a

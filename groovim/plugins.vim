@@ -3,10 +3,15 @@
 "$$$$$$$$$$$$$
 
 " Note: Is a given plugin installed? Looks into the native package directories
-" of Vim 8 and later AND into the "bundle" directory of Pathogen, so both ways
-" of installing are recognized! By Questor
+" of Vim 8 and later, which is the only way GrooVim loads one.
+"
+" Note: It used to look into a "bundle" directory as well, for Pathogen. That
+" answer became a lie the day GrooVim stopped sharing "~/.vim": nothing sources
+" a "bundle" directory any more, so a plugin found there would be reported as
+" installed and never load -- and a shortcut that says it is there and does
+" nothing is worse than one that says it is missing! By Questor
 func! GrooVim_HasPlugin(name) abort
-  for l:place in ["pack/*/start/", "pack/*/opt/", "bundle/"]
+  for l:place in ["pack/*/start/", "pack/*/opt/"]
     if !empty(glob(g:GrooVim_Home . "/" . l:place . a:name, 0, 1))
       return 1
     endif

@@ -218,6 +218,24 @@ func! GT_Body()
   " ---- the debugger of 2014 is gone
   call GT_Ok("no debugger left in the source",
     \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
+
+  " ---- and so is the plugin manager of 2014
+  "
+  " Pathogen was called when it was found in the "runtimepath", and "~/.vim"
+  " left that path the day GrooVim stopped sharing the plugins of the Vim of
+  " the system -- measured, the whole path being GrooVim's own directory, its
+  " plugins, and the Vim built for it. What was left could only fire for
+  " somebody who had put Pathogen INSIDE the home of GrooVim, where a plugin
+  " loads by itself anyway.
+  call GT_Ok("nothing calls Pathogen any more",
+    \ empty(filter(GT_SourceLines(), 'v:val =~ "pathogen#"')),
+    \ "   (Vim 8 and later load \"pack/*/start\" by themselves)")
+  call GT_Ok("  and a plugin is looked for where Vim really loads one",
+    \ GT_FunctionText("GrooVim_HasPlugin") =~ "pack/\\*/start" &&
+    \ GT_FunctionText("GrooVim_HasPlugin") !~ "bundle",
+    \ "   (a \"bundle\" directory nothing sources would answer \"installed\"\n" .
+    \ "    about a plugin that never loads, and a shortcut that says it is\n" .
+    \ "    there and does nothing is worse than one that says it is missing)")
   " F4 is where what OPENS something lives: the tree, and the bookmarks -- lines
   " you mark and then walk between, which is the "Search -> Bookmark" of
   " Notepad++. Every one of them belongs to a plugin, and every one says so.

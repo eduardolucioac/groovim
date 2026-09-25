@@ -454,7 +454,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n         |[https://github.com/tomtom/tcomment_vim]|".
 \"\n      |-|*move*".
 \"\n         |[https://github.com/matze/vim-move]|".
-\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves. *Pathogen* is recognized if you already use it, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
+\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
 \"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
 \"\n".
 \"\n * The GrooVim solves the following \"problems\"!!~".
