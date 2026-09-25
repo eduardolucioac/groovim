@@ -232,6 +232,9 @@ let g:GrooVim_Shortcuts = [
  \
 "\ ---- View
  \ {"where": "View", "group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
+ \  "notes": [
+ \   "In the tree, |Enter| opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds"
+ \  ],
  \  "menu": "File tree", "what": "Opens/closes the *file tree*",
  \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
  \ {"where": "View", "group": "F4", "key": "b", "break": 1, "modes": "niv", "run": 'call GrooVim_BookmarkToggle()',

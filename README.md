@@ -254,6 +254,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
  * **View** *(What is beside the text: the tree, the marked lines, the tabs, the help)*
 
     - `F4->n` - Opens/closes the file tree *(normal mode/insert/visual)*;
+        - Note: In the tree, Enter opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds;
     - `F4->b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;

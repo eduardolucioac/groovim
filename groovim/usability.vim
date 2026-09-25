@@ -119,6 +119,21 @@ let NERDTreeMouseMode=2
 " Note: NERDTree always open on the right side! By Questor
 let NERDTreeWinPos = "right"
 
+" Note: A file chosen in the tree opens in a TAB OF ITS OWN.
+"
+" Note: It used to open in the window you came from, which means the file you
+" were reading is gone from the screen -- you asked to open one more, not to
+" swap the one you had. Every editor with a file tree opens a document beside
+" the ones already open, and the tabs of GrooVim are where the open ones live.
+"
+" Note: "reuse" is kept as it was: a file already open somewhere is JUMPED to
+" instead of opened again, which is what you meant by choosing it.
+"
+" Note: A directory is untouched -- there "open" means unfold, and a folder in
+" a tab of its own would be a tab with a tree in it! By Questor
+let g:NERDTreeCustomOpenArgs =
+ \ {"file": {"reuse": "all", "where": "t", "keepopen": 1}, "dir": {}}
+
 "* move-vim
 
 " Note: Mapping to move-vim! By Questor

@@ -21,6 +21,12 @@ func! GT_Of(group)
     \ 'get(v:val, "group", "") ==# "' . a:group . '"')
 endfunc
 
+" The open arguments of the tree, or an empty dictionary when the plugin is not
+" here to have them.
+func! g:GrooVim_CustomOpenArgsOrEmpty()
+  return get(g:, "NERDTreeCustomOpenArgs", {})
+endfunc
+
 func! GT_FKeys()
   return filter(copy(g:GrooVim_Shortcuts), 'has_key(v:val, "group")')
 endfunc
@@ -255,6 +261,23 @@ func! GT_Body()
   call GT_Ok("F4 shows under the section of what is beside the text",
     \ empty(filter(GT_Of("F4"), 'v:val.where !=# "View"')),
     \ "   " . string(map(GT_Of("F4"), 'v:val.key . " " . v:val.where')))
+  " ---- and a file chosen in the tree opens in a tab of its own
+  "
+  " It used to open in the window you came from, which means the file you were
+  " reading is gone from the screen -- you asked to open one more, not to swap
+  " the one you had. Measured through a real terminal: one tab before, and the
+  " file replaced in it; now two tabs, the first one still holding what it had.
+  call GT_Ok("a file chosen in the tree opens in a tab of its own",
+    \ get(get(g:GrooVim_CustomOpenArgsOrEmpty(), "file", {}), "where", "") ==# "t",
+    \ "   " . string(get(g:, "NERDTreeCustomOpenArgs", {})))
+  call GT_Ok("  and one already open is jumped to, not opened again",
+    \ get(get(g:GrooVim_CustomOpenArgsOrEmpty(), "file", {}), "reuse", "") ==# "all",
+    \ "   (choosing a file you already have open means \"take me there\")")
+  call GT_Ok("  and a folder is left alone",
+    \ get(g:GrooVim_CustomOpenArgsOrEmpty(), "dir", {"x": 1}) == {},
+    \ "   (there \"open\" means unfold, and a folder in a tab of its own\n" .
+    \ "    would be a tab with a tree in it)")
+
   call GT_Ok("  and the tree by what it is, not by the plugin that draws it",
     \ filter(copy(GT_Of("F4")), 'v:val.key ==# "n"')[0].what =~ "file tree", "")
   call GT_Ok("and the menu divides the tree from the marks",
