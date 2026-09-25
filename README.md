@@ -213,8 +213,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: The pair of Shift+Down : one walks towards typing, the other towards selecting, and either walks back;
     - `Shift+Down` - Goes into the selection and comes out of it: from normal or from insert it starts selecting, and from a selection it stops *(normal mode/insert/visual)*;
     - `Alt+Up` - Comments the line, or the selection, and uncomments it *(normal mode/insert/visual)*;
-    - `Ctrl+K` - Moves the line, or the selection, up *(normal mode/insert/visual)*;
-    - `Ctrl+J` - Moves it down *(normal mode/insert/visual)*;
+    - `Ctrl+K` - Moves a line up, or every line of the selection *(normal mode/insert/visual)*;
+    - `Ctrl+J` - Moves a line down, or every line of the selection *(normal mode/insert/visual)*;
 
  * **Select** *(Taking hold of text: all of it, a block, a word, an area)*
 

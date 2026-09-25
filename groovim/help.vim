@@ -164,10 +164,12 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Comment/uncomment", "what": "Comments the line, or the selection, and uncomments it",
  \  "needs": {"switch": "enable_tcomment_vim", "name": "the tcomment plugin"}},
  \ {"where": "Edit", "keys": "<C-k>", "break": 1, "modes": "niv",
- \  "menu": "Move line up", "what": "Moves the line, or the selection, up",
+ \  "menu": "Move a line or selection up",
+ \  "what": "Moves a line up, or every line of the selection",
  \  "needs": {"switch": "enable_move_vim", "name": "the vim-move plugin"}},
  \ {"where": "Edit", "keys": "<C-j>", "modes": "niv",
- \  "menu": "Move line down", "what": "Moves it down",
+ \  "menu": "Move a line or selection down",
+ \  "what": "Moves a line down, or every line of the selection",
  \  "needs": {"switch": "enable_move_vim", "name": "the vim-move plugin"}},
  \
 "\ ---- Select
