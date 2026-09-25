@@ -373,6 +373,12 @@ func! GrooVim_BookmarkPanelSetup() abort
   let &l:statusline = "%!GrooVim_BookmarkPanelBar()"
   nnoremap <buffer> <silent> <Enter> :call GrooVim_BookmarkNavigate()<cr>
   nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_BookmarkNavigate()<cr>
+
+  " Note: And "Del" takes the mark of the line you are on off, which is what the
+  " key means in a list everywhere else. On the file itself the key that marks
+  " is the key that unmarks -- |F4->b| -- and here there is no file under the
+  " cursor to press it on! By Questor
+  nnoremap <buffer> <silent> <Del> :call GrooVim_BookmarkListDelete()<cr>
 endfunc
 
 " Note: Every mark of every file -- and the same key takes the list away again.
@@ -564,6 +570,60 @@ func! GrooVim_BookmarkNavigate() abort
 
   call setpos(".", [0, str2nr(l:line), 1, 0])
   normal! ^
+
+endfunc
+
+" Note: Takes off the mark of the line the cursor is on, from inside the list.
+"
+" Note: The list is built again from what is left, and the cursor is put back on
+" the line it was on -- which is now the mark BELOW the one that went, the way a
+" list of anything behaves when you take a line out of it. On the last one of a
+" file the heading of that file goes too, so the cursor walks up until it finds
+" something that can be walked to.
+"
+" Note: The sign comes off the file as well, and only if the file is open: a
+" mark of a file nobody has open is a line in a list and nothing more! By
+" Questor
+func! GrooVim_BookmarkListDelete() abort
+
+  let l:index = line(".") - 1
+  if l:index < 0 || l:index >= len(s:nav) || s:nav[l:index] ==# "0"
+    call GrooVim_GrooVimBarMsg("This line is not a mark: it is what says where they are!", 4)
+    return
+  endif
+
+  let l:entry = split(s:nav[l:index], ",")
+  let l:line = str2nr(l:entry[0])
+  let l:path = join(l:entry[1:], ",")
+
+  call GrooVim_BookmarksRefresh(l:path)
+  let l:one = GrooVim_BookmarkAt(l:path, l:line)
+  if empty(l:one)
+    return
+  endif
+
+  if l:one.id > 0 && bufexists(l:path)
+    call sign_unplace(s:group, {"buffer": bufnr(l:path), "id": l:one.id})
+  endif
+  call filter(g:GrooVim_Bookmarks[l:path], 'v:val isnot l:one')
+
+  call GrooVim_BookmarksSave()
+  call GrooVim_GrooVimBarMsg("Mark of line " . l:line . " taken off!", 4)
+
+  " Note: The same refresh the key that marks uses, and not the walk over every
+  " tab: that one brings each tab into line with whether the list is OPEN, and
+  " what has to happen here is the list being built again from what is left --
+  " measured, the mark gone from the file and from the signs while the list in
+  " front of me still showed it! By Questor
+  let l:where = line(".")
+  call GrooVim_BookmarkListRefresh()
+
+  if GrooVim_PanelFocus(s:panel, 0)
+    while l:where > 1 && (l:where > len(s:nav) || s:nav[l:where - 1] ==# "0")
+      let l:where = l:where - 1
+    endwhile
+    call setpos(".", [0, max([l:where, 1]), 1, 0])
+  endif
 
 endfunc
 

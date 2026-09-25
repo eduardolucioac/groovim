@@ -341,6 +341,59 @@ func! GT_DockNewTab()
     \ empty(filter(GT_PanelLines(), 'v:val =~ "^|3|"')),
     \ "   " . string(GT_PanelLines()))
 
+  " ---- and "Del" in the list takes the mark of that line off
+  "
+  " Which is what the key means in a list everywhere else. On the file itself
+  " the key that marks is the key that unmarks -- F4->b -- and inside the list
+  " there is no file under the cursor to press it on.
+  " Marked if it is not marked already: the key is a toggle, and the case above
+  " may have left one of these lines with a mark on it -- pressing it blindly
+  " would take that one OFF and set up the opposite of what is wanted.
+  exec "edit! " . g:GT_FILE
+  for s:line in [2, 5]
+    call cursor(s:line, 1)
+    if empty(GrooVim_BookmarkAt(g:GT_FILE, s:line))
+      call GrooVim_BookmarkToggle()
+    endif
+  endfor
+  call GT_Ok("setup: two marks, and both in the list",
+    \ len(filter(GT_PanelLines(), 'v:val =~ "^|[25]|"')) == 2,
+    \ "   " . string(GT_PanelLines()))
+
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  call GT_Ok("the list has Del on its own buffer",
+    \ get(maparg("<Del>", "n", 0, 1), "buffer", 0) == 1 &&
+    \ maparg("<Del>", "n") =~ "BookmarkListDelete", "   [" . maparg("<Del>", "n") . "]")
+
+  call cursor(4, 1)
+  call GT_Ok("  setup: the cursor is on the first mark of the file",
+    \ getline(".") =~ "^|2|", "   [" . getline(".") . "]")
+  call GrooVim_BookmarkListDelete()
+  call GT_Ok("Del takes that mark off",
+    \ empty(filter(copy(GrooVim_BookmarksOf(g:GT_FILE)), 'v:val.line == 2')),
+    \ "   " . string(map(copy(GrooVim_BookmarksOf(g:GT_FILE)), 'v:val.line')))
+  call GT_Ok("  and out of the list, which is built again from what is left",
+    \ empty(filter(GT_PanelLines(), 'v:val =~ "^|2|"')) &&
+    \ !empty(filter(GT_PanelLines(), 'v:val =~ "^|5|"')),
+    \ "   " . string(GT_PanelLines()))
+  call GT_Ok("  and off the file as well, sign and all",
+    \ empty(filter(GT_SignsHere(), 'v:val == 2')),
+    \ "   " . string(GT_SignsHere()) .
+    \ "   (a mark is a line in a list AND a sign in the file)")
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  call GT_Ok("  and the cursor stays on the line, which is the mark below",
+    \ getline(".") =~ "^|5|", "   [" . getline(".") . "]" .
+    \ "   (the way a list of anything behaves when a line goes out of it)")
+
+  " ---- a heading is not a mark
+  call cursor(1, 1)
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call GrooVim_BookmarkListDelete()
+  call GT_Ok("Del on a heading takes nothing off, and says so",
+    \ !empty(GrooVim_BookmarksOf(g:GT_FILE)) &&
+    \ g:GrooVim_GrooVimBarMsgValue =~ "not a mark",
+    \ "   [" . trim(g:GrooVim_GrooVimBarMsgValue) . "]")
+
   " ---- and a panel is not a file, so it cannot be marked
   call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
   let g:GrooVim_GrooVimBarMsgValue = ""
@@ -358,6 +411,16 @@ func! GT_DockNewTab()
   tabonly!
   call delete(g:GT_FILE)
   call GT_Done()
+endfunc
+
+" The lines of the file that carry a mark of the sign group, read from the file
+" itself and not from what GrooVim believes.
+func! GT_SignsHere()
+  let l:back = win_getid()
+  call GrooVim_PanelFocus(g:GT_FILE, 1)
+  let l:placed = sign_getplaced(bufnr("%"), {"group": "GrooVim_Bookmarks"})
+  call win_gotoid(l:back)
+  return map(copy(get(l:placed[0], "signs", [])), 'v:val.lnum')
 endfunc
 
 func! GT_PanelLines()

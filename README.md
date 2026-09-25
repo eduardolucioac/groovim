@@ -257,6 +257,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F4->b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;
+        - Note: In the list, Enter or a double click takes you to the line, and Del takes that mark off -- which is what the key means in a list everywhere else;
     - `F4->c` - Takes every mark off EVERY file, and asks first *(normal mode/insert/visual)*;
     - `m` - To the next marked line *(normal mode)*;
     - `M` - To the marked line before it *(normal mode)*;

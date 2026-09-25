@@ -239,7 +239,10 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "View", "group": "F4", "key": "i", "modes": "niv", "run": 'call GrooVim_BookmarkAnnotate()',
  \  "menu": "Note on the bookmark...", "what": "Writes a note on the marked line, or changes it (*bookmark*)"},
  \ {"where": "View", "group": "F4", "key": "l", "modes": "niv", "run": 'call GrooVim_BookmarkList()',
- \  "menu": "Bookmark list", "what": "Lists every marked line, or takes the list away"},
+ \  "menu": "Bookmark list", "what": "Lists every marked line, or takes the list away",
+ \  "notes": [
+ \   "In the list, |Enter| or a double click takes you to the line, and |Del| takes that mark off -- which is what the key means in a list everywhere else"
+ \  ]},
  \ {"where": "View", "group": "F4", "key": "c", "modes": "niv", "run": 'call GrooVim_BookmarkClearAll()',
  \  "menu": "Clear all bookmarks", "what": "Takes every mark off EVERY file, and asks first"},
  \
