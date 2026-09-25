@@ -233,6 +233,7 @@ let g:GrooVim_Shortcuts = [
 "\ ---- View
  \ {"where": "View", "group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
  \  "notes": [
+ \   "Asked for once, the tree is in EVERY tab, including the ones opened afterwards: it is a dock, like the search list and the list of marked lines. Pressing it again takes it from every tab",
  \   "In the tree, |Enter| opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds"
  \  ],
  \  "menu": "File tree", "what": "Opens/closes the *file tree*",

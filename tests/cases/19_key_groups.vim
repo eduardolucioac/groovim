@@ -261,6 +261,40 @@ func! GT_Body()
   call GT_Ok("F4 shows under the section of what is beside the text",
     \ empty(filter(GT_Of("F4"), 'v:val.where !=# "View"')),
     \ "   " . string(map(GT_Of("F4"), 'v:val.key . " " . v:val.where')))
+  " ---- the tree is a dock: every tab has it, and the ones opened after
+  "
+  " A tree that was only in the tab you pressed the key in meant pressing it
+  " again in each new tab -- and choosing a file in the tree OPENS a tab, so the
+  " thing you just used was gone the moment you used it. The search list and the
+  " list of marked lines were already docks; this one joins them.
+  "
+  " Measured through a real terminal: the tree asked for in one tab, a file
+  " chosen in it, and the new tab arriving with the tree already in it; a tab
+  " opened empty afterwards, the same; and pressing the key again taking it from
+  " all three.
+  call GT_Ok("the tree is asked for once and answered in every tab",
+    \ exists("g:GrooVim_TreeOpen") && exists("*GrooVim_TreeSync") &&
+    \ exists("*GrooVim_TreeEverywhere"), "")
+  call GT_Ok("  and a tab reached later gets it as it arrives",
+    \ exists("*GrooVim_TreeOnTab") &&
+    \ execute("autocmd GrooVim_Tree TabEnter") =~ "GrooVim_TreeOnTab",
+    \ "   (through a timer, because \"tabnew {file}\" fires \"TabEnter\" BEFORE\n" .
+    \ "    the file is loaded, and a tree opened right there is a window the\n" .
+    \ "    file then lands on top of)")
+  call GT_Ok("  and the walk over the tabs is not taken for a tab you reached",
+    \ GT_FunctionText("GrooVim_TreeEverywhere") =~ "treeSyncing" &&
+    \ GT_FunctionText("GrooVim_TreeOnTab") =~ "treeSyncing",
+    \ "   (\"tabdo\" enters each tab, and that fires the event)")
+  call GT_Ok("  and a sync that OPENS it does not leave you inside it",
+    \ GT_FunctionText("GrooVim_TreeSync") =~ "PutOnEditWindow",
+    \ "   (opening the tree puts the cursor in it, and a new tab arriving with\n" .
+    \ "    the cursor in its tree instead of in the document is not a dock,\n" .
+    \ "    it is a hijack)")
+  call GT_Ok("and the key asks the SCREEN whether it is open, not a variable",
+    \ GT_FunctionText("GrooVim_ToggleNERDTreeTabs") =~ "GrooVim_NERDTreeIsOpen",
+    \ "   (closing the tree with the \"q\" of NERDTree leaves a flag saying\n" .
+    \ "    \"open\", and the next press has to reopen it)")
+
   " ---- and a file chosen in the tree opens in a tab of its own
   "
   " It used to open in the window you came from, which means the file you were

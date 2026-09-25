@@ -49,6 +49,101 @@ if g:enable_nerdtree_vim
     return 0
   endfunc
 
+  " Note: The tree is a DOCK: asked for once, it is in every tab, including the
+  " ones opened afterwards -- which is what the occurrence list and the list of
+  " marked lines already are, and what a file tree is in every editor that has
+  " one. A tree that was only in the tab you pressed the key in meant pressing
+  " it again in each new tab, and choosing a file in the tree opens a tab.
+  "
+  " Note: The flag is what the tabs are brought into line with, and it is set
+  " from the REAL state of this tab: closing the tree with the "q" of NERDTree
+  " leaves the flag saying "open", and the next press has to reopen it and not
+  " believe a variable over the screen! By Questor
+  let g:GrooVim_TreeOpen = get(g:, "GrooVim_TreeOpen", 0)
+  let s:treeSyncing = 0
+
+  " Note: Brings THIS tab into line with the flag, and leaves you where it found
+  " you: it runs on its own, from a timer, at moments nobody chose -- and
+  " opening the tree puts the cursor inside it, which is the last thing you want
+  " when what you did was open a file! By Questor
+  " Note: And when this OPENED the tree, it ends on a document and never in the
+  " tree itself. Opening it puts the cursor inside it, and the window to go back
+  " to may be the tree of the tab you came FROM -- measured, a new tab arriving
+  " with the cursor in its tree instead of in the empty document it had just
+  " been given. Asking for the tree with the key is another matter: there you
+  " asked to read it! By Questor
+  func! GrooVim_TreeSync() abort
+
+    let l:back = win_getid()
+    try
+      let l:opened = GrooVim_TreeSyncHere()
+    finally
+      if !win_gotoid(l:back)
+        call GrooVim_PutOnEditWindow()
+      endif
+      if l:opened && GrooVim_IsHelperBuffer(expand("%:t"))
+        call GrooVim_PutOnEditWindow()
+      endif
+    endtry
+
+  endfunc
+
+  func! GrooVim_TreeSyncHere() abort
+
+    if !g:GrooVim_TreeOpen
+      if GrooVim_NERDTreeIsOpen()
+        silent! NERDTreeClose
+      endif
+      return 0
+    endif
+
+    if GrooVim_NERDTreeIsOpen()
+      return 0
+    endif
+
+    " Note: Mirror only when the tree to be shared comes from ANOTHER tab. If
+    " this tab already owns one (it was merely closed), "NERDTreeFocus" brings
+    " it back and asking to mirror would only print a notice! By Questor
+    if !GrooVim_NERDTreeExistsForTab() && GrooVim_NERDTreeExistsAnywhere()
+      silent! NERDTreeMirror
+    endif
+    silent! NERDTreeFocus
+
+    return 1
+
+  endfunc
+
+  " Note: Every tab at once, which is what asking for the tree means now.
+  "
+  " Note: The flag while it runs is what keeps the walk from being taken for a
+  " tab you reached: "tabdo" enters each tab and that fires the event below, so
+  " each tab would ask for the sync it is already in the middle of! By Questor
+  func! GrooVim_TreeEverywhere() abort
+    let s:treeSyncing = 1
+    try
+      call GrooVim_TabDo("call GrooVim_TreeSync()")
+    finally
+      let s:treeSyncing = 0
+    endtry
+  endfunc
+
+  " Note: And a tab reached later gets it too, which is the whole of being a
+  " dock.
+  "
+  " Note: Through a timer for the reason the two lists use one: "tabnew {file}"
+  " fires "TabEnter" BEFORE the file is loaded, and opening the tree right there
+  " puts it in a window the file then lands on top of! By Questor
+  func! GrooVim_TreeOnTab(timer) abort
+    if g:GrooVim_TreeOpen && !s:treeSyncing
+      call GrooVim_TreeSync()
+    endif
+  endfunc
+
+  augroup GrooVim_Tree
+    autocmd!
+    autocmd TabEnter * call timer_start(0, "GrooVim_TreeOnTab")
+  augroup END
+
   func! GrooVim_ToggleNERDTreeTabs()
 
     " Note: NERDTree draws its window by editing a buffer, and Vim reports that
@@ -58,17 +153,15 @@ if g:enable_nerdtree_vim
 
     try
 
-    if GrooVim_NERDTreeIsOpen()
-      silent! NERDTreeClose
-    else
-      " Note: Mirror only when the tree to be shared comes from ANOTHER tab. If
-      " this tab already owns one (it was merely closed), "NERDTreeFocus" brings
-      " it back and asking to mirror would only print a notice! By Questor
-      if !GrooVim_NERDTreeExistsForTab() && GrooVim_NERDTreeExistsAnywhere()
-        silent! NERDTreeMirror
+      let g:GrooVim_TreeOpen = !GrooVim_NERDTreeIsOpen()
+      call GrooVim_TreeEverywhere()
+
+      " Note: And the cursor goes into it, because you asked to read it -- the
+      " same thing the list of marked lines does when it is asked for! By
+      " Questor
+      if g:GrooVim_TreeOpen
+        silent! NERDTreeFocus
       endif
-      silent! NERDTreeFocus
-    endif
 
     finally
       let &report = l:reportSaved
