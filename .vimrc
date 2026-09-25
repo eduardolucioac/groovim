@@ -24,18 +24,17 @@
 "
 " You should have received a copy of the GNU General Public License
 " along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"
+" Eduardo Lúcio
+" 2014
 
 " Note: The licence itself lives in the file "LICENSE", and what a source
 " file carries is this: the notice the GPL asks you to attach, from
-" "How to Apply These Terms to Your New Programs" at its end! By Questor
+" "How to Apply These Terms to Your New Programs" at its end.
 
-" Note: The version, and the ONE place it is written. The help of F9 used to
-" carry a second copy of it, typed by hand, and that is how a number goes stale:
-" nothing makes the two agree, and nobody reads the title of a help they wrote
-" themselves! By Questor
+" Note: The version, and the ONE place it is written.
 let g:grooVimVersion = "v3.0.0b"
-" Eduardo Lúcio
-" 2014
+
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "TASK LIST/BUGS LIST
@@ -51,23 +50,22 @@ let g:grooVimVersion = "v3.0.0b"
 "GENERAL BEHAVIOR
 "$$$$$$$$$$$$$"
 
-" Note: Use vim settings, rather then vi settings - much better. This must be
+" Use vim settings, rather then vi settings - much better. This must be
 " first, because it changes other options as a side effect.
 set nocompatible
 
-" Note: GrooVim keeps a directory of its own, and does NOT share the one of the
+" ---
+
+" GrooVim keeps a directory of its own, and does NOT share the one of the
 " Vim of your system.
 "
-" Note: Reached through the "groovim" command, GrooVim has its own Vim and its
-" own ".vimrc". Leaving "~/.vim" in the runtime path undid half of that: the
-" plugins of GrooVim were being loaded by the Vim of the system as well --
-" measured, plain "vim" was opening with NERDTree because GrooVim had installed
-" it. Now each one has its own plugins, and neither sees the other's.
+" Reached through the "groovim" command, GrooVim has its own Vim and its
+" own ".vimrc" and its own plugins.
 "
-" Note: The shape of the path is the one Vim builds by itself, with "~/.vim"
+" The shape of the path is the one Vim builds by itself, with "~/.vim"
 " swapped for ours.
 "
-" Note: To keep it somewhere else, set "GROOVIM_HOME" in the environment:
+" To keep it somewhere else, set "GROOVIM_HOME" in the environment:
 "
 "     GROOVIM_HOME=/opt/groovim-do-trabalho groovim file.txt
 "
@@ -76,20 +74,23 @@ set nocompatible
 " that know nothing of each other.
 "
 " The Vim GrooVim asks for, said once and here.
+
+" ---
+
+" !!!!!!PAREI AKI!!!!!!
+" !!!!!!PAREI AKI!!!!!!
+" !!!!!!PAREI AKI!!!!!!
+" !!!!!!PAREI AKI!!!!!!
+" !!!!!!PAREI AKI!!!!!!
+" !!!!!!PAREI AKI!!!!!!
+
+" Vim 9.2 version is what "install.sh" builds, and GrooVim is reached only
+" through the "groovim" command, which runs that Vim -- so it is what GrooVim
+" gets.
 "
-" 9.2 is what install.sh builds, and GrooVim is reached only through the
-" "groovim" command, which runs that Vim -- so it is what GrooVim gets. The
-" clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
+" The clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
 " ":clipreset" and the "osc52" package that ships with it.
 "
-" Said here instead of guarding every use of them. Four "exists()" scattered
-" through the clipboard were carrying a Vim this project refuses to run on, and
-" one clear sentence is worth more than four silent degradations.
-if v:version < 902
-  echomsg "GrooVim: this is Vim " . (v:version / 100) . "." . (v:version % 100) .
-   \ " and GrooVim asks for 9.2 -- the clipboard will not work. Run install.sh."
-endif
-
 " The encoding, and it has to be HERE: before a single part is read.
 "
 " Vim resolves a "\uXXXX" in a double-quoted string to the bytes of whatever
