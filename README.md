@@ -405,6 +405,13 @@ You can see which one is in use from inside Vim with:
 `install.sh` builds a Vim for GrooVim alone and writes a `groovim` command
 that runs it. This is the recommended way.
 
+**GrooVim asks for Vim 9.2 or newer**, and that is what `install.sh` builds.
+The clipboard uses what arrived in 9.2 — `v:clipproviders`, `clipmethod`,
+`:clipreset` and the `osc52` package — so on an older Vim it is the clipboard
+that stops working. Reached through the `groovim` command, GrooVim always runs
+the Vim built for it, which is why nothing checks this number while you type:
+it is decided at install time, and `install.sh` refuses to go on below it.
+
 The two do not mix:
 
 | you type | you get |

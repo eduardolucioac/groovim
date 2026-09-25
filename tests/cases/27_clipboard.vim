@@ -146,8 +146,19 @@ call GT_Ok("no exists() left carrying an older Vim",
   \ empty(filter(GT_SourceLines(),
   \   'v:val =~ "exists(\"v:clipproviders\")" || v:val =~ "exists(\"+clipmethod\")"')),
   \ "   (the .vimrc says it once instead)")
-call GT_Ok("the .vimrc is where it is said",
-  \ !empty(filter(readfile($GROOVIM_TEST_VIMRC), 'v:val =~ "v:version < 902"')), "")
+" And it is not asked again while you type.
+"
+" The Vim of GrooVim is the one install.sh builds, and the "groovim" command is
+" the only way in -- so the number is decided at install time and there is
+" nothing a running GrooVim could do about it anyway. It used to say so on
+" startup, which is a message nobody can act on in the one place they cannot act
+" on it. It is written where it can be read BEFORE installing instead.
+call GT_Ok("nothing checks the version while you type",
+  \ empty(filter(readfile($GROOVIM_TEST_VIMRC), 'v:val =~ "v:version < 902"')),
+  \ "   (install.sh refuses to go on below it, and the README says so)")
+call GT_Ok("  and the README says which Vim GrooVim asks for",
+  \ !empty(filter(readfile(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/README.md"),
+  \   'v:val =~ "asks for Vim 9.2 or newer"')), "")
 
 let g:GT_Install = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/install.sh"
 if filereadable(g:GT_Install)
