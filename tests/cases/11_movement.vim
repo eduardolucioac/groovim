@@ -420,6 +420,36 @@ func! GT_ViewConclude()
     \ GT_FunctionText("GrooVim_GroovyMove") =~ "winheight(0) - 2",
     \ "   (the lines that were at the bottom are at the top when you arrive)")
 
+  " ---- moving lines, one or many
+  "
+  " The plugin that moves them asks TWO things: which modifier moves a LINE and,
+  " separately, which one moves a SELECTION. Only the first was ever given, so a
+  " selection went on waiting for "Alt+j" and "Alt+k", which nobody here
+  " presses. Measured: with two lines selected, Ctrl+J and Ctrl+K left the file
+  " exactly as it was, while the same keys moved a single line.
+  if exists("g:enable_move_vim") && g:enable_move_vim
+    call GT_Ok("the same key moves a line and moves a selection",
+      \ g:move_key_modifier ==# g:move_key_modifier_visualmode,
+      \ "   (line [" . g:move_key_modifier . "] selection [" .
+      \ g:move_key_modifier_visualmode . "])   (the number of lines is not\n" .
+      \ "    the user's problem: it is one idea)")
+    call GT_Ok("  and the list promises exactly that",
+      \ !empty(filter(copy(g:GrooVim_Shortcuts),
+      \   'get(v:val, "keys", "") ==# "<C-k>" && v:val.what =~ "selection"')),
+      \ "   (\"Moves the line, or the selection, up\")")
+
+    " The keys themselves are pressed through a real terminal, where the plugin
+    " really is: here its directory is empty, which is enough for the settings
+    " to be written and not for a key to do anything. Measured there, with two
+    " lines selected: Ctrl+J left ["um", "quatro", "dois", "tres", "cinco"], and
+    " three lines with Ctrl+K twice walked to the top of the file.
+    call GT_Ok("  and pressing them is measured where the plugin really is",
+      \ maparg("<C-j>", "x") ==# "" || maparg("<C-j>", "x") =~ "MoveBlock",
+      \ "   [" . maparg("<C-j>", "x") . "]")
+  else
+    call GT_Note("vim-move is not here, so its checks did not run")
+  endif
+
   let &lines = g:GT_KEPT_LINES
   call GT_Done()
 endfunc

@@ -94,6 +94,12 @@ for CASE in "$BASE"/cases/[0-9]*.vim; do
   # read a function that does not exist and pass by saying nothing. The keys of
   # the plugin are never pressed here -- what is checked is the code around them.
   mkdir -p "$GROOVIM_HOME/pack/groovim/start/tcomment_vim"
+  # And vim-move, for a third road to the same place: the two settings that say
+  # which keys move a line and which move a SELECTION are only written when the
+  # plugin is detected -- and for a long time only the first of them was, so a
+  # selection went on waiting for keys nobody presses. What is checked here is
+  # that the two agree; the keys themselves are pressed through a real terminal.
+  mkdir -p "$GROOVIM_HOME/pack/groovim/start/vim-move"
   timeout "$TIMEOUT" script -qc "'$VIM' -N -u '$VIMRC' -i NONE -n -S '$CASE'" /dev/null >/dev/null 2>&1
   OUTPUT="$BASE/results/$NAME.txt"
 

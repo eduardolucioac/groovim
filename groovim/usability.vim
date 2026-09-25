@@ -123,7 +123,17 @@ let NERDTreeWinPos = "right"
 
 " Note: Mapping to move-vim! By Questor
 if g:enable_move_vim
+  " Note: TWO settings and not one. The plugin asks which modifier moves a LINE
+  " and, separately, which one moves a SELECTION -- and only the first was ever
+  " given, so a selection went on waiting for "Alt+j" and "Alt+k", which nobody
+  " here presses. Measured: with two lines selected, "Ctrl+J" and "Ctrl+K" left
+  " the file exactly as it was, while the same keys moved a single line.
+  "
+  " Note: It is the same key for both on purpose: moving a line and moving the
+  " lines you marked are one idea, and the number of them is not the user's
+  " problem! By Questor
   let g:move_key_modifier = "C"
+  let g:move_key_modifier_visualmode = "C"
   inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
   inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
   " Note: This workaround is for the "Move Vim" can be fired in insert mode! By Questor
