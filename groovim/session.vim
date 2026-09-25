@@ -3,12 +3,36 @@ func! GrooVim_SessionSave() abort
   exec "mksession! " . fnameescape(g:GrooVim_SessionFile)
 endfunc
 
+" Note: The directory you STARTED IN wins over the one the session remembers.
+"
+" Note: A session carries the working directory it was saved in -- "mksession"
+" writes a "cd" into it -- so coming back brought that directory along, and the
+" file tree opened wherever you had been days ago instead of where you just
+" ran the command. Measured: "groovim" started inside "_TESTE_GROOVIM" opened
+" the tree on the directory of the project the session was saved from.
+"
+" Note: With a file named there was never a problem, because then no session
+" comes back at all. It is the empty call -- which is exactly the one that
+" restores -- that had it, and the two now behave the same.
+"
+" Note: Put back AFTER sourcing, and not prevented: the session names its files
+" while it loads, and a directory changed under it would be a session looking
+" for files that are no longer where it left them! By Questor
 func! GrooVim_SessionLoad() abort
+
   if !filereadable(g:GrooVim_SessionFile)
     return
   endif
+
+  let l:startedIn = getcwd()
   exec "source " . fnameescape(g:GrooVim_SessionFile)
+
+  if getcwd() !=# l:startedIn && isdirectory(l:startedIn)
+    exec "cd " . fnameescape(l:startedIn)
+  endif
+
   call GrooVim_SessionDropGhosts()
+
 endfunc
 
 " Note: A session written days ago can name files that are not there any more --
