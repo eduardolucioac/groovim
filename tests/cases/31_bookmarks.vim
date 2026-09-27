@@ -265,7 +265,36 @@ endfunc
 func! GT_NoteBalloonGone(t)
   call GT_Ok("  and it goes when you walk away", len(popup_list()) == 0,
     \ "   (line " . line(".") . ")")
+
+  " ---- and the note follows the mark when the mark moves
+  "
+  " A mark moves with its line: Vim carries the sign along when text is put in
+  " above it. The line written down is only right once the signs are ASKED, and
+  " the balloon was not asking -- so it came up where the mark HAD been, on a
+  " line with nothing on it, and stayed quiet on the line where the mark really
+  " was. Measured on a file of twenty lines: a note made on line 10, three
+  " lines typed above it, and the balloon still offered on 10 while the mark
+  " itself was on 13.
+  let g:GT_MARK_WAS = GrooVim_BookmarksOf(g:GT_FILE)[0].line
+  call cursor(1, 1)
+  call append(0, ["uma", "duas", "tres"])
+  call GT_Ok("text put in above a mark moves the mark",
+    \ GrooVim_BookmarkAtRefreshed(g:GT_FILE, g:GT_MARK_WAS + 3),
+    \ "   (line " . g:GT_MARK_WAS . " -> " . (g:GT_MARK_WAS + 3) . ")")
+  call GT_Ok("  and asking where it is is what the balloon does now",
+    \ GT_FunctionText("GrooVim_BookmarkNoteShow") =~ "BookmarksRefresh",
+    \ "   (measured through a real terminal: the note offered on the line the\n" .
+    \ "    mark had been on, and not on the line it had moved to)")
+  silent! undo
+
   call GT_Dock()
+endfunc
+
+" Is there a mark on this line, with the signs asked first? -- which is the
+" whole question the balloon gets wrong when it does not ask.
+func! GrooVim_BookmarkAtRefreshed(file, line)
+  call GrooVim_BookmarksRefresh(a:file)
+  return !empty(GrooVim_BookmarkAt(a:file, a:line))
 endfunc
 
 " ---- the list is a DOCK, not a window of one tab

@@ -775,6 +775,15 @@ func! GrooVim_BookmarkNoteShow() abort
     return
   endif
 
+  " Note: Where the marks REALLY are, asked before looking for one here.
+  "
+  " Note: A mark moves with its line: Vim carries the sign along when text is
+  " put in above it, and the line written down here is what the sign says it is
+  " -- once it is asked. Without asking, the note came up on the line the mark
+  " was on when it was made: measured, a note showing five lines above its own
+  " mark after the lines between them were typed! By Questor
+  call GrooVim_BookmarksRefresh(l:file)
+
   let l:one = GrooVim_BookmarkAt(l:file, line("."))
   if empty(l:one) || l:one.note ==# ""
     return
