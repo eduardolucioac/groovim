@@ -1,3 +1,7 @@
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+"GENERAL BEHAVIOR
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: "Esc" answers AT ONCE.
 "
 " A terminal sends an arrow or an F key as a run of bytes that begins with the
@@ -538,9 +542,11 @@ func! GrooVim_ClipGet() abort
     try
       return getreg(l:reg)
     catch
+
       " Note: It was announced but did not answer. Forget it and go down the
       " cascade.
       let g:GrooVim_ClipRegCache = ""
+
     endtry
   endif
   let l:fromFile = GrooVim_ClipFileGet()
@@ -550,15 +556,15 @@ func! GrooVim_ClipGet() abort
   return getreg("\"")
 endfunc
 
-" Note: Write to the "transfer area".
-" Note: Is the clipboard in use one that can only be ASSUMED?
+" Note: Write to the "transfer area". Is the clipboard in use one that can only
+" be ASSUMED?
 "
-" Note: A copy through OSC 52 goes out as an escape sequence and the terminal is
+" A copy through OSC 52 goes out as an escape sequence and the terminal is
 " never heard from again -- there is no way to know it arrived. And the paste
 " back is off (it waits for an answer many terminals never send and hangs Vim
 " until Ctrl-C), so the "+" register answers EMPTY to everything on top of that.
 "
-" Note: So when that is the method, the file of GrooVim is kept as well: the copy
+" So when that is the method, the file of GrooVim is kept as well: the copy
 " still leaves through the terminal AND stays readable on this machine. That is
 " what makes OSC 52 never worse than no OSC 52, and it is why there is no
 " question about it on any screen -- it used to be one, and the only reason it
@@ -570,12 +576,12 @@ endfunc
 
 " Note: Copies what is selected and leaves the cursor WHERE IT WAS.
 "
-" Note: A plain "y" in visual mode drops the cursor at the START of what was
+" A plain "y" in visual mode drops the cursor at the START of what was
 " selected, which is of Vim and of nothing else: in a conventional editor you
 " copy and go on from where you are. The position is taken before the yank and
 " put back after it.
 "
-" Note: The yank itself is still a yank -- "gvy" and not a string handed to
+" The yank itself is still a yank -- "gvy" and not a string handed to
 " setreg -- because that is what keeps a linewise selection linewise and a block
 " a block. What is added is the file of GrooVim, and only when the method in use
 " is one whose success cannot be known: see GrooVim_ClipAssumed.
@@ -587,11 +593,11 @@ func! GrooVim_CopyHere() abort
   " it. "winsaveview" holds where the window is looking as well as where the
   " cursor is.
   "
-  " Note: And it is taken HERE and trusted, because the mapping comes through
+  " And it is taken HERE and trusted, because the mapping comes through
   " "<Cmd>": the selection is still up, the cursor has not been moved, and the
   " window is the one being looked at.
   "
-  " Note: Through the ":<C-u>" this used to come in on, none of the three was
+  " Through the ":<C-u>" this used to come in on, none of the three was
   " true. Leaving visual mode with ":" drops the cursor on the first line of the
   " range -- measured: column 8 while selecting, column 5 by the time the
   " function ran -- and takes the window along, so the selection had to be put
@@ -599,6 +605,7 @@ func! GrooVim_CopyHere() abort
   " than a screen away makes Vim CENTRE what it lands on, which moved the window
   " on a copy that moves nothing.
   let l:view = winsaveview()
+
   normal! y
 
   if GrooVim_ClipAssumed()
@@ -626,9 +633,11 @@ func! GrooVim_ClipSet(value) abort
       let g:GrooVim_ClipRegCache = ""
     endtry
   endif
+
   " Note: No clipboard register: the unnamed one plus the file, so another Vim
   " instance can pick it up.
   call setreg("\"", a:value)
+
   call GrooVim_ClipFileSet(a:value)
 endfunc
 
@@ -643,6 +652,3 @@ set ma
 
 " Note: Allows an "extra" column at the end of the lines (You want this!).
 set virtualedit=onemore
-
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
-

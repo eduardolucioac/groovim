@@ -45,9 +45,9 @@ let g:grooVimVersion = "v3.0.0b"
 "MAIN
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
-"GENERAL BEHAVIOR
-"$$$$$$$$$$$$$"
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+"WHERE GrooVim LIVES, AND THE PARTS IT LOADS
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Use vim settings, rather then vi settings - much better. This must be
 " first, because it changes other options as a side effect.

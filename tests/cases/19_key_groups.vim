@@ -225,6 +225,37 @@ func! GT_Body()
   call GT_Ok("no debugger left in the source",
     \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")
 
+  " ---- a section begins and ends in the file it is written in
+  "
+  " "GENERAL BEHAVIOR" opened at the end of the ".vimrc" and closed at the end
+  " of "behaviour.vim": one section across two files, so whoever was reading the
+  " first had to open the second to find where it stopped. Every rule is part of
+  " a heading now -- rule, title, rule -- and a file that has one has it at its
+  " own top.
+  let l:loose = []
+  for l:file in [$GROOVIM_TEST_VIMRC] +
+   \ glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/*.vim", 0, 1)
+    let l:lines = readfile(l:file)
+    let l:rules = []
+    for l:i in range(len(l:lines))
+      if l:lines[l:i] =~ '^"\$\$\$'
+        call add(l:rules, l:i)
+      endif
+    endfor
+    let l:i = 0
+    while l:i < len(l:rules)
+      if l:i + 1 < len(l:rules) && l:rules[l:i + 1] == l:rules[l:i] + 2
+        let l:i = l:i + 2
+      else
+        call add(l:loose, fnamemodify(l:file, ":t") . ":" . (l:rules[l:i] + 1))
+        let l:i = l:i + 1
+      endif
+    endwhile
+  endfor
+  call GT_Ok("no section is left hanging open or closed by another file",
+    \ empty(l:loose), "   " . (empty(l:loose) ? "(every rule is part of a\n" .
+    \ "    heading: rule, title, rule)" : string(l:loose)))
+
   " ---- and so is the plugin manager of 2014
   "
   " Pathogen was called when it was found in the "runtimepath", and "~/.vim"

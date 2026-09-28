@@ -1,6 +1,6 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "ENABLE PLUGINS
-"$$$$$$$$$$$$$
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Is a given plugin installed? Looks into the native package directories
 " of Vim 8 and later, which is the only way GrooVim loads one.
@@ -46,11 +46,9 @@ let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("ne
 let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move")) && g:enable_all_plugins
 
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-"$$$$$$$$$$$$$$$$$$$$$$$$$$
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "PERFORMANCE
-"$$$$$$$$$$$$$
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: You got a fast terminal.
 set ttyfast

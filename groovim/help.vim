@@ -393,7 +393,9 @@ func! GrooVim_ShortcutsHelp() abort
   return join(l:out, "\n")
 endfunc
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+"THE TEXT OF THE HELP
+"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n|GrooVim|=D|" . g:grooVimVersion . "|-|Vi|IMproved\'n\'GrooVIed!|".
@@ -625,8 +627,6 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
 " Note: To test the help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help".
-
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 
