@@ -130,13 +130,23 @@ endtry
 "
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
 " reports itself unavailable and the cascade simply goes on to OSC 52.
+" Note: "needs" is the session the tool talks to, and being INSTALLED is not the
+" same as being able to work: "wl-copy" without a compositor fails -- measured,
+" it exits 1 saying the socket is not there. Without this the cascade stopped on
+" a provider that cannot copy anything, on the very machine where the next one
+" (OSC 52) would have crossed the SSH by itself: measured, "v:clipmethod" coming
+" out "groovim" with no WAYLAND_DISPLAY and no DISPLAY, because "wl-clipboard"
+" happened to be installed there.
 let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
       \ {"copy": ["wl-copy", "--type", "text/plain"],
-      \  "paste": ["wl-paste", "--no-newline", "--type", "text/plain"]},
+      \  "paste": ["wl-paste", "--no-newline", "--type", "text/plain"],
+      \  "needs": "WAYLAND_DISPLAY"},
       \ {"copy": ["xclip", "-selection", "clipboard"],
-      \  "paste": ["xclip", "-selection", "clipboard", "-o"]},
+      \  "paste": ["xclip", "-selection", "clipboard", "-o"],
+      \  "needs": "DISPLAY"},
       \ {"copy": ["xsel", "--clipboard", "--input"],
-      \  "paste": ["xsel", "--clipboard", "--output"]},
+      \  "paste": ["xsel", "--clipboard", "--output"],
+      \  "needs": "DISPLAY"},
       \ ])
 
 " Note: A directory of YOUR own where a clipboard tool can be dropped by hand,
@@ -163,6 +173,13 @@ func! GrooVim_ClipToolFind() abort
   endif
   for l:dir in [g:GrooVim_ClipBinDir, ""]
     for l:tool in g:GrooVim_ClipTools
+      " Note: A tool of a session that is not here is not a tool. A list of your
+      " own with no "needs" written in it is taken as it always was.
+      let l:needs = get(l:tool, "needs", "")
+      if l:needs !=# "" && empty(eval("$" . l:needs))
+        continue
+      endif
+
       let l:copy = copy(l:tool["copy"])
       let l:paste = copy(l:tool["paste"])
       if l:dir != ""
@@ -185,7 +202,7 @@ let g:GrooVim_ClipTool = {}
 " line or a selection, and searching or replacing what is selected. Without this
 " they would silently use whatever was in the clipboard BEFORE.
 "
-" Note: So what we wrote is remembered and served until the tool catches up. The
+" So what we wrote is remembered and served until the tool catches up. The
 " window is short and closes as soon as a read agrees with what we wrote, or at
 " the latest after "g:GrooVim_ClipCacheMs".
 let g:GrooVim_ClipCacheMs = get(g:, "GrooVim_ClipCacheMs", 300)
@@ -214,6 +231,7 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
   endif
 
   let l:text = join(a:lines, "\n")
+
   " Note: A LINEWISE copy ends with a line break, so other applications receive
   " whole lines instead of a truncated one.
   if a:type ==# "V"
@@ -228,12 +246,12 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
   " close, and Vim would sit frozen after every copy until you copied something
   " somewhere else.
   "
-  " Note: A job writes the text and walks away. "out_io"/"err_io" as null keep no
-  " pipe open, and "stoponexit" empty is what lets the tool outlive Vim: with the
+  " A job writes the text and walks away. "out_io"/"err_io" as null keep no pipe
+  " open, and "stoponexit" empty is what lets the tool outlive Vim: with the
   " default Vim would kill it on exit and your copy would vanish from the
-  " clipboard exactly when you left the editor.
-  " Note: The command goes as a LIST, so there is no shell and nothing to quote.
-  " Note: Remembered BEFORE the job starts, so a read that happens in the very
+  "clipboard exactly when you left the editor.
+  " The command goes as a LIST, so there is no shell and nothing to quote.
+  " Remembered BEFORE the job starts, so a read that happens in the very
   " next instruction already finds it.
   let g:GrooVim_ClipCache = l:text
   let g:GrooVim_ClipCachePending = 1
@@ -262,10 +280,12 @@ func! GrooVim_ClipToolPaste(reg) abort
   endif
   let l:out = system(g:GrooVim_ClipTool["paste"])
   if v:shell_error != 0
+
     " Note: The tool failed, but what we wrote is still the truth.
     if g:GrooVim_ClipCachePending
       return GrooVim_ClipToText(g:GrooVim_ClipCache)
     endif
+
     return ["v", []]
   endif
 
@@ -298,13 +318,15 @@ if g:GrooVim_EnableClipTool
           \ "paste": {"+": function("GrooVim_ClipToolPaste"),
           \           "*": function("GrooVim_ClipToolPaste")},
           \ }
-    " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the
-    " native methods, which are faster when the Vim build has them.
+
+    " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the native
+    " methods, which are faster when the Vim build has them.
     if &clipmethod =~ "osc52"
       let &clipmethod = substitute(&clipmethod, "osc52", "groovim,osc52", "")
     else
       set clipmethod+=groovim
     endif
+
     silent! clipreset
   endif
 endif
@@ -317,14 +339,15 @@ let g:GrooVim_ClipFile = g:GrooVim_State . "/clipboard"
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
 " the terminal and waits for the answer), so it may only become available after
 " the ".vimrc" was read.
-" Note: Careful: "getreg()" does NOT fail on a Vim with no clipboard, it just
-" warns (W24) and answers empty. Only "setreg()" raises E354. So availability is
+" Careful: "getreg()" does NOT fail on a Vim with no clipboard, it just warns
+" (W24) and answers empty. Only "setreg()" raises E354. So availability is
 " asked to Vim itself, never probed by writing.
 let g:GrooVim_ClipRegCache = ""
 func! GrooVim_ClipReg() abort
   if g:GrooVim_ClipRegCache != ""
     return g:GrooVim_ClipRegCache
   endif
+
   " Note: A clipboard provider (OSC 52) exposes BOTH registers even on a Vim
   " built without "+clipboard", and there "+" is the one we want: the provider
   " sends "OSC 52;c" for "+", which is the real clipboard, and "OSC 52;p" for
@@ -339,21 +362,23 @@ func! GrooVim_ClipReg() abort
 
   " Note: Not a leftover for an older Vim -- it answers where "clipmethod" is
   " IGNORED. From the manual of the option: under a GUI, or on a system with
-  " neither Wayland nor X11 such as Windows or macOS, "v:clipmethod" is set to
-  " "none" while the clipboard itself works perfectly well. The branch above
-  " cannot fire there, and this one is what finds the register.
+  " neither Wayland nor X11, "v:clipmethod" is set to "none" while the clipboard
+  " itself works perfectly well. The branch above cannot fire there, and this
+  " one is what finds the register.
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
     return g:GrooVim_ClipRegCache
   endif
+
   " Note: Not cached on purpose, so a provider that shows up later is used.
   return "\""
+
 endfunc
 
 " Note: Pastes what the CLIPBOARD OF GROOVIM has, and not what the "+" register
 " has. They are the same thing until OSC 52 is the method in use.
 "
-" Note: There the register cannot be read back -- the paste side of OSC 52 is off
+" There the register cannot be read back -- the paste side of OSC 52 is off
 " because it waits for an answer many terminals never send and hangs Vim until
 " Ctrl-C -- so it is always empty. And with "clipboard=unnamedplus" a plain "P"
 " reads exactly that register: "E353: Nothing in register +", with the text
@@ -361,7 +386,7 @@ endfunc
 " SSH, where Ctrl-Shift-V worked (that is the terminal typing, not Vim pasting)
 " and Ctrl-V did not.
 "
-" Note: Through the "z" register and never the unnamed one: with
+" Through the "z" register and never the unnamed one: with
 " "clipboard=unnamedplus", writing the unnamed register writes "+" as well, which
 " would send an OSC 52 COPY on every paste.
 func! GrooVim_ClipPaste(mode) abort
@@ -370,12 +395,13 @@ func! GrooVim_ClipPaste(mode) abort
 
   let l:text = GrooVim_ClipGet()
   if l:text ==# ""
+
     " Note: When OSC 52 is the method, empty has a REASON worth saying. A copy
     " made anywhere else -- on the machine you are sitting at, in another
     " program -- cannot be read from here: reading it back would mean asking the
     " terminal and waiting for an answer many never send. What does work is the
     " paste of the terminal itself, which types the text in as if you had.
-    " Note: Short on purpose. The first try ran off the bar and only its tail
+    " Short on purpose. The first try ran off the bar and only its tail
     " was left on screen, which is worse than saying less.
     if GrooVim_ClipAssumed()
       call GrooVim_GrooVimBarMsg("From outside, use Ctrl-Shift-V!", 6)
@@ -391,17 +417,21 @@ func! GrooVim_ClipPaste(mode) abort
   try
     call setreg("z", l:text)
     if a:mode ==# "v"
+
       " Note: "gv" because getting here left visual mode, and "_d so that what
       " is replaced does not land in a register.
       silent! exec "normal! gv\"_d\"zP`]"
+
     else
       silent! exec "normal! \"zP`]"
     endif
+
     " Note: The same "<Right>" the mappings used to end with, and guarded: past
     " the last column there is nowhere to go.
     if col(".") < col("$")
       normal! l
     endif
+
   finally
     call setreg("z", l:kept, l:keptType)
   endtry
@@ -410,11 +440,17 @@ endfunc
 
 " Note: Avoids compatibility issues when copying to an external application.
 "
-" Note: This is what makes a plain "y" reach the clipboard. It must follow
-" GrooVim_ClipReg() and NOT has("clipboard_working"): on a Vim built without
-" "+clipboard" but with the OSC 52 provider active, "clipboard_working" and
-" "unnamedplus" both answer 0, "clipboard" was left empty, and so every yank
-" stopped at the unnamed register and nothing was ever sent to the terminal.
+" This is what makes a plain "y" reach the clipboard, and what it asks is which
+" register the CASCADE ended up on -- which is what GrooVim_ClipReg() answers.
+"
+" Not has("clipboard_working"). That question was about a Vim built without
+" "+clipboard", which cannot happen here any more: the Vim GrooVim runs is the
+" one "install.sh" builds, with "+clipboard", "+wayland" and "+X11". And the
+" question stopped being able to answer anyway -- a clipboard provider counts as
+" working, so it says yes wherever the cascade found something, which is
+" everywhere. Measured, on a session with no compositor and no X: "has
+" (clipboard_working)" answers 1 and "v:clipmethod" is whatever the cascade
+" reached.
 func! GrooVim_ClipSyncOption() abort
   let l:reg = GrooVim_ClipReg()
   try

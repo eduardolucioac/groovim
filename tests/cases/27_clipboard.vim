@@ -146,6 +146,32 @@ call GT_Ok("no exists() left carrying an older Vim",
   \ empty(filter(GT_SourceLines(),
   \   'v:val =~ "exists(\"v:clipproviders\")" || v:val =~ "exists(\"+clipmethod\")"')),
   \ "   (the .vimrc says it once instead)")
+" ---- a tool is only a tool where it can work
+"
+" Being INSTALLED is not the same as being able to work: "wl-copy" without a
+" compositor fails -- measured, it exits 1 saying the socket is not there. The
+" question used to be only "is the binary there?", so on a machine where
+" "wl-clipboard" happened to be installed the cascade stopped on a provider that
+" could not copy anything, on the very session where the next one would have
+" crossed an SSH by itself: measured, "v:clipmethod" coming out "groovim" with
+" no WAYLAND_DISPLAY and no DISPLAY, and "osc52" once this was asked as well.
+call GT_Ok("every tool of the list says which session it talks to",
+  \ len(filter(copy(g:GrooVim_ClipTools), 'has_key(v:val, "needs")')) ==
+  \   len(g:GrooVim_ClipTools),
+  \ "   " . string(map(copy(g:GrooVim_ClipTools), 'v:val.copy[0] . " -> " . v:val.needs')))
+
+let g:GT_TOOLS_WERE = copy(g:GrooVim_ClipTools)
+let g:GrooVim_ClipTools = [{"copy": ["sh"], "paste": ["sh"],
+  \ "needs": "GROOVIM_NO_SUCH_SESSION"}]
+call GT_Ok("  and one whose session is not here is not chosen",
+  \ empty(GrooVim_ClipToolFind()),
+  \ "   (the binary is there -- \"sh\" -- and the session is not)")
+let g:GrooVim_ClipTools = [{"copy": ["sh"], "paste": ["sh"]}]
+call GT_Ok("  while one with no session written down is taken as it always was",
+  \ !empty(GrooVim_ClipToolFind()),
+  \ "   (a list of your own from before this is still a list)")
+let g:GrooVim_ClipTools = g:GT_TOOLS_WERE
+
 " And it is not asked again while you type.
 "
 " The Vim of GrooVim is the one install.sh builds, and the "groovim" command is
