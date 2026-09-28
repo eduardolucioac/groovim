@@ -165,6 +165,12 @@ set clipboard=
 call GrooVim_ClipSyncOption()
 call GT_Ok("the option is put back by the function that owns it",
   \ &clipboard =~ "unnamedplus", "   [" . &clipboard . "]")
+call GT_Ok("  and on a Vim with no \"+clipboard\" it is the provider that answers",
+  \ GT_FunctionText("GrooVim_ClipReg") =~ "clipproviders",
+  \ "   (measured on a build made for it, \"-clipboard -wayland -X11\": GrooVim\n" .
+  \ "    loaded with no error, \"v:clipmethod\" came out \"osc52\", a \"yy\" landed\n" .
+  \ "    in the clipboard register, and \"clipboard_working\" answered 0 the\n" .
+  \ "    whole time -- that answer lives inside \"#ifdef FEAT_CLIPBOARD\")")
 call GT_Ok("  and it asks the cascade which register that is",
   \ GT_FunctionText("GrooVim_ClipSyncOption") =~ "GrooVim_ClipReg",
   \ "   (has(\"clipboard_working\") is true wherever anything at all answered,\n" .

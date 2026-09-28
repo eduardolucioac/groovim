@@ -380,9 +380,15 @@ your home ends up owned by root.
 <a name="clipboard"></a>
 ### About the clipboard
 
-**There is nothing to install.** The Vim `install.sh` builds talks to the
-clipboard itself — `+clipboard`, `+wayland`, `+X11`, `+xterm_clipboard` — and
-GrooVim reaches it through a cascade, using the first of these that answers:
+**There is nothing to install.** On a machine with a graphical session, the Vim
+`install.sh` builds talks to the clipboard itself — `+clipboard`, `+wayland`,
+`+X11`, `+xterm_clipboard`. Building it is not what hands it those: the
+features exist only when the machine that BUILT it had the headers of X11 or
+the client library of Wayland, so on a headless server the same script produces
+a Vim without them, says so at the end, and installs it anyway — because
+GrooVim goes on working there.
+
+That is what the cascade is for. GrooVim uses the first of these that answers:
 
 1. **Wayland**, Vim talking to the compositor itself;
 2. **X11**, the same way;

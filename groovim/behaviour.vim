@@ -368,11 +368,17 @@ func! GrooVim_ClipReg() abort
   "
   " Note: And the register is "+", never "*". It was asked with
   " has("unnamedplus"), which cannot answer no where this branch answers yes --
-  " read in the source of the Vim this builds, "evalfunc.c": "clipboard_working"
-  " is true when the method is a provider or when the X or Wayland selection is
-  " available, and "unnamedplus" is true when X11 or the Wayland clipboard was
-  " compiled in, and also when the method is a provider. Each of the two ways of
-  " reaching this line makes the other one true.
+  " read in the source of the Vim this builds, "evalfunc.c": both live inside the
+  " same "#ifdef FEAT_CLIPBOARD", "clipboard_working" is true when the method is
+  " a provider or when the X or Wayland selection is available, and "unnamedplus"
+  " is true when X11 or the Wayland clipboard was compiled in, and also when the
+  " method is a provider. Each of the two ways of reaching this line makes the
+  " other one true.
+  "
+  " Note: And on a Vim built without "+clipboard" this line is not reached at
+  " all: measured on a build made for it, "clipboard_working" answers 0 there --
+  " the whole answer is inside that "#ifdef" -- and the branch above, the
+  " provider one, is what hands back "+".
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = "+"
     return g:GrooVim_ClipRegCache
@@ -450,13 +456,17 @@ endfunc
 " of it: measured, with the option emptied by hand, a "yy" left the text in the
 " unnamed register and "@+" came back empty; with it set, "@+" holds the line.
 "
-" Note: What it asks is which register the CASCADE ended up on, which is what
-" GrooVim_ClipReg() answers. Not has("clipboard_working"): that one is true
-" wherever anything at all answered -- a provider counts -- so it cannot tell
-" which register to write down.
+" What it asks is which register the CASCADE ended up on, which is what
+" GrooVim_ClipReg() answers. Not has("clipboard_working"), which cannot tell
+" WHICH register to write down and does not even answer the same way twice:
+" measured on a Vim built with "+clipboard" it says yes wherever the cascade
+" found anything, a provider included; measured on one built WITHOUT it -- a
+" real build, made for this, "-clipboard -wayland -X11" -- it says NO while OSC
+" 52 was carrying every copy out, because the whole of that answer lives inside
+" "#ifdef FEAT_CLIPBOARD".
 "
-" Note: One branch and no "try". There was a second one for "*" and a "catch"
-" around both, and neither can happen on the Vim this builds: the register is
+" One branch and no "try". There was a second one for "*" and a "catch" around
+" both, and neither can happen on the Vim this builds: the register is
 " never "*" (see GrooVim_ClipReg above), and the option always exists, because
 " Vim defines it whenever "+clipboard" OR "+eval" is there -- read in
 " "optiondefs.h" and "vim.h", "HAVE_CLIPMETHOD" -- and with a provider present
