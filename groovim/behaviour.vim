@@ -18,6 +18,16 @@
 " anything written IN it runs before them, wherever in it that is.
 filetype plugin indent on
 
+" Note: Two extensions Vim does not know, and what they really are: an ".inc" is
+" a piece of an HTML page, and a ".gds" is Visual Basic.
+"
+" Note: They lived at the end of the indent part, under a heading about syntax
+" associations that had stopped describing anything else in that file. What a
+" file IS belongs next to the detection that decides it, which is the line
+" above; how it is indented comes after, and reads the answer.
+autocmd! BufReadPost *.inc set syntax=html | set filetype=html
+autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
+
 " Note: The mouse: clicking, selecting and the wheel, in every mode.
 set mouse=a
 

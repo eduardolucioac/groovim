@@ -1,6 +1,6 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"FILE SYNTAX ASSOCIATIONS AND SPECIFIC CONFIGURATION
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" INDENTATION, AND WHAT SHOWS IT
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: General indent width.
 let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
@@ -234,11 +234,3 @@ augroup GrooVim_Indent
   autocmd BufWinEnter,WinEnter * call GrooVim_SymbolsSet()
   autocmd OptionSet shiftwidth,tabstop call GrooVim_SymbolsSet()
 augroup end
-
-"  * .inc
-
-autocmd! BufReadPost *.inc set syntax=html | set filetype=html
-
-"  * .gds
-
-autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
