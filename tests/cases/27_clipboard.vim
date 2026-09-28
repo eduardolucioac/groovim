@@ -146,6 +146,40 @@ call GT_Ok("no exists() left carrying an older Vim",
   \ empty(filter(GT_SourceLines(),
   \   'v:val =~ "exists(\"v:clipproviders\")" || v:val =~ "exists(\"+clipmethod\")"')),
   \ "   (the .vimrc says it once instead)")
+" ---- the option that makes a plain "y" reach the clipboard
+"
+" This is the whole of it: measured, with "clipboard" emptied by hand, a "yy"
+" left the text in the unnamed register and "@+" came back empty; with it set,
+" "@+" holds the line.
+"
+" And one branch is all it takes. There was a second one for the "*" register
+" and a "try" around both, and neither can happen on the Vim this builds: read
+" in "evalfunc.c", "clipboard_working" is true when the method is a provider or
+" when the X or Wayland selection is available, and "unnamedplus" is true when
+" X11 or the Wayland clipboard was compiled in and also when the method is a
+" provider -- each of the two ways of reaching that line makes the other true,
+" so the register is never "*". And the option always exists: Vim defines it
+" whenever "+clipboard" OR "+eval" is there.
+let g:GT_CB_WAS = &clipboard
+set clipboard=
+call GrooVim_ClipSyncOption()
+call GT_Ok("the option is put back by the function that owns it",
+  \ &clipboard =~ "unnamedplus", "   [" . &clipboard . "]")
+call GT_Ok("  and it asks the cascade which register that is",
+  \ GT_FunctionText("GrooVim_ClipSyncOption") =~ "GrooVim_ClipReg",
+  \ "   (has(\"clipboard_working\") is true wherever anything at all answered,\n" .
+  \ "    so it cannot tell WHICH register to write down)")
+call GT_Ok("  in one branch, with no \"try\" around it",
+  \ GT_FunctionText("GrooVim_ClipSyncOption") !~ "unnamed\\>" ||
+  \ GT_FunctionText("GrooVim_ClipSyncOption") !~ "try",
+  \ "   [" . substitute(GT_FunctionText("GrooVim_ClipSyncOption"), "\n", " ", "g") . "]")
+call GT_Ok("and the register it answers is never \"*\"",
+  \ GrooVim_ClipReg() !=# "*" &&
+  \ GT_FunctionText("GrooVim_ClipReg") !~ 'unnamedplus") ?',
+  \ "   [" . GrooVim_ClipReg() . "]   (the line that chose between the two is\n" .
+  \ "    gone: it asked a question that cannot answer no where it was asked)")
+let &clipboard = g:GT_CB_WAS
+
 " ---- a tool is only a tool where it can work
 "
 " Being INSTALLED is not the same as being able to work: "wl-copy" without a

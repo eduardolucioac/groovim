@@ -365,8 +365,16 @@ func! GrooVim_ClipReg() abort
   " neither Wayland nor X11, "v:clipmethod" is set to "none" while the clipboard
   " itself works perfectly well. The branch above cannot fire there, and this
   " one is what finds the register.
+  "
+  " Note: And the register is "+", never "*". It was asked with
+  " has("unnamedplus"), which cannot answer no where this branch answers yes --
+  " read in the source of the Vim this builds, "evalfunc.c": "clipboard_working"
+  " is true when the method is a provider or when the X or Wayland selection is
+  " available, and "unnamedplus" is true when X11 or the Wayland clipboard was
+  " compiled in, and also when the method is a provider. Each of the two ways of
+  " reaching this line makes the other one true.
   if has("clipboard_working")
-    let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
+    let g:GrooVim_ClipRegCache = "+"
     return g:GrooVim_ClipRegCache
   endif
 
@@ -438,29 +446,26 @@ func! GrooVim_ClipPaste(mode) abort
 
 endfunc
 
-" Note: Avoids compatibility issues when copying to an external application.
+" Note: This is what makes a plain "y" reach the clipboard, and it is the whole
+" of it: measured, with the option emptied by hand, a "yy" left the text in the
+" unnamed register and "@+" came back empty; with it set, "@+" holds the line.
 "
-" This is what makes a plain "y" reach the clipboard, and what it asks is which
-" register the CASCADE ended up on -- which is what GrooVim_ClipReg() answers.
+" Note: What it asks is which register the CASCADE ended up on, which is what
+" GrooVim_ClipReg() answers. Not has("clipboard_working"): that one is true
+" wherever anything at all answered -- a provider counts -- so it cannot tell
+" which register to write down.
 "
-" Not has("clipboard_working"). That question was about a Vim built without
-" "+clipboard", which cannot happen here any more: the Vim GrooVim runs is the
-" one "install.sh" builds, with "+clipboard", "+wayland" and "+X11". And the
-" question stopped being able to answer anyway -- a clipboard provider counts as
-" working, so it says yes wherever the cascade found something, which is
-" everywhere. Measured, on a session with no compositor and no X: "has
-" (clipboard_working)" answers 1 and "v:clipmethod" is whatever the cascade
-" reached.
+" Note: One branch and no "try". There was a second one for "*" and a "catch"
+" around both, and neither can happen on the Vim this builds: the register is
+" never "*" (see GrooVim_ClipReg above), and the option always exists, because
+" Vim defines it whenever "+clipboard" OR "+eval" is there -- read in
+" "optiondefs.h" and "vim.h", "HAVE_CLIPMETHOD" -- and with a provider present
+" "unnamedplus" is an allowed value even on a Vim built without "+clipboard",
+" which its own manual says in as many words.
 func! GrooVim_ClipSyncOption() abort
-  let l:reg = GrooVim_ClipReg()
-  try
-    if l:reg == "+"
-      set clipboard=unnamedplus
-    elseif l:reg == "*"
-      set clipboard=unnamed
-    endif
-  catch
-  endtry
+  if GrooVim_ClipReg() == "+"
+    set clipboard=unnamedplus
+  endif
 endfunc
 
 " Note: Re-checks the clipboard once the terminal had time to answer.
