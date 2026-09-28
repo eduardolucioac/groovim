@@ -116,6 +116,14 @@ Relevant changes in the default Vim behavior!
  - When changes from visual mode to insert mode the cursor do not move;
  - Use the system clipboard whenever it can be reached, see <a href="#clipboard">**"About the clipboard"**</a>;
  - The "insert" (includes typed text) and "paste" from the same cursor position;
+ - Extensions Vim does not know are given a type: `.inc` opens as HTML and `.gds`
+   as Visual Basic. The list is `g:GrooVim_SyntaxPerExtension`, and one line adds
+   your own -- what you write there replaces the two, so keep the ones you want:
+
+```
+let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"}
+```
+
 
 Script features!
 -----

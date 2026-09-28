@@ -37,6 +37,32 @@ func! GT_Check()
     \ strchars(matchstr(&listchars, 'leadmultispace:\zs.*')) == g:GT_SW_DIRECT,
     \ "   [" . matchstr(&listchars, 'leadmultispace:\zs.*') . "]")
 
+  " ---- and the extensions GrooVim names ITSELF
+  "
+  " Two that Vim does not know: an ".inc" is a piece of an HTML page and a ".gds"
+  " is Visual Basic. They used to be two lines written into the code at the end of
+  " the indent part; now they are a list of the same shape as the width per file
+  " type, and a single line in a vimrc replaces it.
+  call writefile(["<b>oi</b>"], g:GT_FIX . "/peca.inc")
+  exec "edit " . g:GT_FIX . "/peca.inc"
+  call GT_Ok("an \".inc\" opens as html", &filetype ==# "html", "   [" . &filetype . "]")
+  bwipeout!
+  call writefile(["Dim x"], g:GT_FIX . "/legado.gds")
+  exec "edit " . g:GT_FIX . "/legado.gds"
+  call GT_Ok("  and a \".gds\" as vb", &filetype ==# "vb", "   [" . &filetype . "]")
+  bwipeout!
+  exec "edit " . g:GT_FIX . "/nao_existe_ainda.inc"
+  call GT_Ok("  and so does one that does not exist yet", &filetype ==# "html",
+    \ "   [" . &filetype . "]   (a file being written for the first time)")
+  bwipeout!
+  call GT_Ok("  out of a list anyone can add a line to",
+    \ type(g:GrooVim_SyntaxPerExtension) == v:t_dict &&
+    \ get(g:GrooVim_SyntaxPerExtension, "inc", "") ==# "html" &&
+    \ get(g:GrooVim_SyntaxPerExtension, "gds", "") ==# "vb",
+    \ "   " . string(g:GrooVim_SyntaxPerExtension))
+
+  call delete(g:GT_FIX . "/peca.inc")
+  call delete(g:GT_FIX . "/legado.gds")
   call delete(g:GrooVim_SessionFile)
   call GT_Done()
 endfunc

@@ -506,6 +506,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
 \"\n   |-|Use the system clipboard when it can be reached, see |Clipboard|below;".
 \"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".
+\"\n   |-|Extensions Vim does not know are given a type: an|.inc|opens as HTML and a|.gds|as Visual Basic. The list is|g:GrooVim_SyntaxPerExtension| , and ONE line adds your own -- what you write there REPLACES the two, so keep the ones you want: >".
+\"\n     let g:GrooVim_SyntaxPerExtension = {\"inc\": \"html\", \"gds\": \"vb\", \"ejs\": \"html\"}".
+\"\n<".
 \"\n".
 \"\n * Indentation!~".
 \"\n".

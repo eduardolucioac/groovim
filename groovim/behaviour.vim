@@ -18,15 +18,34 @@
 " anything written IN it runs before them, wherever in it that is.
 filetype plugin indent on
 
-" Note: Two extensions Vim does not know, and what they really are: an ".inc" is
-" a piece of an HTML page, and a ".gds" is Visual Basic.
+" Note: Extensions Vim does not know, and what they really are: an ".inc" is a
+" piece of an HTML page, and a ".gds" is Visual Basic. Those two are the ones
+" GrooVim was born with; the list is yours, and ONE line adds your own: >
+"   let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"}
+" <
+" Note: They lived at the end of the indent part, written into the code, under a
+" heading about syntax associations that had stopped describing anything else in
+" that file. What a file IS belongs next to the detection that decides it, which
+" is the line above; how it is indented comes after, and reads the answer.
 "
-" Note: They lived at the end of the indent part, under a heading about syntax
-" associations that had stopped describing anything else in that file. What a
-" file IS belongs next to the detection that decides it, which is the line
-" above; how it is indented comes after, and reads the answer.
-autocmd! BufReadPost *.inc set syntax=html | set filetype=html
-autocmd! BufReadPost *.gds set syntax=vb | set filetype=vb
+" Note: Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add to
+" without touching GrooVim, and only what is listed in it is touched -- the file
+" types Vim knows go on being found by Vim.
+"
+" Note: The file type and not the syntax, which is what the two lines used to set
+" as well. Setting the type is what makes Vim read the syntax OF that type, along
+" with its indent rules and its plugin; setting the syntax alone would paint the
+" file and leave the other two behind.
+let g:GrooVim_SyntaxPerExtension = get(g:, "GrooVim_SyntaxPerExtension",
+      \ {"inc": "html", "gds": "vb"})
+
+augroup GrooVim_Syntax
+  autocmd!
+  for s:extension in keys(g:GrooVim_SyntaxPerExtension)
+    exec "autocmd BufReadPost,BufNewFile *." . s:extension .
+          \ " set filetype=" . g:GrooVim_SyntaxPerExtension[s:extension]
+  endfor
+augroup end
 
 " Note: The mouse: clicking, selecting and the wheel, in every mode.
 set mouse=a
