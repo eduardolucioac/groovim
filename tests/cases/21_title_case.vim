@@ -162,8 +162,8 @@ func! GT_Body()
 
   " ---- and the copy that used to demand a writable buffer
   call GT_Ok("Ctrl-C asks whether the buffer can be changed",
-    \ maparg("<C-c>", "v") =~ "modifiable",
-    \ "   [" . maparg("<C-c>", "v") . "]")
+    \ GT_FunctionText("GrooVim_CopyHere") =~ "modifiable",
+    \ "   (the question moved from the mapping into the function)")
 
   call setline(1, "alpha beta gamma")
   call cursor(1, 7)

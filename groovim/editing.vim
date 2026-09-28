@@ -203,17 +203,24 @@ vnoremap <silent> <expr> <C-x> GrooVim_KeysIfCanChange("di")
 " Note: Copies and comes back to typing, which is what a conventional editor
 " leaves you able to do after a copy.
 "
-" Note: The "i" only where typing is POSSIBLE. On a buffer you cannot change --
+" Note: Insert only where typing is POSSIBLE. On a buffer you cannot change --
 " the help, the occurrence list -- it answered "E21: Cannot make changes,
 " 'modifiable' is off" over a command that changes nothing.
-" Note: The "i" is typed by the MAPPING, the way it always was -- the function
-" only copies and puts the cursor back.
+"
+" Note: And insert only when Vim is not on its way back there BY ITSELF. A
+" selection STARTED from insert mode -- dragging the mouse, or any road into
+" visual through "<C-o>" -- leaves Vim waiting to return to insert as soon as
+" the selection ends, and the yank ends it. The "i" this mapping used to type
+" after the copy then arrived with insert already back and was written INTO the
+" text: "filetype" came out "filetypie". It is the function that decides now,
+" because only after the yank can it be seen -- "mode(1)" answers "n" when the
+" selection came from normal mode and "niI" when insert is waiting.
 "
 " Note: A case cannot see that it worked. "feedkeys(..., \"x\")" ENDS insert mode
 " when the keys it was given run out, so a case that presses this and asks
 " "mode()" is answered "n" -- and it answers "n" for the plain "yi" that was here
 " before, which is how I know it is the asking and not the answer.
-vnoremap <expr> <C-c> "\<Cmd>call GrooVim_CopyHere()\<cr>" . (&modifiable ? "i" : "")
+vnoremap <silent> <C-c> <Cmd>call GrooVim_CopyHere()<cr>
 
 " Note: Delete and backspace without yank.
 nnoremap d "_d

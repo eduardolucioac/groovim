@@ -139,6 +139,25 @@ call GT_Ok("  with the cursor still on it",
 call GT_Ok("  because the key never opens a command line",
   \ maparg("<C-c>", "v") =~ "<Cmd>" && GT_FunctionText("GrooVim_CopyHere") !~ "normal! gv",
   \ "   (a \":\" in visual mode moves the cursor to the first line of the range)")
+
+" ---- and going back to typing is the FUNCTION's to decide, not the mapping's
+"
+" A selection STARTED from insert mode -- a mouse drag -- leaves Vim waiting to
+" return to insert as soon as the selection ends, and the yank ends it. The "i"
+" the mapping used to type after the copy then arrived with insert already back
+" and was written INTO the text: "filetype" came out "filetypie".
+"
+" A case cannot get into that state: "feedkeys(..., \"x\")" has already left
+" insert by the time the mouse is read, and measured there "mode(1)" answers "n"
+" where a real terminal answers "niI". So what is asked here is that nobody types
+" an "i" after the copy any more, and that the function looks before typing.
+call GT_Ok("Ctrl-C types nothing of its own after the copy",
+  \ maparg("<C-c>", "v") =~ "<CR>$" && maparg("<C-c>", "v") !~ "i$",
+  \ "   [" . maparg("<C-c>", "v") . "]")
+call GT_Ok("  and the function asks whether insert is coming back by itself",
+  \ GT_FunctionText("GrooVim_CopyHere") =~ "mode(1)" &&
+  \ GT_FunctionText("GrooVim_CopyHere") =~ "startinsert",
+  \ "   (\"niI\" is Vim pending to return to insert)")
 let &lines = g:GT_KEPT_LINES
 
 call GT_Done()

@@ -637,6 +637,16 @@ func! GrooVim_CopyHere() abort
   " to do after a copy. Only where typing is POSSIBLE: on a buffer you cannot
   " change -- the help, the occurrence list -- it answered "E21: Cannot make
   " changes, 'modifiable' is off" over a command that changes nothing.
+  "
+  " And only when Vim is not already on its way back to insert. The yank above
+  " ends the selection, and a selection that was STARTED from insert mode -- a
+  " mouse drag, a "<C-o>" -- sends Vim back to insert the moment it ends. Here,
+  " after the yank, "mode(1)" tells the two apart: "n" when nobody is waiting,
+  " "niI" when insert is. Measured on a plain Vim with nothing but "mouse=a", so
+  " it is how Vim works and not something of GrooVim.
+  if &modifiable && mode(1) !~# "^ni"
+    startinsert
+  endif
 endfunc
 
 func! GrooVim_ClipSet(value) abort
