@@ -13,7 +13,7 @@
 " Note: Choosing an entry PRESSES THE KEYS. Nothing here knows what any shortcut
 " does, only which two keys to send, so the menu can never do something different
 " from the keyboard -- and the shortcut shown on the right of every line is the
-" one it will press! By Questor
+" one it will press.
 let g:GrooVim_MenuEntries = []
 let s:menuBar = 0
 let s:menuDrop = 0
@@ -25,11 +25,11 @@ let s:menuLine = 1
 " Note: Closing a popup makes Vim call its callback, and a list closed to make
 " room for the next one answers "-1" -- which is the very same answer as leaving
 " the menu with Esc. Without this flag, walking sideways would take the bar down
-" with it! By Questor
+" with it.
 let s:menuSwitching = 0
 
 " Note: What the terminal was told about showing the cursor, kept while the menu
-" is up! By Questor
+" is up.
 let s:menuCursorWas = ""
 
 " Note: The colours of the menu. Four and not one: the menu itself, the line you
@@ -48,7 +48,7 @@ let s:menuCursorWas = ""
 " and not nearly; the other two land on the nearest greys there are.
 "
 " Note: "PopupSelected" is the name VIM reads for the line you are on inside a
-" popup -- there is no per popup option for it! By Questor
+" popup -- there is no per popup option for it.
 if &t_Co >= 256 || has("gui_running")
   highlight GrooVimMenu ctermbg=255 ctermfg=235 guibg=#eff0f1 guifg=#232629
   highlight GrooVimMenuKey ctermbg=255 ctermfg=25 guibg=#eff0f1 guifg=#005faf
@@ -66,7 +66,7 @@ endif
 "
 " Note: "getchar()" hands over a NUMBER for a plain key and a STRING for a named
 " one, which is why the two are asked about differently. It is the same split the
-" list itself carries: "h" against "up"! By Questor
+" list itself carries: "h" against "up".
 func! GrooVim_ShortcutIsKey(pressed, key) abort
 
   let l:named = {"up": "\<Up>", "down": "\<Down>", "end": "\<End>",
@@ -89,14 +89,14 @@ endfunc
 " Note: This is what a machine with no plugins taught: the entry for the
 " NERDTree was written down with no condition on it, while the function behind
 " it lives inside "if g:enable_nerdtree_vim". Pressing F4->n there did not say
-" the plugin was missing, it said "E117: Unknown function"! By Questor
+" the plugin was missing, it said "E117: Unknown function".
 func! GrooVim_ShortcutAvailable(one) abort
   return !has_key(a:one, "needs") || get(g:, a:one.needs.switch, 0)
 endfunc
 
 " Note: The F groups that have anything left in them here. A group whose every
 " shortcut belongs to a plugin that is not installed would otherwise be a
-" heading over nothing in the help, and an empty menu to open! By Questor
+" heading over nothing in the help, and an empty menu to open.
 func! GrooVim_MenuSectionsHere() abort
   let l:out = []
   for l:section in g:GrooVim_MenuSections
@@ -115,7 +115,7 @@ endfunc
 " Note: "run" is one line of VimScript, or a handful of them keyed by the modes
 " each belongs to -- uppercase is one thing on a word and another on a selection.
 " Inside them "l:mode" is the mode you are in, which is why it is a name and not
-" an argument! By Questor
+" an argument.
 func! GrooVim_ShortcutRun(one, mode) abort
 
   let l:mode = a:mode
@@ -141,7 +141,7 @@ func! GrooVim_ShortcutKeys(one) abort
 
   " Note: A key of its own -- "<C-c>", "<A-S-Up>", "m" -- and not a pair of an F
   " key and a letter. Written the way Vim writes a key, so that what the menu
-  " feeds is what the keyboard would have sent! By Questor
+  " feeds is what the keyboard would have sent.
   if has_key(a:one, "keys")
     return a:one.keys =~ "^<" ? eval('"\' . a:one.keys . '"') : a:one.keys
   endif
@@ -155,13 +155,13 @@ func! GrooVim_ShortcutKeys(one) abort
 endfunc
 
 " Note: How a shortcut is written for a human: "F5->n", the notation every
-" message of GrooVim uses! By Questor
+" message of GrooVim uses.
 " Note: How a key is written where somebody reads it: "F2->c", "Ctrl+C",
 " "Alt+Shift+Up", "m".
 "
 " Note: Built from the key itself and not written by hand beside it. A label
 " typed into each entry is a second place for the same fact, and the day a key
-" moves the label stays! By Questor
+" moves the label stays.
 func! GrooVim_ShortcutShown(one) abort
 
   if has_key(a:one, "keys")
@@ -180,7 +180,7 @@ func! GrooVim_ShortcutShown(one) abort
     let l:text = substitute(l:text, '^S-', "Shift+", "")
     " Note: A lone letter after a modifier is shown as a capital, the way every
     " keyboard is painted: "Ctrl+c" is read as "Ctrl" and then "c", which is not
-    " a key anybody has! By Questor
+    " a key anybody has.
     return substitute(l:text, '\(+\)\(\a\)$', '\1\u\2', "")
   endif
 
@@ -196,7 +196,7 @@ endfunc
 "
 " Note: The bars become a SPACE and not nothing: in the help they are what
 " separates the word from the text around it, so dropping them would glue
-" "file.vimrc" together! By Questor
+" "file.vimrc" together.
 func! GrooVim_ShortcutPlain(text) abort
   let l:plain = substitute(a:text, '[|*]', " ", "g")
   return trim(substitute(l:plain, '  \+', " ", "g"))
@@ -216,7 +216,7 @@ endfunc
 "
 " Note: The two go together and neither is the other cut short: a menu of a
 " conventional editor is a column of names, and the three dots at the end of one
-" are the convention that says it will ask you something! By Questor
+" are the convention that says it will ask you something.
 func! GrooVim_ShortcutMenu(one) abort
   return GrooVim_ShortcutPlain(get(a:one, "menu", a:one.what))
 endfunc
@@ -231,7 +231,7 @@ func! GrooVim_MenuLine(one, room) abort
 endfunc
 
 " Note: The shortcuts of one section, how much room the descriptions may take,
-" and how wide the whole thing comes out! By Questor
+" and how wide the whole thing comes out.
 func! GrooVim_MenuOf(group, startColumn) abort
 
   let l:entries = []
@@ -245,7 +245,7 @@ func! GrooVim_MenuOf(group, startColumn) abort
     endif
   endfor
 
-  " Note: 2 borders, 2 in front, 4 between the two columns, 2 behind! By Questor
+  " Note: 2 borders, 2 in front, 4 between the two columns, 2 behind.
   let l:around = 10 + l:keys
   let l:room = min([l:what, &columns - a:startColumn - l:around + 1])
   return [l:entries, max([l:room, 10]), l:room + l:around]
@@ -253,7 +253,7 @@ endfunc
 
 " Note: The bar, and where on it each section begins -- the popup needs the
 " column to put itself under the right one, and the mouse needs it to know which
-" one was clicked! By Questor
+" one was clicked.
 func! GrooVim_MenuBarText() abort
   let l:text = ""
   let l:at = []
@@ -261,7 +261,7 @@ func! GrooVim_MenuBarText() abort
     " Note: The name of the section and nothing else. It used to be " F2 Edit ",
     " which taught that F2 was Edit -- and could, because a section WAS an F key.
     " A section holds keys of every shape now, and each line under it carries the
-    " keys that do it! By Questor
+    " keys that do it.
     let l:piece = " " . l:group[0] . " "
     call add(l:at, [strchars(l:text) + 1, strchars(l:piece)])
     let l:text = l:text . l:piece
@@ -316,7 +316,7 @@ endfunc
 "
 " Note: Vim hides the cursor before a redraw with "t_vi" and shows it again after
 " with "t_ve". Emptying "t_ve" takes the showing away, so the next redraw hides it
-" and nothing brings it back until the string is handed over again! By Questor
+" and nothing brings it back until the string is handed over again.
 func! GrooVim_MenuHideCursor() abort
   if s:menuCursorWas ==# ""
     let s:menuCursorWas = &t_ve
@@ -328,7 +328,7 @@ endfunc
 " Note: "echoraw" writes the string to the TERMINAL, which is what actually
 " brings the cursor back. Handing "t_ve" over again is only half of it: on the
 " way out there is no redraw left to emit it, and GrooVim would give you your
-" shell back with no cursor in it! By Questor
+" shell back with no cursor in it.
 func! GrooVim_MenuShowCursor() abort
   if s:menuCursorWas !=# ""
     let &t_ve = s:menuCursorWas
@@ -345,17 +345,16 @@ endfunc
 " Note: Leaving with the menu still up handed the terminal back with the cursor
 " HIDDEN -- measured, the last thing it was told was "hide" and nothing ever said
 " otherwise. You would have got your shell prompt back with no cursor in it, and
-" nothing to tell you why! By Questor
+" nothing to tell you why.
 " Note: "VimLeavePre" and not "VimLeave": the cursor comes back through a redraw,
 " and by "VimLeave" there is no drawing left to do -- measured, leaving with the
-" menu up ended on "hide" while leaving without it ended on "show"! By Questor
+" menu up ended on "hide" while leaving without it ended on "show".
 augroup GrooVim_MenuCursor
   autocmd!
   autocmd VimLeavePre * call GrooVim_MenuClose()
 augroup END
 
-" Note: Opens the section, wrapping round at either end the way a menu bar does!
-" By Questor
+" Note: Opens the section, wrapping round at either end the way a menu bar does.
 func! GrooVim_MenuOpen(section) abort
 
   let l:groups = GrooVim_MenuSectionsHere()
@@ -369,13 +368,13 @@ func! GrooVim_MenuOpen(section) abort
   let [l:entries, l:room, l:width] = GrooVim_MenuOf(l:group[0], l:startColumn)
 
   " Note: Pulled left when it would hang off the edge of the screen, which is
-  " what a menu bar does with its last section! By Questor
+  " what a menu bar does with its last section.
   let l:column = min([l:startColumn, max([1, &columns - l:width + 1])])
 
   " Note: The rules between blocks of items are LINES of the popup like any
   " other, so the list kept here has one place per line -- a rule included. A
   " line number is the only thing the mouse and the callback ever hand over, and
-  " it has to land on the right shortcut! By Questor
+  " it has to land on the right shortcut.
   let g:GrooVim_MenuEntries = []
   let l:lines = []
   let l:widest = 0
@@ -414,7 +413,7 @@ func! GrooVim_MenuOpen(section) abort
 
   " Note: "popup_create" and not "popup_menu": the second one puts itself in the
   " MIDDLE of the screen and ignores where it was told to go -- measured, asked
-  " for line 2 and it came out on line 5! By Questor
+  " for line 2 and it came out on line 5.
   let s:menuDrop = popup_create(l:painted, {
    \ "line": 2, "col": l:column, "pos": "topleft",
    \ "title": " " . l:group[0] . " ",
@@ -426,13 +425,13 @@ func! GrooVim_MenuOpen(section) abort
   call GrooVim_MenuStep(1)
 
   " Note: A step sideways throws a list away and puts a narrower one up, and Vim
-  " redraws only what changed! By Questor
+  " redraws only what changed.
   redraw
 
 endfunc
 
 " Note: Moves down or up, STEPPING OVER the rules: they are lines of the popup
-" but they are not choices! By Questor
+" but they are not choices.
 func! GrooVim_MenuStep(step) abort
 
   let l:total = len(g:GrooVim_MenuEntries)
@@ -466,7 +465,7 @@ func! GrooVim_MenuStep(step) abort
   " what there is.
   "
   " Note: "core_height" and not "height": the border and the padding are not
-  " lines of the list! By Questor
+  " lines of the list.
   let l:pos = popup_getpos(s:menuDrop)
   if !empty(l:pos)
     if s:menuLine < l:pos.firstline
@@ -480,8 +479,8 @@ func! GrooVim_MenuStep(step) abort
 endfunc
 
 " Note: Left and Right walk the bar, an F key jumps to its own section, the mouse
-" clicks where it likes, and the rest is what a menu does! By Questor
-" Note: Which F key was pressed, if it was one! By Questor
+" clicks where it likes, and the rest is what a menu does.
+" Note: Which F key was pressed, if it was one.
 func! GrooVim_MenuFKeyPressed(key) abort
   for l:fKey in ["F2", "F3", "F4", "F5"]
     if a:key ==# eval('"\<' . l:fKey . '>"')
@@ -493,7 +492,7 @@ endfunc
 
 " Note: The section that F key has most of its shortcuts in -- counted and not
 " written down, so that moving a shortcut from one section to another moves this
-" with it! By Questor
+" with it.
 func! GrooVim_MenuSectionOfFKey(fKey) abort
   let l:count = {}
   for l:one in g:GrooVim_Shortcuts
@@ -504,7 +503,7 @@ func! GrooVim_MenuSectionOfFKey(fKey) abort
   endfor
   " Note: Walked in the order of the sections and not in the order of the keys of
   " a dictionary, which Vim does not promise -- a draw has to fall the same way
-  " every time! By Questor
+  " every time.
   let l:best = ""
   for l:where in map(copy(g:GrooVim_MenuSections), 'v:val[0]')
     if !has_key(l:count, l:where) | continue | endif
@@ -539,7 +538,7 @@ func! GrooVim_MenuFilter(id, key) abort
   endif
   " Note: "F10" closes it as well as opens it. While the menu is up every key
   " comes HERE and the mapping never runs, so the toggle has to live in the
-  " filter! By Questor
+  " filter.
   if a:key ==# "\<Esc>" || a:key ==# "x" || a:key ==# "q" || a:key ==# "\<F10>"
     call popup_close(a:id, -1)
     return 1
@@ -551,7 +550,7 @@ func! GrooVim_MenuFilter(id, key) abort
   " was an F key. Now a section holds keys of every shape and an F key is spread
   " over several of them -- so what is kept is the hand: F2 lands on "Edit", F3
   " on "Search", F4 on "View", F5 on "File", which is where each one has most of
-  " its shortcuts and is what the four used to be called! By Questor
+  " its shortcuts and is what the four used to be called.
   let l:fKey = GrooVim_MenuFKeyPressed(a:key)
   if l:fKey !=# ""
     let l:where = GrooVim_MenuSectionOfFKey(l:fKey)
@@ -564,7 +563,7 @@ func! GrooVim_MenuFilter(id, key) abort
 
   " Note: The mouse. A click on the bar opens that section, a click on a line
   " runs it, and a click anywhere else leaves -- which is what clicking outside a
-  " menu does in every editor! By Questor
+  " menu does in every editor.
   if a:key ==# "\<LeftMouse>"
     return GrooVim_MenuClicked(a:id)
   endif
@@ -630,7 +629,7 @@ func! GrooVim_MenuEntryChosen(id, chosen) abort
 
   " Note: Vim answers "-1" when the menu was left without choosing. The bar has
   " to come down too, or Esc would leave it sitting on the first line with
-  " nothing under it! By Questor
+  " nothing under it.
   if a:chosen < 1 || a:chosen > len(g:GrooVim_MenuEntries)
      \ || get(g:GrooVim_MenuEntries[a:chosen - 1], "rule", 0)
     call GrooVim_MenuClose()

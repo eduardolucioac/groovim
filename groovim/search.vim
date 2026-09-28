@@ -70,7 +70,7 @@ func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment) abort
       let matchlen = strlen(matchstr(strpart(getline('.'),col-1),@/))
       let target_pat = '\c\%#'.@/
 
-      " Note: Foward -> blink: red/Backyard -> blink: blue! By Questor
+      " Note: Foward -> blink: red/Backyard -> blink: blue.
       if l:searchMoveDirection == 1
         let ring = matchadd('WhiteOnRed', target_pat, 101)
       elseif l:searchMoveDirection == 0
@@ -110,7 +110,7 @@ func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment) abort
 
       while g:tabChanged == 1
 
-        " Note: Positioning in the correct window! By Questor
+        " Note: Positioning in the correct window.
 
         call GrooVim_PutOnEditWindow()
 
@@ -137,14 +137,14 @@ func! GrooVim_HLNext(moveType, blinkTime, searchMoveInverter, moment) abort
 
 endfunc
 
-" Note: Sets the type of search to be performed depending on user choice! By Questor
+" Note: Sets the type of search to be performed depending on user choice.
 let g:search_WithList = get(g:, "search_WithList", 0)
 func! GrooVim_SearchWithMyOptions(mod) range abort
 
   let l:callGrooVim_SearchGuy = 1
 
   " Note: If the search with lists is enabled closes the lists and allows
-  " performing the search on next call only! By Questor
+  " performing the search on next call only.
   if g:GrooVim_SearchGuyEnabled == 1
 
     let g:matchedLinesGlobal = ""
@@ -171,7 +171,7 @@ endfunc
 "
 " Note: "\%V" is the regex atom for "inside the Visual area", and it keeps
 " working after visual mode ended, matching what "gv" would reselect, which is
-" exactly the case here! By Questor
+" exactly the case here.
 func! GrooVim_SelectionHighlight() abort
   try
     return matchadd("Visual", '\%V.\%V\|\%V')
@@ -185,10 +185,10 @@ endfunc
 "
 " Note: The boundaries come from "searchpos()" with the word atoms, and not from
 " walking the string by index, because indexing a String in Vim walks BYTES and
-" would cut an accented word in half! By Questor
+" would cut an accented word in half.
 func! GrooVim_WordUnderCursorPos() abort
 
-  " Note: Nothing to mark if the cursor is not sitting on a word! By Questor
+  " Note: Nothing to mark if the cursor is not sitting on a word.
   if matchstr(getline("."), '\%' . col(".") . 'c.') !~ '\k'
     return []
   endif
@@ -206,7 +206,7 @@ endfunc
 
 " Note: Marks whatever is being OFFERED on the prompt: the selection in visual
 " mode, the word under the cursor otherwise. Same idea in both, so that the
-" question always has a counterpart on the text! By Questor
+" question always has a counterpart on the text.
 func! GrooVim_OfferHighlight(mod) abort
   if a:mod == "v"
     return GrooVim_SelectionHighlight()
@@ -228,40 +228,40 @@ func! GrooVim_SelectionHighlightClear(matchId) abort
   endif
 endfunc
 
-" Note: Searches for current selection or word under cursor! By Questor
+" Note: Searches for current selection or word under cursor.
 let g:search_Direction = get(g:, "search_Direction", "f")
 let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
 
 " Note: The "Match whole word only" of Notepad++: with it on, "cat" stops finding
 " the "cat" inside "concatenate". Off by default, like the case, and asked on the
-" search screen of "F5->c" beside it! By Questor
+" search screen of "F5->c" beside it.
 let g:searchReplace_WholeWord = get(g:, "searchReplace_WholeWord", 0)
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range abort
 
   try
 
-  " Note: Set "hlsearch" if is off! By Questor
+  " Note: Set "hlsearch" if is off.
   if !&hlsearch
-    " Note: Highlight search results! By Questor
+    " Note: Highlight search results.
     set hlsearch
   endif
 
-  " Note: Set "ignorecase" if is off! By Questor
+  " Note: Set "ignorecase" if is off.
   if !&ignorecase && g:searchReplace_CaseSensitive == 0
-    " Note: Case sensitive search! By Questor
+    " Note: Case sensitive search.
     set ignorecase
   endif
 
-  " Note: Initialize the search! By Questor
+  " Note: Initialize the search.
   let g:block_GrooVim_HLNext = 0
 
   let l:valueToSearch = ""
 
   if a:mod == "v"
-    " Note: Preserve transfer area! By Questor
+    " Note: Preserve transfer area.
     let l:saved_reg = GrooVim_ClipGet()
-    " Note: Reselect visual area and yank! By Questor
+    " Note: Reselect visual area and yank.
     exec "norm gvy"
     let l:valueToSearch = GrooVim_ClipGet()
   else
@@ -269,7 +269,7 @@ func! GrooVim_EasySearch(mod) range abort
   endif
 
   if a:mod == "v"
-    " Note: Preserve transfer area! By Questor
+    " Note: Preserve transfer area.
     call GrooVim_ClipSet(l:saved_reg)
   endif
 
@@ -284,7 +284,7 @@ func! GrooVim_EasySearch(mod) range abort
   " Note: The price is that in VISUAL mode the prompt then lands on the second
   " line of the command area, with a blank line above it. Four ways around it
   " were measured (no redraw, "redraw!", clearing the message first, turning
-  " "showmode" off) and none avoided it! By Questor
+  " "showmode" off) and none avoided it.
   let l:selectionMatch = GrooVim_OfferHighlight(a:mod)
   redraw
 
@@ -295,7 +295,7 @@ func! GrooVim_EasySearch(mod) range abort
   "
   " Note: In that case the answer is REQUIRED, and the loop is what makes the
   " word true: searching for nothing would do nothing useful anyway. Ctrl-C gets
-  " you out, and it no longer leaves CommandZ blocked! By Questor
+  " you out, and it no longer leaves CommandZ blocked.
   if ("" . l:valueToSearch . "") != ""
     let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
   else
@@ -308,20 +308,20 @@ func! GrooVim_EasySearch(mod) range abort
   call GrooVim_SelectionHighlightClear(l:selectionMatch)
   let l:selectionMatch = -1
 
-  " Note: Define search pathern automatically! By Questor
+  " Note: Define search pathern automatically.
   if l:valueToSearchTemp != ""
     let l:valueToSearch = l:valueToSearchTemp
   endif
 
   " Note: What you actually typed, kept for the bar of the occurrences list. The
   " pattern below is the escaped form, and showing it would leak the escaping to
-  " a place where you just want to read what was searched! By Questor
+  " a place where you just want to read what was searched.
   let g:GrooVim_SearchGuyValue = l:valueToSearch
 
   let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
   let l:search_Operator = ""
 
-  " Note: Select operation type! By Questor
+  " Note: Select operation type.
   if g:search_Direction == "b" && g:grooVimSearchFowardBlock == 0
     let l:search_Operator = "?"
     let g:grooVimSearchFoward = 0
@@ -332,8 +332,8 @@ func! GrooVim_EasySearch(mod) range abort
 
   " Note: This structure was made so that the search can be executed "immediately". With
   " "feedkeys" (below) this does not happen, causing sync issues with functions that
-  " depend on "GrooVim_EasySearch" function runs first! By Questor
-  " Note: Works but does not allow default "backward search"! By Questor
+  " depend on "GrooVim_EasySearch" function runs first.
+  " Note: Works but does not allow default "backward search".
 
   let @/ = l:pattern
   let l:initialPos = getpos(".")
@@ -341,7 +341,7 @@ func! GrooVim_EasySearch(mod) range abort
   " Note: This operation is duplicated ("feedkeys" and "exec") causing a double
   " execution of the search, but it was the only way to not have problems with "n"
   " and "N" navigating and the search with list! If not done, the highlight is lost
-  " after a few movements of the cursor! By Questor
+  " after a few movements of the cursor.
   if g:search_WithList == 0
     call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
   else
@@ -351,13 +351,13 @@ func! GrooVim_EasySearch(mod) range abort
   call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
 
   finally
-    " Note: Safety net: an interruption must not leave the text painted! By Questor
+    " Note: Safety net: an interruption must not leave the text painted.
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
   endtry
 
 endfunc
 
-" Note: Organizes occurrences and navigation lists! By Questor
+" Note: Organizes occurrences and navigation lists.
 let g:matchedLines = ""
 func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, column) range abort
   if a:linePosition != ""
@@ -373,12 +373,12 @@ func! GrooVim_SearchGuyMatches(linePosition, lineValue, tab, bufferName, line, c
   endif
 endfunc
 
-" Note: Performs search in multiple tabs creating lists of occurrences! By Questor
+" Note: Performs search in multiple tabs creating lists of occurrences.
 func! GrooVim_SearchGuyTraveler(mod) range abort
 
   " Note: Counted BEFORE knowing whether there is a match, because Notepad++ says
   " "of N searched" about every file it looked at, not only the ones that had
-  " something! By Questor
+  " something.
   let g:GrooVim_SearchGuyFilesSearched = g:GrooVim_SearchGuyFilesSearched + 1
 
   let l:theresAMatch = 1
@@ -408,7 +408,7 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
       let l:cur_pos_last = getpos(".")
       " Note: The FULL path, not just the file name: with it the list can open a
       " file again after you closed it, and two files with the same name in
-      " different directories stop being the same entry! By Questor
+      " different directories stop being the same entry.
       call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:p'), getpos(".")[1], getpos(".")[2])
       exec "norm n"
     endwhile
@@ -420,7 +420,7 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
 endfunc
 
 " Note: Searches for current selection or word under cursor. This is the main
-" method of the functionality! By Questor
+" method of the functionality.
 let g:matchedLinesGlobal = ""
 let g:matchedLinesGlobalNavArray = []
 let g:GrooVim_SearchGuyEnabled = 0
@@ -429,7 +429,7 @@ let g:GrooVim_SearchGuyFilesSearched = 0
 let g:grooVimSearchFowardBlock = 0
 func! GrooVim_SearchGuy(mod) range abort
 
-  " Note: Avoid search backward! By Questor
+  " Note: Avoid search backward.
   let g:grooVimSearchFowardBlock = 1
 
   let l:searchMoveInverterHolder = getpos(".")
@@ -459,7 +459,7 @@ func! GrooVim_SearchGuy(mod) range abort
 
   " Note: This "workaround" is to prevent a side effect that occurs when script
   " changing tab which that is the loss of search highlight. The presence of redraw
-  " serves to remove the message generated by "set hlsearch"! By Questor
+  " serves to remove the message generated by "set hlsearch".
   " call feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" . g:cmdLineCaller . "redraw!\<cr>")
 
   let g:grooVimSearchFowardBlock = 0
@@ -474,11 +474,11 @@ func! GrooVim_SearchGuy(mod) range abort
 
 endfunc
 
-" Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed! By Questor
+" Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed.
 autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise() abort
   " Note: If there is a search list this list is open in the current tab if the
-  " functionality is enabled! By Questor
+  " functionality is enabled.
   "
   " Note: Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the file
   " is loaded: building the list right here put it in a window that the file then
@@ -486,7 +486,7 @@ func! GrooVim_TabParadise() abort
   " timer runs once the tab has settled.
   "
   " Note: Not while navigating, which puts the list in place by itself at the
-  " moment it knows the tab is ready! By Questor
+  " moment it knows the tab is ready.
   if g:GrooVim_SearchGuyBusy == 0 &&
    \ g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
     call timer_start(0, "GrooVim_SearchGuySyncNow")
@@ -504,7 +504,7 @@ endfunc
 "
 " Note: A match belongs to a WINDOW, so it is put up again whenever you enter
 " one. Otherwise splitting, or walking to another tab, would lose it -- and a
-" mark you have to make again in every window is not worth making! By Questor
+" mark you have to make again in every window is not worth making.
 let g:GrooVim_MarkedWord = ""
 let s:markIds = {}
 
@@ -540,7 +540,7 @@ func! GrooVim_MarkClear() abort
 endfunc
 
 " Note: Puts the mark up in THIS window, if there is a word marked and it is not
-" up here already! By Questor
+" up here already.
 func! GrooVim_MarkHere() abort
 
   if g:GrooVim_MarkedWord ==# "" || has_key(s:markIds, win_getid())
@@ -549,7 +549,7 @@ func! GrooVim_MarkHere() abort
 
   " Note: "\V" and every backslash escaped: a word with a "." or a "*" in it is
   " text and not a pattern. "\<" and "\>" so that "total" does not light up
-  " inside "subtotal"! By Questor
+  " inside "subtotal".
   let l:pattern = '\V\<' . escape(g:GrooVim_MarkedWord, '\') . '\>'
   let l:pattern = (g:searchReplace_CaseSensitive == 1 ? '\C' : '\c') . l:pattern
 
@@ -569,7 +569,7 @@ func! GrooVim_MarkWord(mode) abort
   endif
 
   " Note: The same word again takes the marks down. One key that marks and
-  " unmarks, the way one key opens and closes the help! By Questor
+  " unmarks, the way one key opens and closes the help.
   if g:GrooVim_MarkedWord ==# l:what
     call GrooVim_MarkClear()
     call GrooVim_GrooVimBarMsg("Marks cleared!", 4)

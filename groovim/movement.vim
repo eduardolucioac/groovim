@@ -23,12 +23,12 @@
 " cursor does not move, so the window has nothing to come back from, and the
 " selection is still there -- ":h map-cmd" says it in as many words, "Visual mode
 " is preserved, so tricks with gv are not needed". It also needs no "<silent>",
-" because no command line is ever opened! By Questor
+" because no command line is ever opened.
 
-" Note: Swap : and ; to make colon commands easier to type! By Questor
+" Note: Swap : and ; to make colon commands easier to type.
 nnoremap  ;  :
 nnoremap  :  ;
-" Note: Important for the execution of certain commands in some functionalies! By Questor
+" Note: Important for the execution of certain commands in some functionalies.
 let g:cmdLineCaller = ";"
 
 nnoremap <silent> <expr> <A-S-Left> (g:GrooVim_GroovyMoveEnabled ? ":call GrooVim_GroovyMove(\"n\", \"l\", 0, 0)<cr>" : ":let g:onMoveScreen = 1<cr>")
@@ -75,23 +75,22 @@ vnoremap <C-A-Right> <Cmd>call GrooVim_GroovyMove("v", "r", 0, 1)<cr>
 " normal mode and coming back is what loses it -- by the time the function runs it
 " is already gone -- and without it walking down through a SHORT line left the
 " cursor at the end of that line instead of coming back to the column you started
-" from! By Questor
+" from.
 inoremap <silent> <C-A-Left> <C-o>:call GrooVim_GroovyMove("i", "l", 0, 1)<cr>
 inoremap <silent> <C-A-Down> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove("i", "d", 0, 1)<cr>
 inoremap <silent> <C-A-Up> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_GroovyMove("i", "u", 0, 1)<cr>
 inoremap <silent> <C-A-Right> <C-o>:call GrooVim_GroovyMove("i", "r", 1, 1)<cr>
 
-" Note: Allows fluid cursor movement on the screen! By Questor
+" Note: Allows fluid cursor movement on the screen.
 let g:onMoveScreen = 0
 let g:GrooVim_GroovyMoveType = 0
 let g:GrooVim_GroovyMoveEnabled = 1
 " Note: Where the insert mode mappings leave the column to keep, taken while still
-" in insert mode! By Questor
+" in insert mode.
 let g:GrooVim_GroovyMoveColumn = 0
 
 " Note: Raised by those same mappings, and it says that the trip out of insert is
-" ours: while it is up, the cursor is NOT painted with the colour of normal mode!
-" By Questor
+" ours: while it is up, the cursor is NOT painted with the colour of normal mode.
 let g:GrooVim_CursorColorHoldInsert = 0
 func! GrooVim_GroovyMoveMarkColumn() abort
   let g:GrooVim_GroovyMoveColumn = getcurpos()[4]
@@ -102,14 +101,14 @@ func! GrooVim_GroovyMoveMarkColumn() abort
   " long enough to SEE it turn green, as if the mode had changed.
   "
   " Note: It has to be HERE, before the "<C-o>": from inside the movement it would
-  " already be too late! By Questor
+  " already be too late.
   let g:GrooVim_CursorColorHoldInsert = 1
   let &t_EI = "\<Esc>]12;" . g:cursorColorI . "\x7"
 
   return ""
 endfunc
 
-" Note: Gives the cursor back to the colours of each mode! By Questor
+" Note: Gives the cursor back to the colours of each mode.
 func! GrooVim_GroovyMoveColorsBack() abort
   if g:GrooVim_CursorColorHoldInsert == 1
     let g:GrooVim_CursorColorHoldInsert = 0
@@ -135,7 +134,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
   " Note: A "finally", because this movement can be INTERRUPTED and usually is:
   " GrooVim itself says "Use Ctrl+C to stop!" while a smooth one is running. An
   " interrupt walks out of the function, and the line at the end that gives the
-  " cursor back to the colours of each mode never ran! By Questor
+  " cursor back to the colours of each mode never ran.
   try
 
     let g:GrooVim_GroovyMoveEnabled = 0
@@ -151,7 +150,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     " at the very top, because the "virtualedit" below disturbs it too.
     "
     " Note: The mapping leaves a zero behind once it is read, so a value that was
-    " never marked -- or already used -- never moves anything! By Questor
+    " never marked -- or already used -- never moves anything.
     let l:columnToKeep = a:mod == "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
     let g:GrooVim_GroovyMoveColumn = 0
 
@@ -162,7 +161,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     " Note: The column to keep goes back BEFORE the movement, because it is what
     "<Up>" and "<Down>" aim at. Putting it back only afterwards fixed the number
     " and left the cursor one column short: the move had already happened with the
-    " wrong aim! By Questor
+    " wrong aim.
     call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
     let l:disableSmoothness = 0
@@ -185,7 +184,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     "
     " Note: "winheight(0)" is the window and not the terminal: with a split, or
     " with a panel of GrooVim open beside the text, a page is what THIS window
-    " shows, which is the one you are reading! By Questor
+    " shows, which is the one you are reading.
     if a:GrooVim_GroovyMoveType == 0
       let l:horizontalMovementFactor = 20
       let l:verticalMovementFactor = 15
@@ -198,7 +197,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     endif
 
     " Note: Where the page started, so that the window can be carried along with
-    " it below! By Questor
+    " it below.
     let l:pageTopWas = line("w0")
     let l:pageLineWas = line(".")
 
@@ -304,7 +303,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
       "
       " Note: The detour existed because the ":" of the old mapping had already
       " left visual mode anyway. Through "<Cmd>" the mode was never left, so there
-      " is nothing to come back from! By Questor
+      " is nothing to come back from.
       call GrooVim_GroovyMoveAdjuster(a:direction, a:blockSmoothness, l:disableSmoothness, l:verticalSmoothnessFactor)
 
     endif
@@ -323,7 +322,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     "
     " Note: Only a page does this. The smooth movement and the single step are
     " there to walk the text you are LOOKING at, and were made not to drag the
-    " screen about while the cursor is still on it! By Questor
+    " screen about while the cursor is still on it.
     if a:GrooVim_GroovyMoveType == 2
       let l:pageMoved = line(".") - l:pageLineWas
       if l:pageMoved != 0
@@ -333,11 +332,11 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
     let g:onMoveScreen = 1
 
-    " Note: "set virtualedit=onemore" if the area is already valid! By Questor
+    " Note: "set virtualedit=onemore" if the area is already valid.
     "
     " Note: And ONLY then. Leaving "all" on while the cursor is over an area without
     " character is what lets it stay there: putting it back unconditionally dragged
-    " the cursor onto the text at the end of every movement! By Questor
+    " the cursor onto the text at the end of every movement.
     if virtcol('.') <= virtcol('$')
 
       if &virtualedit == "all"
@@ -361,7 +360,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     "
     " Note: And once more AFTER the block above, because coming out of
     " "virtualedit=all" snaps the cursor onto the text and resets the column. This
-    " one is for the NEXT movement: it is what the mapping will read! By Questor
+    " one is for the NEXT movement: it is what the mapping will read.
     call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
     " Note: The trip is over, so the cursor goes back to answering to each mode! By
@@ -370,7 +369,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
   finally
     " Note: The trip is over however it ended, so the cursor goes back to
-    " answering to each mode! By Questor
+    " answering to each mode.
     call GrooVim_GroovyMoveColorsBack()
 
     " Note: And it is painted by the mode we are actually in -- ON A TIMER, after
@@ -385,7 +384,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
     " ends in visual mode: the paint from inside this function saw "mode()"
     " answer "n", because the mode has not settled while the mapping that called
     " us is still running. A timer of zero runs on the next pass of the main
-    " loop, where what Vim answers is what you are actually in! By Questor
+    " loop, where what Vim answers is what you are actually in.
     if get(g:, "GrooVim_CursorColorEnabled", 0) && exists("*GrooVim_CursorColorSoon")
       call GrooVim_CursorColorSoon()
     endif
@@ -393,7 +392,7 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
 endfunc
 
-" Note: Adjusts the cursor position when this ends the movement ("GrooVim_GroovyMove()") over a tab char! By Questor
+" Note: Adjusts the cursor position when this ends the movement ("GrooVim_GroovyMove()") over a tab char.
 func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range abort
 
   let l:lineNow = getline(".")
@@ -440,7 +439,7 @@ nnoremap <silent> <script> <A-Right> :call GrooVim_SelWord("n", "r", 0)<cr>
 inoremap <silent> <script> <A-Right> <C-o>:call GrooVim_SelWord("i", "r", 0)<cr>
 vnoremap <A-Right> <Cmd>call GrooVim_SelWord("v", "r", 0)<cr>
 
-" Note: Allows selection of words quickly (for copying or deletion)! By Questor
+" Note: Allows selection of words quickly (for copying or deletion).
 func! GrooVim_SelWord(mod, direction, fullMove) range abort
 
   let l:wordMove = ""
@@ -462,7 +461,7 @@ func! GrooVim_SelWord(mod, direction, fullMove) range abort
   endif
 
   " Note: No "gv" here: the mapping of visual mode comes through "<Cmd>" and the
-  " selection was never lost! By Questor
+  " selection was never lost.
   if a:mod == "v"
     exec "norm " . l:wordMove
   elseif a:mod == "i"
@@ -481,14 +480,14 @@ func! GrooVim_SelWord(mod, direction, fullMove) range abort
 
 endfunc
 
-" Note: Allows go to the "real" end of the line in normal mode. Is an offshoot of "set virtualedit=onemore"! By Questor
+" Note: Allows go to the "real" end of the line in normal mode. Is an offshoot of "set virtualedit=onemore".
 nnoremap <silent> <End> $<Right>
 
 nnoremap <silent> <A-DOWN> :call GrooVim_TabToReturn()<cr>
 inoremap <silent> <A-DOWN> <C-O>:call GrooVim_TabToReturn()<cr>
 vnoremap <silent> <A-DOWN> :<C-U>call GrooVim_TabToReturn()<cr>v
 
-" Note: Return to last tab in use! By Questor
+" Note: Return to last tab in use.
 let g:lastTab = 1
 autocmd! TabLeave * let g:lastTab = tabpagenr()
 
@@ -500,14 +499,14 @@ func! GrooVim_TabToReturn() abort
       exe "tabn " . g:lastTab
     else
       exe "tabn " . g:GrooVim_TabToReturnNumber
-      " Note: "redraw" ensures the message display! By Questor
+      " Note: "redraw" ensures the message display.
       redraw
       echo "Tab to return is ENabled to this tab!"
     endif
   endif
 endfunc
 
-" Note: Allows returning to a particular tab "forever"! By Questor
+" Note: Allows returning to a particular tab "forever".
 let g:GrooVim_TabToReturnNumber = 0
 func! GrooVim_TabToReturnSet() abort
   if g:GrooVim_TabToReturnNumber == 0
@@ -523,7 +522,7 @@ if g:enable_tcomment_vim
   nnoremap <silent> <A-Up> :exec "norm gcc"<cr>
   inoremap <silent> <A-Up> <C-o>:exec "norm gcc"<cr>
   vnoremap <A-Up> <Cmd>call GrooVim_VisualComment()<cr>
-  " Note: Allows comment the current line in a simple and fast way! By Questor
+  " Note: Allows comment the current line in a simple and fast way.
   func! GrooVim_VisualComment() abort
 
     " Note: One line and many lines are NOT the same command, and the two
@@ -535,7 +534,7 @@ if g:enable_tcomment_vim
     " Note: Which end is which comes from "line(\"v\")", the other end of the
     " selection: the marks this used to ask about, "'<" and "'>", are of the
     " selection BEFORE this one while a selection is still up -- they were only
-    " right because the ":" of the old mapping had already ended it! By Questor
+    " right because the ":" of the old mapping had already ended it.
     if line("v") == line(".")
       exec "norm \<Esc>"
       exec "norm gcc"

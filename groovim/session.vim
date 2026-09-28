@@ -17,7 +17,7 @@ endfunc
 "
 " Note: Put back AFTER sourcing, and not prevented: the session names its files
 " while it loads, and a directory changed under it would be a session looking
-" for files that are no longer where it left them! By Questor
+" for files that are no longer where it left them.
 func! GrooVim_SessionLoad() abort
 
   if !filereadable(g:GrooVim_SessionFile)
@@ -41,7 +41,7 @@ endfunc
 " editor opened something broken.
 "
 " Note: And with nothing left to show, the welcome screen comes back: an empty
-" Vim that hides its own welcome looks like something went wrong! By Questor
+" Vim that hides its own welcome looks like something went wrong.
 func! GrooVim_SessionDropGhosts() abort
 
   for l:buffer in getbufinfo({"buflisted": 1})
@@ -68,7 +68,7 @@ endfunc
 " so the ":edit" written in the session opened every file with no "BufRead" --
 " and with no "BufRead" there is no filetype detection: measured, "&filetype"
 " empty on a ".py" that opens as "python" when named on the command line. No
-" syntax, no indent rules, no indent guides! By Questor
+" syntax, no indent rules, no indent guides.
 augroup GrooVim_Session
   autocmd!
   autocmd VimLeavePre * if g:GrooVim_SessionAuto == 1 | call GrooVim_SessionSave() | endif
@@ -78,7 +78,7 @@ augroup END
 
 " Note: By hand only when it is not automatic. With the session saving itself,
 " saving it again by hand would be a command that does nothing you can see -- so
-" it says so instead of pretending! By Questor
+" it says so instead of pretending.
 func! GrooVim_SessionSaveByHand() abort
   if g:GrooVim_SessionAuto == 1
     call GrooVim_GrooVimBarMsg("The session already saves itself! Turn it off with F5->c!", 6)
@@ -104,7 +104,7 @@ endfunc
 "
 " Note: ":confirm" is what turns the refusal of Vim -- "E37: No write since last
 " change" -- into a question you can answer: save, throw away, or go back. Writing
-" that by hand would be repeating what Vim already knows! By Questor
+" that by hand would be repeating what Vim already knows.
 func! GrooVim_CloseAsking(command) abort
   exec "confirm " . a:command
 endfunc
@@ -118,10 +118,10 @@ endfunc
 "
 " Note: It asks about unsaved text, like every other way of closing in GrooVim.
 " And if you answer "Cancel" the count of tabs does not move -- which is how this
-" knows to stop, instead of asking the same question for ever! By Questor
+" knows to stop, instead of asking the same question for ever.
 " Note: A new tab, at the END of the tab line, and one you can type in. See the
 " long notes on "$tabnew" and on the lock that used to leak, in
-" "GrooVim_TabClose" and in the help toggle! By Questor
+" "GrooVim_TabClose" and in the help toggle.
 func! GrooVim_TabNew() abort
   $tabnew
   setlocal ma
@@ -144,7 +144,7 @@ endfunc
 " Note: The "confirm" is on the ":enew", which is what abandons the document, so
 " unsaved text is asked about before anything happens. Answering "Cancel" leaves
 " the buffer where it was, and the "if" below sees that nothing moved and wipes
-" nothing! By Questor
+" nothing.
 func! GrooVim_TabClose() abort
 
   if tabpagenr("$") > 1
@@ -186,7 +186,7 @@ func! GrooVim_TabCloseSide(side) abort
 endfunc
 
 " Tip: Try to "balance" the distribution of the keys to preserve your
-" hands! By Questor
+" hands.
 
 " Note: How long GrooVim waits for the SECOND key of a shortcut, in
 " milliseconds. It is the ONLY number the F keys have: the waiting is done in
@@ -223,6 +223,6 @@ endfunc
 " which itself burned the 400ms above, so it always read 402 to 404ms against a
 " limit of 400. Repeating cost 1.3 seconds and went through the waiting every
 " time. The same F key pressed again is read as a KEY now, and repeats at once --
-" nothing is timed! By Questor
+" nothing is timed.
 let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
 

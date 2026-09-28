@@ -14,24 +14,24 @@
 " which here are the marked lines, the search, the tabs and the brackets. It
 " would not be a feature arriving, it would be half of GrooVim changing meaning
 " while the mode is up. What is here is the BASIC of it, written where the rest
-" of GrooVim is and in the keys GrooVim already uses! By Questor
+" of GrooVim is and in the keys GrooVim already uses.
 
 " Note: Where the other carets are: a line and a column each, and the one the
 " terminal really draws is not among them -- a terminal has ONE cursor, and the
 " others are painted as a colour on the character they sit on. It is what the
-" plugin does too! By Questor
+" plugin does too.
 let g:GrooVim_MultiPoints = []
 
 " Note: The colour the cursor of the terminal wears while the places are set --
-" the yellow of the carets, because there it IS one of them! By Questor
+" the yellow of the carets, because there it IS one of them.
 let g:GrooVim_MultiCursorSet = get(g:, "GrooVim_MultiCursorSet", "#f6d32d")
 
 " Note: What the cursor of the terminal should be painted with, asked by the
-" part that paints it. Empty means "nothing to do with me"! By Questor
+" part that paints it. Empty means "nothing to do with me".
 " Note: On whether this is UP, and not on whether there are carets yet: the
 " column starts with none -- they arrive with the first arrow -- and asking for
 " the carets left the cursor in the colour of insert until one appeared, which
-" is the one moment it should already have changed! By Questor
+" is the one moment it should already have changed.
 func! GrooVim_MultiCursorColour() abort
 
   if !s:on
@@ -50,7 +50,7 @@ let s:column = 0
 " them all -- and the second one ends the whole thing.
 "
 " Note: One key for both because they are the same idea said twice: "I am done
-" with this". Done choosing, then done editing! By Questor
+" with this". Done choosing, then done editing.
 let s:marking = 0
 let s:anchor = []
 let s:far = 0
@@ -61,7 +61,7 @@ let s:waiting = 0
 " Note: Two colours, because there are two moments. Orange while the places are
 " being CHOSEN, when nothing you type is written; yellow once they are set, when
 " everything you do happens in all of them. The colour is the answer to "can I
-" write now?", and it is answered without a word! By Questor
+" write now?", and it is answered without a word.
 highlight GrooVimMultiChoosing ctermbg=208 ctermfg=232 guibg=#ff8700 guifg=#080808
 highlight GrooVimMultiCaret ctermbg=220 ctermfg=232 guibg=#f6d32d guifg=#080808
 if &t_Co < 256 && !has("gui_running")
@@ -71,10 +71,10 @@ endif
 
 " Note: The carets are drawn with a match, which belongs to the WINDOW and not
 " to the buffer -- and that is right here: the carets of a run of typing belong
-" to the window you are typing in! By Questor
+" to the window you are typing in.
 " Note: The cursor of the terminal is painted AFTER the mode settles, which is
 " what the part that paints it does with every colour: a "startinsert" has not
-" happened yet when the function that asked for it is still running! By Questor
+" happened yet when the function that asked for it is still running.
 func! GrooVim_MultiCursorSoon() abort
   if exists("*GrooVim_CursorColorSoon")
     call GrooVim_CursorColorSoon()
@@ -98,7 +98,7 @@ endfunc
 
 " Note: Where the caret of a line really falls. A line shorter than the column
 " you are writing in takes the text at ITS end, which is what a block "A" of Vim
-" does -- and it means no line is left out! By Questor
+" does -- and it means no line is left out.
 func! GrooVim_MultiColumnHere(line, column) abort
   return min([a:column, max([len(getline(a:line)) + 1, 1])])
 endfunc
@@ -127,7 +127,7 @@ endfunc
 " Note: What every caret does when a key that MOVES is pressed. The motion is
 " run at each caret, from where THAT caret is -- so "word right" is each one's
 " own next word, and "end of line" is each one's own end, on lines of every
-" length! By Questor
+" length.
 " Note: The keys with a modifier move EVERY caret, in both shapes of this. The
 " plain arrows are the difference between the two: in the column they are the
 " block -- "Down" takes in one more line -- and in the places they are how you
@@ -135,7 +135,7 @@ endfunc
 "
 " Note: Which is not a taste either. Marking several places is choosing where
 " they are, and arrows that drag the carets already marked would take the
-" chosen places away as you went looking for the next one! By Questor
+" chosen places away as you went looking for the next one.
 let s:moves = {
  \ "<C-Left>":  "b",
  \ "<C-Right>": "el",
@@ -202,7 +202,7 @@ func! GrooVim_MultiKeysOn(column) abort
 
     " Note: While the places are still being chosen, "Esc" seals them instead of
     " ending. Through "<Cmd>", which does not leave insert at all -- so nothing
-    " has to be entered again afterwards, and nothing blinks! By Questor
+    " has to be entered again afterwards, and nothing blinks.
     call GrooVim_MultiKeysTake("<Esc>", "<Cmd>call GrooVim_MultiSeal()<cr>")
   else
     call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiMove('j')<cr>")
@@ -217,7 +217,7 @@ endfunc
 "
 " Note: The keys are handed back and taken again, because which key does what
 " is exactly what changed: the arrows were YOUR walk and are now everybody's
-" movement, and "Esc" was this, and is the end from here! By Questor
+" movement, and "Esc" was this, and is the end from here.
 func! GrooVim_MultiSeal() abort
 
   if !s:on || s:column || !s:marking
@@ -266,7 +266,7 @@ endfunc
 "
 " Note: "keepjumps", because this is one key of yours and not one jump for every
 " caret there is -- Ctrl+O would otherwise walk you back through places you
-" never went! By Questor
+" never went.
 func! GrooVim_MultiMove(motion) abort
 
   if empty(g:GrooVim_MultiPoints)
@@ -320,7 +320,7 @@ endfunc
 "
 " Note: And it is picked up again whenever the cursor is somewhere else than
 " where the last walk left it -- which is what typing, or a word, or an end of
-" line, all do! By Questor
+" line, all do.
 let s:walkColumn = 0
 let s:walkLeft = []
 
@@ -342,7 +342,7 @@ endfunc
 
 " Note: Two carets that land in the same place are one caret. Without this, a
 " "Home" with three carets on one line leaves three of them on its first column,
-" and every letter typed arrives three times! By Questor
+" and every letter typed arrives three times.
 func! GrooVim_MultiMerge() abort
 
   let l:seen = {}
@@ -370,7 +370,7 @@ endfunc
 " the OTHER end, and the carets are every line between the two. So three times
 " down and once up leaves two, and going past the anchor upwards puts them
 " above. One key grows it and shrinks it, which is how the keys of Notepad++
-" behave! By Questor
+" behave.
 func! GrooVim_MultiColumnStart() abort
 
   if !GrooVim_CanChange()
@@ -398,7 +398,7 @@ func! GrooVim_MultiColumnStart() abort
 endfunc
 
 " Note: The far end of the column walks, and the carets are made again from
-" where the two ends are! By Questor
+" where the two ends are.
 func! GrooVim_MultiFar(step) abort
 
   if !s:on || !s:column
@@ -447,7 +447,7 @@ func! GrooVim_MultiPoint() abort
 
   " Note: Once the places are sealed they are the places. Saying so beats
   " marking one more in a run where the arrows have already moved every caret
-  " somewhere else! By Questor
+  " somewhere else.
   if s:on && !s:marking
     call GrooVim_GrooVimBarMsg(
      \ "The places are set: Esc ends it, and then you can mark again!", 4)
@@ -474,7 +474,7 @@ func! GrooVim_MultiPoint() abort
   " pressed while you are typing, this arrives through the "<C-o>" of its own
   " mapping, and inside a "<C-o>" the short mode() says "n" while the long one
   " says "niI" -- insert is coming back on its own, and a "startinsert" here
-  " would be a second one! By Questor
+  " would be a second one.
   if mode(1) !~# "^ni" && mode() !~# "^i"
     startinsert
   endif
@@ -493,7 +493,7 @@ endfunc
 " Note: ONE timer and a queue, and not a timer for each character: with the keys
 " arriving in a burst the timers ran out of order, and a backspace ate the wrong
 " letter -- measured, typing "XY", a backspace and "ZZZ" left the other lines
-" with a letter the first line did not have! By Questor
+" with a letter the first line did not have.
 func! GrooVim_MultiTyped(char) abort
 
   if empty(g:GrooVim_MultiPoints)
@@ -505,7 +505,7 @@ func! GrooVim_MultiTyped(char) abort
   " Note: Writing with one caret in a run that is about to have five is writing
   " in one place and meaning five: the column of every place still to be chosen
   " would already be wrong. "v:char" emptied is the way to say no -- measured,
-  " the event firing and the line coming out exactly as it was! By Questor
+  " the event firing and the line coming out exactly as it was.
   if s:marking
     let v:char = ""
     call GrooVim_GrooVimBarMsg(
@@ -534,7 +534,7 @@ endfunc
 " Note: The line and column of the REAL cursor come along with each character,
 " because a caret sharing that line has to be moved by the character Vim itself
 " has already put there: it sat further along the line, and now it sits one
-" further! By Questor
+" further.
 func! GrooVim_MultiFlush() abort
 
   let s:waiting = 0
@@ -557,7 +557,7 @@ func! GrooVim_MultiFlush() abort
     " Vim has already written there, so that one is not written again -- and
     " asking afterwards found nothing, because the line below had just moved it
     " one along: measured, the caret under the cursor taking every letter twice,
-    " "AQUI-" coming out as "AAQQUUII--"! By Questor
+    " "AQUI-" coming out as "AAQQUUII--".
     let l:same = -1
     for l:which in range(len(g:GrooVim_MultiPoints))
       if g:GrooVim_MultiPoints[l:which][0] == l:atLine
@@ -568,7 +568,7 @@ func! GrooVim_MultiFlush() abort
     endfor
 
     " Note: The character Vim put in itself moves whatever was after it -- and
-    " the caret the cursor stands on travels with the cursor! By Questor
+    " the caret the cursor stands on travels with the cursor.
     if l:what ==# "\<BS>" && l:atColumn == 1 && l:atLine > 1
       " Note: The real cursor joined its line to the one above. Vim moved the
       " cursor itself; every caret that was on the line that went is moved here
@@ -594,7 +594,7 @@ func! GrooVim_MultiFlush() abort
       " behind, it stayed on the line above the cut with the column it had, and
       " an Enter and a backspace -- which should leave a file exactly as it was
       " -- joined the wrong two lines: measured, "ccc ddd" and "eee fff" coming
-      " back as "ccc dddeee"! By Questor
+      " back as "ccc dddeee".
       call GrooVim_MultiCut(l:atLine, l:atColumn, -1, 0)
     elseif l:what ==# "\<Tab>"
       call GrooVim_MultiShift(l:atLine, l:atColumn,
@@ -619,7 +619,7 @@ func! GrooVim_MultiFlush() abort
 
   " Note: The real cursor is carried too. A caret ABOVE it that joined two lines
   " took a line out of the file, and Vim keeps a cursor on the line NUMBER it
-  " was on -- which is somebody else's line now! By Questor
+  " was on -- which is somebody else's line now.
   if [line("."), col(".")] != [s:cursorLine, s:cursorColumn]
     call cursor(s:cursorLine, s:cursorColumn)
   endif
@@ -634,7 +634,7 @@ endfunc
 "
 " Note: "alsoCursor" says whether the REAL cursor has to come up as well. When
 " the join was its own, Vim has already moved it; when it was a caret's, it has
-" not, and nobody else will! By Questor
+" not, and nobody else will.
 func! GrooVim_MultiJoined(gone, into, offset, except, alsoCursor) abort
 
   let l:which = 0
@@ -663,7 +663,7 @@ endfunc
 " Note: One key, at one caret. The letters put themselves in; the others do what
 " the key means -- and each one does it where THAT caret is, which is the whole
 " idea: a Tab fills to the next stop of its own column, and an Enter cuts its
-" own line! By Questor
+" own line.
 func! GrooVim_MultiDo(which, what, room) abort
 
   let l:point = g:GrooVim_MultiPoints[a:which]
@@ -674,7 +674,7 @@ func! GrooVim_MultiDo(which, what, room) abort
     if a:room >= 0
       " Note: In the first column a backspace does not take a character away: it
       " takes the LINE BREAK away, and the line goes up to join the one above.
-      " "room" is how long that one was when the key was pressed! By Questor
+      " "room" is how long that one was when the key was pressed.
       call setline(l:point[0] - 1, getline(l:point[0] - 1) . l:line)
       exec "silent " . l:point[0] . "delete _"
       let g:GrooVim_MultiPoints[a:which] = [l:point[0] - 1, a:room + 1]
@@ -691,7 +691,7 @@ func! GrooVim_MultiDo(which, what, room) abort
   if a:what ==# "\<Del>"
     if a:room >= 0
       " Note: And at the end of the line it takes the break away FORWARD: the
-      " line below comes up and joins this one! By Questor
+      " line below comes up and joins this one.
       call setline(l:point[0], l:line . getline(l:point[0] + 1))
       exec "silent " . (l:point[0] + 1) . "delete _"
       call GrooVim_MultiJoined(l:point[0] + 1, l:point[0], a:room, a:which, 1)
@@ -730,7 +730,7 @@ endfunc
 
 " Note: What a Tab puts in, at the column it is pressed in: the spaces up to the
 " next stop, or a Tab itself when the file is written with them. Each caret has
-" its own column, so each one fills its own distance! By Questor
+" its own column, so each one fills its own distance.
 func! GrooVim_MultiTabAt(column) abort
 
   if !&expandtab
@@ -744,20 +744,19 @@ func! GrooVim_MultiTabAt(column) abort
 endfunc
 
 " Note: The indent a line begins with, which is what Vim copies onto the line an
-" "Enter" opens when "autoindent" is on -- and GrooVim has it on! By Questor
+" "Enter" opens when "autoindent" is on -- and GrooVim has it on.
 func! GrooVim_MultiIndentOf(line) abort
   return &autoindent ? matchstr(a:line, "^\\s*") : ""
 endfunc
 
 " Note: A line cut in two moves everything below it one line down, and whatever
 " was on that line AFTER the cut goes with it -- to the new line, counting from
-" where the cut left it! By Questor
+" where the cut left it.
 " Note: "alsoCursor" says whether the REAL cursor has to go down as well. When
 " the cut was its own, Vim has already taken it to the new line; when it was a
 " caret's, nobody has -- and a cursor left a line short joins the wrong two
 " lines the next time a backspace is pressed: measured, an Enter and a
-" backspace, which should leave a file exactly as it was, eating a line of it!
-" By Questor
+" backspace, which should leave a file exactly as it was, eating a line of it.
 func! GrooVim_MultiCut(line, column, except, alsoCursor) abort
 
   let l:which = 0
@@ -793,7 +792,7 @@ endfunc
 " standing on: it is skipped when the text is written, because Vim has already
 " written there, but it has to TRAVEL with the cursor -- left behind, it stops
 " being the cursor's own caret at the second letter and the line takes the text
-" twice! By Questor
+" twice.
 func! GrooVim_MultiShift(line, column, step, except) abort
 
   let l:which = 0
@@ -820,7 +819,7 @@ endfunc
 " Note: By NAME and not by the key. The key of a backspace is a control
 " character, and a control character written into the command of a "<Cmd>" does
 " not survive the trip: measured, the function never ran at all and the burst
-" went on doing the wrong thing with nothing said about it! By Questor
+" went on doing the wrong thing with nothing said about it.
 let s:keyOf = {"BS": "\<BS>", "Del": "\<Del>", "CR": "\<CR>", "Tab": "\<Tab>"}
 
 inoremap <silent> <expr> <BS> GrooVim_MultiKey("BS")
@@ -908,7 +907,7 @@ augroup GrooVim_Multi
   " Note: Leaving insert ends it, which is the "Esc" of the two keys. It also
   " ends when you leave the window: the carets are a match of THIS window, and
   " carets left behind in a place you cannot see are carets that will write
-  " where you are not looking! By Questor
+  " where you are not looking.
   autocmd InsertLeave * call GrooVim_MultiEnd()
   autocmd WinLeave,BufLeave * call GrooVim_MultiClear()
 augroup END
@@ -926,7 +925,7 @@ augroup END
 " of GrooVim are written that way, the paste, the unindent, the wheel, the page,
 " and the F keys themselves. Every one of them would have ended this. A timer of
 " zero runs after the dust settles, and by then Vim is back in insert if it was
-" ever leaving at all! By Questor
+" ever leaving at all.
 func! GrooVim_MultiEnd() abort
 
   if empty(g:GrooVim_MultiPoints)
@@ -956,7 +955,7 @@ func! GrooVim_MultiEndedReally() abort
 
 endfunc
 
-" Note: For the battery to look at what cannot be read from outside! By Questor
+" Note: For the battery to look at what cannot be read from outside.
 func! GrooVim_MultiState() abort
   return {"on": s:on, "column": s:column, "anchor": s:anchor, "far": s:far,
    \ "marking": s:marking}

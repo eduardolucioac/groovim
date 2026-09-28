@@ -3,7 +3,7 @@
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: To facilitate and avoid performance problems that text should always be
-" the last! By Questor
+" the last.
 
 " Note: Every shortcut of the F groups, in ONE place.
 "
@@ -16,7 +16,7 @@
 "
 " Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
 " It is not decoration: the case that checks this list against the code reads it,
-" and writing it wrong is a failure! By Questor
+" and writing it wrong is a failure.
 " Note: The sections of the menu of F10, and they are not the F keys any more.
 "
 " Note: They were: the menu had four sections because there are four F keys, and
@@ -34,7 +34,7 @@
 " Note: Written "an F2" and not with the arrow after it: a case of the battery
 " reads every shortcut named anywhere in the source and refuses one that is not
 " on the list -- and a sentence ABOUT the notation would be read as one more use
-" of it! By Questor
+" of it.
 let g:GrooVim_MenuSections = [
  \ ["File", "The file itself: saving it, opening another, leaving"],
  \ ["Edit", "Changing the text: the transfer area, undo, the indent, the case"],
@@ -298,13 +298,13 @@ let g:GrooVim_Shortcuts = [
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
 " named key gets its capital back; punctuation is wrapped in bars, because the
-" help syntax of Vim would otherwise eat a "/" or a "[" ! By Questor
+" help syntax of Vim would otherwise eat a "/" or a "[" .
 " Note: Written by the same function the MENU writes with, so that a key is
 " spelled one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is
 " a key of its own.
 "
 " Note: The bars around it are what the help syntax of Vim highlights with, and
-" they only go on where the word would not be picked out otherwise! By Questor
+" they only go on where the word would not be picked out otherwise.
 func! GrooVim_ShortcutKeyShown(one) abort
   let l:name = GrooVim_ShortcutShown(a:one)
   if l:name =~ '^\w\+$'
@@ -334,7 +334,7 @@ endfunc
 " and this disagree.
 "
 " Note: The marks the help syntax needs are taken out -- "|" is a link in a help
-" file and a table in Markdown! By Questor
+" file and a table in Markdown.
 func! GrooVim_ShortcutsMarkdown() abort
 
   let l:out = []
@@ -372,7 +372,7 @@ func! GrooVim_ShortcutsHelp() abort
   " plugin is not installed is not on the list, and neither is a group left
   " empty by that. The README is the other way round -- see the Markdown above,
   " which writes every one of them, because it describes the project and not
-  " one machine! By Questor
+  " one machine.
   for l:group in GrooVim_MenuSectionsHere()
     call add(l:out, "")
     call add(l:out, "    *" . l:group[0] . "*")
@@ -624,7 +624,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
-" Note: To test the help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help"! By Questor
+" Note: To test the help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help".
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 

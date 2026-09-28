@@ -3,17 +3,17 @@
 " Note: Under "GrooVim/" and not under "plugin/", where it used to live: Vim
 " sources everything in "~/.vim/plugin" by itself, so the file was being run by
 " the Vim of the system too. GrooVim is reached through the "groovim" command,
-" and what it saves has to stay on its side of that line! By Questor
+" and what it saves has to stay on its side of that line.
 " Note: "g:GrooVim_OptsFile" is defined in the ".vimrc": the file is read there,
 " before any part of GrooVim, so the path has to be known before this one
-" runs! By Questor
+" runs.
 
 " Note: What the screen you are on has changed, so the question at the end can
 " write it all down if you say to keep it.
 "
 " Note: The options are applied as you answer, one by one, and only WRITTEN at
 " the end -- so leaving a screen with "Ctrl-C" changes the session and nothing
-" on disk! By Questor
+" on disk.
 let g:GrooVim_OptsPending = []
 
 func! GrooVim_OptsBegin() abort
@@ -24,7 +24,7 @@ endfunc
 "
 " Note: The keeping was written in 2014, in the third argument of
 " "GrooVim_OptsUpdate", and never called from anywhere -- which is why it had a
-" defect in each of its three situations. Now it has a way in! By Questor
+" defect in each of its three situations. Now it has a way in.
 func! GrooVim_OptsEnd() abort
 
   let l:answer = GrooVim_GetOptions("Just [a]apply or [s]apply and save", ["a", "s"], "a", "")
@@ -40,7 +40,7 @@ func! GrooVim_OptsEnd() abort
 
 endfunc
 
-" Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist! By Questor
+" Note: Updates an option if it already exists or insert it if not. It also creates the configuration file if it does not exist.
 let g:optsTemp = []
 func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 
@@ -50,7 +50,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 
   if a:persistently == 0
 
-    " Note: To update temporary options when necessary! By Questor
+    " Note: To update temporary options when necessary.
     for l:value in g:optsTemp
       if l:value =~ a:valueToSearch
         call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
@@ -75,7 +75,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
   else
 
     " Note: Starts empty. Without this, a first save -- with the file not there
-    " yet -- died on the "for" below with an "E121"! By Questor
+    " yet -- died on the "for" below with an "E121".
     let l:CoolAndVimOptsArrayOriginal = []
     if filereadable(g:GrooVim_OptsFile)
       let l:CoolAndVimOptsArrayOriginal = readfile(g:GrooVim_OptsFile)
@@ -87,7 +87,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
         call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
         let l:thisOptionDoesNotExistInTheConfiguration = 0
         " Note: Just the new value. Gluing the search in front of it produced
-        " "let g:x =let g:x = 1", which is an "E121" every time! By Questor
+        " "let g:x =let g:x = 1", which is an "E121" every time.
         exec a:valueToReplace
       else
         call add(l:CoolAndVimOptsArrayUpdated, l:value)
@@ -97,7 +97,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
     if l:thisOptionDoesNotExistInTheConfiguration == 1
       " Note: The option that was ASKED for, and not "l:value", which is whatever
       " the loop above happened to stop on -- an option that was not in the file
-      " yet ended up duplicating the last line instead of being added! By Questor
+      " yet ended up duplicating the last line instead of being added.
       call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
     endif
 
@@ -108,7 +108,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 
 endfunc
 
-" Note: Configures the search and/or replace depending on the parameters passed! By Questor
+" Note: Configures the search and/or replace depending on the parameters passed.
 " Note: The one door into the settings. It asks WHICH of them and then opens
 " that screen, which is what a conventional editor does: one "Settings", and the
 " topics inside it.
@@ -119,16 +119,16 @@ endfunc
 "
 " Note: Written without naming those keys, because a case reads every "FX->x" in
 " the source and refuses one that no longer exists -- which is exactly what they
-" no longer do! By Questor
+" no longer do.
 func! GrooVim_Configure() range abort
 
   " Note: No default and no value in force, so no answer is assumed: an empty one
   " is not valid and the question simply asks again, which is what every other
-  " question of GrooVim does when there is nothing to fall back on! By Questor
+  " question of GrooVim does when there is nothing to fall back on.
   " Note: One line, question and options together. It was split into a message
   " and a short prompt for a while, and the message DISAPPEARED: the screen that
   " opens next redraws, and a message does not survive that -- the text of a
-  " prompt does, because Vim leaves it on the line it was answered on! By Questor
+  " prompt does, because Vim leaves it on the line it was answered on.
   let l:which = GrooVim_GetOptions(
    \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral",
    \ ["i", "v", "f", "s", "r", "g"], "", "")
@@ -153,7 +153,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
 
   " Note: No header line here. The bar already says "[configuration] [search]" or
   " "[configuration] [replace]", and what an empty answer does is written in the
-  " help (F9), so a line repeating it would only crowd the screen! By Questor
+  " help (F9), so a line repeating it would only crowd the screen.
 
   call GrooVim_OptsBegin()
 
@@ -161,7 +161,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
   " value that was just chosen, and every extra line pushes the command area
-  " around! By Questor
+  " around.
   if g:searchReplace_CaseSensitive == 1
     call GrooVim_OptsUpdate("set ignorecase", "set noignorecase", 0)
   else
@@ -184,7 +184,7 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
   elseif a:typeOfConfig == "search"
     let g:search_Direction = GrooVim_GetOptions("Search [f]forward/[b]backward", ["f","b"], "f", g:search_Direction)
     call GrooVim_OptsUpdate("let g:search_Direction =", "let g:search_Direction = \"" . g:search_Direction . "\"", 0)
-    " Note: Needed to reverse the search! By Questor
+    " Note: Needed to reverse the search.
     if g:search_Direction == "b"
       let g:grooVimSearchFoward = 0
     elseif g:search_Direction == "f"
@@ -200,12 +200,12 @@ endfunc
 
 " Note: The settings that are not about searching or replacing. The screen is the
 " same shape as the other two: the questions come one after another, and the last
-" one asks whether to keep what you chose! By Questor
+" one asks whether to keep what you chose.
 " Note: The "Tab Settings" of Notepad++, as a screen of GrooVim.
 "
 " Note: A width here is THREE options of Vim at once -- "tabstop", "shiftwidth"
 " and "softtabstop" -- and they only mean what you expect while they agree. The
-" question asks ONCE and moves the three together! By Questor
+" question asks ONCE and moves the three together.
 func! GrooVim_ConfigureIndent() range abort
 
   call GrooVim_OptsBegin()
@@ -224,7 +224,7 @@ func! GrooVim_ConfigureIndent() range abort
 
   " Note: The guides are not asked here any more. They are a SYMBOL drawn on the
   " screen, not a rule about what <Tab> does, and Notepad++ puts them where they
-  " belong: View, Show Symbol -- which is the "[v]iew" screen! By Questor
+  " belong: View, Show Symbol -- which is the "[v]iew" screen.
 
   call GrooVim_OptsEnd()
 
@@ -273,7 +273,7 @@ endfunc
 " Note: This screen does NOT end with "apply or save", and it is the only one.
 " What it sets belongs to the document and not to GrooVim -- keeping "utf-16"
 " for the next time you open the editor would be keeping the wrong thing. So the
-" summary is held by a pause of its own! By Questor
+" summary is held by a pause of its own.
 func! GrooVim_ConfigureFile() range abort
 
   " Note: ONE question for the encoding, over three lines, because the two
@@ -297,7 +297,7 @@ func! GrooVim_ConfigureFile() range abort
 
   " Note: Empty is the answer that changes nothing, and it is the default, so
   " pressing <Enter> through a screen leaves it as it found it -- which is what
-  " pressing <Enter> through a screen ought to do! By Questor
+  " pressing <Enter> through a screen ought to do.
   let l:encoding = GrooVim_AskUntilValid(
    \ "Answer the 1 and 2 together or empty to do nothing " .
    \ GrooVim_OptionsToPrompt(["[12]", "<empty>"], "<empty>", ""),
@@ -305,7 +305,7 @@ func! GrooVim_ConfigureFile() range abort
   echomsg "   "
 
   " Note: An empty answer means "leave THIS alone", not "leave the screen". The
-  " line ending is another question and gets asked either way! By Questor
+  " line ending is another question and gets asked either way.
   call GrooVim_ScreenSay("Convert line ending: [u]nix LF, [w]indows CRLF, " .
    \ "[m]acintosh CR, empty does nothing")
   let l:lineEnding = GrooVim_AskUntilValid(
@@ -322,10 +322,10 @@ endfunc
 
 " Note: An encoding answer is two letters -- one of the encodings and then "r"
 " or "c" -- or empty, which leaves the encoding as it is. Nothing else: a single
-" letter is half an answer, and there is no way to tell WHICH half! By Questor
+" letter is half an answer, and there is no way to tell WHICH half.
 " Note: Empty leaves the language alone, "none" takes it off -- the "None (Normal
 " Text)" of that menu -- and anything else has to be a file type this Vim knows.
-" Asked of Vim itself, so the answer is right by construction! By Questor
+" Asked of Vim itself, so the answer is right by construction.
 func! GrooVim_IsLanguageAnswer(answer) abort
   if a:answer ==# "" || a:answer ==# "none"
     return 1
@@ -346,11 +346,11 @@ func! GrooVim_IsEncodingAnswer(answer) abort
 endfunc
 
 " Note: Apart from the asking, so that a case can put it through every
-" combination without typing an answer! By Questor
+" combination without typing an answer.
 func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
 
   " Note: Either may be EMPTY, which means "leave THIS one alone". Both empty is
-  " a screen you pressed <Enter> through, and nothing happens! By Questor
+  " a screen you pressed <Enter> through, and nothing happens.
   let l:doEncoding = a:encoding !=# ""
   let l:doLineEnding = a:lineEnding !=# ""
 
@@ -366,10 +366,10 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
 
   " Note: Reading again is about the ENCODING, so with none chosen there is
   " nothing to read again for: what is left is the line ending, and that is a
-  " conversion! By Questor
+  " conversion.
   if l:doEncoding && a:how ==# "r"
     " Note: Reading again throws away what is not written yet, so it is refused
-    " while there is something to lose! By Questor
+    " while there is something to lose.
     if &modified
       call GrooVim_GrooVimBarMsg("Save first: reading again would lose your changes!", 6)
       return 0
@@ -395,7 +395,7 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
 
   " Note: Marked as changed on purpose. Vim writes the new encoding at the next
   " write and not before, so a buffer that says it has nothing to write would
-  " leave the setting looking applied and the file untouched! By Questor
+  " leave the setting looking applied and the file untouched.
   setlocal modified
 
   call GrooVim_GrooVimBarMsg("Will be written as " . l:said . " -- save to apply!", 6)
@@ -409,7 +409,7 @@ endfunc
 " Note: This is why the language is asked on the VIEW screen and not on the file
 " one: nothing here is ever written to the disk. The encoding and the line
 " ending change the bytes in the file; a language changes how the same bytes are
-" READ -- which is also why choosing one leaves a clean buffer clean! By Questor
+" READ -- which is also why choosing one leaves a clean buffer clean.
 func! GrooVim_LanguageApply(language) abort
   if a:language ==# ""
     return
@@ -419,7 +419,7 @@ endfunc
 
 " Note: What Notepad++ calls View, Show Symbol: what is DRAWN on the screen that
 " is not in the file. Two things for now, the two that menu has checked in the
-" screenshot this came from! By Questor
+" screenshot this came from.
 func! GrooVim_ConfigureView() range abort
 
   call GrooVim_OptsBegin()
@@ -432,7 +432,7 @@ func! GrooVim_ConfigureView() range abort
 
   " Note: On or off, and not the char itself: the char is what an EMPTY answer
   " would be, and empty already means "keep what is there" in every question of
-  " GrooVim. Set "g:GrooVim_IndentGuideChar" by hand for another char! By Questor
+  " GrooVim. Set "g:GrooVim_IndentGuideChar" by hand for another char.
   let l:guides = GrooVim_GetOptions("Show indent guide",
    \ [0,1], 1, g:GrooVim_IndentGuideChar != "" ? 1 : 0)
   if l:guides == 0
@@ -450,7 +450,7 @@ func! GrooVim_ConfigureView() range abort
 
   call GrooVim_SymbolsSet()
 
-  " Note: The "Word wrap" of the View menu of Notepad++! By Questor
+  " Note: The "Word wrap" of the View menu of Notepad++.
   let l:wrap = GrooVim_GetOptions("Word wrap", [0,1], 0, g:GrooVim_WordWrap)
   let g:GrooVim_WordWrap = l:wrap
   call GrooVim_OptsUpdate("let g:GrooVim_WordWrap =",
@@ -460,7 +460,7 @@ func! GrooVim_ConfigureView() range abort
   " Note: The question that keeps comes HERE, in the middle, and it closes the
   " block it belongs to: the two answers above are preferences of the editor and
   " can be kept, and what follows it cannot. Asked at the end instead, it read as
-  " if it were offering to keep all three! By Questor
+  " if it were offering to keep all three.
   call GrooVim_OptsEnd()
 
   " Note: The Language menu of Notepad++, which in Vim is the "filetype". It is
@@ -474,7 +474,7 @@ func! GrooVim_ConfigureView() range abort
   " open GrooVim would put every file you open into python.
   "
   " Note: GrooVim keeps no list of its own. <Tab> completes among the ones this
-  " Vim ships, which is the only list that can ever be right! By Questor
+  " Vim ships, which is the only list that can ever be right.
   call GrooVim_ScreenSay("Set language: <Tab> completes, \"none\" for plain " .
    \ "text, empty does nothing")
   let l:language = GrooVim_AskUntilValid(
@@ -512,23 +512,23 @@ func! GrooVim_ConfigureGeneral() range abort
   " Note: The gap is closed -- see "GrooVim_ClipAssumed" in the "behaviour" part,
   " which keeps the file whenever the method is one that cannot be confirmed. On
   " goes back to being never worse than off, and a question nobody can answer
-  " wrongly is a question not worth asking! By Questor
+  " wrongly is a question not worth asking.
 
   call GrooVim_OptsEnd()
 
 endfunc
 
-" Note: Get and validate a givem option! By Questor
+" Note: Get and validate a givem option.
 " Note: Asks until the answer passes the test, ALWAYS with the same question.
 " Repeating the very same line is what tells you the answer did not take, and it
 " is how every question of GrooVim behaves.
 "
 " Note: "IsValid" takes the answer and says whether it serves. A closure carries
-" whatever else the test needs! By Questor
+" whatever else the test needs.
 " Note: A third argument turns on the completion of Vim, by name -- "filetype",
 " "file", "buffer" and the rest of ":help command-completion". It is what lets
 " the language question offer the 831 file types this Vim knows without GrooVim
-" holding a list of its own! By Questor
+" holding a list of its own.
 " Note: The mark of a SECTION. It goes on the first line of one and on nothing
 " else, so that a screen of several questions reads as several -- a block of
 " three lines carries it once, and a question that is a block on its own carries
@@ -536,17 +536,17 @@ endfunc
 "
 " Note: Written in ONE place and put on by the two functions below, never typed
 " into a string at a call site. That is what keeps every screen of GrooVim
-" marked the same way! By Questor
+" marked the same way.
 let g:GrooVim_ScreenMark = "> "
 
 " Note: A section that opens with something to READ -- the lines under it are
-" plain messages and carry no mark! By Questor
+" plain messages and carry no mark.
 func! GrooVim_ScreenSay(text) abort
   echomsg g:GrooVim_ScreenMark . a:text
 endfunc
 
 " Note: A section that opens with something to ANSWER, which is most of them:
-" one question, one section! By Questor
+" one question, one section.
 func! GrooVim_ScreenAsk(prompt, IsValid, ...) abort
   return call("GrooVim_AskUntilValid",
    \ [g:GrooVim_ScreenMark . a:prompt, a:IsValid] + a:000)
@@ -581,7 +581,7 @@ endfunc
 " answer -- convert it now? What it means is the value the option is on! By
 " Questor
 " Note: The prompt of a question whose answer is a NUMBER and not one of a list.
-" Same shape as the one above, so the screens read alike! By Questor
+" Same shape as the one above, so the screens read alike.
 func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
@@ -595,7 +595,7 @@ endfunc
 " Note: Asks for a number the way "GrooVim_GetOptions" asks for an option: empty
 " keeps what is in force, anything that is not a width asks again, and the
 " message at the end is what makes the answers STACK into a summary -- see the
-" long note in "GrooVim_GetOptions"! By Questor
+" long note in "GrooVim_GetOptions".
 func! GrooVim_GetNumber(question, factoryDefault, currentValue) abort
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
@@ -627,7 +627,7 @@ endfunc
 " [1]filename and path" made the reader carry an arbitrary pairing in their head
 " for as long as the question was on screen, and there is nothing about a 0 that
 " means "filename". A 0 and a 1 mean something on their own -- no and yes -- and
-" that is the only thing they should ever be asked to mean! By Questor
+" that is the only thing they should ever be asked to mean.
 func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue) abort
 
   let l:inForce = ("" . a:currentValue . "") != "" ? a:currentValue : a:factoryDefault
@@ -654,10 +654,10 @@ func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue
   "
   " Note: Spaces and nothing else. What was answered is already on the line,
   " printed by "input()" itself, so there is nothing to add: this exists only to
-  " BE a message. An empty string would not do, the line would be erased! By Questor
+  " BE a message. An empty string would not do, the line would be erased.
   "
   " Note: And being here, inside the asker itself, every question of GrooVim gets
-  " this for free, with no per-option sentence to write! By Questor
+  " this for free, with no per-option sentence to write.
   echomsg "   "
 
   return l:optionReturn
@@ -665,7 +665,7 @@ endfunc
 
 " Note: The bracket part of the prompt: the options, which of them is the factory
 " default, and the value in force. In list order, so what you see follows what the
-" caller declared! By Questor
+" caller declared.
 func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue) abort
 
   let l:parts = []
@@ -689,7 +689,7 @@ endfunc
 " last/first line, or a whole number above zero.
 "
 " Note: The digits are checked with a pattern and not with "str2nr()". Vim reads
-" "3abc" as 3, so the old test took it for a valid three! By Questor
+" "3abc" as 3, so the old test took it for a valid three.
 func! GrooVim_IsRepetitionCount(answer) abort
   if a:answer ==# "x"
     return 1
@@ -700,24 +700,24 @@ endfunc
 " Note: A whole number above zero, and nothing else.
 "
 " Note: Checked with a pattern and not with "str2nr()". Vim reads "3abc" as 3, so
-" a test made of "str2nr()" alone takes it for a valid three! By Questor
+" a test made of "str2nr()" alone takes it for a valid three.
 func! GrooVim_IsPositiveNumber(answer) abort
   return a:answer =~ '^\d\+$' && str2nr(a:answer) > 0
 endfunc
 
-" Note: Check if a given option is valid! By Questor
+" Note: Check if a given option is valid.
 func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) abort
 
   " Note: An empty answer means "keep what is in force", so it is valid exactly
   " when there IS something in force. Checked BEFORE the loop: it never depended
   " on the options, and inside the loop it also made an EMPTY list of options
-  " reject an empty answer for ever, with no way out of the question! By Questor
+  " reject an empty answer for ever, with no way out of the question.
   if a:optionNow == ""
     return ("" . a:defaultOption . "") != ""
   endif
 
   for l:value in a:possibleOptions
-    " Note: "("" . l:value . "")" -> To force string compare! By Questor
+    " Note: "("" . l:value . "")" -> To force string compare.
     if ("" . l:value . "") == a:optionNow
       return 1
     endif
@@ -727,7 +727,7 @@ func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) abort
 endfunc
 
 " Note: Highlight matches when jumping to next! This rewires n and N to do
-" the highlighing the match in red! By Questor
+" the highlighing the match in red.
 nnoremap <silent> <expr> n ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'n' : 'N') : (g:grooVimSearchFoward ? 'N' : 'n')) . ":call GrooVim_HLNext(\"f\", 0.4, \"1\", 1)<cr>"
 nnoremap <silent> <expr> N ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'N' : 'n') : (g:grooVimSearchFoward ? 'n' : 'N')) . ":call GrooVim_HLNext(\"b\", 0.4, \"0\", 1)<cr>"
 

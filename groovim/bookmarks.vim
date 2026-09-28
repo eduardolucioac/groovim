@@ -19,20 +19,20 @@
 " Note: What was left behind on purpose: the integration with Unite and with
 " CtrlP, the aliases of commands renamed years ago, saving per working directory,
 " and moving a mark up and down a file. What came: marking, the note, walking,
-" the list, clearing, and what is kept on disk! By Questor
+" the list, clearing, and what is kept on disk.
 
 " Note: Where the marks live, in memory. One entry per marked line:
 "
 "   g:GrooVim_Bookmarks["/path/file"] = [{"line": 12, "note": "", "text": "x = 1", "id": 9501}]
 "
 " Note: The "id" is of the SIGN, and it is good only while the buffer is loaded.
-" Everything else is what goes to disk! By Questor
+" Everything else is what goes to disk.
 let g:GrooVim_Bookmarks = get(g:, "GrooVim_Bookmarks", {})
 
 " Note: A group of our own. It is the whole reason this is written here and not
 " taken from the plugin: signs of a group are addressed by buffer and by group,
 " so ours are never confused with the signs of anybody else -- a linter, a
-" debugger, a diff -- and never taken down with them! By Questor
+" debugger, a diff -- and never taken down with them.
 let s:group = "GrooVim_Bookmarks"
 
 let g:GrooVim_BookmarkSign = get(g:, "GrooVim_BookmarkSign", "⚑")
@@ -41,17 +41,17 @@ let g:GrooVim_BookmarkNoteSign = get(g:, "GrooVim_BookmarkNoteSign", "i")
 " Note: Every sign has to be ONE cell wide. The margin is two cells and Vim puts
 " a space after the sign, so a sign of two cells leaves the text of that one line
 " shifted against every other line of the file. Measured on the sign the plugin
-" ships, "☰": "strwidth" says 2 against 1 for the flag! By Questor
+" ships, "☰": "strwidth" says 2 against 1 for the flag.
 func! GrooVim_BookmarksDefine() abort
   " Note: The flag of a plain mark keeps the colour it had. The one of a line
   " with something written on it is YELLOW and says "i": it is another thing to
-  " find at a glance, not the same thing in another shade! By Questor
+  " find at a glance, not the same thing in another shade.
   highlight default link GrooVim_BookmarkSignHl Identifier
   highlight GrooVim_BookmarkNoteSignHl ctermfg=yellow guifg=yellow ctermbg=NONE guibg=NONE
 
   " Note: And the balloon that shows what is written, in the same yellow: dark
   " letters on it, because a balloon is a piece of paper laid over the text and
-  " not a hole in it! By Questor
+  " not a hole in it.
   highlight GrooVim_BookmarkNotePopup ctermfg=black ctermbg=yellow guifg=#232629 guibg=#f6d32d
   call sign_define("GrooVim_Bookmark",
    \ {"text": strwidth(g:GrooVim_BookmarkSign) == 1 ? g:GrooVim_BookmarkSign : ">",
@@ -70,7 +70,7 @@ endfunc
 " asking for the name was not enough: measured, a mark landed on line 1 of the
 " list of marks itself, and the next time the list was built that line came back
 " as a mark, with the heading of the list as its text. What tells them apart is
-" "buftype", which is empty only for a real file! By Questor
+" "buftype", which is empty only for a real file.
 func! GrooVim_BookmarksFileHere() abort
   if &buftype !=# ""
     return ""
@@ -78,7 +78,7 @@ func! GrooVim_BookmarksFileHere() abort
   return expand("%:p")
 endfunc
 
-" Note: Where the marks of a file are kept, made on first use! By Questor
+" Note: Where the marks of a file are kept, made on first use.
 func! GrooVim_BookmarksOf(file) abort
   if !has_key(g:GrooVim_Bookmarks, a:file)
     let g:GrooVim_Bookmarks[a:file] = []
@@ -93,7 +93,7 @@ endfunc
 " marks -- to walk them, to list them, to write them down -- the numbers are read
 " back from the signs of the buffer, when there IS a buffer. A file nobody has
 " opened keeps the numbers it was saved with, which is all anybody knows about
-" it! By Questor
+" it.
 func! GrooVim_BookmarksRefresh(file) abort
 
   let l:buffer = bufnr(a:file)
@@ -121,7 +121,7 @@ func! GrooVim_BookmarksRefresh(file) abort
 
 endfunc
 
-" Note: The mark of a line, or nothing! By Questor
+" Note: The mark of a line, or nothing.
 func! GrooVim_BookmarkAt(file, line) abort
   for l:one in GrooVim_BookmarksOf(a:file)
     if l:one.line == a:line
@@ -167,7 +167,7 @@ func! GrooVim_BookmarksPlace() abort
   endfor
 endfunc
 
-" Note: Marks the line the cursor is on, or takes the mark off it! By Questor
+" Note: Marks the line the cursor is on, or takes the mark off it.
 func! GrooVim_BookmarkToggle() abort
 
   let l:file = GrooVim_BookmarksFileHere()
@@ -224,7 +224,7 @@ func! GrooVim_BookmarkAnnotate() abort
   " is one of a few, and a note is whatever you want to write. What it does bring
   " is the mark that opens every section of GrooVim, and that is taken from the
   " same place it takes it from. The note that is there comes written in the
-  " answer, which is the second argument of "input()"! By Questor
+  " answer, which is the second argument of "input()".
   let l:note = input(g:GrooVim_ScreenMark . "Note: ", l:one.note)
   echomsg "   "
 
@@ -237,7 +237,7 @@ func! GrooVim_BookmarkAnnotate() abort
 endfunc
 
 " Note: Walks to the next marked line, or to the one before, going round the ends
-" of the file the way a search does! By Questor
+" of the file the way a search does.
 func! GrooVim_BookmarkWalk(forward) abort
 
   let l:file = GrooVim_BookmarksFileHere()
@@ -271,12 +271,12 @@ endfunc
 " Note: It was a quickfix window before, which is what Vim offers and what that
 " plugin used. A quickfix window writes on its bar the COMMAND that filled it,
 " knows nothing about separating one file from another, and does not put a mark
-" on the line you came from! By Questor
+" on the line you came from.
 let s:panel = "GrooVim_BookmarksList"
 
 " Note: Whether the list is up. It is asked for once and then belongs to every
 " tab, so it cannot be "is there a window here" -- a tab that has never seen it
-" has to know to get one! By Questor
+" has to know to get one.
 let g:GrooVim_BookmarkListOpen = 0
 
 " Note: Up while the list is being brought into line across the tabs. The pass
@@ -285,7 +285,7 @@ let g:GrooVim_BookmarkListOpen = 0
 " timer that runs later and undoes what the pass had just settled. Measured: the
 " cursor was put into the list as asked and then taken out of it a moment later
 " by a sync nobody had asked for. The occurrence list carries a flag of its own
-" for the same reason! By Questor
+" for the same reason.
 let s:syncing = 0
 let s:lines = ""
 let s:nav = []
@@ -293,7 +293,7 @@ let s:nav = []
 " Note: One line of the list, and its entry in the navigation array beside it.
 " An entry is "line,path" and a "0" is a line you cannot jump from -- a
 " separator, the name of a file. Read from the ENDS, because a path is allowed
-" to carry a comma of its own! By Questor
+" to carry a comma of its own.
 func! GrooVim_BookmarkPanelLine(number, text, path) abort
   if a:number > 0
     let l:prefix = "|" . a:number . "|        "
@@ -307,7 +307,7 @@ endfunc
 
 " Note: What a marked line shows: the text of the line, and what is written on it
 " after it. A line with a note is still a line, and hiding it behind the note
-" leaves you reading a note with no idea where it is! By Questor
+" leaves you reading a note with no idea where it is.
 func! GrooVim_BookmarkPanelText(one) abort
   let l:text = a:one.text ==# "" ? "empty line" : a:one.text
   return a:one.note ==# "" ? l:text : l:text . " [i: " . a:one.note . "]"
@@ -342,7 +342,7 @@ endfunc
 
 " Note: "Bookmarks (N marks in M files)", the way the bar of the occurrence list
 " says "Search ... (N hits in M files ...)". Everything comes from the navigation
-" array that was already built! By Questor
+" array that was already built.
 func! GrooVim_BookmarkPanelBar() abort
   let l:marks = 0
   let l:files = {}
@@ -361,12 +361,12 @@ func! GrooVim_BookmarkPanelSetup() abort
   " Note: Green, which is the colour of this list -- the heading and the rules
   " both, so that the one above the file name and the one below it read as the
   " same thing. The list of the search is yellow, and that is the whole of
-  " telling one from the other at a glance! By Questor
+  " telling one from the other at a glance.
   call GrooVim_PanelSetup("Bookmark", "Comment")
 
   " Note: And the one colour this panel has that the other does not: what is
   " WRITTEN on a line. The same yellow as the "i" drawn in the margin, so that
-  " the two are plainly the same thing said in two places! By Questor
+  " the two are plainly the same thing said in two places.
   syntax match GrooVimPanelNote "\[i: .*\]$"
   highlight default link GrooVimPanelNote GrooVim_BookmarkNoteSignHl
 
@@ -377,7 +377,7 @@ func! GrooVim_BookmarkPanelSetup() abort
   " Note: And "Del" takes the mark of the line you are on off, which is what the
   " key means in a list everywhere else. On the file itself the key that marks
   " is the key that unmarks -- |F4->b| -- and here there is no file under the
-  " cursor to press it on! By Questor
+  " cursor to press it on.
   nnoremap <buffer> <silent> <Del> :call GrooVim_BookmarkListDelete()<cr>
 endfunc
 
@@ -387,7 +387,7 @@ endfunc
 " hunting for another one to close it. Asked for again it was FILLING the list it
 " had already built, which is work nobody asked for and which spoke: "4 fewer
 " lines", "5 more lines", "--No lines in buffer--" over the bar, from the very
-" commands that empty and fill the buffer! By Questor
+" commands that empty and fill the buffer.
 func! GrooVim_BookmarkList() abort
 
   " Note: Open -> closed, and in EVERY tab, not only the one you are on. It is a
@@ -395,7 +395,7 @@ func! GrooVim_BookmarkList() abort
   " document you are looking at, and the occurrence list of F3 does the same.
   "
   " Note: The cursor goes back to a window with a file in it instead of being
-  " left wherever the closing happened to leave it! By Questor
+  " left wherever the closing happened to leave it.
   if g:GrooVim_BookmarkListOpen
     let g:GrooVim_BookmarkListOpen = 0
     call GrooVim_BookmarkListEverywhere()
@@ -421,7 +421,7 @@ func! GrooVim_BookmarkList() abort
 endfunc
 
 " Note: The pass over every tab, with the flag up so that entering each of them
-" does not ask for the pass again! By Questor
+" does not ask for the pass again.
 func! GrooVim_BookmarkListEverywhere() abort
   let s:syncing = 1
   try
@@ -436,7 +436,7 @@ endfunc
 "
 " Note: Only the tab you are on. The others are brought into line when you reach
 " them, which is what the sync is for -- and walking every tab at every mark
-" would be a lot of work for a list nobody is looking at! By Questor
+" would be a lot of work for a list nobody is looking at.
 func! GrooVim_BookmarkListRefresh() abort
   if !g:GrooVim_BookmarkListOpen
     return
@@ -456,7 +456,7 @@ endfunc
 " Note: One buffer PER TAB, named for it. One buffer shared by every tab would
 " show the arrow of the tab you jumped from in all of them, and closing the last
 " window of it would wipe what the others were showing -- which is why the
-" occurrence list names its own the same way! By Questor
+" occurrence list names its own the same way.
 func! GrooVim_BookmarkListSync() abort
 
   " Note: Whatever this does, it leaves you where it found you.
@@ -466,7 +466,7 @@ func! GrooVim_BookmarkListSync() abort
   " entering a tab fires it, and so does the "tabdo" that brings every tab into
   " line. Measured: a mark was put on line 1 of the list itself, because the
   " timer had run during the wait for the second key of the shortcut and left the
-  " cursor in the list while the key was still on its way! By Questor
+  " cursor in the list while the key was still on its way.
   let l:back = win_getid()
   try
     call GrooVim_BookmarkListSyncHere()
@@ -486,7 +486,7 @@ func! GrooVim_BookmarkListSyncHere() abort
     if l:here
       " Note: "silent!" because closing the LAST window of a tab is refused, and
       " being refused is the right answer there: a tab with nothing but this list
-      " in it keeps it! By Questor
+      " in it keeps it.
       silent! close
     endif
     return
@@ -511,7 +511,7 @@ endfunc
 "
 " Note: Through a timer for the reason the occurrence list uses one: "tabnew
 " {file}" fires "TabEnter" BEFORE the file is loaded, and building the list right
-" there puts it in a window the file then lands on top of! By Questor
+" there puts it in a window the file then lands on top of.
 func! GrooVim_BookmarkListOnTab(timer) abort
   if g:GrooVim_BookmarkListOpen && !s:syncing
     call GrooVim_BookmarkListSync()
@@ -520,10 +520,10 @@ endfunc
 
 " Note: "norm!" and not "norm": inside the panel the keys that edit are mapped to
 " nothing, and without the "!" this would run through them and do nothing at
-" all! By Questor
+" all.
 " Note: "silent" because emptying a buffer and filling it again SPEAKS -- "4
 " fewer lines", "5 more lines", and "--No lines in buffer--" when it was already
-" empty. None of that is news to anybody reading a list of marks! By Questor
+" empty. None of that is news to anybody reading a list of marks.
 func! GrooVim_BookmarkPanelFill() abort
   setlocal ma
   silent! exec "norm! ggdG"
@@ -537,7 +537,7 @@ endfunc
 "
 " Note: And the list is built again with an "->" on the line you jumped FROM, so
 " that coming back to it you can see where you were. It is what the occurrence
-" list does! By Questor
+" list does.
 func! GrooVim_BookmarkNavigate() abort
 
   let l:at = getpos(".")
@@ -558,7 +558,7 @@ func! GrooVim_BookmarkNavigate() abort
 
   " Note: The file may not be open any more. Notepad++ opens the document again
   " when you click a result of a file that is not open, and this does the same --
-  " above the list, so the list stays where it is! By Questor
+  " above the list, so the list stays where it is.
   if !GrooVim_PanelFocus(l:path, 1)
     if GrooVim_SearchGuyTabHasFile()
       exec "tabnew " . fnameescape(l:path)
@@ -614,7 +614,7 @@ func! GrooVim_BookmarkListDelete() abort
   " tab: that one brings each tab into line with whether the list is OPEN, and
   " what has to happen here is the list being built again from what is left --
   " measured, the mark gone from the file and from the signs while the list in
-  " front of me still showed it! By Questor
+  " front of me still showed it.
   let l:where = line(".")
   call GrooVim_BookmarkListRefresh()
 
@@ -627,7 +627,7 @@ func! GrooVim_BookmarkListDelete() abort
 
 endfunc
 
-" Note: Takes every mark off every file, and asks first! By Questor
+" Note: Takes every mark off every file, and asks first.
 func! GrooVim_BookmarkClearAll() abort
 
   let l:total = 0
@@ -667,7 +667,7 @@ endfunc
 " GrooVim remembers.
 "
 " Note: As JSON, and not as a script to be executed the way that plugin wrote it.
-" A file of state that is SOURCED is a file that can run anything! By Questor
+" A file of state that is SOURCED is a file that can run anything.
 func! GrooVim_BookmarksFile() abort
   return g:GrooVim_State . "/bookmarks"
 endfunc
@@ -678,7 +678,7 @@ func! GrooVim_BookmarksSave() abort
     call GrooVim_BookmarksRefresh(l:file)
     " Note: In the order of the file, and not in the order they were made. A file
     " of state is read by people too, and a list that jumps around is harder to
-    " read than one that goes down the page! By Questor
+    " read than one that goes down the page.
     let l:marks = []
     for l:one in sort(copy(GrooVim_BookmarksOf(l:file)), {a, b -> a.line - b.line})
       call add(l:marks, {"line": l:one.line, "note": l:one.note, "text": l:one.text})
@@ -726,7 +726,7 @@ endfunc
 " marks were FOR, with a sign you can see, a list you can walk and a file that
 " survives closing GrooVim -- and ":mark a" still writes one from the command
 " line. Inside NERDTree the "m" of its own menu is untouched, because a mapping
-" of a BUFFER wins over a global one! By Questor
+" of a BUFFER wins over a global one.
 nnoremap <silent> m :call GrooVim_BookmarkWalk(1)<cr>
 nnoremap <silent> M :call GrooVim_BookmarkWalk(0)<cr>
 
@@ -781,7 +781,7 @@ func! GrooVim_BookmarkNoteShow() abort
   " put in above it, and the line written down here is what the sign says it is
   " -- once it is asked. Without asking, the note came up on the line the mark
   " was on when it was made: measured, a note showing five lines above its own
-  " mark after the lines between them were typed! By Questor
+  " mark after the lines between them were typed.
   call GrooVim_BookmarksRefresh(l:file)
 
   let l:one = GrooVim_BookmarkAt(l:file, line("."))
@@ -799,13 +799,13 @@ endfunc
 
 " Note: The margin is always THERE, and not only when a sign is in it. With
 " "auto" it appears and vanishes with the signs, and the whole text of the file
-" slides two columns sideways when it does! By Questor
+" slides two columns sideways when it does.
 set signcolumn=yes
 
 " Note: The margin is not a grey band either. The colour scheme paints
 " "SignColumn" with a background of its own -- measured, "ctermbg=242" against a
 " text area with none -- so an empty margin was a grey stripe down the side of
-" every file! By Questor
+" every file.
 func! GrooVim_BookmarksColours() abort
   highlight SignColumn ctermbg=NONE guibg=NONE
 endfunc

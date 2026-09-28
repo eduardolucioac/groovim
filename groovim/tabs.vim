@@ -1,15 +1,15 @@
 " Note: The windows that are accessories of a tab and not documents of yours. In
-" one place because more than one thing needs to know it! By Questor
+" one place because more than one thing needs to know it.
 func! GrooVim_IsHelperBuffer(name) abort
   return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "GrooVim_BookmarksList" ||
    \ a:name =~ "NERD_tree_" || a:name =~ "GrooVimHelp"
 endfunc
 
-" Note: Try to ensure that open in an editor window! By Questor
+" Note: Try to ensure that open in an editor window.
 "
 " Note: It walks the windows a bounded number of times. It used to be a "while"
 " that pressed "<C-w>" until it landed on an editor: with nothing but accessories
-" open that day never came and Vim froze! By Questor
+" open that day never came and Vim froze.
 func! GrooVim_PutOnEditWindow() range abort
   for l:window in range(1, winnr("$"))
     if !GrooVim_IsHelperBuffer(expand('%:t'))
@@ -22,7 +22,7 @@ endfunc
 " Note: The default tab label is the buffer of the CURRENT window of the tab, so
 " standing on the occurrences list renamed the tab to "GrooVim_SearchGuyResults1"
 " and your file was no longer findable among many tabs. Here the label is always
-" a document of yours: the accessories are skipped! By Questor
+" a document of yours: the accessories are skipped.
 " Note: A document you have not saved yet shows as "new 1", "new 2"... the way
 " Notepad++ names them, instead of the "[No Name]" of Vim.
 "
@@ -59,7 +59,7 @@ func! GrooVim_NewNameOf(buffer) abort
   " everything LISTED would keep the number of a document you closed and hand you
   " "new 4" right after closing "new 2". A document that was saved has a name of
   " its own now and stops counting too: both give their number back without
-  " anything having to remember to do it! By Questor
+  " anything having to remember to do it.
   let l:taken = {}
   for l:info in getbufinfo({"buflisted": 1})
     if l:info.bufnr == a:buffer || empty(l:info.windows)
@@ -84,14 +84,14 @@ endfunc
 
 " Note: A document of yours that has never been saved -- which is what gets a
 " "new N". Not a file (it has a name), not an accessory of a tab (the occurrence
-" list and the help are not buffers you edit)! By Questor
+" list and the help are not buffers you edit).
 func! GrooVim_IsADocument(buffer) abort
   return bufname(a:buffer) == "" && getbufvar(a:buffer, "&buftype") == ""
    \ && buflisted(a:buffer)
 endfunc
 
 " Note: What the bar calls the file of the window being drawn. It is "%f" plus
-" the "new N" above! By Questor
+" the "new N" above.
 func! GrooVim_FileLabel() abort
   let l:name = GrooVim_NewNameOf(bufnr("%"))
   return l:name != "" ? l:name : expand("%")
@@ -102,7 +102,7 @@ func! GrooVim_TabLabel(tab) abort
   let l:chosen = l:buffers[tabpagewinnr(a:tab) - 1]
 
   " Note: The window you are on comes first, so a tab split between two files
-  " still follows where you are! By Questor
+  " still follows where you are.
   if GrooVim_IsHelperBuffer(bufname(l:chosen))
     let l:chosen = 0
     for l:buffer in l:buffers
@@ -115,7 +115,7 @@ func! GrooVim_TabLabel(tab) abort
 
   " Note: A tab holding nothing but an accessory is named after the accessory --
   " the help is a tab of its own now, and "[GrooVim]" would tell you nothing
-  " about which of your tabs it is! By Questor
+  " about which of your tabs it is.
   if l:chosen == 0
     let l:only = bufname(l:buffers[tabpagewinnr(a:tab) - 1])
     return l:only != "" ? fnamemodify(l:only, ":t") : "[GrooVim]"
@@ -132,13 +132,13 @@ endfunc
 
 " Note: Like the tab line Vim draws by itself, with the same window count and the
 " same "+" for modified, except that only YOUR documents are counted: an
-" accessory is not a window you opened! By Questor
+" accessory is not a window you opened.
 func! GrooVim_TabLine() abort
   let l:line = ""
 
   for l:tab in range(1, tabpagenr("$"))
     let l:line = l:line . (l:tab == tabpagenr() ? "%#TabLineSel#" : "%#TabLine#")
-    " Note: Makes the tab clickable, just like the default one! By Questor
+    " Note: Makes the tab clickable, just like the default one.
     let l:line = l:line . "%" . l:tab . "T"
 
     let l:windows = 0
@@ -162,7 +162,7 @@ endfunc
 
 set tabline=%!GrooVim_TabLine()
 
-" Note: Displays the help for GrooVim. This text is in the own GrooVim body!! By Questor
+" Note: Displays the help for GrooVim. This text is in the own GrooVim body!.
 " Note: Which tab you were reading when you asked for the help, so that asking
 " again puts you back there. A toggle that leaves you somewhere else is not a
 " toggle.
@@ -183,13 +183,13 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " you read it -- and it does not belong on top of the document you opened it
     " to ask about.
     "
-    " Note: At the END of the tab line, where a new tab goes! By Questor
+    " Note: At the END of the tab line, where a new tab goes.
     $tabnew
 
     " Note: "setlocal" and NOT "set" -- see the long note in
     " "GrooVim_SearchGuySync()". This one was the loudest: opening the help
     " locked the global "modifiable", and from then on every new buffer of the
-    " session answered "E21" to anything, a copy included! By Questor
+    " session answered "E21" to anything, a copy included.
     setlocal ma
     silent exec "file GrooVimHelp"
     exec "put =g:GrooVimHelp"
@@ -201,19 +201,18 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " GrooVim's to fix, and it colours the text correctly all the same.
     "
     " Note: Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
-    " message is read later as a real one, by a human and by the battery alike!
-    " By Questor
+    " message is read later as a real one, by a human and by the battery alike.
     let l:errmsgWas = v:errmsg
     silent! setlocal syntax=help
     let v:errmsg = l:errmsgWas
     let &l:statusline = "%!GrooVim_GrooVimHelpBar()"
     " Note: The help was WRITTEN into, so Vim marks it changed and the bar shows
-    " a "+" on a buffer nobody can change! By Questor
+    " a "+" on a buffer nobody can change.
     setlocal noma nomodified
   else
     " Note: Wiping the buffer takes its tab with it, there being nothing else in
     " that tab. And wiping and not closing, so that "bufexists()" above answers
-    " honestly the next time! By Questor
+    " honestly the next time.
     exec "bwipeout! GrooVimHelp"
 
     if s:helpCameFrom > 0 && s:helpCameFrom <= tabpagenr("$")
@@ -224,7 +223,7 @@ func! GrooVim_ToogleGrooVimHelp() range abort
 
 endfunc
 
-" Note: Get current filename or filename and path and put on transfer area! By Questor
+" Note: Get current filename or filename and path and put on transfer area.
 func! GrooVim_GetFileNameAndPath() range abort
 
   let l:filenameOrFilenameAndPath = ""
@@ -239,7 +238,7 @@ func! GrooVim_GetFileNameAndPath() range abort
     echomsg " -> Filename and path \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
   endif
 
-  " Note: Set the clipboard register! By Questor
+  " Note: Set the clipboard register.
   call GrooVim_ClipSet(l:filenameOrFilenameAndPath)
 
 endfunc

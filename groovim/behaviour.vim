@@ -1,43 +1,36 @@
 " Note: "Esc" answers AT ONCE.
 "
-" Note: A terminal sends an arrow or an F key as a run of bytes that begins with
-" the very same "Esc", so Vim waits to see whether more is coming -- and with no
+" A terminal sends an arrow or an F key as a run of bytes that begins with the
+" very same "Esc", so Vim waits to see whether more is coming -- and with no
 " "ttimeoutlen" set it waits "timeoutlen", a whole second. Pressing Esc showed
 " "^[" in the corner and nothing happened until the second was up. This is the
 " wait for the REST OF A KEY, which a keyboard sends in one go; it is not the
 " wait for the second key of a shortcut, which is a hand travelling and has its
 " own patience in "g:GrooVim_CommandZWait".
 "
-" Note: This wait is also how long the cursor sits in the WRONG column every
-" time you leave insert mode. Vim steps one column left on the way out, paints
-" it, and only when the wait is over does it finish the key and run what GrooVim
-" hangs on "InsertLeave", which puts the column back. Measured in the bytes Vim
-" writes to the terminal: the cursor painted at column 10 at 26ms and at column
-" 11 at 176ms, and the gap is this number exactly -- 50 gives 50ms, 25 gives
-" 25ms. That is the jump to the left and back that can be SEEN on every "Esc",
-" and it is not seen on "Shift+Up", which leaves insert just the same: that one
-" arrives as a whole escape sequence, there is nothing to wait for, and the
-" correction lands in the same paint.
+" This wait is also how long the cursor sits in the WRONG column every time you
+" leave insert mode. Vim steps one column left on the way out, paints it, and
+" only when the wait is over does it finish the key and run what GrooVim hangs
+" on "InsertLeave", which puts the column back.
 "
-" Note: And the other side of the same number, measured by feeding an arrow one
-" byte at a time: the key falls apart when its bytes arrive further apart than
-" this. At 50 it holds to 50ms between bytes and tears at 55; at 150 it held to
-" 150. A keyboard sends the whole run in one go and a link is what can tear it
+" And the other side of the same number, measured by feeding an arrow one byte
+" at a time: the key falls apart when its bytes arrive further apart than this.
+" A keyboard sends the whole run in one go and a link is what can tear it
 " -- and a torn arrow in insert mode does not move the cursor, it TYPES "[B"
 " into the file.
 "
-" Note: 50, which is where those two meet: half the jump of a tenth of a second
+" 50, which is where those two meet: half the jump of a tenth of a second
 " that could be seen, against a tearing that asks for a link so slow that the
 " bytes of ONE key arrive twenty of these apart. If an arrow ever writes letters
-" over a bad line, this is the one number to raise! By Questor
+" over a bad line, this is the one number to raise.
 set ttimeout
 set ttimeoutlen=50
 
 " Note: The "transfer area" (clipboard) is reached through a cascade, so that
 " GrooVim depends on NO external package and works with no graphical session at
-" all (think of a headless server reached by SSH)! By Questor
+" all (think of a headless server reached by SSH).
 "
-"   1. The native clipboard, when Vim was built with a working "+clipboard";
+"   1. The native clipboard, as Vim was built with a working "+clipboard";
 "   2. "OSC 52", an escape sequence that carries the clipboard THROUGH the
 "      terminal itself. It needs no X11, no Wayland and no desktop, it crosses
 "      SSH, and Vim 9.2 already ships the "osc52" package (nothing to install);
@@ -45,8 +38,8 @@ set ttimeoutlen=50
 "      tty with a terminal that speaks nothing;
 "   4. The unnamed register, our last resort.
 
-" Note: There is nothing to configure about OSC 52, and getting to that took a
-" long argument. It is the LAST method of the cascade, so reaching it means
+" There is nothing to configure about OSC 52, and getting to that took a long
+" argument. It is the LAST method of the cascade, so reaching it means
 " Wayland, X11 and every tool have already failed -- and from there every knob
 " could only SUBTRACT:
 "
@@ -54,44 +47,37 @@ set ttimeoutlen=50
 "   asking the terminal leaves "clipmethod=none" whenever it does not answer,
 "                       which is most terminals, so: nothing at all
 "
-" Note: Neither has a case where it leaves anyone better off, so neither is
-" offered. GrooVim assumes OSC 52 and keeps its own copy in a file beside it --
-" see "GrooVim_ClipAssumed"! By Questor
-
-" Note: An OSC 52 PASTE makes Vim block waiting for an answer that many
-" terminals never send (Ctrl-C cancels it). Copy is what we really want here, so
-" paste stays off unless you know your terminal answers! By Questor
+" Neither has a case where it leaves anyone better off, so neither is offered.
+" GrooVim assumes OSC 52 and keeps its own copy in a file beside it -- see
+" "GrooVim_ClipAssumed".
+"
+" An OSC 52 PASTE makes Vim block waiting for an answer that many terminals
+" never send (Ctrl-C cancels it). Copy is what we really want here, so paste
+" stays off unless you know your terminal answers.
 let g:osc52_disable_paste = get(g:, "osc52_disable_paste", 1)
 
 " Note: Should OSC 52 be tried at all? The honest answer is that we cannot know
 " whether this terminal does it, and that asking was the wrong question.
 "
-" Note: This used to be a list of terminals that identify themselves in their own
-" environment -- "$KONSOLE_VERSION", "$VTE_VERSION", "$TERM_PROGRAM" and the
-" rest. A list like that is never finished. VTE alone covers GNOME, XFCE, MATE
-" and Terminator, but COSMIC is not VTE, and whatever is written next will not be
-" there either: every one of them answered "no" by default. And a "no" here is
-" SILENT -- the copy never arrives and nothing on screen says why.
+" The two mistakes are not the same size. Sending the sequence to a terminal
+" that does not know it costs nothing, because an unknown OSC is swallowed. NOT
+" sending it to one that does costs the copy. So the default is to try, and the
+" question is only whether there is a terminal to try on.
 "
-" Note: The two mistakes are not the same size. Sending the sequence to a
-" terminal that does not know it costs nothing, because an unknown OSC is
-" swallowed. NOT sending it to one that does costs the copy. So the default is to
-" try, and the question is only whether there is a terminal to try on.
-"
-" Note: It is also the LAST method: "clipmethod" is "wayland,x11,groovim,osc52",
-" so a machine with a clipboard of its own, or a tool to call, never reaches it.
-" And there is no switch to turn it off, because there was never a situation in
-" which turning it off left anyone better off! By Questor
+" It is also the LAST method: "clipmethod" is "wayland,x11,groovim,osc52", so a
+" machine with a clipboard of its own, or a tool to call, never reaches it. And
+" there is no switch to turn it off, because there was never a situation in
+" which turning it off left anyone better off.
 func! GrooVim_TerminalDoesOSC52() abort
 
-  " Note: Under a GUI there is no terminal for the sequence to reach! By Questor
+  " Note: Under a GUI there is no terminal for the sequence to reach.
   if has("gui_running")
     return 0
   endif
 
   " Note: A terminal that says it can do nothing is taken at its word. Only
   " "dumb" is tested: Vim refuses to set "term" to an empty string at all
-  " ("E529"), so there is no such case to guard against! By Questor
+  " ("E529"), so there is no such case to guard against.
   if &term ==# "dumb"
     return 0
   endif
@@ -103,22 +89,21 @@ endfunc
 " with Vim, and the name is the package's: it reads "force available", which
 " describes the 1 and not the choice. Read it as "do not check".
 "
-" Note: GrooVim sets it to 1, and that is a decision and not a preference,
-" because 0 is unusable here. With 0 the package sends a DA1 query and believes
-" only an answer advertising "52" -- and the terminals that do OSC 52 WITHOUT
-" ever announcing it are most of them, Konsole included. So a Vim that checks
-" concludes there is no support on a terminal where it works perfectly well, and
-" the copy never leaves the machine. Checking, here, is a worse answer than not
-" checking.
+" GrooVim sets it to 1, and that is a decision and not a preference, because 0
+" is unusable here. With 0 the package sends a DA1 query and believes only an
+" answer advertising "52" -- and the terminals that do OSC 52 WITHOUT ever
+" announcing it are most of them, Konsole included. So a Vim that checks
+" concludes there is no support on a terminal where it works perfectly well,
+" and the copy never leaves the machine. Checking, here, is a worse answer than
+" not checking.
 "
-" Note: The query itself, from the package: SendDA1() is called as it starts, and
+" The query itself, from the package: SendDA1() is called as it starts, and
 " inside it is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". The
 " call happens and the sequence is NOT sent while this is 1 -- with our value,
 " Vim never consults the terminal at all.
 "
-" Note: Written here, after the function it calls, and not at the top of the
-" file: a "let" up there would run before that function exists ("E117")! By
-" Questor
+" Written here, after the function it calls, and not at the top of the file: a
+" "let" up there would run before that function exists ("E117").
 let g:osc52_force_avail = get(g:, "osc52_force_avail", GrooVim_TerminalDoesOSC52())
 
 " Note: OSC 52 into the cascade, at the end of it. This was a function for a
@@ -130,8 +115,10 @@ try
   if &clipmethod !~ "osc52"
     set clipmethod+=osc52
   endif
-  " Note: Makes Vim pick a clipmethod again now that the provider exists! By Questor
+
+  " Note: Makes Vim pick a clipmethod again now that the provider exists.
   silent! clipreset
+
 catch
 endtry
 
@@ -142,7 +129,7 @@ endtry
 " remote program could steal your clipboard), so Vim would just block waiting.
 "
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
-" reports itself unavailable and the cascade simply goes on to OSC 52! By Questor
+" reports itself unavailable and the cascade simply goes on to OSC 52.
 let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
       \ {"copy": ["wl-copy", "--type", "text/plain"],
       \  "paste": ["wl-paste", "--no-newline", "--type", "text/plain"]},
@@ -156,19 +143,20 @@ let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
 " for a machine where you cannot (or would rather not) use the package manager.
 " What is found here wins over "$PATH".
 "
+" The first tool that is actually there wins, and a hand placed one comes
+" before the one from "$PATH".
+"
 " GrooVim ships NO binary and never will: a Linux executable is not portable
 " between machines (it is built for one architecture and linked against one
 " libc, and "wl-copy" also needs libwayland-client at run time), so carrying one
 " is your call and your responsibility. Note as well that on a headless server
 " there is no compositor for "wl-copy" to talk to: there the answer is OSC 52,
-" which already crosses SSH by itself! By Questor
+" which already crosses SSH by itself.
 let g:GrooVim_ClipBinDir = get(g:, "GrooVim_ClipBinDir", g:GrooVim_Home . "/bin")
 
-" Note: The first tool that is actually there wins, and a hand placed one comes
-" before the one from "$PATH"! By Questor
 " Note: Jobs are required: see GrooVim_ClipToolCopy() for why a "system()" call
 " would freeze Vim on every copy. Without them we simply do not offer this
-" provider and the cascade goes on to OSC 52! By Questor
+" provider and the cascade goes on to OSC 52.
 func! GrooVim_ClipToolFind() abort
   if !exists("*job_start")
     return {}
@@ -199,7 +187,7 @@ let g:GrooVim_ClipTool = {}
 "
 " Note: So what we wrote is remembered and served until the tool catches up. The
 " window is short and closes as soon as a read agrees with what we wrote, or at
-" the latest after "g:GrooVim_ClipCacheMs"! By Questor
+" the latest after "g:GrooVim_ClipCacheMs".
 let g:GrooVim_ClipCacheMs = get(g:, "GrooVim_ClipCacheMs", 300)
 let g:GrooVim_ClipCache = ""
 let g:GrooVim_ClipCachePending = 0
@@ -208,8 +196,7 @@ func! GrooVim_ClipCacheClear(...) abort
   let g:GrooVim_ClipCachePending = 0
 endfunc
 
-" Note: A trailing line break is what tells a LINEWISE copy from a charwise one!
-" By Questor
+" Note: A trailing line break is what tells a LINEWISE copy from a charwise one.
 func! GrooVim_ClipToText(text) abort
   if a:text =~ "\n$"
     return ["V", split(a:text, "\n", 1)[0:-2]]
@@ -228,7 +215,7 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
 
   let l:text = join(a:lines, "\n")
   " Note: A LINEWISE copy ends with a line break, so other applications receive
-  " whole lines instead of a truncated one! By Questor
+  " whole lines instead of a truncated one.
   if a:type ==# "V"
     let l:text = l:text . "\n"
   endif
@@ -244,10 +231,10 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
   " Note: A job writes the text and walks away. "out_io"/"err_io" as null keep no
   " pipe open, and "stoponexit" empty is what lets the tool outlive Vim: with the
   " default Vim would kill it on exit and your copy would vanish from the
-  " clipboard exactly when you left the editor! By Questor
-  " Note: The command goes as a LIST, so there is no shell and nothing to quote! By Questor
+  " clipboard exactly when you left the editor.
+  " Note: The command goes as a LIST, so there is no shell and nothing to quote.
   " Note: Remembered BEFORE the job starts, so a read that happens in the very
-  " next instruction already finds it! By Questor
+  " next instruction already finds it.
   let g:GrooVim_ClipCache = l:text
   let g:GrooVim_ClipCachePending = 1
   if exists("*timer_start")
@@ -275,7 +262,7 @@ func! GrooVim_ClipToolPaste(reg) abort
   endif
   let l:out = system(g:GrooVim_ClipTool["paste"])
   if v:shell_error != 0
-    " Note: The tool failed, but what we wrote is still the truth! By Questor
+    " Note: The tool failed, but what we wrote is still the truth.
     if g:GrooVim_ClipCachePending
       return GrooVim_ClipToText(g:GrooVim_ClipCache)
     endif
@@ -284,7 +271,7 @@ func! GrooVim_ClipToolPaste(reg) abort
 
   " Note: While our write has not landed, what we wrote is what should be read.
   " Comparing without the trailing line break because the tool may add or strip
-  " one of its own! By Questor
+  " one of its own.
   if g:GrooVim_ClipCachePending
     if substitute(l:out, "\n$", "", "") ==# substitute(g:GrooVim_ClipCache, "\n$", "", "")
       let g:GrooVim_ClipCachePending = 0
@@ -294,11 +281,11 @@ func! GrooVim_ClipToolPaste(reg) abort
   endif
 
   " Note: Returning an empty type would let Vim guess, and it guesses LINEWISE,
-  " which pastes the text on a line of its own instead of where the cursor is! By Questor
+  " which pastes the text on a line of its own instead of where the cursor is.
   return GrooVim_ClipToText(l:out)
 endfunc
 
-" Note: Set to 0 to ignore any installed clipboard tool! By Questor
+" Note: Set to 0 to ignore any installed clipboard tool.
 let g:GrooVim_EnableClipTool = get(g:, "GrooVim_EnableClipTool", 1)
 
 if g:GrooVim_EnableClipTool
@@ -312,7 +299,7 @@ if g:GrooVim_EnableClipTool
           \           "*": function("GrooVim_ClipToolPaste")},
           \ }
     " Note: Placed BEFORE "osc52" (it does both directions) but AFTER the
-    " native methods, which are faster when the Vim build has them! By Questor
+    " native methods, which are faster when the Vim build has them.
     if &clipmethod =~ "osc52"
       let &clipmethod = substitute(&clipmethod, "osc52", "groovim,osc52", "")
     else
@@ -323,16 +310,16 @@ if g:GrooVim_EnableClipTool
 endif
 
 " Note: Where the file based "transfer area" lives. The directory is created
-" with 0700 because a clipboard tends to carry private things! By Questor
+" with 0700 because a clipboard tends to carry private things.
 let g:GrooVim_ClipFile = g:GrooVim_State . "/clipboard"
 
 " Note: Which register answers as clipboard RIGHT NOW. This is not decided once
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
 " the terminal and waits for the answer), so it may only become available after
-" the ".vimrc" was read! By Questor
+" the ".vimrc" was read.
 " Note: Careful: "getreg()" does NOT fail on a Vim with no clipboard, it just
 " warns (W24) and answers empty. Only "setreg()" raises E354. So availability is
-" asked to Vim itself, never probed by writing! By Questor
+" asked to Vim itself, never probed by writing.
 let g:GrooVim_ClipRegCache = ""
 func! GrooVim_ClipReg() abort
   if g:GrooVim_ClipRegCache != ""
@@ -343,7 +330,7 @@ func! GrooVim_ClipReg() abort
   " sends "OSC 52;c" for "+", which is the real clipboard, and "OSC 52;p" for
   " "*", which is the primary selection (the middle click one). Asking
   " has("unnamedplus") here would answer 0 on such a build and quietly send
-  " every copy to the wrong selection! By Questor
+  " every copy to the wrong selection.
   if v:clipmethod != "" && v:clipmethod != "none"
         \ && has_key(v:clipproviders, v:clipmethod)
     let g:GrooVim_ClipRegCache = "+"
@@ -354,12 +341,12 @@ func! GrooVim_ClipReg() abort
   " IGNORED. From the manual of the option: under a GUI, or on a system with
   " neither Wayland nor X11 such as Windows or macOS, "v:clipmethod" is set to
   " "none" while the clipboard itself works perfectly well. The branch above
-  " cannot fire there, and this one is what finds the register! By Questor
+  " cannot fire there, and this one is what finds the register.
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = has("unnamedplus") ? "+" : "*"
     return g:GrooVim_ClipRegCache
   endif
-  " Note: Not cached on purpose, so a provider that shows up later is used! By Questor
+  " Note: Not cached on purpose, so a provider that shows up later is used.
   return "\""
 endfunc
 
@@ -376,7 +363,7 @@ endfunc
 "
 " Note: Through the "z" register and never the unnamed one: with
 " "clipboard=unnamedplus", writing the unnamed register writes "+" as well, which
-" would send an OSC 52 COPY on every paste! By Questor
+" would send an OSC 52 COPY on every paste.
 func! GrooVim_ClipPaste(mode) abort
 
   if !GrooVim_CanChange() | return | endif
@@ -389,7 +376,7 @@ func! GrooVim_ClipPaste(mode) abort
     " terminal and waiting for an answer many never send. What does work is the
     " paste of the terminal itself, which types the text in as if you had.
     " Note: Short on purpose. The first try ran off the bar and only its tail
-    " was left on screen, which is worse than saying less! By Questor
+    " was left on screen, which is worse than saying less.
     if GrooVim_ClipAssumed()
       call GrooVim_GrooVimBarMsg("From outside, use Ctrl-Shift-V!", 6)
     else
@@ -405,13 +392,13 @@ func! GrooVim_ClipPaste(mode) abort
     call setreg("z", l:text)
     if a:mode ==# "v"
       " Note: "gv" because getting here left visual mode, and "_d so that what
-      " is replaced does not land in a register! By Questor
+      " is replaced does not land in a register.
       silent! exec "normal! gv\"_d\"zP`]"
     else
       silent! exec "normal! \"zP`]"
     endif
     " Note: The same "<Right>" the mappings used to end with, and guarded: past
-    " the last column there is nowhere to go! By Questor
+    " the last column there is nowhere to go.
     if col(".") < col("$")
       normal! l
     endif
@@ -421,14 +408,13 @@ func! GrooVim_ClipPaste(mode) abort
 
 endfunc
 
-" Note: Avoids compatibility issues when copying to an external application! By Questor
+" Note: Avoids compatibility issues when copying to an external application.
 "
 " Note: This is what makes a plain "y" reach the clipboard. It must follow
 " GrooVim_ClipReg() and NOT has("clipboard_working"): on a Vim built without
 " "+clipboard" but with the OSC 52 provider active, "clipboard_working" and
 " "unnamedplus" both answer 0, "clipboard" was left empty, and so every yank
-" stopped at the unnamed register and nothing was ever sent to the terminal!
-" By Questor
+" stopped at the unnamed register and nothing was ever sent to the terminal.
 func! GrooVim_ClipSyncOption() abort
   let l:reg = GrooVim_ClipReg()
   try
@@ -441,7 +427,7 @@ func! GrooVim_ClipSyncOption() abort
   endtry
 endfunc
 
-" Note: Re-checks the clipboard once the terminal had time to answer! By Questor
+" Note: Re-checks the clipboard once the terminal had time to answer.
 func! GrooVim_ClipRefresh() abort
   let g:GrooVim_ClipRegCache = ""
   call GrooVim_ClipSyncOption()
@@ -455,7 +441,7 @@ augroup GrooVim_Clipboard
 augroup end
 
 " Note: The file based "transfer area", used when there is no clipboard
-" register at all. It also lets two Vim instances share a copy! By Questor
+" register at all. It also lets two Vim instances share a copy.
 func! GrooVim_ClipFileSet(value) abort
   try
     let l:dir = fnamemodify(g:GrooVim_ClipFile, ":h")
@@ -464,7 +450,7 @@ func! GrooVim_ClipFileSet(value) abort
     endif
     call writefile(split(a:value, "\n", 1), g:GrooVim_ClipFile)
     " Note: A clipboard carries private things, so keep it readable only by its
-    " owner! By Questor
+    " owner.
     if exists("*setfperm")
       call setfperm(g:GrooVim_ClipFile, "rw-------")
     endif
@@ -482,14 +468,14 @@ func! GrooVim_ClipFileGet() abort
   return ""
 endfunc
 
-" Note: Read the "transfer area"! By Questor
+" Note: Read the "transfer area".
 func! GrooVim_ClipGet() abort
   let l:reg = GrooVim_ClipReg()
 
   " Note: Asked FIRST when the method is the assumed one, because there the
   " register answers empty to everything and the file is the only real source.
   " Measured: with "osc52" in use, "getreg('+')" came back empty while the file
-  " held the text! By Questor
+  " held the text.
   if GrooVim_ClipAssumed()
     let l:assumedFile = GrooVim_ClipFileGet()
     if l:assumedFile != ""
@@ -502,7 +488,7 @@ func! GrooVim_ClipGet() abort
       return getreg(l:reg)
     catch
       " Note: It was announced but did not answer. Forget it and go down the
-      " cascade! By Questor
+      " cascade.
       let g:GrooVim_ClipRegCache = ""
     endtry
   endif
@@ -513,7 +499,7 @@ func! GrooVim_ClipGet() abort
   return getreg("\"")
 endfunc
 
-" Note: Write to the "transfer area"! By Questor
+" Note: Write to the "transfer area".
 " Note: Is the clipboard in use one that can only be ASSUMED?
 "
 " Note: A copy through OSC 52 goes out as an escape sequence and the terminal is
@@ -525,7 +511,7 @@ endfunc
 " still leaves through the terminal AND stays readable on this machine. That is
 " what makes OSC 52 never worse than no OSC 52, and it is why there is no
 " question about it on any screen -- it used to be one, and the only reason it
-" had an answer worth giving was this gap! By Questor
+" had an answer worth giving was this gap.
 func! GrooVim_ClipAssumed() abort
   return v:clipmethod ==# "osc52"
         \ && get(g:, "osc52_disable_paste", 1)
@@ -541,7 +527,7 @@ endfunc
 " Note: The yank itself is still a yank -- "gvy" and not a string handed to
 " setreg -- because that is what keeps a linewise selection linewise and a block
 " a block. What is added is the file of GrooVim, and only when the method in use
-" is one whose success cannot be known: see GrooVim_ClipAssumed! By Questor
+" is one whose success cannot be known: see GrooVim_ClipAssumed.
 func! GrooVim_CopyHere() abort
 
   " Note: The whole VIEW and not only the cursor. A yank over a selection that
@@ -560,7 +546,7 @@ func! GrooVim_CopyHere() abort
   " function ran -- and takes the window along, so the selection had to be put
   " back with a "gv" before anything could be read. And a "gv" that lands more
   " than a screen away makes Vim CENTRE what it lands on, which moved the window
-  " on a copy that moves nothing! By Questor
+  " on a copy that moves nothing.
   let l:view = winsaveview()
   normal! y
 
@@ -573,7 +559,7 @@ func! GrooVim_CopyHere() abort
   " Note: And back to typing, which is what a conventional editor leaves you able
   " to do after a copy. Only where typing is POSSIBLE: on a buffer you cannot
   " change -- the help, the occurrence list -- it answered "E21: Cannot make
-  " changes, 'modifiable' is off" over a command that changes nothing! By Questor
+  " changes, 'modifiable' is off" over a command that changes nothing.
 endfunc
 
 func! GrooVim_ClipSet(value) abort
@@ -590,21 +576,21 @@ func! GrooVim_ClipSet(value) abort
     endtry
   endif
   " Note: No clipboard register: the unnamed one plus the file, so another Vim
-  " instance can pick it up! By Questor
+  " instance can pick it up.
   call setreg("\"", a:value)
   call GrooVim_ClipFileSet(a:value)
 endfunc
 
-" Note: Don't create swap files! By Questor
+" Note: Don't create swap files.
 set noswapfile
 
-" Note: Solve read only problem! Some files opens as read only! By Questor
+" Note: Solve read only problem! Some files opens as read only.
 set ma
 
-" Note: When reload ".vimrc" the last search is " highlighted again! By Questor
+" Note: When reload ".vimrc" the last search is " highlighted again.
 " set hlsearch
 
-" Note: Allows an "extra" column at the end of the lines (You want this!)! By Questor
+" Note: Allows an "extra" column at the end of the lines (You want this!).
 set virtualedit=onemore
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$

@@ -1,4 +1,4 @@
-" Note: Get shown messages! By Questor
+" Note: Get shown messages.
 let g:messagesHolder = ""
 func! GrooVim_GetMessages() abort
   let g:messagesHolder = ""
@@ -7,7 +7,7 @@ func! GrooVim_GetMessages() abort
   redir end
 endfunc
 
-" Note: Return the last shown message! By Questor
+" Note: Return the last shown message.
 func! GrooVim_ReturnLastMessage() abort
   call GrooVim_GetMessages()
   let l:messagesHolderSplitted = split(g:messagesHolder, "\n")
@@ -25,7 +25,7 @@ let g:lastMessageWorkaroundShowedIndex = 0
 " call "xset", which needs X11 and forks a shell about once per second. Reading
 " the LED works on Wayland, on X11 and on a bare tty, costs a file read and
 " needs no graphical session. On a machine with no physical keyboard (a
-" headless server) there is simply no LED and the check turns itself off! By Questor
+" headless server) there is simply no LED and the check turns itself off.
 func! GrooVim_CapsLockLedsFind() abort
   let l:leds = []
   try
@@ -41,7 +41,7 @@ endfunc
 
 let g:GrooVim_CapsLockLeds = GrooVim_CapsLockLedsFind()
 
-" Note: There can be one LED per keyboard, so any of them lit means it is on! By Questor
+" Note: There can be one LED per keyboard, so any of them lit means it is on.
 func! GrooVim_CapsLockIsOn() abort
   for l:led in g:GrooVim_CapsLockLeds
     try
@@ -54,24 +54,24 @@ func! GrooVim_CapsLockIsOn() abort
   return 0
 endfunc
 
-" Note: Check if caps lock is on! By Questor
+" Note: Check if caps lock is on.
 let g:GrooVim_CheckCapsLockReturn = 0
 let g:GrooVim_CheckCapsLockMsg = 0
 " Note: Reading a file does not disturb the screen the way "system()" did, so
 " neither the "redraw!" nor the workaround that put the last message back on
-" screen after it are needed here anymore! By Questor
+" screen after it are needed here anymore.
 "
 " Note: This acts only when the state CHANGED, instead of on a clock. The old
 " gate compared against the moment of the last CALL, and the moment was updated
 " on every call, so while the cursor was busy the gate simply never opened: the
-" warning only showed up after a pause followed by more cursor movement! By Questor
+" warning only showed up after a pause followed by more cursor movement.
 "
 " Note: Mind the order! "GrooVim_GrooVimBarMsg()" refuses to show anything while
 " "g:GrooVim_CheckCapsLockReturn" is 1, so the warning must be pushed BEFORE
-" that flag is raised! By Questor
+" that flag is raised.
 func! GrooVim_CheckCapsLock() range abort
 
-  " Note: Nothing to read, nothing to do! By Questor
+  " Note: Nothing to read, nothing to do.
   if empty(g:GrooVim_CapsLockLeds)
     return
   endif
@@ -85,7 +85,7 @@ func! GrooVim_CheckCapsLock() range abort
   if l:isOn
     " Note: This warning have a special condition and only
     " disappears if capslock is off! When caps lock is on
-    " any other message will be shown! By Questor
+    " any other message will be shown.
     call GrooVim_GrooVimBarMsg("((( CAPS LOCK IS ON, OH NO!!! =| )))", 0)
     let g:GrooVim_CheckCapsLockMsg = 1
     let g:GrooVim_CheckCapsLockReturn = 1
@@ -101,22 +101,22 @@ endfunc
 
 " Note: The caps lock is watched by its OWN timer instead of riding on cursor
 " events. Reading the LED costs a small file read, and this way the warning
-" appears (and disappears) even when you are not touching anything! By Questor
+" appears (and disappears) even when you are not touching anything.
 let g:GrooVim_CapsLockPollMs = get(g:, "GrooVim_CapsLockPollMs", 300)
 
 " Note: Raised while an interactive prompt of GrooVim is on screen. The timer
 " below stays out of the way then: its status line redraw was wiping the match
 " highlight of a ":substitute" with confirmation and moving the cursor off the
-" question! By Questor
+" question.
 let g:GrooVim_Busy = 0
 
-" Note: What the bar announces while an operation is running! By Questor
+" Note: What the bar announces while an operation is running.
 let g:GrooVim_GrooVimBarContext = ""
 
 " Note: Entering and leaving an operation: raises the busy flag and puts its name
 " on the bar, then takes both back. Every function that asks something goes
 " through this pair, inside a try/finally, so an interruption cannot leave the
-" bar lying about what is happening! By Questor
+" bar lying about what is happening.
 " Note: Runs anything as a NAMED OPERATION: announces it on the bar, holds the
 " busy flag while it runs, and takes both back at the end, whatever happens,
 " including an interruption.
@@ -124,7 +124,7 @@ let g:GrooVim_GrooVimBarContext = ""
 " Note: This is where the context lives now. A feature that asks the user
 " something does not need to know any of this: it is enough to be INVOKED
 " through here, and the name travels with the invocation. Adding a new one costs
-" a single line at the point that triggers it! By Questor
+" a single line at the point that triggers it.
 func! GrooVim_Operation(context, funcName, args) abort
   call GrooVim_ContextEnter(a:context)
   try
@@ -135,8 +135,7 @@ func! GrooVim_Operation(context, funcName, args) abort
 endfunc
 
 " Note: Operations can call one another (the search with list calls the plain
-" search), so what was announced before is put back instead of simply cleared!
-" By Questor
+" search), so what was announced before is put back instead of simply cleared.
 let g:GrooVim_ContextStack = []
 
 func! GrooVim_ContextEnter(context) abort
@@ -150,7 +149,7 @@ func! GrooVim_ContextEnter(context) abort
   "
   " Note: Going through GrooVim_GrooVimBarMsg() and not clearing the variables by
   " hand is deliberate: it refuses to erase anything while the CapsLock is on, and
-  " that warning must not be swallowed by an operation! By Questor
+  " that warning must not be swallowed by an operation.
   call GrooVim_GrooVimBarMsg("", "")
   call GrooVim_ContextRedraw()
 endfunc
@@ -161,7 +160,7 @@ func! GrooVim_ContextLeave() abort
   else
     let g:GrooVim_GrooVimBarContext = ""
   endif
-  " Note: Still busy if an outer operation is going on! By Questor
+  " Note: Still busy if an outer operation is going on.
   let g:GrooVim_Busy = g:GrooVim_GrooVimBarContext != "" ? 1 : 0
   call GrooVim_ContextRedraw()
 endfunc
@@ -177,7 +176,7 @@ endfunc
 
 func! GrooVim_CapsLockPoll(timerId) abort
   " Note: Stay out of the way while a movement is being animated, or while a
-  " prompt is waiting for an answer! By Questor
+  " prompt is waiting for an answer.
   if g:GrooVim_GroovyMoveEnabled == 0 || g:GrooVim_Busy
     return
   endif
@@ -186,7 +185,7 @@ func! GrooVim_CapsLockPoll(timerId) abort
 endfunc
 
 " Note: Reloading the ".vimrc" (F5->r) would otherwise pile up one
-" timer per reload! By Questor
+" timer per reload.
 if exists("g:GrooVim_CapsLockTimer")
   try
     call timer_stop(g:GrooVim_CapsLockTimer)
@@ -199,9 +198,9 @@ if !empty(g:GrooVim_CapsLockLeds) && exists("*timer_start")
 endif
 
 " Note: The exclamation in "autocmd!" avoids redefining this event when reload
-" ".vimrc"! By Questor
+" ".vimrc".
 
-" Note: Ensures state of "virtualedit" before any editing! By Questor
+" Note: Ensures state of "virtualedit" before any editing.
 autocmd! InsertEnter * call GrooVim_InsertEnterPerforms()
 func! GrooVim_InsertEnterPerforms() abort
   if g:onMoveScreen == 0
@@ -225,7 +224,7 @@ endfunc
 " this puts it in. That is the jump to the left and back that could be SEEN on
 " every "Esc" -- measured in the bytes Vim writes: "line 1 column 10" twice, and
 " then "line 1 column 11". With "setpos" there is no typing and no paint in the
-" middle, and the terminal is only ever given the column you ended on! By Questor
+" middle, and the terminal is only ever given the column you ended on.
 autocmd! InsertLeave * call GrooVim_InsertLeavePerforms()
 func! GrooVim_InsertLeavePerforms() abort
   let l:whereTyping = getpos("'^")
@@ -234,7 +233,7 @@ func! GrooVim_InsertLeavePerforms() abort
   endif
 endfunc
 
-" Note: Ensures state of "virtualedit" before any editing! By Questor
+" Note: Ensures state of "virtualedit" before any editing.
 autocmd! InsertCharPre * call GrooVim_InsertCharPrePerforms()
 func! GrooVim_InsertCharPrePerforms() abort
   if &virtualedit == "all"
@@ -242,7 +241,7 @@ func! GrooVim_InsertCharPrePerforms() abort
   endif
 endfunc
 
-" Note: Check caps lock status! By Questor
+" Note: Check caps lock status.
 autocmd! CursorHold * call GrooVim_CheckCapsLockTimer()
 autocmd! CursorHoldI * call GrooVim_CheckCapsLockTimer()
 let g:reloadVimrc = 0
@@ -272,7 +271,7 @@ endfunc
 " flash off and on. "SafeState" is the event for exactly this moment, "when
 " nothing is pending, going to wait for the user to type a character", and it
 " does not fire while there is typeahead. Measured with three keys fed at once:
-" one movement, which is what holding the key down must do! By Questor
+" one movement, which is what holding the key down must do.
 autocmd! SafeState * call GrooVim_SafeStatePerforms()
 func! GrooVim_SafeStatePerforms() abort
   if g:onMoveScreen == 1 && mode() =~# "^[vV\<C-v>]"
@@ -285,10 +284,10 @@ endfunc
 " does NOT repeat while Vim is idle (see ":h CursorHold"), it fires once after
 " the user stops typing. Zero makes GrooVim react immediately -- the Caps Lock
 " and the message of the bar, which is what is left here -- and it costs nothing
-" now that no shell command runs from here! By Questor
+" now that no shell command runs from here.
 set updatetime=0
 
-" Note: Allows controlling the status of a number of GrooVim features! By Questor
+" Note: Allows controlling the status of a number of GrooVim features.
 autocmd! CursorMoved * call GrooVim_VimStatus()
 autocmd! CursorMovedI * call GrooVim_VimStatus()
 let g:lastMode = ""
@@ -300,13 +299,13 @@ func! GrooVim_VimStatus() abort
   if g:onMoveScreen == 0
 
 "     Note: Checks the status of the capslock when Vim the changes its mode or
-"     if Vim is in visual mode!! By Questor
+"     if Vim is in visual mode!.
 
     let g:modeNow = mode()
 
     if g:modeNow != g:lastMode || g:modeNow == "v"
       " Note: Avoids the need to fire twice "GrooVim_GroovyMove()" when we change
-      " the mode! By Questor
+      " the mode.
         let g:GrooVim_GroovyMoveEnabled = 1
       call GrooVim_CheckCapsLock()
       if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0 && g:GrooVim_CheckCapsLockMsg == 1
@@ -315,7 +314,7 @@ func! GrooVim_VimStatus() abort
       endif
     endif
 
-    " Note: When on visual-block mode allows select any area! By Questor
+    " Note: When on visual-block mode allows select any area.
     if mode() != "\<C-v>"
       if &virtualedit == "all"
         set virtualedit=onemore
@@ -343,7 +342,7 @@ inoremap <silent> <S-ScrollWheelDown> <C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
 " and the window with it, and the "gv" that put the selection back landed more
 " than a screen away, which makes Vim CENTRE what it lands on. Measured, window
 " on 80..120 and cursor on 115: one notch UP moved the cursor three lines up and
-" the window fifteen lines DOWN, to 95..135! By Questor
+" the window fifteen lines DOWN, to 95..135.
 vnoremap <ScrollWheelUp> <Cmd>call GrooVim_ScrollAdm("v", "u")<cr>
 vnoremap <S-ScrollWheelUp> <Cmd>call GrooVim_ScrollAdm("v", "u")<cr>
 vnoremap <ScrollWheelDown> <Cmd>call GrooVim_ScrollAdm("v", "d")<cr>

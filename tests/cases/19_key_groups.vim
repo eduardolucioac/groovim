@@ -15,7 +15,7 @@ exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
 " Note: Only the F key entries have a "group": the ones pressed straight do not
-" belong to any F key, so the key has to be ASKED for and not read! By Questor
+" belong to any F key, so the key has to be ASKED for and not read.
 func! GT_Of(group)
   return filter(copy(g:GrooVim_Shortcuts),
     \ 'get(v:val, "group", "") ==# "' . a:group . '"')

@@ -2,7 +2,7 @@
 "FILE SYNTAX ASSOCIATIONS AND SPECIFIC CONFIGURATION
 "$$$$$$$$$$$$$
 
-" Note: General indent width! By Questor
+" Note: General indent width.
 let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
 
 " Note: Indent width per file type, the same idea of the "Tab Settings" per
@@ -14,33 +14,33 @@ let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
 " that know what they are doing, and some of them are not a matter of taste:
 " "make" needs a REAL tab on its recipe lines (it fails with "missing separator"
 " otherwise) and "go" is written with tabs by gofmt. Configuring EVERY type here
-" would run after those plugins and undo them! By Questor
+" would run after those plugins and undo them.
 let g:GrooVim_IndentWidthPerType = get(g:, "GrooVim_IndentWidthPerType", {"python": 4})
 
-" Note: The char that draws the indentation guides. Use "" to turn them off! By Questor
+" Note: The char that draws the indentation guides. Use "" to turn them off.
 let g:GrooVim_IndentGuideChar = get(g:, "GrooVim_IndentGuideChar", "\u250A")
 
 " Note: The char to come back to when the guides are turned on again. Without it,
 " turning them off and on would forget the char you had chosen and hand you the
-" factory one! By Questor
+" factory one.
 let g:GrooVim_IndentGuideCharLast = get(g:, "GrooVim_IndentGuideCharLast",
  \ g:GrooVim_IndentGuideChar != "" ? g:GrooVim_IndentGuideChar : "\u250A")
 
 " Note: Whether "Tab" puts spaces or a real tab -- the "Replace by space" of the
-" Tab Settings of Notepad++! By Questor
+" Tab Settings of Notepad++.
 let g:GrooVim_IndentExpandTab = get(g:, "GrooVim_IndentExpandTab", 1)
 
-" Note: Size of a hard tabstop! By Questor
+" Note: Size of a hard tabstop.
 exec "set tabstop=" . g:GrooVim_IndentWidth
 
-" Note: Size of an "indent"! By Questor
+" Note: Size of an "indent".
 exec "set shiftwidth=" . g:GrooVim_IndentWidth
 
 " Note: A combination of spaces and tabs are used to simulate tab stops at a width
-" other than the (hard) tabstop! By Questor
+" other than the (hard) tabstop.
 exec "set softtabstop=" . g:GrooVim_IndentWidth
 
-" Note: Set tabs to spaces! By Questor
+" Note: Set tabs to spaces.
 let &expandtab = g:GrooVim_IndentExpandTab
 
 " Note: Indenting REACHES the next stop instead of adding a width to whatever was
@@ -55,7 +55,7 @@ set shiftround
 " Note: Draws a dot on every space and an arrow on every tab, which is "Show
 " Space and Tab" of Notepad++. ON by default, which is where GrooVim parts from
 " it: a space and a tab look the same and are not, and that is the kind of thing
-" an editor should show you instead of waiting to be asked! By Questor
+" an editor should show you instead of waiting to be asked.
 let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 1)
 
 " Note: Draws the indentation guides with "leadmultispace", which is native to
@@ -65,16 +65,16 @@ let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 1)
 " options at the moment of drawing. That way the guide follows a modeline, a file
 " type plugin or a ":set shiftwidth=" you type, instead of drifting away from the
 " real indent. Falling back to "tabstop" is what keeps "make" right, since its
-" file type plugin leaves "shiftwidth" at zero! By Questor
+" file type plugin leaves "shiftwidth" at zero.
 " Note: Named for what it does now. It used to set the indent guide alone, and
 " it sets every symbol of the "Show Symbol" menu that GrooVim has: the guide, the
-" dot on a space, the arrow on a tab! By Questor
+" dot on a space, the arrow on a tab.
 func! GrooVim_SymbolsSet() abort
 
   " Note: A "tab:" is always there, whichever way the switch is. With "list" on
   " -- and it is always on, the guide needs it -- a "listchars" with no "tab:"
   " makes Vim draw a tab as "^I". Measured. Two spaces make it look like the
-  " blank it is! By Questor
+  " blank it is.
   let l:listchars = g:GrooVim_ShowSpaceAndTab
    \ ? "tab:\u2192 ,space:\uB7" : "tab:  "
 
@@ -88,9 +88,9 @@ func! GrooVim_SymbolsSet() abort
   endif
 
   " Note: Assigning the option instead of using ":set" avoids having to escape
-  " the spaces with a backslash! By Questor
+  " the spaces with a backslash.
   " Note: "leadmultispace" is from Vim 9, and "listchars" is only window local on
-  " a recent enough Vim, so both are attempted and neither is fatal! By Questor
+  " a recent enough Vim, so both are attempted and neither is fatal.
   " Note: Falling back in two directions. The window local option is of a recent
   " enough Vim, so the global one is tried next; and the guide itself may be
   " refused -- a Vim that does not know "leadmultispace", or a character it
@@ -98,7 +98,7 @@ func! GrooVim_SymbolsSet() abort
   "
   " Note: Never nothing is the point. A "listchars" that stays empty is not
   " "no guides": it is the DEFAULT of Vim showing through, which draws a "$" at
-  " the end of every line! By Questor
+  " the end of every line.
   for l:attempt in [l:listchars, "tab:  ,trail:\uB7,nbsp:~", "trail:-"]
     try
       let &l:listchars = l:attempt
@@ -114,19 +114,19 @@ func! GrooVim_SymbolsSet() abort
 
 endfunc
 
-" Note: General tab conf! By Questor
+" Note: General tab conf.
 " Note: "setlocal" and not "set": this runs per buffer, and setting it globally
-" made opening one file change the indent width of every other open buffer! By Questor
+" made opening one file change the indent width of every other open buffer.
 func! GrooVim_IndentWidthHere(tabWidth) abort
 
-  " Note: Size of a hard tabstop! By Questor
+  " Note: Size of a hard tabstop.
   exec "setlocal tabstop=" . a:tabWidth
 
-  " Note: Size of an "indent"! By Questor
+  " Note: Size of an "indent".
   exec "setlocal shiftwidth=" . a:tabWidth
 
   " Note: A combination of spaces and tabs are used to simulate tab stops at a width
-  " other than the (hard) tabstop! By Questor
+  " other than the (hard) tabstop.
   exec "setlocal softtabstop=" . a:tabWidth
 
   call GrooVim_SymbolsSet()
@@ -143,14 +143,14 @@ endfun
 " Note: With the three together, tabbing lands ON the width and then on twice it,
 " from wherever the line already was -- 2 becomes 8, 8 becomes 16 -- which is how
 " Notepad++ walks its tab stops. With ":set shiftwidth=8" alone it would go on
-" walking two by two! By Questor
+" walking two by two.
 " Note: What a key really delivers, which is the only way to settle an argument
 " about a shortcut that does not fire.
 "
 " Note: A terminal sends an arrow, an F key or a keypad key as a sequence of
 " bytes, and two keys that LOOK the same can arrive as different keys -- the
 " shortcuts of GrooVim compare what "getchar()" hands over, so that is what this
-" prints! By Questor
+" prints.
 com! GrooVimKey call GrooVim_KeyReport()
 
 func! GrooVim_KeyReport() abort
@@ -172,7 +172,7 @@ func! GrooVim_KeyReport() abort
    \ "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"]
     " Note: "try", because a name Vim does not know is an ERROR and not a
     " mismatch -- one wrong entry in the list above would take the whole report
-    " down with it! By Questor
+    " down with it.
     try
       if l:asText ==# eval('"\<' . l:name . '>"')
         let l:known = "<" . l:name . ">"
@@ -194,7 +194,7 @@ com! -nargs=? GrooVimIndent call GrooVim_IndentWidth(<q-args>)
 " Note: A width EVERYWHERE: the default that new buffers get, and the one you are
 " on. "GrooVim_IndentWidthHere" alone is "setlocal", which is what the command above
 " wants -- but a screen that says "indent width" and leaves the next file you
-" open on the old one would be lying! By Questor
+" open on the old one would be lying.
 func! GrooVim_IndentWidthApply(width) abort
   exec "set tabstop=" . a:width
   exec "set shiftwidth=" . a:width
@@ -226,7 +226,7 @@ endfunc
 " Note: And on "OptionSet", so that typing ":set shiftwidth=8" by hand moves the
 " guides right then. Without it the width was read only when you entered the
 " window, and a changed "shiftwidth" left the guides drawn at the OLD spacing
-" until you walked out and back in! By Questor
+" until you walked out and back in.
 augroup GrooVim_Indent
   autocmd!
   autocmd FileType * if has_key(g:GrooVim_IndentWidthPerType, &filetype) |

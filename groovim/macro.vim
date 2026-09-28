@@ -1,8 +1,8 @@
-" Note: Record a macro! By Questor
+" Note: Record a macro.
 func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its
-  " own for one job, and "F5" is now the file commands! By Questor
+  " own for one job, and "F5" is now the file commands.
   if reg_recording() != ""
     exec "norm! q"
     call GrooVim_XenRecTrimKey()
@@ -21,12 +21,12 @@ endfunc
 " the "F2" and the "q" pressed to stop land inside the macro -- and running it
 " would fire CommandZ in the middle of your own keys. Measured on the register,
 " the tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
-" modifier mark in front! By Questor
+" modifier mark in front.
 func! GrooVim_XenRecTrimKey() abort
   " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
   " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
   " on its own it is not valid UTF-8. The key itself, written as "\<F2>", carries
-  " exactly the bytes to look for! By Questor
+  " exactly the bytes to look for.
   let l:recorded = getreg("a")
   let l:where = strridx(l:recorded, "\<F2>")
   if l:where >= 0
@@ -34,7 +34,7 @@ func! GrooVim_XenRecTrimKey() abort
   endif
 endfunc
 
-" Note: Run a macro certain number of times or repeatedly until the last line! By Questor
+" Note: Run a macro certain number of times or repeatedly until the last line.
 let g:GrooVim_XenPlayRunningWithSearch = 0
 func! GrooVim_XenPlay(repeatExecution) range abort
 
@@ -43,7 +43,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     " Note: Running a macro REPLAYS keys, F keys among them, and replaying one
     " writes over what its group was repeating. So F2 is told again that it was
     " "w" -- this very command -- or pressing F2 alone afterwards would do
-    " whatever the macro happened to press last! By Questor
+    " whatever the macro happened to press last.
     call GrooVim_CommandZRemember("F2", "119")
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
@@ -55,9 +55,9 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     let l:numberOfRepetitions = GrooVim_ScreenAsk(
      \ "Number of repetitions (use \"x\" to execute to last/first line): ",
      \ {answer -> GrooVim_IsRepetitionCount(answer)})
-    " Note: Runs up to the last/first row!! By Questor
+    " Note: Runs up to the last/first row!.
     if l:numberOfRepetitions == "x"
-      " Note: "set nowrapscan" serves to avoid going back to the beginning! By Questor
+      " Note: "set nowrapscan" serves to avoid going back to the beginning.
       set nowrapscan
       let l:stopWhile = 0
       let l:firstExecution = 1
@@ -68,9 +68,9 @@ func! GrooVim_XenPlay(repeatExecution) range abort
           let l:stopWhile = 1
         endif
 
-        " Note: If there are no more occurrences of a search then stops execution! By Questor
+        " Note: If there are no more occurrences of a search then stops execution.
         try
-          " Note: Tests if still there are occurrences! By Questor
+          " Note: Tests if still there are occurrences.
           if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
             if l:executionDirection == "d"
               exec "norm n"
@@ -121,11 +121,11 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
         if l:stopWhile == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0
           call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-          " Note: The "redraw!" is to ensure that the message is displayed!! By Questor
+          " Note: The "redraw!" is to ensure that the message is displayed!.
           redraw!
         endif
 
-        " Note: To see execution! By Questor
+        " Note: To see execution.
         redraw!
 
         let l:firstExecution = 0
@@ -135,10 +135,10 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     else
 
       " Note: Performs "n" times! The answer was already validated when it was
-      " asked! By Questor
+      " asked.
       for i in range(1, l:numberOfRepetitions)
 
-        " Note: If there are no more occurrences of a search then stops execution! By Questor
+        " Note: If there are no more occurrences of a search then stops execution.
         try
           exec "norm @a"
         catch
@@ -148,10 +148,10 @@ func! GrooVim_XenPlay(repeatExecution) range abort
         let g:onMoveScreen = 1
         if g:GrooVim_GrooVimBarMsgEnabled == 0
           call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
-          " Note: The "redraw!" is to ensure that the message is displayed! By Questor
+          " Note: The "redraw!" is to ensure that the message is displayed.
           redraw!
         endif
-        " Note: To see execution! By Questor
+        " Note: To see execution.
         redraw!
       endfor
 
@@ -169,16 +169,16 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
 endfunc
 
-" Note: Duplicates the current line/selection! By Questor
+" Note: Duplicates the current line/selection.
 " Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
 " BEFORE the cursor. Going through the mappings here made the copy land one
-" character too early, turning "DUPLICAR" into "DUPLICADUPLICARR"! By Questor
+" character too early, turning "DUPLICAR" into "DUPLICADUPLICARR".
 " Note: The line the cursor is on, copied under itself, with the clipboard given
 " back afterwards -- copying is how it is done, and it should not cost you what
 " you had there.
 "
 " Note: A function because the dispatch spelled these three lines out TWICE, once
-" for normal mode and once for insert, letter for letter! By Questor
+" for normal mode and once for insert, letter for letter.
 func! GrooVim_DuplicateLine() abort
 
   " Note: "yyp" and not "yyo<Esc>p". The "o" OPENS a line, and opening a line
@@ -189,7 +189,7 @@ func! GrooVim_DuplicateLine() abort
   " duplication in a python file came back clean.
   "
   " Note: "p" puts a whole line under this one on its own. There was never any
-  " need to open one first! By Questor
+  " need to open one first.
   "
   " Note: The whole view and not only the cursor, so that the line you were on
   " is still the line you are on, in the same column, and the window has not
@@ -206,7 +206,7 @@ endfunc
 " Note: The selection, copied under itself -- and then the key of the last command
 " is FORGOTTEN, so holding the F key down does not replicate this one. A selection
 " duplicated again and again, from a selection that has moved each time, is not
-" what anybody means by "do that again"! By Questor
+" what anybody means by "do that again".
 func! GrooVim_DuplicateSelection() abort
   call GrooVim_DuplicateVisualSelection()
   call GrooVim_CommandZForget("F3")
@@ -217,7 +217,7 @@ func! GrooVim_DuplicateVisualSelection() range abort
   " Note: The same as the line above it: where you were is where you stay. The
   " put leaves the cursor on the COPY, and the view is taken after the "gv"
   " because the ":" of the shortcut had already dropped the cursor on the first
-  " line of the range! By Questor
+  " line of the range.
   exec "norm! gv"
   let l:view = winsaveview()
   let l:saved_reg = GrooVim_ClipGet()
@@ -233,17 +233,17 @@ endfunc
 " that does the work: sourcing the .vimrc redefines every function it holds, and
 " Vim refuses to redefine one that is RUNNING -- "E127: Cannot redefine function
 " ...: It is in use". Measured, with the reload wrapped in a function of its
-" own! By Questor
+" own.
 exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
-" Note: Clears the search register! By Questor
+" Note: Clears the search register.
 " Note: And the marks with them. "Take the highlighting off" is one idea to a
 " reader, not two, and having to remember which key clears which half would be a
-" poor way of saying so! By Questor
+" poor way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
-" Note: Save to disk and open in a new tab a copy of the current file! By Questor
+" Note: Save to disk and open in a new tab a copy of the current file.
 " Note: Where to put a file and what to call it, asked once and used by both the
 " copy and the "save as".
 "
@@ -267,7 +267,7 @@ func! GrooVim_AskFileWhere(what) abort
         let l:valueToPath = GrooVim_ClipGet()
       else
         call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-        " Note: The "redraw!" is to ensure that the message is displayed! By Questor
+        " Note: The "redraw!" is to ensure that the message is displayed.
         redraw!
       endif
     elseif l:valueToPath == "1"
@@ -298,7 +298,7 @@ func! GrooVim_AskFileWhere(what) abort
     " The second argument of "input()" is the text it starts with.
     "
     " Note: An unnamed buffer has no name to offer, and then it starts empty as it
-    " always did! By Questor
+    " always did.
     let l:valueToName = input("NAME of the " . a:what . " to be saved" .
      \ l:definePathWarning . ": ", expand("%:t"))
     if ("" . l:valueToName . "") != ""
@@ -315,7 +315,7 @@ func! GrooVim_AskFileWhere(what) abort
 
 endfunc
 
-" Note: Save to disk and open in a new tab a copy of the current file! By Questor
+" Note: Save to disk and open in a new tab a copy of the current file.
 func! GrooVim_SaveACopy() range abort
 
   let [l:path, l:name] = GrooVim_AskFileWhere("file copy")
@@ -338,7 +338,7 @@ endfunc
 "
 " Note: ":saveas" is the command of Vim for exactly this -- it renames the buffer
 " and writes it -- so what was open before stays on disk as it was, and the tab
-" you are on is the new file from here! By Questor
+" you are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
   let [l:path, l:name] = GrooVim_AskFileWhere("file")
@@ -354,9 +354,9 @@ func! GrooVim_SaveAs() range abort
 
 endfunc
 
-" Note: Saves to disk! By Questor
+" Note: Saves to disk.
 " Note: Saving. In visual mode what is written is the SELECTION, to a file of its
-" own; anywhere else it is the file you are in! By Questor
+" own; anywhere else it is the file you are in.
 func! GrooVim_Save(mode) abort
   if a:mode ==# "v"
     call GrooVim_VisualWrite()
@@ -366,13 +366,13 @@ func! GrooVim_Save(mode) abort
 endfunc
 
 func! GrooVim_VisualWrite() range abort
-  " Note: Write! By Questor
+  " Note: Write.
   exec "w"
-  " Note: Reselect area! By Questor
+  " Note: Reselect area.
   exec "norm gv"
 endfunc
 
-" Note: Changes to uppercase/lowercase! By Questor
+" Note: Changes to uppercase/lowercase.
 " Note: Title Case: the first letter of every word up, the rest down.
 "
 " Note: A substitution and not an operator, because Vim has "gU" and "gu" and
@@ -386,14 +386,14 @@ endfunc
 " visual mode ends.
 "
 " Note: In normal and insert mode it is the word under the cursor, selected here
-" so that the same substitution serves all three modes! By Questor
+" so that the same substitution serves all three modes.
 " Note: Puts the cursor ON the text of the line when it is sitting PAST it.
 "
 " Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one column
 " beyond the last character -- which is exactly where you are after typing to the
 " end of a line. There is no word there, and "iw" then took only the last letter:
 " changing the case of "total" gave back "totaL". Anything that works on "the
-" word under the cursor" has to step onto the text first! By Questor
+" word under the cursor" has to step onto the text first.
 func! GrooVim_StepOntoTheText() abort
   let l:width = strlen(getline("."))
   if col(".") > l:width
@@ -405,7 +405,7 @@ endfunc
 "
 " Note: This used to be "norm gUiwe", and the "e" walks to the end of the word --
 " so changing the case of a word you were in the middle of moved you to its last
-" letter. Changing the case of a word is not a movement! By Questor
+" letter. Changing the case of a word is not a movement.
 func! GrooVim_CaseOfTheWord(which) abort
   let l:view = winsaveview()
   call GrooVim_StepOntoTheText()
@@ -419,11 +419,11 @@ func! GrooVim_ToTitleCase(modType) range abort
 
   " Note: Where you were. The substitution below leaves the cursor on the first
   " column of the line, and selecting the word walks to its end -- neither is a
-  " place you asked to go! By Questor
+  " place you asked to go.
   let l:view = winsaveview()
 
   " Note: "norm!" and not "norm": GrooVim remaps "v" in normal mode, and a bare
-  " "norm gv" is read through the mappings! By Questor
+  " "norm gv" is read through the mappings.
   if a:modType == "v"
     exec "norm! gv\<Esc>"
   else
@@ -434,7 +434,7 @@ func! GrooVim_ToTitleCase(modType) range abort
   " Note: "gdefault" INVERTS the "g" flag, and GrooVim has it on -- so the "/g"
   " below would have meant "the first word and no more". Measured: only the first
   " word of the selection changed. The counter of occurrences turns it off for
-  " the same reason, and puts it back the same way! By Questor
+  " the same reason, and puts it back the same way.
   let l:gdefault = &gdefault
   set nogdefault
   silent! exec "'<,'>s/\\%V\\<\\(\\w\\)\\(\\w*\\)/\\u\\1\\L\\2/g"
@@ -443,7 +443,7 @@ func! GrooVim_ToTitleCase(modType) range abort
   let @/ = l:search
 
   if a:modType == "v"
-    " Note: Repositioning on final, like the upper and lower above! By Questor
+    " Note: Repositioning on final, like the upper and lower above.
     exec "norm! gv\<Esc>"
   else
     call winrestview(l:view)
@@ -452,7 +452,7 @@ func! GrooVim_ToTitleCase(modType) range abort
 endfunc
 
 func! GrooVim_ToUpperLower(modType) range abort
-  " Note: Reselect area! By Questor
+  " Note: Reselect area.
   exec "norm gv"
 
   if a:modType == "Upper"
@@ -463,10 +463,10 @@ func! GrooVim_ToUpperLower(modType) range abort
     exec "norm gu"
   endif
 
-  " Note: Repositioning on final! By Questor
+  " Note: Repositioning on final.
   exec "norm gv\<Esc>"
 endfunc
 
-" Note: Sudo to write! By Questor
+" Note: Sudo to write.
 "cnoremap w!! w !sudo tee % >/dev/null
 

@@ -14,7 +14,7 @@ let g:GrooVim_CommandZUnblock = 1
 "
 " Note: Only from insert. A shortcut fired from normal mode has nothing to hold,
 " and one fired from visual really does end the selection -- the ":" of its
-" mapping does it -- so normal is the truth there! By Questor
+" mapping does it -- so normal is the truth there.
 func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
 
   if a:modType ==# "i"
@@ -37,15 +37,15 @@ endfunc
 " Note: What each F key repeats. One entry per group, because F2 remembering what
 " F3 did is not a memory, it is a mix-up: measured with real keys, "F3 d" and then
 " "F2 c" and then F3 alone did NOTHING, because the F2 had taken the only slot
-" there was and a slot of another key is thrown away! By Questor
+" there was and a slot of another key is thrown away.
 let g:GrooVim_CommandZChars = {"F2": "", "F3": "", "F4": "", "F5": ""}
 
 " Note: The key each group is pressed with, so that a key read here can be told
-" apart from the letter of a shortcut! By Questor
+" apart from the letter of a shortcut.
 let s:GrooVim_CommandZKeys = {"F2": "\<f2>", "F3": "\<f3>", "F4": "\<f4>", "F5": "\<f5>"}
 
 " Note: For the two commands that have to put their own key back: a macro replays
-" F keys, and replaying them writes over what the group was repeating! By Questor
+" F keys, and replaying them writes over what the group was repeating.
 func! GrooVim_CommandZRemember(group, char) abort
   let g:GrooVim_CommandZChars[a:group] = a:char
 endfunc
@@ -56,7 +56,7 @@ endfunc
 
 func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
-  " Note: Clears the screen before reading the next key of the combination! By Questor
+  " Note: Clears the screen before reading the next key of the combination.
   redraw!
 
   " Note: Waits for the second key, in slices of twenty milliseconds.
@@ -69,7 +69,7 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   "
   " Note: And it goes on waiting to the end of the budget, because one flat sleep
   " gives up on anyone slower than itself: measured, a second key pressed 600ms
-  " after the F key is lost with a budget of 400! By Questor
+  " after the F key is lost with a budget of 400.
   let l:key = ""
   let l:waited = 0
   while l:key == "" && l:waited < g:GrooVim_CommandZWait
@@ -104,11 +104,11 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   let l:char = get(g:GrooVim_CommandZChars, a:GrooVim_CommandZFCallerNow, "")
 
   if l:char != "" && g:GrooVim_CommandZUnblock == 1
-    " Note: Prevents rerun a command while another is in progress! By Questor
+    " Note: Prevents rerun a command while another is in progress.
     " Note: The "try/finally" is what keeps a Ctrl-C from locking CommandZ for
     " good: interrupting a prompt raises an exception, the function used to be
     " abandoned with this flag still at zero, and from then on NO F key worked
-    " anymore! By Questor
+    " anymore.
     let g:GrooVim_CommandZUnblock = 0
     try
 
@@ -122,13 +122,13 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
     "
     " Note: Now the list is the only place. What a shortcut IS -- its group, its
     " key, the modes it answers in, what it does and how to say so -- is written
-    " once, and the help, the menu and this all read it! By Questor
+    " once, and the help, the menu and this all read it.
     for l:one in g:GrooVim_Shortcuts
 
       " Note: Only what is reached by an F key. The list holds the whole map of
       " GrooVim now -- "Ctrl+C", "Alt+Shift+Up", "m" and the rest are on it, for
       " the menu and the help to show -- and those are mapped where they are
-      " mapped and never come through here! By Questor
+      " mapped and never come through here.
       if !has_key(l:one, "group") || l:one.group !=# a:GrooVim_CommandZFCallerNow
        \ || !GrooVim_ShortcutIsKey(l:char, l:one.key)
        \ || stridx(l:one.modes, a:modType) < 0
@@ -137,7 +137,7 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
       " Note: The key is ours, but what it does is not here. Saying so beats
       " what it used to do, which was to call a function that was never defined
-      " and show "E117: Unknown function" over the bar! By Questor
+      " and show "E117: Unknown function" over the bar.
       if !GrooVim_ShortcutAvailable(l:one)
         call GrooVim_GrooVimBarMsg(l:one.group . "->" . l:one.key . " needs " .
          \ l:one.needs.name . ", which is not installed here!", 6)
@@ -149,7 +149,7 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
       " HERE, at the one door every shortcut goes through, so that no list of
       " what edits and what does not has to be kept -- and a shortcut written
       " tomorrow is covered by it too. "E45" is the same thing said by a file
-      " that is read only! By Questor
+      " that is read only.
       try
         call GrooVim_ShortcutRun(l:one, a:modType)
       catch /E21:\|E45:/

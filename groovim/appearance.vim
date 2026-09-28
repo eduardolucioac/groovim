@@ -2,24 +2,24 @@
 "APPEARANCE
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Displays the number of each line! By Questor
+" Note: Displays the number of each line.
 set number
 
-" Note: Always show current position! By Questor
+" Note: Always show current position.
 set ruler
 
 " Note: Height of the command bar! One line keeps the prompts of the "super
 " commands" on the first line of the command area, without a blank line above
-" them, and gives one more line to the text. By Questor
+" them, and gives one more line to the text.
 set cmdheight=1
 
-" Note: For regular expressions turn magic on! By Questor
+" Note: For regular expressions turn magic on.
 set magic
 
-" Note: Show matching brackets when text indicator is over them! By Questor
+" Note: Show matching brackets when text indicator is over them.
 set showmatch
 
-" Note: How many tenths of a second to blink when matching brackets! By Questor
+" Note: How many tenths of a second to blink when matching brackets.
 set mat=2
 
 " Note: No sound, and "noerrorbells" is NOT enough for that. From its own
@@ -36,20 +36,20 @@ set mat=2
 " Note: The two below are kept because they still say something: no bell for
 " error messages, and the bell that does ring is a sound and not a screen flash
 " ("visualbell" plus an empty "t_vb" was the old way of silencing Vim, and
-" "belloff" replaced it)! By Questor
+" "belloff" replaced it).
 set belloff=all
 set noerrorbells
 set novisualbell
 
-" Note: Allow the cursor to go into "invalid" places! By Questor
+" Note: Allow the cursor to go into "invalid" places.
 " set virtualedit=all
 
-" Note: Always turn on syntax highlighting for diffs (select by the file-suffix directly)! By Questor
+" Note: Always turn on syntax highlighting for diffs (select by the file-suffix directly).
 augroup PatchDiffHighlight
   autocmd! BufEnter  *.patch,*.rej,*.diff   syntax enable
 augroup end
 
-" Note: Displays messages on the scroll bar! By Questor
+" Note: Displays messages on the scroll bar.
 let g:GrooVim_GrooVimBarMsgValue = ""
 let g:GrooVim_GrooVimBarMsgMoment = 0
 let g:GrooVim_GrooVimBarMsgEnabled = 0
@@ -68,12 +68,12 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration) abort
     endif
     " Note: The status line is "%!GrooVim_GrooVimBar()", so it is Vim that calls
     " it when redrawing. Just calling it here changed nothing on screen: the
-    " message only appeared at the next screen update, whenever that came! By Questor
+    " message only appeared at the next screen update, whenever that came.
     "
     " Note: ONLY after startup! Asking for a redraw while the ".vimrc" is still
     " being read makes Vim paint the screen BEFORE switching to the terminal
     " alternate screen, and everything painted there stays behind on the shell
-    " when you quit Vim! By Questor
+    " when you quit Vim.
     if v:vim_did_enter
       try
         redrawstatus!
@@ -84,7 +84,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration) abort
 
 endfun
 
-" Note: Drops a timed message from the bar once its time is over! By Questor
+" Note: Drops a timed message from the bar once its time is over.
 func! GrooVim_GrooVimBarMsgExpire() abort
   if g:GrooVim_GrooVimBarMsgEnabled == 1 && g:GrooVim_CheckCapsLockReturn == 0
     if (localtime() - g:GrooVim_GrooVimBarMsgMoment) > g:GrooVim_GrooVimBarMsgDuration
@@ -93,19 +93,18 @@ func! GrooVim_GrooVimBarMsgExpire() abort
   endif
 endfunc
 
-" Note: Displays an information bar! By Questor
+" Note: Displays an information bar.
 set laststatus=2
 " Note: While an operation is asking something, its name takes the place of the
 " "Powered by" on the bar, and the bar goes back to normal when it is over. The
-" prompt itself stays clean: the context lives here, not glued to the question!
-" By Questor
+" prompt itself stays clean: the context lives here, not glued to the question.
 " Note: Where you are: the encoding, what ends a line, the flags of the buffer,
 " the type, the line and the column. The half of the bar that every window
 " wants!
 "
 " Note: The line ending is there because it can be CHANGED -- F5->c and then
 " [f] -- and a setting you can change and cannot see is a setting you cannot
-" trust. Notepad++ keeps it on its bar for the same reason! By Questor
+" trust. Notepad++ keeps it on its bar for the same reason.
 func! GrooVim_GrooVimBarWhere() abort
   return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
@@ -128,12 +127,12 @@ endfun
 " going to save, and it is the same every time. No "Powered by", which is the
 " banner of a DOCUMENT of yours. And no messages: an invitation to press F9 does
 " not belong on the bar of the thing F9 opened. The occurrence list has a bar of
-" its own for the same reasons! By Questor
+" its own for the same reasons.
 func! GrooVim_GrooVimHelpBar() abort
   return "%f [%l/%L,%v] [%p%%]"
 endfunc
 set stl=%!GrooVim_GrooVimBar()
-" Note: Displays a message on the initial run! By Questor
+" Note: Displays a message on the initial run.
 call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 
 " Note: The vertical edge, which is the "Vertical Edge Settings" of Notepad++: a
@@ -148,7 +147,7 @@ call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 " Note: Column 79 and not 80. A line of 79 characters is the last one that fits
 " in 80 columns, so the mark sits ON the first column you should not reach.
 "
-" Note: Set it to 0 to take the line away! By Questor
+" Note: Set it to 0 to take the line away.
 let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
 
 " Note: A dark grey and not the blue that was here. The old one painted a handful
@@ -169,7 +168,7 @@ highlight ColorColumn ctermbg=236 guibg=#303030
 " Note: And ONLY where a file is edited. The line marks where a line of text gets
 " too long, which means nothing in a window that holds no text of yours: it was
 " being drawn down the occurrence list, the list of marks, the tree and the help,
-" over lists whose lines are as long as they need to be! By Questor
+" over lists whose lines are as long as they need to be.
 func! GrooVim_EdgeSet() abort
   try
     let &l:colorcolumn = g:GrooVim_EdgeColumn > 0 && &buftype ==# ""
@@ -184,19 +183,19 @@ augroup GrooVim_Edge
 augroup end
 call GrooVim_EdgeSet()
 
-" Note: Make trailing whitespace and non-breaking spaces visible! By Questor
+" Note: Make trailing whitespace and non-breaking spaces visible.
 set list
 " Note: The trailing/non breaking space marks AND the indentation guides are all
-" built by this one, so that both always agree on the same "listchars"! By Questor
+" built by this one, so that both always agree on the same "listchars".
 call GrooVim_SymbolsSet()
 
-" " Note: Make tabs, trailing whitespace and non-breaking spaces visible! By Questor
-" " Note: Type I! By Questor
+" " Note: Make tabs, trailing whitespace and non-breaking spaces visible.
+" " Note: Type I.
 " "exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
-" " Note: Type II! By Questor
+" " Note: Type II.
 " exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
 
-" Note: Switch syntax highlighting on, when the terminal has colors! By Questor
+" Note: Switch syntax highlighting on, when the terminal has colors.
 if &t_Co > 2 || has("gui_running")
   syntax on
 endif
@@ -206,10 +205,10 @@ endif
 " walking BACK through the search results.
 "
 " Note: This has to come AFTER "syntax on" and be repeated on "ColorScheme",
-" because both reset the highlight groups! By Questor
+" because both reset the highlight groups.
 " Note: "cterm=NONE gui=NONE" is not decoration: the default "IncSearch" carries
 " "reverse", which SWAPS foreground and background and would show blue letters on
-" a white block instead of white on blue! By Questor
+" a white block instead of white on blue.
 let g:GrooVim_ReplaceHighlight = get(g:, "GrooVim_ReplaceHighlight", "cterm=NONE gui=NONE ctermbg=blue ctermfg=white guibg=blue guifg=white")
 func! GrooVim_SetReplaceHighlight() abort
   try
@@ -223,15 +222,15 @@ augroup GrooVim_ReplaceHighlightGroup
   autocmd ColorScheme * call GrooVim_SetReplaceHighlight()
 augroup end
 
-" Note: Switch from block-cursor to vertical-line-cursor when going into/out of insert mode! By Questor
+" Note: Switch from block-cursor to vertical-line-cursor when going into/out of insert mode.
 " let &t_SI = "\<Esc>]50;CursorShape=1\x7"
 " let &t_EI = "\<Esc>]50;CursorShape=0\x7"
 
 " Note: " Cursor -> Orange in insert mode and red in command mode!
 " if you want to use rgb color formatting: konsoleprofile
-" CustomCursorColor=#255255255! By Questor
+" CustomCursorColor=#255255255.
 " Note: One color per mode, so you know where you are without looking at the
-" bar: green in normal, blue in visual, orange while typing! By Questor
+" bar: green in normal, blue in visual, orange while typing.
 let g:cursorColorI = get(g:, "cursorColorI", "orange")
 let g:cursorColorNV = get(g:, "cursorColorNV", "green")
 let g:cursorColorV = get(g:, "cursorColorV", "blue")
@@ -241,13 +240,13 @@ let g:cursorColorBlock = 0
 " resets it. The old code used an OSC 50 payload that only Konsole understands
 " AND forked "konsoleprofile" three times (on load, on VimEnter and on
 " VimLeave). This speaks to any terminal that listens (Konsole, xterm, kitty,
-" alacritty, foot, wezterm...), forks nothing and works over SSH! By Questor
+" alacritty, foot, wezterm...), forks nothing and works over SSH.
 func! GrooVim_CursorColorSet() abort
   let &t_SI = "\<Esc>]12;" . g:cursorColorI . "\x7"
   let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
 endfun
 
-" Note: Sends the color to the terminal right now! By Questor
+" Note: Sends the color to the terminal right now.
 func! GrooVim_CursorColorEmit(color) abort
   if exists("*echoraw")
     call echoraw("\<Esc>]12;" . a:color . "\x7")
@@ -258,7 +257,7 @@ endfunc
 "
 " Note: "t_SI"/"t_EI" only know insert from everything else, so they cannot tell
 " visual from normal. The "ModeChanged" event can, and it is what paints visual
-" blue! By Questor
+" blue.
 func! GrooVim_CursorColorForMode() abort
   let l:mode = mode()
   let l:visual = l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
@@ -270,12 +269,12 @@ func! GrooVim_CursorColorForMode() abort
   " Note: But never over a mode that CAN be seen. The flag says "we came from
   " insert", and if it is ever left standing -- an interrupted movement used to
   " leave it so -- believing it over "mode()" painted the cursor green in visual
-  " mode, which is blue. What Vim reports wins! By Questor
+  " mode, which is blue. What Vim reports wins.
   " Note: While there are carets up, the real cursor is ONE OF THEM and wears
   " their colour -- orange while the places are being chosen, yellow once they
   " are set. Without this the last place marked looked different from all the
   " others, because what is drawn on it is not a caret at all: it is the cursor
-  " of the terminal, in the colour of insert mode! By Questor
+  " of the terminal, in the colour of insert mode.
   if exists("*GrooVim_MultiCursorColour")
     let l:multi = GrooVim_MultiCursorColour()
     if l:multi !=# ""
@@ -311,7 +310,7 @@ endfunc
 " three times paints once, at the end, by the mode it really ended in. Zero is
 " enough: a timer of zero runs on the next pass of the main loop, which is after
 " the command has finished. If the mode is the same as it was, the colour is the
-" same, and nothing is ever seen to change! By Questor
+" same, and nothing is ever seen to change.
 let g:GrooVim_CursorColorTimer = -1
 func! GrooVim_CursorColorSoon() abort
   if g:GrooVim_CursorColorTimer != -1
@@ -324,7 +323,7 @@ func! GrooVim_CursorColorSoon() abort
 endfunc
 
 " Note: Paints the cursor right now. "t_EI" alone would only fire when leaving
-" insert mode! By Questor
+" insert mode.
 func! GrooVim_CursorColorNow() abort
   if g:GrooVim_CursorColorHoldInsert == 1
     return
@@ -332,7 +331,7 @@ func! GrooVim_CursorColorNow() abort
   call GrooVim_CursorColorEmit(g:cursorColorNV)
 endfunc
 
-" Note: Gives the cursor back to the terminal when leaving! By Questor
+" Note: Gives the cursor back to the terminal when leaving.
 func! GrooVim_CursorColorReset() abort
   if exists("*echoraw")
     call echoraw("\<Esc>]112\x7")
@@ -340,7 +339,7 @@ func! GrooVim_CursorColorReset() abort
 endfunc
 
 " Note: A plain Linux console has no colored cursor and inside a GUI these
-" terminal codes make no sense! By Questor
+" terminal codes make no sense.
 let g:GrooVim_CursorColorEnabled = !has("gui_running") && &term !~ "^\\(linux\\|dumb\\|cons\\)"
 if g:GrooVim_CursorColorEnabled
   augroup GrooVim_CursorColor
@@ -349,26 +348,26 @@ if g:GrooVim_CursorColorEnabled
     autocmd VimLeave * call GrooVim_CursorColorReset()
     if exists("##ModeChanged")
       " Note: With "ModeChanged" available this covers every mode, so "t_SI" and
-      " "t_EI" are left alone to avoid painting the cursor twice! By Questor
+      " "t_EI" are left alone to avoid painting the cursor twice.
       "
       " Note: And through "Soon", which waits for the mode to settle: see there
       " for why a command that comes back to the mode it was called from must not
-      " show a colour of its own! By Questor
+      " show a colour of its own.
       autocmd ModeChanged * call GrooVim_CursorColorSoon()
     endif
   augroup end
   if !exists("##ModeChanged")
-    " Note: Older Vim: insert against everything else is all we get! By Questor
+    " Note: Older Vim: insert against everything else is all we get.
     call GrooVim_CursorColorSet()
   endif
 endif
 
-" " Note: Displays a line below the cursor (causes slowdown)! By Questor
+" " Note: Displays a line below the cursor (causes slowdown).
 " if exists('+cursorline')
 "   set cursorline cursorcolumn
 " endif
 "
-" " Note: Displays a column over the cursor (causes slowdown)! By Questor
+" " Note: Displays a column over the cursor (causes slowdown).
 " hi CursorLine cterm=NONE,underline guibg=#F4F4F4
 " hi! link CursorColumn CursorLine
 

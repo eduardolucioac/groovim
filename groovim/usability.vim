@@ -2,7 +2,7 @@
 "USABILITY
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Always show what mode we're currently editing in! By Questor
+" Note: Always show what mode we're currently editing in.
 set showmode
 
 " Note: Word wrap, the one of the View menu of Notepad++. Off by default, which
@@ -18,7 +18,7 @@ set showmode
 " on and becomes the default of every window opened afterwards, which is what a
 " preference should do -- and it leaves the help window alone, which asks for
 " "wrap" of its own and would lose it to anything that reimposed this on every
-" "WinEnter"! By Questor
+" "WinEnter".
 let g:GrooVim_WordWrap = get(g:, "GrooVim_WordWrap", 0)
 func! GrooVim_WordWrapSet() abort
   if g:GrooVim_WordWrap
@@ -29,29 +29,29 @@ func! GrooVim_WordWrapSet() abort
 endfunc
 call GrooVim_WordWrapSet()
 
-" Note: Allow backspacing over everything in insert mode! By Questor
+" Note: Allow backspacing over everything in insert mode.
 set backspace=indent,eol,start
 
-" Note: Remember more commands and search history! By Questor
+" Note: Remember more commands and search history.
 set history=1000
 
-" Note: Use many/muchos levels of undo! By Questor
+" Note: Use many/muchos levels of undo.
 set undolevels=1000
 
-" Note: Ignore case when searching! By Questor
+" Note: Ignore case when searching.
 set ignorecase
 
-" Note: When searching try to be smart about cases! By Questor
+" Note: When searching try to be smart about cases.
 " set smartcase
 
 " Note: Makes search act like search in modern browsers ("highlight"
-" occurrences already in typing)! By Questor
+" occurrences already in typing).
 set incsearch
 
-" Note: Search/replace "globally" (on a line) by default! By Questor
+" Note: Search/replace "globally" (on a line) by default.
 set gdefault
 
-" Note: Return to last edit position when opening files (you want this!)! By Questor
+" Note: Return to last edit position when opening files (you want this!).
 autocmd! BufReadPost *
   \ if line("'\"") > 0 && line("'\"") <= line("$") |
   \   exe "normal! g`\"" |
@@ -59,7 +59,7 @@ autocmd! BufReadPost *
 set viminfo^=%
 
 " Note: Bind <F1> to show the keyword under cursor general help that can still be
-" entered manually, with :h! By Questor
+" entered manually, with :h.
 if has("autocmd")
   augroup vim_files
     autocmd! filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
@@ -68,9 +68,9 @@ if has("autocmd")
 endif
 
 " Note: Turn persistent undo on means that you can undo even when you close a
-" buffer/VIM! By Questor
+" buffer/VIM.
 " Note: The directory must exist, otherwise "undofile" silently fails to write
-" the undo history! By Questor
+" the undo history.
 try
   let g:GrooVim_UndoDir = g:GrooVim_State . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)
@@ -85,10 +85,10 @@ endtry
 "INDENTATION AND SYNTAX
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Always set autoindenting on! By Questor
+" Note: Always set autoindenting on.
 " set autoindent
 
-" Note: Copy the previous indentation on autoindenting! By Questor
+" Note: Copy the previous indentation on autoindenting.
 " set copyindent
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -97,26 +97,26 @@ endtry
 
 "* NERDTree
 
-" Note: Store the bookmarks file! By Questor
+" Note: Store the bookmarks file.
 let NERDTreeBookmarksFile = g:GrooVim_State . "/NERDTreeBookmarks"
 
-" Note: Show the bookmarks table on startup! By Questor
+" Note: Show the bookmarks table on startup.
 let NERDTreeShowBookmarks = 1
 
-" Note: Show hidden files, too! By Questor
+" Note: Show hidden files, too.
 let NERDTreeShowFiles = 1
 
-" Note: Quit on opening files from the tree! By Questor
+" Note: Quit on opening files from the tree.
 " let NERDTreeQuitOnOpen = 1
 
-" Note: Highlight the selected entry in the tree! By Questor
+" Note: Highlight the selected entry in the tree.
 let NERDTreeHighlightCursorline = 1
 
 " Note: Use a single click to fold/unfold directories and a double click to open
-" files! By Questor
+" files.
 let NERDTreeMouseMode=2
 
-" Note: NERDTree always open on the right side! By Questor
+" Note: NERDTree always open on the right side.
 let NERDTreeWinPos = "right"
 
 " Note: A file chosen in the tree opens in a TAB OF ITS OWN.
@@ -130,13 +130,13 @@ let NERDTreeWinPos = "right"
 " instead of opened again, which is what you meant by choosing it.
 "
 " Note: A directory is untouched -- there "open" means unfold, and a folder in
-" a tab of its own would be a tab with a tree in it! By Questor
+" a tab of its own would be a tab with a tree in it.
 let g:NERDTreeCustomOpenArgs =
  \ {"file": {"reuse": "all", "where": "t", "keepopen": 1}, "dir": {}}
 
 "* move-vim
 
-" Note: Mapping to move-vim! By Questor
+" Note: Mapping to move-vim.
 if g:enable_move_vim
   " Note: TWO settings and not one. The plugin asks which modifier moves a LINE
   " and, separately, which one moves a SELECTION -- and only the first was ever
@@ -146,12 +146,12 @@ if g:enable_move_vim
   "
   " Note: It is the same key for both on purpose: moving a line and moving the
   " lines you marked are one idea, and the number of them is not the user's
-  " problem! By Questor
+  " problem.
   let g:move_key_modifier = "C"
   let g:move_key_modifier_visualmode = "C"
   inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
   inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
-  " Note: This workaround is for the "Move Vim" can be fired in insert mode! By Questor
+  " Note: This workaround is for the "Move Vim" can be fired in insert mode.
   func! GrooVim_Move_Vim_OnInsert(direc)
     if a:direc == "up"
       exec "norm \<C-k>"

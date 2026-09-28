@@ -519,7 +519,7 @@ install_groovim() {
   # Note: COPIES and never links. A link would tie the installation to the
   # checkout it was made from: move that directory or throw it away and GrooVim
   # stops working, with nothing to say why. What is installed has to stand on
-  # its own! By Questor
+  # its own.
   mkdir -p "$to"
   rm -rf "$to/groovim" "$to/.vimrc"
   cp "$from/.vimrc" "$to/.vimrc"
@@ -591,7 +591,7 @@ END
 # measured, and it is the first thing anybody hits who wants to edit a file of
 # the system.
 #
-# Note: A link from a directory that IS in that path is the whole fix! By Questor
+# Note: A link from a directory that IS in that path is the whole fix.
 # The directory to link into: one that sudo really searches. secure_path lives
 # in the sudoers file, which a normal user cannot read, so it is not parsed --
 # sudo is simply run, and the PATH it hands its command IS the answer. Guessing
@@ -756,7 +756,7 @@ blue "GrooVim -- a Vim of its own"
 # Note: OUR Vim and not the one of the system. GrooVim is reached through the
 # "groovim" command and runs on the Vim this script builds; what your
 # distribution ships is none of its business, and looking at it here only ever
-# told people about a Vim GrooVim was never going to use! By Questor
+# told people about a Vim GrooVim was never going to use.
 NEED_BUILD=1
 if [ "$REBUILD" -eq 1 ]; then
   step "The Vim of GrooVim"
