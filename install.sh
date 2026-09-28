@@ -686,6 +686,58 @@ check_the_result() {
   fi
 }
 
+# Whether this machine needs a clipboard tool, and it almost never does.
+#
+# The Vim built here talks to Wayland and to X11 itself -- "+wayland", "+X11",
+# "+xterm_clipboard" -- and those come FIRST in the cascade, so a tool is only
+# ever reached where both of them fail. On Wayland that means one thing: the
+# compositor does not offer the protocol Vim's clipboard needs. ":h wayland"
+# names them, "wlr-data-control-unstable-v1" and "ext-data-control-v1", and a
+# compositor without either leaves Vim with no way in.
+#
+# Measured on the machine this was written on (KWin): "ext_data_control_manager_v1"
+# is offered, Vim chooses "wayland" by itself, and the "wl-copy" installed here
+# is never called.
+#
+# On a session with no compositor and no X -- an SSH, a container -- no tool
+# works either, and there the answer is OSC 52, which GrooVim uses on its own.
+check_the_clipboard() {
+  step "The clipboard"
+
+  if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+    if ! command -v wayland-info >/dev/null 2>&1; then
+      echo "  Wayland session. Vim talks to the compositor itself when the compositor"
+      echo "  offers \"wlr-data-control\" or \"ext-data-control\". To see whether yours does:"
+      echo
+      echo "    wayland-info | grep -E 'ext_data_control|zwlr_data_control'"
+      return 0
+    fi
+    if wayland-info 2>/dev/null | grep -qE 'ext_data_control|zwlr_data_control'; then
+      green "  your compositor offers the protocol Vim needs: nothing to install"
+      return 0
+    fi
+    yellow "  your compositor does NOT offer \"wlr-data-control\" or \"ext-data-control\","
+    echo "  which is what Vim needs to reach the clipboard by itself. Copying still"
+    echo "  leaves through OSC 52; PASTING from another application is what stops"
+    echo "  working. A tool covers both:"
+    echo
+    echo "    sudo pacman -S wl-clipboard     # or: sudo apt install wl-clipboard"
+    echo
+    echo "  GrooVim uses it on its own once it is in your PATH."
+    return 0
+  fi
+
+  if [ -n "${DISPLAY:-}" ]; then
+    green "  X11 session: Vim reaches the clipboard itself (+xterm_clipboard)"
+    return 0
+  fi
+
+  echo "  no Wayland and no X here, so the clipboard goes through OSC 52 -- which"
+  echo "  crosses an SSH by itself and needs nothing installed. Pasting from another"
+  echo "  application is the one thing it cannot do: use the paste of your terminal"
+  echo "  (usually Ctrl+Shift+V)."
+}
+
 warn_about_path() {
   case ":$PATH:" in
     *":$BINDIR:"*) return 0 ;;
@@ -784,6 +836,7 @@ install_plugins
 write_groovim
 offer_system_link
 check_the_result
+check_the_clipboard
 warn_about_path
 
 step "Done"

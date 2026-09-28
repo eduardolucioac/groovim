@@ -555,17 +555,19 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n GrooVim reaches the clipboard through a CASCADE, and it requires nothing to be installed. It uses the first of these that answers:".
 \"\n".
-\"\n*o*  |1.| The native clipboard, when your Vim was built with a working |+clipboard| ;".
-\"\n*o*  |2.| A clipboard TOOL (*wl-copy* / *wl-paste* , *xclip* or *xsel* ), used only if one is already there;".
-\"\n*o*  |3.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no X11, no Wayland and no desktop, and it crosses SSH, so a copy made on a remote server lands on the clipboard of the machine you are sitting at. Vim ships this one, there is nothing to install;".
-\"\n*o*  |4.| A file in|~/.groovim/clipboard| , which always works and also lets two Vim instances share a copy;".
+\"\n*o*  |1.| *Wayland* , and Vim talks to the compositor ITSELF -- the Vim that|install.sh|builds has|+wayland| . It asks the compositor for the|wlr-data-control| or the|ext-data-control| protocol, and a compositor that offers neither leaves this one out (to see yours:|wayland-info|\\||grep|-E|'ext_data_control\\|zwlr_data_control'| );".
+\"\n*o*  |2.| *X11* , the same way, with|+xterm_clipboard| ;".
+\"\n*o*  |3.| A clipboard TOOL (*wl-copy* / *wl-paste* , *xclip* or *xsel* ), used only if one is already there -- and only reached when the two above do NOT answer, which today means a Wayland compositor without those protocols;".
+\"\n*o*  |4.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no X11, no Wayland and no desktop, and it crosses SSH, so a copy made on a remote server lands on the clipboard of the machine you are sitting at. Vim ships this one, there is nothing to install;".
+\"\n*o*  |5.| A file in|~/.groovim/clipboard| , which always works and also lets two Vim instances share a copy;".
 \"\n".
 \"\n To see which one is in use:|:echo|v:clipmethod| and|:echo|GrooVim_ClipReg()| .".
 \"\n".
 \"\n *PASTING*FROM*ANOTHER*APPLICATION!* This is the one case that needs help. OSC 52 carries a copy OUT, but reading the clipboard BACK would require the terminal to ANSWER a query, and almost no terminal does that on purpose (a program running over SSH could steal your clipboard). So:".
 \"\n".
 \"\n*o*  With NO tool installed, <Ctrl-v> pastes what Vim itself copied. To bring in what another application copied, use your terminal own paste, usually <Ctrl-Shift-v> ;".
-\"\n*o*  With a tool installed, <Ctrl-v> reaches the system clipboard too, and nothing has to be changed in your|.vimrc|:".
+\"\n*o*  On Wayland or X11 with the methods above answering, this case does not arise at all: Vim reads the clipboard itself, and nothing needs installing;".
+\"\n*o*  Where they do NOT answer, a tool brings <Ctrl-v> back to the system clipboard, and nothing has to be changed in your|.vimrc|:".
 \"\n      |-|Wayland:|sudo|pacman|-S|wl-clipboard| or|sudo|apt|install|wl-clipboard| ;".
 \"\n      |-|X11:|sudo|pacman|-S|xclip| or|sudo|apt|install|xclip| ;".
 \"\n".

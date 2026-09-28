@@ -55,6 +55,20 @@ export GROOVIM_TEST_VIMRC="$VIMRC"
 # battery, because the tab the previous one left had the cursor on another line.
 GROOVIM_HOME_BASE="$WORK/.groovim"
 
+# The terminal the cases are run on, and it is not the one of whoever runs them.
+#
+# GrooVim paints its menu with the 256 colours of a real terminal and hides the
+# cursor of the terminal through "t_ve"; on a "dumb" TERM neither exists, so the
+# checks on them read empty and fail while nothing is wrong with the code.
+# Measured: the whole battery green, and six checks of the menu red from one
+# shell to the next, because that shell had TERM=dumb.
+case "${TERM:-}" in
+  ""|dumb|unknown)
+    echo "term:  TERM was \"${TERM:-}\", so the cases run on xterm-256color"
+    export TERM=xterm-256color
+    ;;
+esac
+
 echo "vimrc: $VIMRC"
 echo "vim:   $("$VIM" --version | sed -n '1p')"
 echo

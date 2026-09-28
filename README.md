@@ -380,20 +380,18 @@ your home ends up owned by root.
 <a name="clipboard"></a>
 ### About the clipboard
 
-Some distributions ship Vim built *without*
-clipboard support. You can check yours with:
+**There is nothing to install.** The Vim `install.sh` builds talks to the
+clipboard itself — `+clipboard`, `+wayland`, `+X11`, `+xterm_clipboard` — and
+GrooVim reaches it through a cascade, using the first of these that answers:
 
-```
-vim --version | grep -o '[+-]clipboard'
-```
-
-If it says `-clipboard`, **you do not need to do anything**: GrooVim falls back
-by itself, in this order, to OSC 52 (which carries the clipboard through the
-terminal itself, and works over SSH and on a machine with no graphical session
-at all), then to a file shared between Vim instances, then to the unnamed
-register. Nothing to install.
-
-If you would rather have the real thing, see below.
+1. **Wayland**, Vim talking to the compositor itself;
+2. **X11**, the same way;
+3. a clipboard **tool** (`wl-copy`/`wl-paste`, `xclip`, `xsel`), used only if
+   one is already installed;
+4. **OSC 52**, an escape sequence that carries the clipboard through the
+   terminal — no X11, no Wayland, no desktop, and it crosses an SSH;
+5. a file in `~/.groovim/clipboard`, which always works and lets two GrooVim
+   instances share a copy.
 
 You can see which one is in use from inside Vim with:
 
@@ -401,6 +399,37 @@ You can see which one is in use from inside Vim with:
 :echo v:clipmethod
 :echo GrooVim_ClipReg()
 ```
+
+#### When a clipboard tool is still worth installing
+
+Vim's own Wayland method asks the compositor for the
+`wlr-data-control-unstable-v1` or `ext-data-control-v1` protocol (`:h wayland`).
+Most compositors offer one of them — KWin and the wlroots family do — and there
+the tool is never reached: measured on KWin, `v:clipmethod` comes out `wayland`
+and the `wl-copy` installed on that machine is never called.
+
+To see whether yours offers it:
+
+```
+wayland-info | grep -E 'ext_data_control|zwlr_data_control'
+```
+
+Nothing there means Vim cannot reach the clipboard by itself. Copying still
+leaves through OSC 52; **pasting from another application** is what stops
+working, and a tool covers both:
+
+```
+sudo pacman -S wl-clipboard     # or: sudo apt install wl-clipboard
+sudo pacman -S xclip            # X11
+```
+
+GrooVim uses it on its own once it is in your `PATH`, and `install.sh` says at
+the end of the installation which of these cases you are in.
+
+On a session with no compositor and no X — an SSH, a container — no tool works
+either, and there OSC 52 is the answer. Pasting from another application is the
+one thing it cannot do: use the paste of your terminal, usually
+<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>.
 
 <a name="ownVim"></a>
 ### A Vim of its own
