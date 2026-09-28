@@ -194,7 +194,15 @@ missing_for_groovim() {
   for feature in clipboard popupwin terminal; do
     if printf '%s\n' "$every_one" | grep -qx -- "-$feature"; then
       case "$feature" in
-        clipboard) echo "-clipboard: copying to the system clipboard depends on workarounds" ;;
+        # Not a failure of the build: "+clipboard" is only defined when the
+        # machine that BUILT it had the headers of X11 or the client library of
+        # Wayland -- read in "feature.h", FEAT_XCLIPBOARD asks for HAVE_X11 and
+        # FEAT_WAYLAND_CLIPBOARD for HAVE_WAYLAND, and both of those are written
+        # by configure out of what it found. A headless server has neither, and
+        # a Vim built there comes out short of the feature no matter who builds
+        # it. GrooVim goes on working: the clipboard provider it uses needs only
+        # "+eval", so OSC 52 carries the copy through the terminal.
+        clipboard) echo "-clipboard: the copy goes out through OSC 52 instead (nothing to install; pasting from another application is what you lose)" ;;
         popupwin)  echo "-popupwin: no native menus" ;;
         terminal)  echo "-terminal: no terminal inside the editor" ;;
       esac
