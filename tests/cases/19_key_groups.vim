@@ -238,7 +238,10 @@ func! GT_Body()
     let l:lines = readfile(l:file)
     let l:rules = []
     for l:i in range(len(l:lines))
-      if l:lines[l:i] =~ '^"\$\$\$'
+      " Note: With or without the space after the quote: the style of the
+      " comments is the author's and this is not the place to hold an opinion
+      " about it.
+      if l:lines[l:i] =~ '^" \=\$\$\$'
         call add(l:rules, l:i)
       endif
     endfor

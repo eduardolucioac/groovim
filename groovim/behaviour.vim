@@ -1,6 +1,25 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"GENERAL BEHAVIOR
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" GENERAL BEHAVIOR
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: The file type of what you open, and what Vim reads because of it: the
+" syntax of the language, the indent rules of the language, and the plugin of
+" the language.
+"
+" Note: It was written in the ".vimrc", under the section about where GrooVim
+" lives and which parts it loads, and it is neither of those: it is how Vim
+" behaves, which is this file. It stays FIRST among the parts, because this is
+" the first one the ".vimrc" reads and the parts that set an indent or a syntax
+" come after it.
+"
+" Note: The line that carried it said "after the plugins loaded", and that has
+" not been true for as long as GrooVim has had its own Vim: packages under
+" "pack/*/start" are loaded when the ".vimrc" has been read to its end, so
+" anything written IN it runs before them, wherever in it that is.
+filetype plugin indent on
+
+" Note: The mouse: clicking, selecting and the wheel, in every mode.
+set mouse=a
 
 " Note: "Esc" answers AT ONCE.
 "

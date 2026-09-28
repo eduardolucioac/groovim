@@ -4,9 +4,9 @@
 " GrooVim =D - Vi IMproved'n'GrooVIed!
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"LICENSE (GNU General Public License v3.0 or later)
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" LICENSE (GNU General Public License v3.0 or later)
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " GrooVim — a Vim of its own, remodelled for a simpler, smarter experience.
 "
@@ -35,19 +35,24 @@
 " Note: The version, and the ONE place it is written.
 let g:grooVimVersion = "v3.0.0b"
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"TASK LIST/BUGS LIST
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" TASK LIST/BUGS LIST
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " <EMPTY>
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"MAIN
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" MAIN
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"WHERE GrooVim LIVES, AND THE PARTS IT LOADS
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" WHAT HAS TO BE SET BEFORE ANYTHING ELSE
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: These two are here and not in the part about how Vim behaves, which is
+" where they would belong by subject: what decides it is WHEN they have to run,
+" and both have to run before anything at all -- before the parts, and before
+" the lines of this file that come after them.
 
 " Note: Use vim settings, rather then vi settings - much better. This must be
 " first, because it changes other options as a side effect.
@@ -94,6 +99,10 @@ set nocompatible
 " is the one that has to come first.
 set encoding=utf-8
 set termencoding=utf-8
+
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" WHERE GrooVim LIVES, AND THE PARTS IT LOADS
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: The environment and not only "g:GrooVim_Home", because with "-u" there
 " is no file of yours running before this one: overriding the variable would
@@ -150,12 +159,6 @@ let &packpath = &runtimepath
 if exists("+viminfofile")
   let &viminfofile = g:GrooVim_State . "/viminfo"
 endif
-
-" Note: Force reloading *after* the plugins loaded! Trying avoid override.
-filetype plugin indent on
-
-" Enable mouse.
-set mouse=a
 
 " Note: Here are the rest of GrooVim, which lives beside this file.
 "
