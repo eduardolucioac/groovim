@@ -193,7 +193,7 @@ if exists("g:GrooVim_CapsLockTimer")
   endtry
 endif
 let g:GrooVim_CapsLockTimer = -1
-if !empty(g:GrooVim_CapsLockLeds) && exists("*timer_start")
+if !empty(g:GrooVim_CapsLockLeds)
   let g:GrooVim_CapsLockTimer = timer_start(g:GrooVim_CapsLockPollMs, "GrooVim_CapsLockPoll", {"repeat": -1})
 endif
 

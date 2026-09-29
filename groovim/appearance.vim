@@ -106,7 +106,7 @@ set laststatus=2
 " [f] -- and a setting you can change and cannot see is a setting you cannot
 " trust. Notepad++ keeps it on its bar for the same reason.
 func! GrooVim_GrooVimBarWhere() abort
-  return '[%{(&fenc==""?&enc:&fenc).((exists("+bomb") && &bomb)?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
 
 func! GrooVim_GrooVimBar() abort
@@ -236,21 +236,15 @@ let g:cursorColorNV = get(g:, "cursorColorNV", "green")
 let g:cursorColorV = get(g:, "cursorColorV", "blue")
 let g:cursorColorBlock = 0
 
+" Note: Sends the color to the terminal right now.
+"
 " Note: "OSC 12" is the standard sequence to set the cursor color and "OSC 112"
 " resets it. The old code used an OSC 50 payload that only Konsole understands
 " AND forked "konsoleprofile" three times (on load, on VimEnter and on
 " VimLeave). This speaks to any terminal that listens (Konsole, xterm, kitty,
 " alacritty, foot, wezterm...), forks nothing and works over SSH.
-func! GrooVim_CursorColorSet() abort
-  let &t_SI = "\<Esc>]12;" . g:cursorColorI . "\x7"
-  let &t_EI = "\<Esc>]12;" . g:cursorColorNV . "\x7"
-endfun
-
-" Note: Sends the color to the terminal right now.
 func! GrooVim_CursorColorEmit(color) abort
-  if exists("*echoraw")
-    call echoraw("\<Esc>]12;" . a:color . "\x7")
-  endif
+  call echoraw("\<Esc>]12;" . a:color . "\x7")
 endfunc
 
 " Note: Which color belongs to the mode we are in.
@@ -333,9 +327,7 @@ endfunc
 
 " Note: Gives the cursor back to the terminal when leaving.
 func! GrooVim_CursorColorReset() abort
-  if exists("*echoraw")
-    call echoraw("\<Esc>]112\x7")
-  endif
+  call echoraw("\<Esc>]112\x7")
 endfunc
 
 " Note: A plain Linux console has no colored cursor and inside a GUI these
@@ -346,20 +338,16 @@ if g:GrooVim_CursorColorEnabled
     autocmd!
     autocmd VimEnter * call GrooVim_CursorColorNow()
     autocmd VimLeave * call GrooVim_CursorColorReset()
-    if exists("##ModeChanged")
-      " Note: With "ModeChanged" available this covers every mode, so "t_SI" and
-      " "t_EI" are left alone to avoid painting the cursor twice.
-      "
-      " Note: And through "Soon", which waits for the mode to settle: see there
-      " for why a command that comes back to the mode it was called from must not
-      " show a colour of its own.
-      autocmd ModeChanged * call GrooVim_CursorColorSoon()
-    endif
+
+    " Note: "ModeChanged" covers every mode, which is why "t_SI" and "t_EI" are
+    " left alone: they only know insert from everything else, and setting them as
+    " well painted the cursor twice.
+    "
+    " Note: And through "Soon", which waits for the mode to settle: see there for
+    " why a command that comes back to the mode it was called from must not show
+    " a colour of its own.
+    autocmd ModeChanged * call GrooVim_CursorColorSoon()
   augroup end
-  if !exists("##ModeChanged")
-    " Note: Older Vim: insert against everything else is all we get.
-    call GrooVim_CursorColorSet()
-  endif
 endif
 
 " " Note: Displays a line below the cursor (causes slowdown).

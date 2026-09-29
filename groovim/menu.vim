@@ -333,9 +333,7 @@ func! GrooVim_MenuShowCursor() abort
   if s:menuCursorWas !=# ""
     let &t_ve = s:menuCursorWas
     let s:menuCursorWas = ""
-    if exists("*echoraw")
-      call echoraw(&t_ve)
-    endif
+    call echoraw(&t_ve)
     redraw
   endif
 endfunc

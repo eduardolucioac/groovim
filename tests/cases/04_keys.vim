@@ -57,4 +57,17 @@ call GT_Ok("outside: x deletes as usual", maparg("x", "n") != "<Nop>", "")
 call GT_Ok("outside: Del deletes as usual", maparg("<Del>", "n") =~ "NormalDel", "   [" . maparg("<Del>", "n") . "]")
 call GT_Ok("outside: Backspace deletes as usual", maparg("<BS>", "n") =~ "NormalBackspace", "")
 
+" ---- F1 on a Vim file: the help of the word under the cursor, in BOTH modes
+"
+" Two lines write it, one with "noremap" and one with "noremap!", and both used
+" to carry a bang: ":autocmd! {event} {pat} {cmd}" removes what is already on
+" that event and pattern, so the second line deleted the first. Measured: the
+" mapping existed in insert mode and not in normal mode, which is where F1 is
+" pressed.
+exec "edit " . g:GT_FIX . "/um.vim"
+call GT_Ok("F1 on a .vim file answers in normal mode",
+  \ maparg("<F1>", "n") =~ ":help", "   [" . maparg("<F1>", "n") . "]")
+call GT_Ok("  and in insert mode as well",
+  \ maparg("<F1>", "i") =~ ":help", "   [" . maparg("<F1>", "i") . "]")
+
 call GT_Done()

@@ -60,12 +60,17 @@ set viminfo^=%
 
 " Note: Bind <F1> to show the keyword under cursor general help that can still be
 " entered manually, with :h.
-if has("autocmd")
-  augroup vim_files
-    autocmd! filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
-    autocmd! filetype vim noremap! <buffer> <F1> <Esc>:help <C-r><C-w><cr>
-  augroup end
-endif
+" Note: The "autocmd!" that clears the GROUP, and not a bang on each line. The
+" bang on a line means "remove what is already on this event and this pattern",
+" so the second line was deleting the first: measured, the mapping existed in
+" insert mode and NOT in normal mode, which is where "F1" is pressed. Clearing
+" the group once is what the bang was there for -- not redefining the event when
+" GrooVim is reloaded -- and it leaves both lines standing.
+augroup vim_files
+  autocmd!
+  autocmd filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><cr>
+  autocmd filetype vim noremap! <buffer> <F1> <Esc>:help <C-r><C-w><cr>
+augroup end
 
 " Note: Turn persistent undo on means that you can undo even when you close a
 " buffer/VIM.

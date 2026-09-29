@@ -307,9 +307,7 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
   " next instruction already finds it.
   let g:GrooVim_ClipCache = l:text
   let g:GrooVim_ClipCachePending = 1
-  if exists("*timer_start")
-    call timer_start(g:GrooVim_ClipCacheMs, "GrooVim_ClipCacheClear")
-  endif
+  call timer_start(g:GrooVim_ClipCacheMs, "GrooVim_ClipCacheClear")
 
   try
     let l:job = job_start(g:GrooVim_ClipTool["copy"], {
@@ -554,9 +552,7 @@ func! GrooVim_ClipFileSet(value) abort
     call writefile(split(a:value, "\n", 1), g:GrooVim_ClipFile)
     " Note: A clipboard carries private things, so keep it readable only by its
     " owner.
-    if exists("*setfperm")
-      call setfperm(g:GrooVim_ClipFile, "rw-------")
-    endif
+    call setfperm(g:GrooVim_ClipFile, "rw-------")
   catch
   endtry
 endfunc

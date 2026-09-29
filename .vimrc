@@ -156,9 +156,7 @@ let &packpath = &runtimepath
 
 " And a "viminfo" of its own, so the marks, the registers and the history of
 " one do not land on the other.
-if exists("+viminfofile")
-  let &viminfofile = g:GrooVim_State . "/viminfo"
-endif
+let &viminfofile = g:GrooVim_State . "/viminfo"
 
 " Note: Here are the rest of GrooVim, which lives beside this file.
 "
