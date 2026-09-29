@@ -58,19 +58,6 @@ autocmd! BufReadPost *
   \ endif
 set viminfo^=%
 
-" Note: No "F1" of its own on a Vim file. It used to be bound, in this buffer
-" only, to the help of the word under the cursor -- and Vim already does that
-" with "K": its file type plugin for "vim" sets "keywordprg=:VimKeywordPrg",
-" which knows a command from an option from a function, where the ":help
-" <cword>" written here handed over the raw word. It was also the one mapping
-" that never reached "g:GrooVim_Shortcuts", so it was in no help, no menu and no
-" README -- which is how it went years half broken without anyone noticing: two
-" lines wrote it, both with a bang, and ":autocmd! {event} {pat} {cmd}" removes
-" what is already on that event and pattern, so the second deleted the
-" first. Measured: it answered in insert mode and not in normal, which is where
-" F1 is pressed. So "F1" is Vim's again -- the help -- and the word under the
-" cursor is "K".
-
 " Note: Turn persistent undo on means that you can undo even when you close a
 " buffer/VIM.
 " Note: The directory must exist, otherwise "undofile" silently fails to write

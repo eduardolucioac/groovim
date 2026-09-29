@@ -59,11 +59,8 @@ call GT_Ok("outside: Backspace deletes as usual", maparg("<BS>", "n") =~ "Normal
 
 " ---- the help of the word under the cursor, on a Vim file, is Vim's own
 "
-" GrooVim used to bind "F1" to ":help <cword>" in this buffer, and it was the one
-" mapping that never reached the list of shortcuts. What it did, Vim already does
-" with "K" and does better: the file type plugin for "vim" sets "keywordprg", and
-" it knows a command from an option from a function. This is the check that says
-" why the mapping could go: GrooVim leaves both of them alone.
+" "K" asks the "keywordprg" the file type plugin for "vim" sets, and it knows a
+" command from an option from a function. GrooVim leaves it, and "F1", alone.
 exec "edit " . g:GT_FIX . "/um.vim"
 call GT_Ok("on a .vim file, K asks Vim for the word under the cursor",
   \ &keywordprg =~ "Vim" && maparg("K", "n") ==# "",
