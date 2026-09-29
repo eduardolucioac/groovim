@@ -350,12 +350,3 @@ if g:GrooVim_CursorColorEnabled
   augroup end
 endif
 
-" " Note: Displays a line below the cursor (causes slowdown).
-" if exists('+cursorline')
-"   set cursorline cursorcolumn
-" endif
-"
-" " Note: Displays a column over the cursor (causes slowdown).
-" hi CursorLine cterm=NONE,underline guibg=#F4F4F4
-" hi! link CursorColumn CursorLine
-

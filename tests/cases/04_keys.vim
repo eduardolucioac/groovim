@@ -57,17 +57,19 @@ call GT_Ok("outside: x deletes as usual", maparg("x", "n") != "<Nop>", "")
 call GT_Ok("outside: Del deletes as usual", maparg("<Del>", "n") =~ "NormalDel", "   [" . maparg("<Del>", "n") . "]")
 call GT_Ok("outside: Backspace deletes as usual", maparg("<BS>", "n") =~ "NormalBackspace", "")
 
-" ---- F1 on a Vim file: the help of the word under the cursor, in BOTH modes
+" ---- the help of the word under the cursor, on a Vim file, is Vim's own
 "
-" Two lines write it, one with "noremap" and one with "noremap!", and both used
-" to carry a bang: ":autocmd! {event} {pat} {cmd}" removes what is already on
-" that event and pattern, so the second line deleted the first. Measured: the
-" mapping existed in insert mode and not in normal mode, which is where F1 is
-" pressed.
+" GrooVim used to bind "F1" to ":help <cword>" in this buffer, and it was the one
+" mapping that never reached the list of shortcuts. What it did, Vim already does
+" with "K" and does better: the file type plugin for "vim" sets "keywordprg", and
+" it knows a command from an option from a function. This is the check that says
+" why the mapping could go: GrooVim leaves both of them alone.
 exec "edit " . g:GT_FIX . "/um.vim"
-call GT_Ok("F1 on a .vim file answers in normal mode",
-  \ maparg("<F1>", "n") =~ ":help", "   [" . maparg("<F1>", "n") . "]")
-call GT_Ok("  and in insert mode as well",
-  \ maparg("<F1>", "i") =~ ":help", "   [" . maparg("<F1>", "i") . "]")
+call GT_Ok("on a .vim file, K asks Vim for the word under the cursor",
+  \ &keywordprg =~ "Vim" && maparg("K", "n") ==# "",
+  \ "   [keywordprg=" . &keywordprg . "]   (and K is not remapped)")
+call GT_Ok("  and F1 is Vim's own again",
+  \ maparg("<F1>", "n") ==# "" && maparg("<F1>", "i") ==# "",
+  \ "   [" . maparg("<F1>", "n") . "]")
 
 call GT_Done()
