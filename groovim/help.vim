@@ -303,7 +303,7 @@ let g:GrooVim_Shortcuts = [
  \   "It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, |K| over a word opens the help OF THAT WORD, which is what the |keywordprg| of Vim is for",
  \   "In visual mode it does nothing -- measured, and it is Vim: |<Help>| is not a visual mode command"
  \  ]},
- \ {"where": "?", "group": "F5", "key": "?", "break": 1, "modes": "niv", "run": 'call GrooVim_About()',
+ \ {"where": "?", "group": "F5", "key": "/", "break": 1, "modes": "niv", "run": 'call GrooVim_About()',
  \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim \u03A9 underneath"}
  \ ]
 
@@ -432,12 +432,14 @@ func! GrooVim_About() abort
    \ "F9 opens the help of GrooVim, F1 the help of Vim \u03A9."]
 
   " Note: A popup where there is one, and the screen where there is not -- the
-  " same Vim that has no menus to open this from can still be asked for it with
-  " F5->?, and it has to answer something.
+  " same Vim that has no menus to open this from can still be asked for it by
+  " its key, and it has to answer something.
   if has("popupwin")
+    call GrooVim_CursorHide()
     call popup_dialog(l:lines, {"title": " About GrooVim ",
      \ "padding": [0, 1, 0, 1], "highlight": "GrooVimMenu",
-     \ "mapping": 0, "filter": "GrooVim_AboutFilter"})
+     \ "mapping": 0, "filter": "GrooVim_AboutFilter",
+     \ "callback": "GrooVim_AboutClosed"})
     return
   endif
 
@@ -450,21 +452,28 @@ func! GrooVim_About() abort
 
 endfunc
 
-" Note: Any key closes it, which is what a window with nothing to choose in it
-" should do. The key is swallowed on the way out, so that the letter that closed
-" the window does not land in the text behind it.
+" Note: While it is up, it is the only thing there is -- the same as the menu.
+" EVERY key is answered here, so nothing walks the file behind it, and the key
+" that closes the window is swallowed instead of landing in the text.
 "
-" Any key somebody PRESSED. Vim sends its own through a filter as well --
-" measured, "<80><fd>`" arrived on its own and shut the window in the instant it
-" opened, so through a real terminal the About only ever flashed. They all begin
-" with the byte 0x80, they are nobody's keystroke, and they go back to Vim
-" untouched.
+" Any key somebody pressed closes it, which is what a window with nothing to
+" choose in it should do. The keys VIM sends do not: they begin with the two
+" bytes 0x80 0xFD, they are nobody's keystroke, and one of them -- measured,
+" "<80><fd>`" -- used to arrive on its own and shut the window in the instant it
+" opened, so through a real terminal the About did nothing but flash.
 func! GrooVim_AboutFilter(id, key) abort
-  if a:key[0] ==# "\x80"
-    return 0
+  if a:key[0:1] ==# "\x80\xfd"
+    return 1
   endif
   call popup_close(a:id)
   return 1
+endfunc
+
+" Note: However it was closed, the cursor of the terminal comes back. On the
+" callback and not beside the "popup_close" above, because that is the one place
+" every way out goes through.
+func! GrooVim_AboutClosed(id, result) abort
+  call GrooVim_CursorShow()
 endfunc
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

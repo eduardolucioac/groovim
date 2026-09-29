@@ -299,7 +299,7 @@ func! GrooVim_Menu() abort
   call GrooVim_MenuColours()
   call GrooVim_MenuClose()
 
-  call GrooVim_MenuHideCursor()
+  call GrooVim_CursorHide()
 
   let [l:text, l:at] = GrooVim_MenuBarText()
   let s:menuBar = popup_create([l:text], {"line": 1, "col": 1,
@@ -311,13 +311,17 @@ func! GrooVim_Menu() abort
 endfunc
 
 " Note: The cursor of the terminal has no idea a popup is there and goes on
-" blinking wherever it was in the file -- ON TOP of the menu, which is where you
-" are NOT.
+" blinking wherever it was in the file -- ON TOP of the window, which is where
+" you are NOT.
 "
-" Note: Vim hides the cursor before a redraw with "t_vi" and shows it again after
-" with "t_ve". Emptying "t_ve" takes the showing away, so the next redraw hides it
-" and nothing brings it back until the string is handed over again.
-func! GrooVim_MenuHideCursor() abort
+" Vim hides the cursor before a redraw with "t_vi" and shows it again after with
+" "t_ve". Emptying "t_ve" takes the showing away, so the next redraw hides it and
+" nothing brings it back until the string is handed over again.
+"
+" Not only the menu: the About of the "?" section puts a window up in the same
+" way and wants the same thing, which is why these two are not named after the
+" menu any more.
+func! GrooVim_CursorHide() abort
   if s:menuCursorWas ==# ""
     let s:menuCursorWas = &t_ve
     set t_ve=
@@ -329,7 +333,7 @@ endfunc
 " brings the cursor back. Handing "t_ve" over again is only half of it: on the
 " way out there is no redraw left to emit it, and GrooVim would give you your
 " shell back with no cursor in it.
-func! GrooVim_MenuShowCursor() abort
+func! GrooVim_CursorShow() abort
   if s:menuCursorWas !=# ""
     let &t_ve = s:menuCursorWas
     let s:menuCursorWas = ""
@@ -347,9 +351,12 @@ endfunc
 " Note: "VimLeavePre" and not "VimLeave": the cursor comes back through a redraw,
 " and by "VimLeave" there is no drawing left to do -- measured, leaving with the
 " menu up ended on "hide" while leaving without it ended on "show".
+" Note: And the About as well, which is the other window that hides it. Closing
+" the menu already gives the cursor back; saying it again covers a window that is
+" not the menu.
 augroup GrooVim_MenuCursor
   autocmd!
-  autocmd VimLeavePre * call GrooVim_MenuClose()
+  autocmd VimLeavePre * call GrooVim_MenuClose() | call GrooVim_CursorShow()
 augroup END
 
 " Note: Opens the section, wrapping round at either end the way a menu bar does.
@@ -602,7 +609,7 @@ func! GrooVim_MenuClicked(id) abort
 endfunc
 
 func! GrooVim_MenuClose() abort
-  call GrooVim_MenuShowCursor()
+  call GrooVim_CursorShow()
   if s:menuDrop > 0
     let s:menuSwitching = 1
     call popup_close(s:menuDrop, -1)

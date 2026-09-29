@@ -405,14 +405,18 @@ func! GT_Body()
     \ "   (" . printf("%d.%d.%d", v:version / 100, v:version % 100, v:versionlong % 10000) . ")")
   call GT_Ok("  with the omega there too", l:text =~# "\u03A9", "")
 
-  " A key of Vim's own -- they begin with the byte 0x80 -- used to close this the
-  " instant it opened, so through a real terminal the About only ever flashed.
+  " Every key is answered by the filter, so while the About is up nothing else
+  " does -- the same as the menu. A key of Vim's own -- they begin with the two
+  " bytes 0x80 0xFD -- used to CLOSE it the instant it opened, so through a real
+  " terminal the About only ever flashed.
   call GT_Ok("a key of Vim's own does not close it",
-    \ GrooVim_AboutFilter(l:id, "\x80\xfd`") == 0 && !empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)")
+    \ GrooVim_AboutFilter(l:id, "\x80\xfd`") == 1 && !empty(popup_list()),
+    \ "   (" . len(popup_list()) . " popups)   (swallowed, and the window stays)")
   call GT_Ok("  and a key somebody pressed does",
     \ GrooVim_AboutFilter(l:id, "q") == 1 && empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)   (and the key is swallowed on the way out)")
+    \ "   (" . len(popup_list()) . " popups)   (and that key is swallowed too)")
+  call GT_Ok("  and the cursor of the terminal comes back with it",
+    \ &t_ve !=# "", "   [" . strtrans(&t_ve) . "]   (it is hidden while the About is up)")
 
   call GT_Done()
 endfunc
