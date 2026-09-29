@@ -42,7 +42,8 @@ let g:GrooVim_MenuSections = [
  \ ["Search", "Finding and replacing, and the marks a search leaves"],
  \ ["Move", "Walking the text: the smooth movement, the pages, the brackets"],
  \ ["View", "What is beside the text: the tree, the marked lines, the tabs, the help"],
- \ ["Settings", "What GrooVim is: every setting, and reading it again"]
+ \ ["Settings", "What GrooVim is: every setting, and reading it again"],
+ \ ["?", "The help of GrooVim, the help of Vim, and what this is"]
  \ ]
 
 let g:GrooVim_Shortcuts = [
@@ -278,9 +279,7 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "View", "keys": "<A-.>", "modes": "niv",
  \  "menu": "Window forward",
  \  "what": "To the next window, going round"},
- \ {"where": "View", "keys": "<F9>", "break": 1, "modes": "n",
- \  "menu": "Help", "what": "Opens this help, and closes it"},
- \ {"where": "View", "keys": "<F10>", "modes": "niv",
+ \ {"where": "View", "keys": "<F10>", "break": 1, "modes": "niv",
  \  "menu": "Menu", "what": "Opens this menu"},
  \
 "\ ---- Settings
@@ -293,7 +292,19 @@ let g:GrooVim_Shortcuts = [
  \   "On every screen, leaving an answer EMPTY keeps the value shown as \"in use\". At the end a summary of what you chose is held on screen until you press <Enter>",
  \   "|[f]ile| is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there",
  \   "There is one door and only one. Each screen used to have a key of its own, so the letters |f| , |h| and |i| of this group are free again"
- \  ]}
+ \  ]},
+ \
+"\ ---- ?
+ \ {"where": "?", "keys": "<F9>", "modes": "n",
+ \  "menu": "GrooVim help", "what": "Opens the help of GrooVim, and closes it"},
+ \ {"where": "?", "keys": "<F1>", "modes": "ni",
+ \  "menu": "Vim \u03A9 help", "what": "Opens the help of Vim itself",
+ \  "notes": [
+ \   "It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, |K| over a word opens the help OF THAT WORD, which is what the |keywordprg| of Vim is for",
+ \   "In visual mode it does nothing -- measured, and it is Vim: |<Help>| is not a visual mode command"
+ \  ]},
+ \ {"where": "?", "group": "F5", "key": "?", "break": 1, "modes": "niv", "run": 'call GrooVim_About()',
+ \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim \u03A9 underneath"}
  \ ]
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
@@ -391,6 +402,69 @@ func! GrooVim_ShortcutsHelp() abort
   endfor
 
   return join(l:out, "\n")
+endfunc
+
+" Note: What GrooVim is, in the shape the "?" menu of Notepad++ ends with: the
+" name, the version, whose it is, under what licence, and where it lives.
+"
+" The "Ω" beside the name of Vim is on purpose, here and on the menu. It is
+" not a typo to be tidied away: it is how this project salutes the one it stands
+" on.
+"
+" The version of Vim is asked of Vim and not written here. "v:version" is the
+" release -- 902 is 9.2 -- and the last four digits of "v:versionlong" are the
+" patch, which is the number that actually moves.
+func! GrooVim_About() abort
+
+  let l:vim = printf("%d.%d.%d", v:version / 100, v:version % 100,
+   \ v:versionlong % 10000)
+
+  let l:lines = [
+   \ "GrooVim =D " . g:grooVimVersion . " -- Vi IMproved'n'GrooVIed!",
+   \ "",
+   \ "A Vim of its own, remodelled for a simpler, smarter experience.",
+   \ "It runs on Vim \u03A9 " . l:vim . ".",
+   \ "",
+   \ "Copyright (C) 2014-2026 Eduardo Lucio Amorim Costa",
+   \ "GNU General Public License v3.0 or later",
+   \ "https://github.com/eduardolucioac/groovim",
+   \ "",
+   \ "F9 opens the help of GrooVim, F1 the help of Vim \u03A9."]
+
+  " Note: A popup where there is one, and the screen where there is not -- the
+  " same Vim that has no menus to open this from can still be asked for it with
+  " F5->?, and it has to answer something.
+  if has("popupwin")
+    call popup_dialog(l:lines, {"title": " About GrooVim ",
+     \ "padding": [0, 1, 0, 1], "highlight": "GrooVimMenu",
+     \ "mapping": 0, "filter": "GrooVim_AboutFilter"})
+    return
+  endif
+
+  for l:line in l:lines
+    echo l:line
+  endfor
+  echo ""
+  echo "Press any key!"
+  call getchar()
+
+endfunc
+
+" Note: Any key closes it, which is what a window with nothing to choose in it
+" should do. The key is swallowed on the way out, so that the letter that closed
+" the window does not land in the text behind it.
+"
+" Any key somebody PRESSED. Vim sends its own through a filter as well --
+" measured, "<80><fd>`" arrived on its own and shut the window in the instant it
+" opened, so through a real terminal the About only ever flashed. They all begin
+" with the byte 0x80, they are nobody's keystroke, and they go back to Vim
+" untouched.
+func! GrooVim_AboutFilter(id, key) abort
+  if a:key[0] ==# "\x80"
+    return 0
+  endif
+  call popup_close(a:id)
+  return 1
 endfunc
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

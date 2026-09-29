@@ -281,7 +281,6 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Alt+,` - To the window before this one, going round *(normal mode/insert/visual)*;
         - Note: It was Ctrl+W , which only ever went one way. And the Ctrl+W of Vim is back to being what it is everywhere else: the key every window command begins with;
     - `Alt+.` - To the next window, going round *(normal mode/insert/visual)*;
-    - `F9` - Opens this help, and closes it *(normal mode)*;
     - `F10` - Opens this menu *(normal mode/insert/visual)*;
 
  * **Settings** *(What GrooVim is: every setting, and reading it again)*
@@ -293,6 +292,14 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: On every screen, leaving an answer EMPTY keeps the value shown as "in use". At the end a summary of what you chose is held on screen until you press <Enter>;
         - Note: [f]ile is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there;
         - Note: There is one door and only one. Each screen used to have a key of its own, so the letters f , h and i of this group are free again;
+
+ * **?** *(The help of GrooVim, the help of Vim, and what this is)*
+
+    - `F9` - Opens the help of GrooVim, and closes it *(normal mode)*;
+    - `F1` - Opens the help of Vim itself *(normal mode/insert)*;
+        - Note: It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, K over a word opens the help OF THAT WORD, which is what the keywordprg of Vim is for;
+        - Note: In visual mode it does nothing -- measured, and it is Vim: <Help> is not a visual mode command;
+    - `F5->?` - What GrooVim is: the version, the licence, and the Vim Ω underneath *(normal mode/insert/visual)*;
 
 <!-- shortcuts: end -->
 

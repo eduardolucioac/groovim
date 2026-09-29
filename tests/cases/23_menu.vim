@@ -173,7 +173,10 @@ func! GT_Body()
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Left>")
   call GT_Ok("Left comes back", GT_MenuSection() ==# "File", "   [" . GT_MenuSection() . "]")
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Left>")
-  call GT_Ok("and from the first, Left wraps to the last", GT_MenuSection() ==# "Settings",
+  " The LAST one, read from the list: naming it here meant that adding a section
+  " at the end broke a check about walking, which is not what it measures.
+  call GT_Ok("and from the first, Left wraps to the last",
+    \ GT_MenuSection() ==# GrooVim_MenuSectionsHere()[-1][0],
     \ "   [" . GT_MenuSection() . "]")
   call GrooVim_MenuFilter(GT_MenuDrop(), "\<Right>")
   call GT_Ok("from the last, Right wraps to the first", GT_MenuSection() ==# "File",
@@ -375,6 +378,41 @@ func! GT_Body()
   call GT_Ok("walking sideways keeps the bar up", len(popup_list()) == 2,
     \ "   (" . len(popup_list()) . " popups)   (closing the old list answers -1 too)")
   call GrooVim_MenuClose()
+
+  " ---- the "?" section, which is the one Notepad++ ends its bar with
+  let l:ask = filter(copy(g:GrooVim_Shortcuts), 'v:val.where ==# "?"')
+  call GT_Ok("there is a \"?\" section, and it is the last",
+    \ g:GrooVim_MenuSections[-1][0] ==# "?" && len(l:ask) == 3,
+    \ "   " . string(map(copy(l:ask), 'GrooVim_ShortcutMenu(v:val)')))
+  call GT_Ok("  the help of GrooVim is on F9, and the help of Vim on F1",
+    \ GrooVim_ShortcutShown(l:ask[0]) ==# "F9" && GrooVim_ShortcutShown(l:ask[1]) ==# "F1",
+    \ "   [" . GrooVim_ShortcutShown(l:ask[0]) . "] [" . GrooVim_ShortcutShown(l:ask[1]) . "]")
+  call GT_Ok("  and the omega beside the name of Vim is on purpose",
+    \ GrooVim_ShortcutMenu(l:ask[1]) =~# "\u03A9",
+    \ "   [" . GrooVim_ShortcutMenu(l:ask[1]) . "]   (it is not a typo to be tidied away)")
+
+  " ---- About GrooVim
+  call GrooVim_About()
+  let l:id = empty(popup_list()) ? 0 : popup_list()[0]
+  let l:text = l:id ? join(getbufline(winbufnr(l:id), 1, "$"), "\n") : ""
+  call GT_Ok("About opens a window of its own", l:id > 0,
+    \ "   [" . popup_getoptions(l:id).title . "]")
+  call GT_Ok("  saying which GrooVim this is", l:text =~ g:grooVimVersion,
+    \ "   [" . g:grooVimVersion . "]")
+  call GT_Ok("  under what licence", l:text =~ "General Public License", "")
+  call GT_Ok("  and which Vim is underneath, asked of Vim",
+    \ l:text =~ printf("%d\\.%d\\.%d", v:version / 100, v:version % 100, v:versionlong % 10000),
+    \ "   (" . printf("%d.%d.%d", v:version / 100, v:version % 100, v:versionlong % 10000) . ")")
+  call GT_Ok("  with the omega there too", l:text =~# "\u03A9", "")
+
+  " A key of Vim's own -- they begin with the byte 0x80 -- used to close this the
+  " instant it opened, so through a real terminal the About only ever flashed.
+  call GT_Ok("a key of Vim's own does not close it",
+    \ GrooVim_AboutFilter(l:id, "\x80\xfd`") == 0 && !empty(popup_list()),
+    \ "   (" . len(popup_list()) . " popups)")
+  call GT_Ok("  and a key somebody pressed does",
+    \ GrooVim_AboutFilter(l:id, "q") == 1 && empty(popup_list()),
+    \ "   (" . len(popup_list()) . " popups)   (and the key is swallowed on the way out)")
 
   call GT_Done()
 endfunc
