@@ -10,7 +10,7 @@ let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
 " enough to add your own: >
 "   let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
 " <
-" Note: Only what is listed here is touched! Vim already ships file type plugins
+" Only what is listed here is touched! Vim already ships file type plugins
 " that know what they are doing, and some of them are not a matter of taste:
 " "make" needs a REAL tab on its recipe lines (it fails with "missing separator"
 " otherwise) and "go" is written with tabs by gofmt. Configuring EVERY type here
@@ -48,8 +48,7 @@ let &expandtab = g:GrooVim_IndentExpandTab
 " and a width of 8 goes to 8, not to 10. Unindenting comes back the same way.
 "
 " Note: Without it, "Tab" over a line with 2 columns gave 2, 10, 18, 26, because
-" ">>" adds "shiftwidth" to the indent in place. Native to Vim, one option! By
-" Questor
+" ">>" adds "shiftwidth" to the indent in place. Native to Vim, one option.
 set shiftround
 
 " Note: Draws a dot on every space and an arrow on every tab, which is "Show
@@ -61,12 +60,13 @@ let g:GrooVim_ShowSpaceAndTab = get(g:, "GrooVim_ShowSpaceAndTab", 1)
 " Note: Draws the indentation guides with "leadmultispace", which is native to
 " Vim and replaces what a plugin used to do here.
 "
-" Note: The width is NOT remembered by us, it is read from the standard Vim
+" The width is NOT remembered by us, it is read from the standard Vim
 " options at the moment of drawing. That way the guide follows a modeline, a file
 " type plugin or a ":set shiftwidth=" you type, instead of drifting away from the
 " real indent. Falling back to "tabstop" is what keeps "make" right, since its
 " file type plugin leaves "shiftwidth" at zero.
-" Note: Named for what it does now. It used to set the indent guide alone, and
+"
+" Named for what it does now. It used to set the indent guide alone, and
 " it sets every symbol of the "Show Symbol" menu that GrooVim has: the guide, the
 " dot on a space, the arrow on a tab.
 func! GrooVim_SymbolsSet() abort
@@ -75,42 +75,55 @@ func! GrooVim_SymbolsSet() abort
   " -- and it is always on, the guide needs it -- a "listchars" with no "tab:"
   " makes Vim draw a tab as "^I". Measured. Two spaces make it look like the
   " blank it is.
-  let l:listchars = g:GrooVim_ShowSpaceAndTab
+  let l:symbols = g:GrooVim_ShowSpaceAndTab
    \ ? "tab:\u2192 ,space:\uB7" : "tab:  "
 
-  let l:listchars = l:listchars . ",trail:\uB7,nbsp:~"
+  let l:symbols = l:symbols . ",trail:\uB7,nbsp:~"
 
+  let l:guide = ""
   if g:GrooVim_IndentGuideChar != ""
     let l:width = &shiftwidth > 0 ? &shiftwidth : &tabstop
     if l:width > 1
-      let l:listchars = l:listchars . ",leadmultispace:" . g:GrooVim_IndentGuideChar . repeat(" ", l:width - 1)
+      let l:guide = ",leadmultispace:" . g:GrooVim_IndentGuideChar . repeat(" ", l:width - 1)
     endif
   endif
 
   " Note: Assigning the option instead of using ":set" avoids having to escape
   " the spaces with a backslash.
-  " Note: "leadmultispace" is from Vim 9, and "listchars" is only window local on
-  " a recent enough Vim, so both are attempted and neither is fatal.
-  " Note: Falling back in two directions. The window local option is of a recent
-  " enough Vim, so the global one is tried next; and the guide itself may be
-  " refused -- a Vim that does not know "leadmultispace", or a character it
-  " cannot measure -- so what is left has to be the rest, and never nothing.
   "
-  " Note: Never nothing is the point. A "listchars" that stays empty is not
-  " "no guides": it is the DEFAULT of Vim showing through, which draws a "$" at
-  " the end of every line.
-  for l:attempt in [l:listchars, "tab:  ,trail:\uB7,nbsp:~", "trail:-"]
-    try
-      let &l:listchars = l:attempt
-      return
-    catch
-    endtry
-    try
-      let &listchars = l:attempt
-      return
-    catch
-    endtry
-  endfor
+  " Note: The one thing that can be refused here is the CHARACTER, and it is the
+  " user who chooses it. Vim wants one single-width char per column in a
+  " "leadmultispace", so a double-width char, an emoji, a control char or the
+  " comma that separates the fields answer "E1512" or "E1511". Measured on the
+  " Vim GrooVim builds.
+  "
+  " Note: Nothing is tried twice for the VERSION of Vim any more. The installer
+  " refuses anything under 9.2, and both "leadmultispace" and a window-local
+  " "listchars" are older than that. What used to be here -- the global option
+  " attempted after the local one, and a bare "trail:-" after both -- was written
+  " for a Vim GrooVim cannot be running on.
+  try
+    let &l:listchars = l:symbols . l:guide
+    return
+  catch
+  endtry
+
+  " Note: The char was refused, so the symbols are drawn WITHOUT the guide --
+  " everything else the user asked for stays, and it is never left empty: an
+  " empty "listchars" is not "no guides", it is the default of Vim showing
+  " through, which draws a "$" at the end of every line.
+  "
+  " Note: And said out loud, once per char: this function runs on every window
+  " you enter, and a char silently drawing nothing looks like a broken editor.
+  " The message is skipped during startup, before the bar exists.
+  let &l:listchars = l:symbols
+  if get(s:, "refused", "") !=# g:GrooVim_IndentGuideChar
+    let s:refused = g:GrooVim_IndentGuideChar
+    if exists("*GrooVim_GrooVimBarMsg")
+      call GrooVim_GrooVimBarMsg("Vim refused \"" . g:GrooVim_IndentGuideChar .
+       \ "\" as the indent guide: it takes ONE char, as wide as a space!", 8)
+    endif
+  endif
 
 endfunc
 

@@ -52,6 +52,33 @@ let g:GrooVim_IndentGuideChar = "┊"
 call GrooVim_SymbolsSet()
 call GT_Ok("turned back on", GT_Guide() != "", "")
 
+" ---- a char Vim will not take
+"
+" One single-width char per column is what a "leadmultispace" wants, so an emoji
+" or the comma that separates the fields is refused with "E1512"/"E1511". It is
+" the CHARACTER that is refused and not the option -- the version of Vim has
+" nothing to do with it, the installer refuses anything under 9.2 and
+" "leadmultispace" is older than that. What has to survive is everything else:
+" an empty "listchars" is the default of Vim showing through, "$" at the end of
+" every line.
+for GT_BAD in ["\U0001F600", ","]
+  let g:GrooVim_IndentGuideChar = GT_BAD
+  call GrooVim_GrooVimBarMsg("", "")
+  call GrooVim_SymbolsSet()
+  call GT_Ok("the char [" . GT_BAD . "] is refused, and draws no guide",
+    \ GT_Guide() ==# "", "   [" . &listchars . "]")
+  call GT_Ok("  but the other symbols stay",
+    \ &listchars =~ "tab:" && &listchars =~ "trail:" && &listchars =~ "nbsp:",
+    \ "   [" . &listchars . "]   (an empty listchars would draw a \"$\" on every line)")
+  call GT_Ok("  and it says so instead of drawing nothing in silence",
+    \ g:GrooVim_GrooVimBarMsgValue =~ "refused", "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+endfor
+let g:GrooVim_IndentGuideChar = "┊"
+call GrooVim_GrooVimBarMsg("", "")
+call GrooVim_SymbolsSet()
+call GT_Ok("and a char it takes comes back to drawing", GT_Guide() != "",
+  \ "   [" . GT_Guide() . "]")
+
 " ---- where the guides land ON SCREEN, read from Vim itself
 "
 " listchars states the rule; this states the drawing. It is the proof that the
