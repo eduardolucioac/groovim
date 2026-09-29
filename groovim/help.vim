@@ -298,13 +298,13 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "?", "keys": "<F9>", "modes": "n",
  \  "menu": "GrooVim help", "what": "Opens the help of GrooVim, and closes it"},
  \ {"where": "?", "keys": "<F1>", "modes": "ni",
- \  "menu": "Vim \u03A9 help", "what": "Opens the help of Vim itself",
+ \  "menu": "Vim help", "what": "Opens the help of Vim itself",
  \  "notes": [
  \   "It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, |K| over a word opens the help OF THAT WORD, which is what the |keywordprg| of Vim is for",
  \   "In visual mode it does nothing -- measured, and it is Vim: |<Help>| is not a visual mode command"
  \  ]},
  \ {"where": "?", "group": "F5", "key": "/", "break": 1, "modes": "niv", "run": 'call GrooVim_About()',
- \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim \u03A9 underneath"}
+ \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim underneath"}
  \ ]
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
@@ -404,75 +404,177 @@ func! GrooVim_ShortcutsHelp() abort
   return join(l:out, "\n")
 endfunc
 
+" Note: Where the project lives. A variable and not a line written inside the
+" text, because the About shows it, the clipboard takes it and the browser is
+" handed it -- three uses, one address.
+let g:GrooVim_Url = get(g:, "GrooVim_Url", "https://github.com/eduardolucioac/groovim")
+
+let s:aboutId = 0
+let s:aboutText = ""
+let s:aboutWaiting = 0
+
 " Note: What GrooVim is, in the shape the "?" menu of Notepad++ ends with: the
 " name, the version, whose it is, under what licence, and where it lives.
-"
-" The "Ω" beside the name of Vim is on purpose, here and on the menu. It is
-" not a typo to be tidied away: it is how this project salutes the one it stands
-" on.
 "
 " The version of Vim is asked of Vim and not written here. "v:version" is the
 " release -- 902 is 9.2 -- and the last four digits of "v:versionlong" are the
 " patch, which is the number that actually moves.
-func! GrooVim_About() abort
-
-  let l:vim = printf("%d.%d.%d", v:version / 100, v:version % 100,
-   \ v:versionlong % 10000)
-
-  let l:lines = [
+func! GrooVim_AboutLines() abort
+  return [
    \ "GrooVim =D " . g:grooVimVersion . " -- Vi IMproved'n'GrooVIed!",
    \ "",
    \ "A Vim of its own, remodelled for a simpler, smarter experience.",
-   \ "It runs on Vim \u03A9 " . l:vim . ".",
+   \ "It runs on Vim " . printf("%d.%d.%d", v:version / 100, v:version % 100,
+   \   v:versionlong % 10000) . ".",
    \ "",
    \ "Copyright (C) 2014-2026 Eduardo Lucio Amorim Costa",
    \ "GNU General Public License v3.0 or later",
-   \ "https://github.com/eduardolucioac/groovim",
+   \ g:GrooVim_Url,
    \ "",
-   \ "F9 opens the help of GrooVim, F1 the help of Vim \u03A9."]
+   \ "F9 opens the help of GrooVim, F1 the help of Vim."]
+endfunc
+
+" Note: The buttons, which in a terminal are a line of text and a key each. The
+" key is written beside the word, the way a dialogue of Notepad++ underlines the
+" letter that presses the button.
+func! GrooVim_AboutButtons() abort
+  return "[ Open page (p) ]   [ Copy (c) ]   [ Close (Esc) ]"
+endfunc
+
+" Note: Opens it, and closes it if it is already up -- the same key both ways,
+" which is what F9 does with the help.
+func! GrooVim_About() abort
+
+  if s:aboutId > 0
+    call popup_close(s:aboutId)
+    return
+  endif
+
+  let l:lines = GrooVim_AboutLines()
+
+  " Note: What the clipboard takes is the TEXT, without the buttons: they are a
+  " way of pressing this window and not something it says.
+  let s:aboutText = join(l:lines, "\n")
 
   " Note: A popup where there is one, and the screen where there is not -- the
   " same Vim that has no menus to open this from can still be asked for it by
   " its key, and it has to answer something.
   if has("popupwin")
     call GrooVim_CursorHide()
-    call popup_dialog(l:lines, {"title": " About GrooVim ",
+    let s:aboutId = popup_dialog(l:lines + ["", GrooVim_AboutButtons()],
+     \ {"title": " About GrooVim ",
      \ "padding": [0, 1, 0, 1], "highlight": "GrooVimMenu",
      \ "mapping": 0, "filter": "GrooVim_AboutFilter",
      \ "callback": "GrooVim_AboutClosed"})
     return
   endif
 
-  for l:line in l:lines
+  for l:line in l:lines + ["", GrooVim_AboutButtons()]
     echo l:line
   endfor
-  echo ""
-  echo "Press any key!"
-  call getchar()
+  while 1
+    let l:key = getchar()
+    let l:key = type(l:key) == type(0) ? nr2char(l:key) : l:key
+    if l:key ==# "c"
+      call GrooVim_AboutCopy()
+    elseif l:key ==# "p"
+      call GrooVim_AboutPage()
+    else
+      break
+    endif
+  endwhile
 
 endfunc
 
-" Note: While it is up, it is the only thing there is -- the same as the menu.
-" EVERY key is answered here, so nothing walks the file behind it, and the key
-" that closes the window is swallowed instead of landing in the text.
+" Note: The address, handed to whatever the desktop opens addresses with -- there
+" is no browser of ours, and there should not be one.
 "
-" Any key somebody pressed closes it, which is what a window with nothing to
-" choose in it should do. The keys VIM sends do not: they begin with the two
+" With no desktop to open it on, which is every GrooVim reached over SSH, the
+" address goes to the clipboard instead: that is the useful half of "open the
+" page" when there is nothing to open it in, and GrooVim's clipboard travels
+" through the terminal, so it lands on the machine you are SITTING at.
+func! GrooVim_AboutPage() abort
+
+  let l:opener = executable("xdg-open") ? "xdg-open"
+   \ : (executable("open") ? "open" : "")
+
+  if l:opener ==# "" || (l:opener ==# "xdg-open"
+   \ && empty($DISPLAY) && empty($WAYLAND_DISPLAY))
+    call GrooVim_ClipSet(g:GrooVim_Url)
+    call GrooVim_GrooVimBarMsg("No desktop here, so the address went to the clipboard!", 6)
+    return
+  endif
+
+  " Note: A job and not a "system()", for the same reason the clipboard uses one:
+  " a browser starting up is not something Vim should be waiting for.
+  call job_start([l:opener, g:GrooVim_Url],
+   \ {"in_io": "null", "out_io": "null", "err_io": "null"})
+  call GrooVim_GrooVimBarMsg("The project page went to your browser!", 4)
+
+endfunc
+
+func! GrooVim_AboutCopy() abort
+  call GrooVim_ClipSet(s:aboutText)
+  call GrooVim_GrooVimBarMsg("The About is on the clipboard!", 4)
+endfunc
+
+" Note: While it is up, it is the only thing there is -- the same as the menu.
+" EVERY key comes here, so nothing walks the file behind it, and only the two
+" ways out written on the buttons close it: "Esc", and the shortcut that opened
+" it.
+"
+" The shortcut that opened it is read HERE, both keys of it, and not handed back
+" to the CommandZ: while this window is up it is the only thing reading keys at
+" all. Measured -- with mappings on, the "F5" handed back never reached this
+" filter again: Vim had already turned it into the command its mapping says, and
+" what arrived here was that command, letter by letter.
+"
+" The keys VIM sends are swallowed and nothing else. They begin with the two
 " bytes 0x80 0xFD, they are nobody's keystroke, and one of them -- measured,
 " "<80><fd>`" -- used to arrive on its own and shut the window in the instant it
 " opened, so through a real terminal the About did nothing but flash.
 func! GrooVim_AboutFilter(id, key) abort
+
   if a:key[0:1] ==# "\x80\xfd"
     return 1
   endif
-  call popup_close(a:id)
+
+  if a:key ==# "\<Esc>"
+    call popup_close(a:id)
+    return 1
+  endif
+
+  " Note: The other half of "F5->/", the shortcut pressed again. Anything else
+  " arriving after the F key is simply not the shortcut, and nothing happens.
+  if s:aboutWaiting
+    let s:aboutWaiting = 0
+    if a:key ==# "/"
+      call popup_close(a:id)
+    endif
+    return 1
+  endif
+
+  if a:key ==# "\<F5>"
+    let s:aboutWaiting = 1
+    return 1
+  endif
+
+  if a:key ==# "p"
+    call GrooVim_AboutPage()
+  elseif a:key ==# "c"
+    call GrooVim_AboutCopy()
+  endif
+
   return 1
+
 endfunc
 
 " Note: However it was closed, the cursor of the terminal comes back. On the
 " callback and not beside the "popup_close" above, because that is the one place
 " every way out goes through.
 func! GrooVim_AboutClosed(id, result) abort
+  let s:aboutId = 0
+  let s:aboutWaiting = 0
   call GrooVim_CursorShow()
 endfunc
 

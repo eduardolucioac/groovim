@@ -299,7 +299,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F1` - Opens the help of Vim itself *(normal mode/insert)*;
         - Note: It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, K over a word opens the help OF THAT WORD, which is what the keywordprg of Vim is for;
         - Note: In visual mode it does nothing -- measured, and it is Vim: <Help> is not a visual mode command;
-    - `F5->/` - What GrooVim is: the version, the licence, and the Vim Ω underneath *(normal mode/insert/visual)*;
+    - `F5->/` - What GrooVim is: the version, the licence, and the Vim underneath *(normal mode/insert/visual)*;
 
 <!-- shortcuts: end -->
 
