@@ -36,7 +36,9 @@ FONT_SIZE="${GROOVIM_DEMO_FONT:-14}"
 THEME="${GROOVIM_DEMO_THEME:-monokai}"
 # A pause longer than this is cut down to it: standing still is what lets the eye
 # read, but three seconds of nothing is three seconds of file.
-IDLE="${GROOVIM_DEMO_IDLE:-1.2}"
+IDLE="${GROOVIM_DEMO_IDLE:-1.0}"
+# A hair faster than it was typed. A demo is read, not followed key by key.
+SPEED="${GROOVIM_DEMO_SPEED:-1.15}"
 
 for SCRIPT in demos/[0-9]*.py; do
   NAME="$(basename "$SCRIPT" .py)"
@@ -47,12 +49,16 @@ for SCRIPT in demos/[0-9]*.py; do
   CAST="demos/$NAME.cast"
   GIF="demos/$NAME.gif"
 
-  "$AGG" --font-size "$FONT_SIZE" --theme "$THEME" \
+  "$AGG" --font-size "$FONT_SIZE" --theme "$THEME" --speed "$SPEED" \
     --idle-time-limit "$IDLE" --last-frame-duration 2 \
-    "$CAST" "$GIF"
+    "$CAST" "$GIF" >/dev/null
 
+  # Note: The FIRST frame for the size. A GIF stores the others as the rectangle
+  # that CHANGED, so asking the file its dimensions answers one line per frame.
   SIZE="$(du -h "$GIF" | cut -f1)"
-  DIMS="$(identify -format '%wx%h' "$GIF" 2>/dev/null | head -1 || echo '?')"
-  FRAMES="$(identify "$GIF" 2>/dev/null | wc -l || echo '?')"
-  echo "    $GIF -- $DIMS, $FRAMES frames, $SIZE"
+  DIMS="$(identify -format '%wx%h' "$GIF[0]" 2>/dev/null || echo '?')"
+  FRAMES="$(identify "$GIF" 2>/dev/null | wc -l)"
+  SECONDS_LONG="$(ffprobe -v error -show_entries format=duration \
+    -of default=noprint_wrappers=1:nokey=1 "$GIF" 2>/dev/null || echo '?')"
+  echo "    $GIF -- $DIMS, $FRAMES frames, ${SECONDS_LONG}s, $SIZE"
 done

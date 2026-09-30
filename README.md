@@ -3,6 +3,14 @@ GrooVim - Vi IMproved'n'GrooVIed!
 
 <img border="0" alt="GrooVim Doc" src="http://imageshack.com/a/img829/4064/meg6.png" height="15%" width="15%"/>GrooVim Doc
 
+Writing in several places at once -- **F2 n** takes whole lines, **F2 m** takes
+places of their own:
+
+![Writing in several places at once](demos/01_multi_caret.gif)
+
+More of them in [`demos/`](demos/), and they are made by a script and not
+recorded by hand: `./tools/make-demos.sh`.
+
 What is GrooVim?
 -----
 
@@ -214,7 +222,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: Esc ends it;
     - `F2->m` - Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type *(normal mode/insert)*;
         - Note: Beside F2->n , which takes whole lines. This one is for places that have nothing to do with each other;
-        - Note: While you are still CHOOSING nothing is written and the carets are GREEN: the plain arrows walk you to the next place and leave them where they are;
+        - Note: While you are still CHOOSING nothing is written and the carets are ORANGE, the colour of typing: the plain arrows walk you to the next place and leave them where they are;
         - Note: Esc sets the places and turns them YELLOW: from there everything you do happens in all of them -- what you type, the Enter , the Del , the Tab , the Backspace -- and everything that moves moves EVERY caret, each one from where IT is;
         - Note: Esc again ends it. One key for both, because it is the same thing said twice: done choosing, then done writing;
     - `Shift+Up` - Goes into insert and comes out of it: from normal or from a selection it starts typing, and from insert it stops *(normal mode/insert/visual)*;

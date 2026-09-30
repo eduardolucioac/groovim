@@ -342,7 +342,7 @@ func! GT_Body()
   stopinsert
   call GT_Fresh(["aaaa bbbb", "cccc dddd"])
   call GrooVim_MultiPoint()
-  call GT_Ok("while choosing, the carets are green",
+  call GT_Ok("while choosing, the carets are the colour of choosing",
     \ !empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiChoosing"')),
     \ "   " . string(map(getmatches(), 'v:val.group')))
   call GrooVim_MultiSeal()
@@ -353,6 +353,13 @@ func! GT_Body()
     \ "    like one. Measured through a real terminal, the colours it was sent:\n" .
     \ "    orange while choosing, \"#f6d32d\" on the Esc that sets the places,\n" .
     \ "    and green again when it ended)")
+  " And the word for it, in the help and in the README, is the one that is
+  " really drawn: they said GREEN for as long as it was green, and it stopped
+  " being green the day the marks took the orange of the cursor that starts them.
+  call GT_Ok("  and the help says the colour it really is",
+    \ empty(filter(copy(g:GrooVim_Shortcuts),
+    \   'join(get(v:val, "notes", []), " ") =~ "carets are GREEN"')),
+    \ "   (#ff8700 is orange, and the note used to say green)")
   call GT_Ok("  and it is the orange of the cursor that starts it",
     \ synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") ==# "#ff8700",
     \ "   (" . synIDattr(synIDtrans(hlID("GrooVimMultiChoosing")), "bg", "gui") . ")")

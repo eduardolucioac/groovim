@@ -148,7 +148,7 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Marks one more place to write in, and opens for writing at once: walk to the next place and press it again, or just type",
  \  "notes": [
  \   "Beside |F2->n| , which takes whole lines. This one is for places that have nothing to do with each other",
- \   "While you are still CHOOSING nothing is written and the carets are GREEN: the plain arrows walk you to the next place and leave them where they are",
+ \   "While you are still CHOOSING nothing is written and the carets are ORANGE, the colour of typing: the plain arrows walk you to the next place and leave them where they are",
  \   "|Esc| sets the places and turns them YELLOW: from there everything you do happens in all of them -- what you type, the |Enter| , the |Del| , the |Tab| , the |Backspace| -- and everything that moves moves EVERY caret, each one from where IT is",
  \   "|Esc| again ends it. One key for both, because it is the same thing said twice: done choosing, then done writing"
  \  ]},
