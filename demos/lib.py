@@ -38,6 +38,10 @@ TECLAS = {
     "S-Up": "\x1b[1;2A", "S-Down": "\x1b[1;2B",
     "S-Left": "\x1b[1;2D", "S-Right": "\x1b[1;2C",
     "A-S-Up": "\x1b[1;4A", "A-S-Down": "\x1b[1;4B",
+    "A-S-Left": "\x1b[1;4D", "A-S-Right": "\x1b[1;4C",
+    "C-A-Up": "\x1b[1;7A", "C-A-Down": "\x1b[1;7B",
+    "C-A-Left": "\x1b[1;7D", "C-A-Right": "\x1b[1;7C",
+    "C-Left": "\x1b[1;5D", "C-Right": "\x1b[1;5C",
     "C-Up": "\x1b[1;5A", "C-Down": "\x1b[1;5B",
 }
 

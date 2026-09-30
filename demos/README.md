@@ -37,6 +37,29 @@ address is a link.
 ./tools/make-demos.sh 01_multi_caret  # one, by name
 ```
 
+### Marked lines
+
+**F4 b** marks the line and the mark shows in the margin; **F4 i** writes a note
+on it; `m` and `M` walk from one to the next and back; **F4 l** lists every one
+of them.
+
+![Marked lines](05_bookmarks.gif)
+
+### Walking smoothly
+
+**Alt+Shift** and the arrows: it glides instead of jumping, goes over the places
+where there is no text -- a short line, the gap after the end of one -- and
+keeps the column it started in.
+
+![Walking smoothly](06_smooth_move.gif)
+
+### In and out of the modes
+
+**Shift+Up** walks towards typing and back out of it, **Shift+Down** towards
+selecting and back out of it. One key each way, and the bar says where you are.
+
+![In and out of the modes](07_modes.gif)
+
 ## Why a script and not a recording
 
 The same reason the battery exists. A GIF recorded by hand is true on the day it
