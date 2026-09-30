@@ -8,9 +8,9 @@ places of their own:
 
 ![Writing in several places at once](demos/01_multi_caret.gif)
 
-The menu, the occurrence list and the dialogues are in
-[`demos/`](demos/README.md). They are made by a script and not recorded by hand:
-`./tools/make-demos.sh`.
+There are more of them below and all of them in [`demos/`](demos/README.md).
+They are made by a script and not recorded by hand -- change the editor, run
+`./tools/make-demos.sh`, and they say what it says now.
 
 What is GrooVim?
 -----
@@ -71,6 +71,8 @@ Some editor features!
  * Switching between modes:
     - Shift-Up (normal mode/insert/visual) - Enter or exit the insert mode;
     - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
+
+![In and out of the modes](demos/07_modes.gif)
 
  * Text selection:
     - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
@@ -145,14 +147,31 @@ Script features!
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
 
+The smooth one glides instead of jumping, goes over the places where there is no
+text -- a short line, the gap after the end of one -- and keeps the column it
+started in:
+
+![Walking smoothly](demos/06_smooth_move.gif)
+
  * Marking
 
     - F3 m - Mark every occurrence of the word under the cursor, or of the selection. See the shortcuts below;
+    - F3 f - Find, offering the word under the cursor. With the list switched on -- **F5 c** and then `[s]` -- every line it is in comes up in a panel of its own, and Enter goes there:
+
+![The occurrence list](demos/03_occurrences.gif)
 
  * Comment lines
 
     - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim;
+
+ * Marked lines
+
     - m and M (normal mode) - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
+
+**F4 b** marks the line and the mark shows in the margin, **F4 i** writes a note
+on it, and **F4 l** lists every one of them:
+
+![Marked lines](demos/05_bookmarks.gif)
 
 F'S Shortcuts (CommandZ)!
 -----
@@ -317,10 +336,20 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 <!-- shortcuts: end -->
 
 You do not have to remember any of them: **F10** puts a bar across the top with
-the four groups on it, and under the one you are on, what it holds. Left and
-Right walk the bar, Up and Down the list, Enter picks and Esc leaves. The mouse
-works everywhere. Every line shows the keys that do it, and choosing one presses
-those keys -- so the menu can never do anything the keyboard would not.
+the sections above on it, and under the one you are on, what it holds. Left and
+Right walk the bar, Up and Down the list, Enter picks and Esc leaves, and an F
+key jumps straight to the section that F key lives in. The mouse works
+everywhere. Every line shows the keys that do it, and choosing one presses those
+keys -- so the menu can never do anything the keyboard would not.
+
+![The menu of F10](demos/02_menu.gif)
+
+The windows that ask something look like this one, which is the About of the
+"?" section. The arrows walk the buttons, Enter presses the blue one, the mouse
+clicks them, `c` copies what the window says -- any window -- and an address in
+it is a link:
+
+![The About](demos/04_about.gif)
 
 When one of them does not fire, `:GrooVimKey` says what the key really
 delivered: run it, press the key, and it prints what `getchar()` handed over.
