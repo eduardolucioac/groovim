@@ -8,8 +8,9 @@ places of their own:
 
 ![Writing in several places at once](demos/01_multi_caret.gif)
 
-More of them in [`demos/`](demos/), and they are made by a script and not
-recorded by hand: `./tools/make-demos.sh`.
+The menu, the occurrence list and the dialogues are in
+[`demos/`](demos/README.md). They are made by a script and not recorded by hand:
+`./tools/make-demos.sh`.
 
 What is GrooVim?
 -----

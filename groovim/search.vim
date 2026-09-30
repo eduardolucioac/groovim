@@ -383,8 +383,24 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
 
   let l:theresAMatch = 1
 
+  " Note: To the FIRST match of the file, and "first" includes one sitting on the
+  " very first character.
+  "
+  " This used to be "norm gg0n": go to the top and then to the NEXT match -- and
+  " the top is where the match is when a file begins with it, so "n" jumped over
+  " it. Measured: a file with the word on line 1 column 1 and again on line 2
+  " answered "1 hit" and listed only the second. Moving the word one column to
+  " the right made both appear.
+  "
+  " "search()" with "c" accepts a match AT the cursor, which is the whole
+  " difference. It answers 0 when the file has none, where the "n" raised E486 --
+  " hence the try, which stays for the pattern being empty and anything else the
+  " search itself may object to.
   try
-    exec "norm gg0n"
+    exec "norm gg0"
+    if search(@/, "c") == 0
+      let l:theresAMatch = 0
+    endif
   catch
     let l:theresAMatch = 0
   endtry

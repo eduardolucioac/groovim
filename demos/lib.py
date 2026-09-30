@@ -45,7 +45,8 @@ TECLAS = {
 class Demo:
     """One demo: a file to edit, a terminal, and the keys pressed in it."""
 
-    def __init__(self, nome, linhas, colunas=80, alturas=14, arquivo="exemplo.txt"):
+    def __init__(self, nome, linhas, colunas=80, alturas=14, arquivo="exemplo.txt",
+                 opcoes=()):
         self.nome = nome
         self.colunas = colunas
         self.alturas = alturas
@@ -55,6 +56,13 @@ class Demo:
         self.alvo = os.path.join(self.casa, arquivo)
         with open(self.alvo, "w") as f:
             f.write("\n".join(linhas) + "\n")
+        # Note: The settings a demo needs, written where GrooVim reads the ones
+        # you chose to keep. A demo that has to show what a setting does cannot
+        # ask for it on camera -- the answer would be the demo.
+        if opcoes:
+            os.makedirs(os.path.join(self.casa, ".groovim"), exist_ok=True)
+            with open(os.path.join(self.casa, ".groovim", "opts.vim"), "w") as f:
+                f.write("\n".join(opcoes) + "\n")
         self.eventos = []
         self._abre()
 

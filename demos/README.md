@@ -2,6 +2,36 @@
 
 Short GIFs, one idea each, made out of the scripts beside this file.
 
+### Writing in several places at once
+
+**F2 n** takes whole lines; **F2 m** takes places of their own, each at its own
+column.
+
+![Writing in several places at once](01_multi_caret.gif)
+
+### The menu of F10
+
+The map of the editor: the arrows walk it, an F key jumps to the section that F
+key lives in, and Enter runs the line you are on.
+
+![The menu of F10](02_menu.gif)
+
+### The occurrence list
+
+**F3 f** searches and offers the word under the cursor. With the list switched
+on -- **F5 c** and then `[s]` -- every line it is in comes up in a panel of its
+own, and Enter goes there.
+
+![The occurrence list](03_occurrences.gif)
+
+### A dialogue
+
+The About, which is one: the buttons are walked with the arrows, the blue one is
+pressed with Enter, the mouse clicks them, `c` copies what it says and the
+address is a link.
+
+![The About](04_about.gif)
+
 ```bash
 ./tools/make-demos.sh                 # all of them
 ./tools/make-demos.sh 01_multi_caret  # one, by name

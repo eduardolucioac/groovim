@@ -1,2 +1,5 @@
 # The recordings between a demo script and its GIF: remade on every run.
 demos/*.cast
+
+# What Python leaves behind when it imports the library of the demos.
+__pycache__/

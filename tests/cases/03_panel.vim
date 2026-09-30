@@ -38,4 +38,39 @@ call GT_Ok("<Enter> navigates", maparg("<Enter>", "n") =~ "SearchGuyNavigate", "
 call GT_Ok("<Del> does NOT navigate any more", maparg("<Del>", "n") ==# "<Nop>", "   [" . maparg("<Del>", "n") . "]")
 call GT_Ok("GrooVim_DelBehavior was removed", exists("*GrooVim_DelBehavior") == 0, "")
 
+" ---- and the walk that FINDS the occurrences, which is another thing
+"
+" Everything above is about the panel, over a list built by hand. This is the
+" list being built: the traveler walking the file and writing down every match.
+"
+" It used to start with "norm gg0n" -- to the top, then to the NEXT match -- and
+" the top IS the match when a file begins with one, so it jumped over it.
+" Measured through a real terminal: a file with the word on line 1 column 1 and
+" again on line 2 answered "1 hit" and listed only the second; moving the word
+" one column to the right brought both back.
+func! GT_Travelled(lines)
+  wincmd p
+  %delete _
+  call setline(1, a:lines)
+  let @/ = "alpha"
+  let g:matchedLines = ""
+  let g:matchedLinesGlobal = ""
+  let g:matchedLinesGlobalNavArray = []
+  let g:GrooVim_SearchGuyFilesSearched = 0
+  call GrooVim_SearchGuyTraveler("")
+  let l:found = len(filter(copy(g:matchedLinesGlobalNavArray), 'v:val != "0"'))
+  call GT_GoToList()
+  return l:found
+endfunc
+
+let g:GT_FIRST = GT_Travelled(["alpha at one", "beta", "alpha at three"])
+call GT_Ok("the walk takes a match on the first character of the file",
+  \ g:GT_FIRST == 2, "   (" . g:GT_FIRST . " of 2)")
+let g:GT_SHIFTED = GT_Travelled(["x alpha at one", "beta", "alpha at three"])
+call GT_Ok("  the same as one a column further in", g:GT_SHIFTED == 2,
+  \ "   (" . g:GT_SHIFTED . " of 2)   (this one always worked, which is what pointed at the other)")
+let g:GT_NONE = GT_Travelled(["nothing here", "nor here"])
+call GT_Ok("  and a file with none says none", g:GT_NONE == 0,
+  \ "   (" . g:GT_NONE . ")")
+
 call GT_Done()
