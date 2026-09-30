@@ -246,15 +246,25 @@ func! GrooVim_PanelSetup(name, hue) abort
   " editor meaning to keys that Vim does not touch, and several of them end up
   " editing: "Shift-Up" is "i", "Ctrl-V" pastes, "Ctrl-X" cuts the selection,
   " and "Enter", "Del" and "Backspace" delete what is selected.
+  " Note: And "n" and "N", which do not edit anything and still have no business
+  " here. They walk between what a search FOUND, and what this window holds is
+  " the report of that search: pressing them in it searched the REPORT -- the
+  " cursor walking from one printed line to the next and the blink painting
+  " inside the panel, over occurrences that are not in any file.
+  "
+  " In a list the next occurrence is the next line, and that is what the arrows
+  " are for; what opens the one you are on is |<Enter>|.
   let l:offOnNormal = ["i", "I", "a", "A", "o", "O", "s", "S", "c", "C",
                     \ "r", "R", "x", "X", "d", "D", "p", "P", "u", "U",
                     \ "J", "~", "gi", "gI", "gR", "gJ", "gp", "gP",
-                    \ "gu", "gU", "g~", "<Del>", "<BS>", "<S-Up>", "<C-V>"]
+                    \ "gu", "gU", "g~", "<Del>", "<BS>", "<S-Up>", "<C-V>",
+                    \ "n", "N"]
 
   let l:offOnVisual = ["i", "a", "s", "S", "c", "C", "r", "R", "x", "X",
                     \ "d", "D", "p", "P", "u", "U", "J", "~", "gJ", "gp",
                     \ "gP", "gu", "gU", "g~", "gq", "<", ">", "=",
-                    \ "<Del>", "<BS>", "<S-Up>", "<Enter>", "<C-V>", "<C-X>"]
+                    \ "<Del>", "<BS>", "<S-Up>", "<Enter>", "<C-V>", "<C-X>",
+                    \ "n", "N"]
 
   for l:key in l:offOnNormal
     exec "nnoremap <buffer> <silent> " . l:key . " <Nop>"

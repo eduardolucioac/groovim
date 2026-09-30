@@ -50,6 +50,29 @@ let v:errmsg = ""
 call feedkeys("\<PageDown>", "x")
 call GT_Ok("PageDown (GroovyMove) with no error", v:errmsg == "", "   [" . v:errmsg . "]   (it moves the cursor, it does not edit)")
 
+" ---- and the keys that walk between matches do not walk inside the REPORT
+"
+" "n" and "N" edit nothing, so they were left alone here by the rule that keeps
+" what reads and moves. They still had no business in this window: what it holds
+" is the report of a search, and pressing them in it searched the REPORT -- the
+" cursor walking from one printed line to the next and the blink painting inside
+" the panel, over occurrences that are in no file.
+"
+" In a list the next occurrence is the next line, which is what the arrows do,
+" and what opens the one you are on is Enter.
+call GT_GoToList()
+call cursor(4, 1)
+let g:GT_AT = getcurpos()[1:2]
+call feedkeys("n", "x")
+call GT_Ok("n does nothing in the list", getcurpos()[1:2] ==# g:GT_AT,
+  \ "   " . string(getcurpos()[1:2]) . "   (it used to search the report itself)")
+call feedkeys("N", "x")
+call GT_Ok("  and neither does N", getcurpos()[1:2] ==# g:GT_AT,
+  \ "   " . string(getcurpos()[1:2]))
+call GT_Ok("  because they are off on this buffer",
+  \ maparg("n", "n") ==# "<Nop>" && maparg("N", "n") ==# "<Nop>",
+  \ "   [" . maparg("n", "n") . "]")
+
 " ---- outside the list none of this holds
 wincmd p
 call GT_Ok("outside: Shift-Up goes back to entering insert", maparg("<S-Up>", "n") ==# "i", "   [" . maparg("<S-Up>", "n") . "]")
