@@ -345,7 +345,14 @@ and it exits `0` only when that last line is there. A check that fails says
 `FAILED` beside it, with what was read in brackets; every case also leaves its
 run in `tests/results/<case>.txt` to be read afterwards.
 
-Three things worth knowing:
+`install.sh` takes the battery along, so after installing it is already there
+and it already points at your installation:
+
+```
+~/.groovim/tests/run.sh
+```
+
+From the project, the same three ways:
 
 ```
 ./tests/run.sh                      the GrooVim of this directory
@@ -359,11 +366,9 @@ licence is whole, whether the task list is empty -- answer `not asked of an
 installation` instead of failing over files that were never meant to be there.
 Everything about behaviour is asked of both.
 
-The tests live with the source and are not copied by `install.sh`: if you
-installed GrooVim and threw the directory away, get it again (`git clone`) and
-point the second line at your installation -- there is nothing to install to run
-them, and they write nothing into your GrooVim: each case runs in a GrooVim home
-of its own, in a temporary directory that goes away with the run.
+They write nothing into your GrooVim: each case runs in a GrooVim home of its
+own, in a temporary directory that goes away with the run. The results of the
+last one are left in `tests/results/`, beside them.
 
 `docs/pitfalls.md` says what each case covers, and carries the traps that cost
 the most to find.

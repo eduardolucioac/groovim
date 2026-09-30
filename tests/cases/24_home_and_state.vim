@@ -48,6 +48,27 @@ func! GT_Body()
     \ : 1,
     \ "   " . (filereadable(expand("~/.local/bin/groovim")) ? "" : "(not installed here)"))
 
+  " ---- and the battery travels with what it tests
+  "
+  " The tests are ABOUT the installation: they run on the Vim it built, and the
+  " ".vimrc" they read by default is the one beside them -- which, once they are
+  " installed, is the installed one. Whoever installed GrooVim can ask it whether
+  " it works without going back for the project.
+  if !GT_Project()
+    call GT_NotTheProject("the installer taking the battery along")
+  else
+    let l:installer = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/install.sh"
+    let l:text = join(readfile(l:installer), "\n")
+    call GT_Ok("the installer takes the battery along",
+      \ l:text =~ 'cp -r "$from/tests" "$to/tests"',
+      \ "   (so " . g:GrooVim_Home . "/tests/run.sh is there after installing)")
+    call GT_Ok("  and leaves no results of another machine in it",
+      \ l:text =~ 'rm -rf "$to/tests/results"',
+      \ "   (green answers nobody produced here are worse than none)")
+    call GT_Ok("  and says so when it ends",
+      \ l:text =~ "Check it with:", "")
+  endif
+
   call GT_Done()
 endfunc
 

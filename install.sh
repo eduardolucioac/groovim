@@ -75,6 +75,9 @@ GROOVIM_PLUGINS_GONE="vim-bookmarks"
 # built again unless you say so.
 REBUILD=0
 
+# Where the battery landed, when it was copied: the last step says so.
+TESTS_HERE=""
+
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # What GrooVim needs from the Vim it runs on. Measured, not guessed: each line
@@ -529,12 +532,28 @@ install_groovim() {
   # stops working, with nothing to say why. What is installed has to stand on
   # its own.
   mkdir -p "$to"
-  rm -rf "$to/groovim" "$to/.vimrc"
+  rm -rf "$to/groovim" "$to/.vimrc" "$to/tests"
   cp "$from/.vimrc" "$to/.vimrc"
   cp -r "$from/groovim" "$to/groovim"
 
   echo "  copied from $from"
   green "  $(ls "$to/groovim" | wc -l) parts in $to/groovim"
+
+  # Note: And the battery, because the tests are ABOUT what was installed. They
+  # run on the Vim this builds, and the ".vimrc" they read by default is the one
+  # beside them -- which, once they are here, is the installed one. Whoever
+  # installed GrooVim can ask it whether it works without going back for the
+  # project, and that is the whole point of shipping them.
+  #
+  # Note: The results of a previous run do not come along: they are of another
+  # machine and another day, and a directory of green answers nobody produced
+  # here is worse than no answers at all.
+  if [ -d "$from/tests" ]; then
+    cp -r "$from/tests" "$to/tests"
+    rm -rf "$to/tests/results"
+    TESTS_HERE="$to/tests/run.sh"
+    green "  the battery in $to/tests"
+  fi
 }
 
 # ---------------------------------------------------------------- wrapper ---
@@ -848,4 +867,8 @@ check_the_clipboard
 warn_about_path
 
 step "Done"
-echo "  Use it with:  groovim file.txt"
+echo "  Use it with:    groovim file.txt"
+if [ -n "${TESTS_HERE:-}" ]; then
+  echo "  Check it with:  $TESTS_HERE"
+  echo "                  (about half a minute, and it says so itself)"
+fi

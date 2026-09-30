@@ -10,7 +10,11 @@ checks the behaviour from the inside; the manual one checks what you see.
 ./tests/run.sh                    # uses ./.vimrc
 ./tests/run.sh ~/.groovim/.vimrc  # tests what is INSTALLED, which is that one
 ./tests/run.sh '' 03_panel        # a single case
+~/.groovim/tests/run.sh           # the copy install.sh leaves in the installation
 ```
+
+The last one needs no argument: the `.vimrc` a run reads by default is the one
+beside `tests/`, and once the battery is installed that is the installed one.
 
 The installed GrooVim is `~/.groovim/.vimrc` and the parts beside it in
 `~/.groovim/groovim/` — that is what the `groovim` command runs, and `~/.vimrc`
