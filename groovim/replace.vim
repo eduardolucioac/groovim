@@ -1,4 +1,11 @@
-" Note: Treat a string and return a substring to use in prompts.
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" REPLACING
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Replacing, with and without confirmation, in this file or in every tab
+" that is open. It is the "Replace" of Notepad++, and what it mostly is,
+" underneath, is a ":substitute" with the flags decided by the answers. Note:
+" Treat a string and return a substring to use in prompts.
 func! GrooVim_SubstringToPrompt(stringToBeTreated) abort
   let l:lineSplited = split(a:stringToBeTreated, "\n")
   let l:transferAreaToShow = ""
@@ -26,11 +33,11 @@ let g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced = get(g:, "c
 let g:configureGrooVim_EntertainmentReplace_FromCurrentPosition = get(g:, "configureGrooVim_EntertainmentReplace_FromCurrentPosition", 1)
 func! GrooVim_EntertainmentReplace(mod) range abort
 
-  " Note: Where the cursor was before anything happened. Notepad++ puts the caret
-  " back where it was once a "Replace All" finishes, and ":substitute" leaves it on
-  " the last replaced line instead. Restored in the "finally", so an interruption
-  " also brings you back. "winsaveview()" keeps the scroll position too, not only
-  " the line and the column.
+  " Note: Where the cursor was before anything happened. Notepad++ puts the
+  " caret back where it was once a "Replace All" finishes, and ":substitute"
+  " leaves it on the last replaced line instead. Restored in the "finally", so
+  " an interruption also brings you back. "winsaveview()" keeps the scroll
+  " position too, not only the line and the column.
   let l:viewBefore = winsaveview()
 
   " Note: Raised for the WHOLE function, and this is the one that matters most:
@@ -65,10 +72,10 @@ func! GrooVim_EntertainmentReplace(mod) range abort
   " Note: Paints what is being offered before asking, so you SEE it: the
   " selection in visual mode, the word under the cursor otherwise.
   "
-  " Note: The "redraw" is what actually paints the mark. Measured on the terminal:
-  " without it NOTHING is painted while the prompt waits, in either mode. I had
-  " claimed otherwise before, misled by a test that was catching the paint Vim
-  " does by itself while a selection is being dragged.
+  " Note: The "redraw" is what actually paints the mark. Measured on the
+  " terminal: without it NOTHING is painted while the prompt waits, in either
+  " mode. I had claimed otherwise before, misled by a test that was catching the
+  " paint Vim does by itself while a selection is being dragged.
   "
   " Note: The price is that in VISUAL mode the prompt then lands on the second
   " line of the command area, with a blank line above it. Four ways around it
@@ -80,13 +87,13 @@ func! GrooVim_EntertainmentReplace(mod) range abort
   if g:configureGrooVim_EntertainmentReplace_AskTheValueToBeReplaced == 1
     let l:stopWhile = 0
     while l:stopWhile == 0
-      " Note: With nothing under the cursor there is no value to offer, and saying
-      " "empty to use \"\"" would be a lie twice over: there is no value to use,
-      " and the loop around here only lets go of a NON empty answer.
+      " Note: With nothing under the cursor there is no value to offer, and
+      " saying "empty to use \"\"" would be a lie twice over: there is no value
+      " to use, and the loop around here only lets go of a NON empty answer.
       "
-      " Note: "(required)" and not an instruction because it states the RULE, the
-      " way the neighbouring prompts state "[in use: ...]" and "[0[default]/1]". And
-      " it is true here: the loop really does enforce it.
+      " Note: "(required)" and not an instruction because it states the RULE,
+      " the way the neighbouring prompts state "[in use: ...]" and
+      " "[0[default]/1]". And it is true here: the loop really does enforce it.
       if ("" . l:valueToReplace . "") != ""
         let l:promptToReplace = "Value that will be REPLACED (empty to use \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\"): "
       else
@@ -149,9 +156,9 @@ func! GrooVim_EntertainmentReplace(mod) range abort
         " Note: Nothing from here down, and the wrap below still has to run.
       endtry
 
-      " Note: Wrap around, like Notepad++: having reached the end of the file, if
-      " occurrences were left BEHIND the starting point the replace continues from
-      " the top, and says so.
+      " Note: Wrap around, like Notepad++: having reached the end of the file,
+      " if occurrences were left BEHIND the starting point the replace continues
+      " from the top, and says so.
       "
       " Note: Only WITH confirmation. Without it there is nobody to warn and
       " nothing to decide, so wrapping would simply replace everything, which is
@@ -209,9 +216,9 @@ endfunc
 " Note: How many times a pattern appears in a range, without changing anything.
 " The "n" flag of ":substitute" only reports the count.
 "
-" Note: "gdefault" is turned off while counting because it INVERTS the meaning of
-" the "g" flag: with it on, "g" would ask for only the FIRST match per line and
-" the count would come out short.
+" Note: "gdefault" is turned off while counting because it INVERTS the meaning
+" of the "g" flag: with it on, "g" would ask for only the FIRST match per line
+" and the count would come out short.
 func! GrooVim_CountOccurrences(pattern, firstLine, lastLine) abort
 
   if a:pattern == "" || a:firstLine > a:lastLine || a:firstLine < 1
@@ -240,8 +247,8 @@ endfunc
 " search command and the "#" because it separates a ":substitute" command.
 "
 " Note: And the whole word, when it is asked for: "\<" and "\>" are the edges of
-" a word to Vim, so "cat" stops finding the "cat" inside "concatenate". It is the
-" "Match whole word only" of Notepad++.
+" a word to Vim, so "cat" stops finding the "cat" inside "concatenate". It is
+" the "Match whole word only" of Notepad++.
 "
 " Note: HERE and not at each caller, because this one function is where the
 " search and the replace both build what they look for -- one place, and the two
@@ -268,9 +275,9 @@ func! GrooVim_EscapeSubstituteReplacement(valueToTreat) abort
   return l:replacement
 endfunc
 
-" Note: Allows a "super leader" that fires in any mode! With this approach I can map a
-" larger amount of keys combinations! Note the use of the keys z, a and t in leader
-" commands required for certain worarounds.
+" Note: Allows a "super leader" that fires in any mode! With this approach I can
+" map a larger amount of keys combinations! Note the use of the keys z, a and t
+" in leader commands required for certain worarounds.
 
 nnoremap <silent> <script> <F2> :call GrooVim_CommandZ("F2", "n")<cr>
 inoremap <silent> <script> <F2> <C-o>:call GrooVim_CommandZ("F2", "i")<cr>
@@ -285,8 +292,8 @@ inoremap <silent> <script> <F4> <C-o>:call GrooVim_CommandZ("F4", "i")<cr>
 vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
 
 " Note: File commands. "F5" used to be a single key that stopped a macro
-" recording; that job went back to F2->q, which now starts and stops
-" with the same keys.
+" recording; that job went back to F2->q, which now starts and stops with the
+" same keys.
 nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
 inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
 vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>

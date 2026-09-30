@@ -41,10 +41,10 @@ set belloff=all
 set noerrorbells
 set novisualbell
 
-" Note: Allow the cursor to go into "invalid" places.
-" set virtualedit=all
+" Note: Allow the cursor to go into "invalid" places. set virtualedit=all
 
-" Note: Always turn on syntax highlighting for diffs (select by the file-suffix directly).
+" Note: Always turn on syntax highlighting for diffs (select by the file-suffix
+" directly).
 augroup PatchDiffHighlight
   autocmd! BufEnter  *.patch,*.rej,*.diff   syntax enable
 augroup end
@@ -102,9 +102,9 @@ set laststatus=2
 " the type, the line and the column. The half of the bar that every window
 " wants!
 "
-" Note: The line ending is there because it can be CHANGED -- F5->c and then
-" [f] -- and a setting you can change and cannot see is a setting you cannot
-" trust. Notepad++ keeps it on its bar for the same reason.
+" Note: The line ending is there because it can be CHANGED -- F5->c and then [f]
+" -- and a setting you can change and cannot see is a setting you cannot trust.
+" Notepad++ keeps it on its bar for the same reason.
 func! GrooVim_GrooVimBarWhere() abort
   return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
@@ -150,25 +150,25 @@ call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 " Note: Set it to 0 to take the line away.
 let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
 
-" Note: A dark grey and not the blue that was here. The old one painted a handful
-" of characters, one per long line; this one is a column down the whole window,
-" and at that size a strong colour stops being a hint and becomes the thing you
-" look at.
+" Note: A dark grey and not the blue that was here. The old one painted a
+" handful of characters, one per long line; this one is a column down the whole
+" window, and at that size a strong colour stops being a hint and becomes the
+" thing you look at.
 "
 " Note: A teal was tried in its place, on the idea that a hue of its own would
 " read as a rule. It read as a stripe: one cell is all a terminal has to draw in
-" -- there is no half column -- so at that width the quiet colour is the one that
-" behaves like a line and the vivid one becomes a band. Back to the grey! By
-" Questor
+" -- there is no half column -- so at that width the quiet colour is the one
+" that behaves like a line and the vivid one becomes a band. Back to the grey!
+" By Questor
 highlight ColorColumn ctermbg=236 guibg=#303030
 
 " Note: "colorcolumn" is window local, so it is set on entering a window, the
 " same way the symbols are.
 "
-" Note: And ONLY where a file is edited. The line marks where a line of text gets
-" too long, which means nothing in a window that holds no text of yours: it was
-" being drawn down the occurrence list, the list of marks, the tree and the help,
-" over lists whose lines are as long as they need to be.
+" Note: And ONLY where a file is edited. The line marks where a line of text
+" gets too long, which means nothing in a window that holds no text of yours: it
+" was being drawn down the occurrence list, the list of marks, the tree and the
+" help, over lists whose lines are as long as they need to be.
 func! GrooVim_EdgeSet() abort
   try
     let &l:colorcolumn = g:GrooVim_EdgeColumn > 0 && &buftype ==# ""
@@ -205,10 +205,10 @@ endif
 " walking BACK through the search results.
 "
 " Note: This has to come AFTER "syntax on" and be repeated on "ColorScheme",
-" because both reset the highlight groups.
-" Note: "cterm=NONE gui=NONE" is not decoration: the default "IncSearch" carries
-" "reverse", which SWAPS foreground and background and would show blue letters on
-" a white block instead of white on blue.
+" because both reset the highlight groups. Note: "cterm=NONE gui=NONE" is not
+" decoration: the default "IncSearch" carries "reverse", which SWAPS foreground
+" and background and would show blue letters on a white block instead of white
+" on blue.
 let g:GrooVim_ReplaceHighlight = get(g:, "GrooVim_ReplaceHighlight", "cterm=NONE gui=NONE ctermbg=blue ctermfg=white guibg=blue guifg=white")
 func! GrooVim_SetReplaceHighlight() abort
   try
@@ -222,13 +222,12 @@ augroup GrooVim_ReplaceHighlightGroup
   autocmd ColorScheme * call GrooVim_SetReplaceHighlight()
 augroup end
 
-" Note: Switch from block-cursor to vertical-line-cursor when going into/out of insert mode.
-" let &t_SI = "\<Esc>]50;CursorShape=1\x7"
-" let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+" Note: Switch from block-cursor to vertical-line-cursor when going into/out of
+" insert mode. let &t_SI = "\<Esc>]50;CursorShape=1\x7" let &t_EI =
+" "\<Esc>]50;CursorShape=0\x7"
 
-" Note: " Cursor -> Orange in insert mode and red in command mode!
-" if you want to use rgb color formatting: konsoleprofile
-" CustomCursorColor=#255255255.
+" Note: " Cursor -> Orange in insert mode and red in command mode! if you want
+" to use rgb color formatting: konsoleprofile CustomCursorColor=#255255255.
 " Note: One color per mode, so you know where you are without looking at the
 " bar: green in normal, blue in visual, orange while typing.
 let g:cursorColorI = get(g:, "cursorColorI", "orange")
@@ -257,18 +256,18 @@ func! GrooVim_CursorColorForMode() abort
   let l:visual = l:mode ==# "v" || l:mode ==# "V" || l:mode ==# "\<C-v>"
         \ || l:mode ==# "s" || l:mode ==# "S" || l:mode ==# "\<C-s>"
 
-  " Note: Not while GroovyMove is travelling out of insert mode: there the cursor
-  " belongs to insert from end to end.
+  " Note: Not while GroovyMove is travelling out of insert mode: there the
+  " cursor belongs to insert from end to end.
   "
   " Note: But never over a mode that CAN be seen. The flag says "we came from
   " insert", and if it is ever left standing -- an interrupted movement used to
   " leave it so -- believing it over "mode()" painted the cursor green in visual
-  " mode, which is blue. What Vim reports wins.
-  " Note: While there are carets up, the real cursor is ONE OF THEM and wears
-  " their colour -- orange while the places are being chosen, yellow once they
-  " are set. Without this the last place marked looked different from all the
-  " others, because what is drawn on it is not a caret at all: it is the cursor
-  " of the terminal, in the colour of insert mode.
+  " mode, which is blue. What Vim reports wins. Note: While there are carets up,
+  " the real cursor is ONE OF THEM and wears their colour -- orange while the
+  " places are being chosen, yellow once they are set. Without this the last
+  " place marked looked different from all the others, because what is drawn on
+  " it is not a caret at all: it is the cursor of the terminal, in the colour of
+  " insert mode.
   if exists("*GrooVim_MultiCursorColour")
     let l:multi = GrooVim_MultiCursorColour()
     if l:multi !=# ""
@@ -296,15 +295,15 @@ endfunc
 "
 " Note: A shortcut fired from insert mode passes through normal mode to do its
 " work and comes back -- so the cursor went orange, green, orange, and what you
-" see is a blink of the wrong colour on a command that never left the mode it was
-" called from. Every movement key out of insert does the same, and so does every
-" command of the F keys.
+" see is a blink of the wrong colour on a command that never left the mode it
+" was called from. Every movement key out of insert does the same, and so does
+" every command of the F keys.
 "
-" Note: The timer is RESTARTED at each change, so a command that changes the mode
-" three times paints once, at the end, by the mode it really ended in. Zero is
-" enough: a timer of zero runs on the next pass of the main loop, which is after
-" the command has finished. If the mode is the same as it was, the colour is the
-" same, and nothing is ever seen to change.
+" Note: The timer is RESTARTED at each change, so a command that changes the
+" mode three times paints once, at the end, by the mode it really ended in. Zero
+" is enough: a timer of zero runs on the next pass of the main loop, which is
+" after the command has finished. If the mode is the same as it was, the colour
+" is the same, and nothing is ever seen to change.
 let g:GrooVim_CursorColorTimer = -1
 func! GrooVim_CursorColorSoon() abort
   if g:GrooVim_CursorColorTimer != -1
@@ -340,12 +339,12 @@ if g:GrooVim_CursorColorEnabled
     autocmd VimLeave * call GrooVim_CursorColorReset()
 
     " Note: "ModeChanged" covers every mode, which is why "t_SI" and "t_EI" are
-    " left alone: they only know insert from everything else, and setting them as
-    " well painted the cursor twice.
+    " left alone: they only know insert from everything else, and setting them
+    " as well painted the cursor twice.
     "
-    " Note: And through "Soon", which waits for the mode to settle: see there for
-    " why a command that comes back to the mode it was called from must not show
-    " a colour of its own.
+    " Note: And through "Soon", which waits for the mode to settle: see there
+    " for why a command that comes back to the mode it was called from must not
+    " show a colour of its own.
     autocmd ModeChanged * call GrooVim_CursorColorSoon()
   augroup end
 endif

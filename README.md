@@ -411,6 +411,13 @@ last one are left in `tests/results/`, beside them.
 `docs/pitfalls.md` says what each case covers, and carries the traps that cost
 the most to find.
 
+There is a linter beside it, and a formatter for the notes in the source:
+
+```
+./tools/lint.py          says what is wrong
+./tools/lint.py --fix    reflows the notes to 80 columns
+```
+
 If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
 shortcuts above is written from the same place the F9 help and the F10 menu are,
 and the battery refuses to pass while this file disagrees with it.

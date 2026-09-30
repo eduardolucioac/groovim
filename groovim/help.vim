@@ -15,9 +15,9 @@
 " retired. One list, and the drift has nowhere left to happen.
 "
 " Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
-" It is not decoration: the case that checks this list against the code reads it,
-" and writing it wrong is a failure.
-" Note: The sections of the menu of F10, and they are not the F keys any more.
+" It is not decoration: the case that checks this list against the code reads
+" it, and writing it wrong is a failure. Note: The sections of the menu of F10,
+" and they are not the F keys any more.
 "
 " Note: They were: the menu had four sections because there are four F keys, and
 " every line of it was a shortcut of one of them. So the menu showed what the F
@@ -315,10 +315,9 @@ let g:GrooVim_Shortcuts = [
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
 " named key gets its capital back; punctuation is wrapped in bars, because the
-" help syntax of Vim would otherwise eat a "/" or a "[" .
-" Note: Written by the same function the MENU writes with, so that a key is
-" spelled one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is
-" a key of its own.
+" help syntax of Vim would otherwise eat a "/" or a "[" . Note: Written by the
+" same function the MENU writes with, so that a key is spelled one way in
+" GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is a key of its own.
 "
 " Note: The bars around it are what the help syntax of Vim highlights with, and
 " they only go on where the word would not be picked out otherwise.
@@ -347,8 +346,8 @@ endfunc
 " Note: The README used to keep its own copy of every shortcut, and it drifted
 " the furthest of all of them: it still listed the layout of three groups, with
 " no "F5" at all, and the same letter three times over in one of them. It is
-" written from here now, and a case of the battery refuses to pass while the file
-" and this disagree.
+" written from here now, and a case of the battery refuses to pass while the
+" file and this disagree.
 "
 " Note: The marks the help syntax needs are taken out -- "|" is a link in a help
 " file and a table in Markdown.
@@ -388,8 +387,8 @@ func! GrooVim_ShortcutsHelp() abort
   " Note: What is written here is what THIS GrooVim can do: a shortcut whose
   " plugin is not installed is not on the list, and neither is a group left
   " empty by that. The README is the other way round -- see the Markdown above,
-  " which writes every one of them, because it describes the project and not
-  " one machine.
+  " which writes every one of them, because it describes the project and not one
+  " machine.
   for l:group in GrooVim_MenuSectionsHere()
     call add(l:out, "")
     call add(l:out, "    *" . l:group[0] . "*")
@@ -438,13 +437,13 @@ endfunc
 
 " Note: The About is a dialogue and nothing else: the text above, a button that
 " opens the page and a way out. Everything a dialogue can do -- the arrows, the
-" Enter, the mouse, the "c" that copies, the link -- it can do because it is one,
-" and not because it is the About.
+" Enter, the mouse, the "c" that copies, the link -- it can do because it is
+" one, and not because it is the About.
 "
-" Note: Opening it while it is up closes it, which is what F9 does with the help.
-" The two keys of the shortcut are also given to the dialogue, so pressing it
-" again over the window closes it as well: while a dialogue is up, it is the only
-" thing reading keys, and the CommandZ never sees them.
+" Note: Opening it while it is up closes it, which is what F9 does with the
+" help. The two keys of the shortcut are also given to the dialogue, so pressing
+" it again over the window closes it as well: while a dialogue is up, it is the
+" only thing reading keys, and the CommandZ never sees them.
 "
 " Note: The key of the way out is written "Esc" because that is what the button
 " says. The Esc itself is answered by the dialogue before any button is looked
@@ -703,7 +702,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
-" Note: To test the help use: "set wrap | set linebreak | set nolist | set textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help".
+" Note: To test the help use: "set wrap | set linebreak | set nolist | set
+" textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help".
 
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 

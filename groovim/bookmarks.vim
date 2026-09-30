@@ -2,9 +2,9 @@
 "BOOKMARKS
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Lines you mark and then walk between, with a sign drawn in the margin and
-" a note you can write on any of them. It is the "Search -> Bookmark" menu of
-" Notepad++, and it survives closing GrooVim.
+" Note: Lines you mark and then walk between, with a sign drawn in the margin
+" and a note you can write on any of them. It is the "Search -> Bookmark" menu
+" of Notepad++, and it survives closing GrooVim.
 "
 " Note: This was a plugin -- vim-bookmarks, of Mattes Groeger, MIT -- and it is
 " where the IDEA and the shape of the commands come from. Not one line of it is
@@ -13,13 +13,13 @@
 " places its signs with "sign place ... file=", the old API with no GROUP, and
 " the signs of a file went down every time another window took the focus --
 " measured with ":sign place", every mark gone while the list had the focus and
-" every one back on returning. A group is per buffer and belongs to whoever named
-" it, so nobody else's signs are ever touched and ours are never dropped.
+" every one back on returning. A group is per buffer and belongs to whoever
+" named it, so nobody else's signs are ever touched and ours are never dropped.
 "
 " Note: What was left behind on purpose: the integration with Unite and with
-" CtrlP, the aliases of commands renamed years ago, saving per working directory,
-" and moving a mark up and down a file. What came: marking, the note, walking,
-" the list, clearing, and what is kept on disk.
+" CtrlP, the aliases of commands renamed years ago, saving per working
+" directory, and moving a mark up and down a file. What came: marking, the note,
+" walking, the list, clearing, and what is kept on disk.
 
 " Note: Where the marks live, in memory. One entry per marked line:
 "
@@ -39,9 +39,9 @@ let g:GrooVim_BookmarkSign = get(g:, "GrooVim_BookmarkSign", "⚑")
 let g:GrooVim_BookmarkNoteSign = get(g:, "GrooVim_BookmarkNoteSign", "i")
 
 " Note: Every sign has to be ONE cell wide. The margin is two cells and Vim puts
-" a space after the sign, so a sign of two cells leaves the text of that one line
-" shifted against every other line of the file. Measured on the sign the plugin
-" ships, "☰": "strwidth" says 2 against 1 for the flag.
+" a space after the sign, so a sign of two cells leaves the text of that one
+" line shifted against every other line of the file. Measured on the sign the
+" plugin ships, "☰": "strwidth" says 2 against 1 for the flag.
 func! GrooVim_BookmarksDefine() abort
   " Note: The flag of a plain mark keeps the colour it had. The one of a line
   " with something written on it is YELLOW and says "i": it is another thing to
@@ -90,10 +90,10 @@ endfunc
 "
 " Note: Insert a line above a mark and Vim moves the sign with the text; the
 " number written down here does not move by itself. So before anything reads the
-" marks -- to walk them, to list them, to write them down -- the numbers are read
-" back from the signs of the buffer, when there IS a buffer. A file nobody has
-" opened keeps the numbers it was saved with, which is all anybody knows about
-" it.
+" marks -- to walk them, to list them, to write them down -- the numbers are
+" read back from the signs of the buffer, when there IS a buffer. A file nobody
+" has opened keeps the numbers it was saved with, which is all anybody knows
+" about it.
 func! GrooVim_BookmarksRefresh(file) abort
 
   let l:buffer = bufnr(a:file)
@@ -220,11 +220,11 @@ func! GrooVim_BookmarkAnnotate() abort
   endif
 
   call GrooVim_ScreenSay("Note on line " . line(".") . ": empty takes it off and leaves the mark")
-  " Note: Not through "GrooVim_ScreenAsk": that one keeps asking until the answer
-  " is one of a few, and a note is whatever you want to write. What it does bring
-  " is the mark that opens every section of GrooVim, and that is taken from the
-  " same place it takes it from. The note that is there comes written in the
-  " answer, which is the second argument of "input()".
+  " Note: Not through "GrooVim_ScreenAsk": that one keeps asking until the
+  " answer is one of a few, and a note is whatever you want to write. What it
+  " does bring is the mark that opens every section of GrooVim, and that is
+  " taken from the same place it takes it from. The note that is there comes
+  " written in the answer, which is the second argument of "input()".
   let l:note = input(g:GrooVim_ScreenMark . "Note: ", l:one.note)
   echomsg "   "
 
@@ -236,8 +236,8 @@ func! GrooVim_BookmarkAnnotate() abort
 
 endfunc
 
-" Note: Walks to the next marked line, or to the one before, going round the ends
-" of the file the way a search does.
+" Note: Walks to the next marked line, or to the one before, going round the
+" ends of the file the way a search does.
 func! GrooVim_BookmarkWalk(forward) abort
 
   let l:file = GrooVim_BookmarksFileHere()
@@ -305,8 +305,8 @@ func! GrooVim_BookmarkPanelLine(number, text, path) abort
   endif
 endfunc
 
-" Note: What a marked line shows: the text of the line, and what is written on it
-" after it. A line with a note is still a line, and hiding it behind the note
+" Note: What a marked line shows: the text of the line, and what is written on
+" it after it. A line with a note is still a line, and hiding it behind the note
 " leaves you reading a note with no idea where it is.
 func! GrooVim_BookmarkPanelText(one) abort
   let l:text = a:one.text ==# "" ? "empty line" : a:one.text
@@ -341,8 +341,8 @@ func! GrooVim_BookmarkPanelBuild() abort
 endfunc
 
 " Note: "Bookmarks (N marks in M files)", the way the bar of the occurrence list
-" says "Search ... (N hits in M files ...)". Everything comes from the navigation
-" array that was already built.
+" says "Search ... (N hits in M files ...)". Everything comes from the
+" navigation array that was already built.
 func! GrooVim_BookmarkPanelBar() abort
   let l:marks = 0
   let l:files = {}
@@ -384,8 +384,8 @@ endfunc
 " Note: Every mark of every file -- and the same key takes the list away again.
 "
 " Note: A key that opens a list and does nothing the second time leaves you
-" hunting for another one to close it. Asked for again it was FILLING the list it
-" had already built, which is work nobody asked for and which spoke: "4 fewer
+" hunting for another one to close it. Asked for again it was FILLING the list
+" it had already built, which is work nobody asked for and which spoke: "4 fewer
 " lines", "5 more lines", "--No lines in buffer--" over the bar, from the very
 " commands that empty and fill the buffer.
 func! GrooVim_BookmarkList() abort
@@ -412,8 +412,8 @@ func! GrooVim_BookmarkList() abort
   let g:GrooVim_BookmarkListOpen = 1
   call GrooVim_BookmarkListEverywhere()
 
-  " Note: And the cursor goes INTO the list, because you asked for it to read it.
-  " The sync leaves you where it found you -- it runs on its own, at moments
+  " Note: And the cursor goes INTO the list, because you asked for it to read
+  " it. The sync leaves you where it found you -- it runs on its own, at moments
   " nobody chose -- so the one moment somebody DID choose says so here! By
   " Questor
   call GrooVim_PanelFocus(s:panel, 0)
@@ -462,11 +462,11 @@ func! GrooVim_BookmarkListSync() abort
   " Note: Whatever this does, it leaves you where it found you.
   "
   " Note: It walks the windows of the tab to find the list, and walking them
-  " MOVES you -- and this runs on its own, from a timer, at moments nobody chose:
-  " entering a tab fires it, and so does the "tabdo" that brings every tab into
-  " line. Measured: a mark was put on line 1 of the list itself, because the
-  " timer had run during the wait for the second key of the shortcut and left the
-  " cursor in the list while the key was still on its way.
+  " MOVES you -- and this runs on its own, from a timer, at moments nobody
+  " chose: entering a tab fires it, and so does the "tabdo" that brings every
+  " tab into line. Measured: a mark was put on line 1 of the list itself,
+  " because the timer had run during the wait for the second key of the shortcut
+  " and left the cursor in the list while the key was still on its way.
   let l:back = win_getid()
   try
     call GrooVim_BookmarkListSyncHere()
@@ -485,8 +485,8 @@ func! GrooVim_BookmarkListSyncHere() abort
   if !g:GrooVim_BookmarkListOpen
     if l:here
       " Note: "silent!" because closing the LAST window of a tab is refused, and
-      " being refused is the right answer there: a tab with nothing but this list
-      " in it keeps it.
+      " being refused is the right answer there: a tab with nothing but this
+      " list in it keeps it.
       silent! close
     endif
     return
@@ -510,20 +510,19 @@ endfunc
 " Note: And a tab reached later gets it too, which is the whole of being a dock.
 "
 " Note: Through a timer for the reason the occurrence list uses one: "tabnew
-" {file}" fires "TabEnter" BEFORE the file is loaded, and building the list right
-" there puts it in a window the file then lands on top of.
+" {file}" fires "TabEnter" BEFORE the file is loaded, and building the list
+" right there puts it in a window the file then lands on top of.
 func! GrooVim_BookmarkListOnTab(timer) abort
   if g:GrooVim_BookmarkListOpen && !s:syncing
     call GrooVim_BookmarkListSync()
   endif
 endfunc
 
-" Note: "norm!" and not "norm": inside the panel the keys that edit are mapped to
-" nothing, and without the "!" this would run through them and do nothing at
-" all.
-" Note: "silent" because emptying a buffer and filling it again SPEAKS -- "4
-" fewer lines", "5 more lines", and "--No lines in buffer--" when it was already
-" empty. None of that is news to anybody reading a list of marks.
+" Note: "norm!" and not "norm": inside the panel the keys that edit are mapped
+" to nothing, and without the "!" this would run through them and do nothing at
+" all. Note: "silent" because emptying a buffer and filling it again SPEAKS --
+" "4 fewer lines", "5 more lines", and "--No lines in buffer--" when it was
+" already empty. None of that is news to anybody reading a list of marks.
 func! GrooVim_BookmarkPanelFill() abort
   setlocal ma
   silent! exec "norm! ggdG"
@@ -557,8 +556,8 @@ func! GrooVim_BookmarkNavigate() abort
   setlocal noma nomodified
 
   " Note: The file may not be open any more. Notepad++ opens the document again
-  " when you click a result of a file that is not open, and this does the same --
-  " above the list, so the list stays where it is.
+  " when you click a result of a file that is not open, and this does the same
+  " -- above the list, so the list stays where it is.
   if !GrooVim_PanelFocus(l:path, 1)
     if GrooVim_SearchGuyTabHasFile()
       exec "tabnew " . fnameescape(l:path)
@@ -666,8 +665,8 @@ endfunc
 " Note: What is kept on disk, beside the undo history and the rest of what
 " GrooVim remembers.
 "
-" Note: As JSON, and not as a script to be executed the way that plugin wrote it.
-" A file of state that is SOURCED is a file that can run anything.
+" Note: As JSON, and not as a script to be executed the way that plugin wrote
+" it. A file of state that is SOURCED is a file that can run anything.
 func! GrooVim_BookmarksFile() abort
   return g:GrooVim_State . "/bookmarks"
 endfunc
@@ -676,9 +675,9 @@ func! GrooVim_BookmarksSave() abort
   let l:keep = {}
   for l:file in keys(g:GrooVim_Bookmarks)
     call GrooVim_BookmarksRefresh(l:file)
-    " Note: In the order of the file, and not in the order they were made. A file
-    " of state is read by people too, and a list that jumps around is harder to
-    " read than one that goes down the page.
+    " Note: In the order of the file, and not in the order they were made. A
+    " file of state is read by people too, and a list that jumps around is
+    " harder to read than one that goes down the page.
     let l:marks = []
     for l:one in sort(copy(GrooVim_BookmarksOf(l:file)), {a, b -> a.line - b.line})
       call add(l:marks, {"line": l:one.line, "note": l:one.note, "text": l:one.text})
@@ -717,9 +716,10 @@ func! GrooVim_BookmarksLoad() abort
   endfor
 endfunc
 
-" Note: The two keys you walk the marks with, because walking them is what you do
-" over and over: "m" for the next one and "M" for the one before. F4 has what is
-" not walking -- the menu of F10 and the list of F9 are written from the F keys.
+" Note: The two keys you walk the marks with, because walking them is what you
+" do over and over: "m" for the next one and "M" for the one before. F4 has what
+" is not walking -- the menu of F10 and the list of F9 are written from the F
+" keys.
 "
 " Note: They take the "m" that sets a mark of Vim and the "M" that jumps to the
 " middle of the screen. It is a trade made with open eyes: this replaces what

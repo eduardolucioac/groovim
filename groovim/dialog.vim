@@ -182,8 +182,8 @@ func! GrooVim_DialogPage(url) abort
     return
   endif
 
-  " Note: A job and not a "system()", for the same reason the clipboard uses one:
-  " a browser starting up is not something Vim should be waiting for.
+  " Note: A job and not a "system()", for the same reason the clipboard uses
+  " one: a browser starting up is not something Vim should be waiting for.
   call job_start([l:opener, a:url],
    \ {"in_io": "null", "out_io": "null", "err_io": "null"})
   call GrooVim_GrooVimBarMsg("The page went to your browser!", 4)
@@ -244,10 +244,10 @@ endfunc
 " Note: While it is up, every key comes here, so nothing walks the file behind
 " it, and only the ways out written on the window take it down.
 "
-" Note: The keys VIM sends itself are swallowed and nothing else. They begin with
-" the two bytes 0x80 0xFD -- measured, one of them, "<80><fd>`", used to arrive
-" on its own and shut the window in the instant it opened. The mouse is in that
-" same family and is asked about FIRST, because a click is somebody's.
+" Note: The keys VIM sends itself are swallowed and nothing else. They begin
+" with the two bytes 0x80 0xFD -- measured, one of them, "<80><fd>`", used to
+" arrive on its own and shut the window in the instant it opened. The mouse is
+" in that same family and is asked about FIRST, because a click is somebody's.
 "
 " Note: A shortcut is read here key by key, both of them, and not handed back to
 " the CommandZ. Measured with mappings on: the F key handed back never came to
@@ -317,8 +317,8 @@ func! GrooVim_DialogFilter(id, key) abort
 
 endfunc
 
-" Note: The same dialogue where there are no popups to draw one with. It says the
-" same things and answers the same keys; what it cannot do is be a window.
+" Note: The same dialogue where there are no popups to draw one with. It says
+" the same things and answers the same keys; what it cannot do is be a window.
 func! GrooVim_DialogOnScreen(spec) abort
 
   for l:line in s:dialog.lines

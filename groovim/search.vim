@@ -1,3 +1,10 @@
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" SEARCHING
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Searching, what it paints while it is on, and the walk between what it
+" found. The list it can leave behind is the occurrence part; here is what
+" finds, highlights and walks.
 let g:tabChanged = 0
 let g:block_GrooVim_HLNext = 0
 highlight WhiteOnRed ctermbg=red ctermfg=white
@@ -232,9 +239,9 @@ endfunc
 let g:search_Direction = get(g:, "search_Direction", "f")
 let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
 
-" Note: The "Match whole word only" of Notepad++: with it on, "cat" stops finding
-" the "cat" inside "concatenate". Off by default, like the case, and asked on the
-" search screen of "F5->c" beside it.
+" Note: The "Match whole word only" of Notepad++: with it on, "cat" stops
+" finding the "cat" inside "concatenate". Off by default, like the case, and
+" asked on the search screen of "F5->c" beside it.
 let g:searchReplace_WholeWord = get(g:, "searchReplace_WholeWord", 0)
 let g:grooVimSearchFoward = 1
 func! GrooVim_EasySearch(mod) range abort
@@ -276,10 +283,10 @@ func! GrooVim_EasySearch(mod) range abort
   " Note: Paints what is being offered before asking, so you SEE it: the
   " selection in visual mode, the word under the cursor otherwise.
   "
-  " Note: The "redraw" is what actually paints the mark. Measured on the terminal:
-  " without it NOTHING is painted while the prompt waits, in either mode. I had
-  " claimed otherwise before, misled by a test that was catching the paint Vim
-  " does by itself while a selection is being dragged.
+  " Note: The "redraw" is what actually paints the mark. Measured on the
+  " terminal: without it NOTHING is painted while the prompt waits, in either
+  " mode. I had claimed otherwise before, misled by a test that was catching the
+  " paint Vim does by itself while a selection is being dragged.
   "
   " Note: The price is that in VISUAL mode the prompt then lands on the second
   " line of the command area, with a blank line above it. Four ways around it
@@ -330,18 +337,18 @@ func! GrooVim_EasySearch(mod) range abort
     let g:grooVimSearchFoward = 1
   endif
 
-  " Note: This structure was made so that the search can be executed "immediately". With
-  " "feedkeys" (below) this does not happen, causing sync issues with functions that
-  " depend on "GrooVim_EasySearch" function runs first.
-  " Note: Works but does not allow default "backward search".
+  " Note: This structure was made so that the search can be executed
+  " "immediately". With "feedkeys" (below) this does not happen, causing sync
+  " issues with functions that depend on "GrooVim_EasySearch" function runs
+  " first. Note: Works but does not allow default "backward search".
 
   let @/ = l:pattern
   let l:initialPos = getpos(".")
 
   " Note: This operation is duplicated ("feedkeys" and "exec") causing a double
-  " execution of the search, but it was the only way to not have problems with "n"
-  " and "N" navigating and the search with list! If not done, the highlight is lost
-  " after a few movements of the cursor.
+  " execution of the search, but it was the only way to not have problems with
+  " "n" and "N" navigating and the search with list! If not done, the highlight
+  " is lost after a few movements of the cursor.
   if g:search_WithList == 0
     call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
   else
@@ -376,15 +383,15 @@ endfunc
 " Note: Performs search in multiple tabs creating lists of occurrences.
 func! GrooVim_SearchGuyTraveler(mod) range abort
 
-  " Note: Counted BEFORE knowing whether there is a match, because Notepad++ says
-  " "of N searched" about every file it looked at, not only the ones that had
-  " something.
+  " Note: Counted BEFORE knowing whether there is a match, because Notepad++
+  " says "of N searched" about every file it looked at, not only the ones that
+  " had something.
   let g:GrooVim_SearchGuyFilesSearched = g:GrooVim_SearchGuyFilesSearched + 1
 
   let l:theresAMatch = 1
 
-  " Note: To the FIRST match of the file, and "first" includes one sitting on the
-  " very first character.
+  " Note: To the FIRST match of the file, and "first" includes one sitting on
+  " the very first character.
   "
   " This used to be "norm gg0n": go to the top and then to the NEXT match -- and
   " the top is where the match is when a file begins with it, so "n" jumped over
@@ -393,9 +400,9 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
   " the right made both appear.
   "
   " "search()" with "c" accepts a match AT the cursor, which is the whole
-  " difference. It answers 0 when the file has none, where the "n" raised E486 --
-  " hence the try, which stays for the pattern being empty and anything else the
-  " search itself may object to.
+  " difference. It answers 0 when the file has none, where the "n" raised E486
+  " -- hence the try, which stays for the pattern being empty and anything else
+  " the search itself may object to.
   try
     exec "norm gg0"
     if search(@/, "c") == 0
@@ -474,9 +481,10 @@ func! GrooVim_SearchGuy(mod) range abort
   call GrooVim_SearchGuySync()
 
   " Note: This "workaround" is to prevent a side effect that occurs when script
-  " changing tab which that is the loss of search highlight. The presence of redraw
-  " serves to remove the message generated by "set hlsearch".
-  " call feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" . g:cmdLineCaller . "redraw!\<cr>")
+  " changing tab which that is the loss of search highlight. The presence of
+  " redraw serves to remove the message generated by "set hlsearch". call
+  " feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" .
+  " g:cmdLineCaller . "redraw!\<cr>")
 
   let g:grooVimSearchFowardBlock = 0
 
@@ -490,16 +498,17 @@ func! GrooVim_SearchGuy(mod) range abort
 
 endfunc
 
-" Note: Serves to synchronize in others tabs certain "states"! Always runs when a tab is accessed.
+" Note: Serves to synchronize in others tabs certain "states"! Always runs when
+" a tab is accessed.
 autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise() abort
   " Note: If there is a search list this list is open in the current tab if the
   " functionality is enabled.
   "
-  " Note: Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the file
-  " is loaded: building the list right here put it in a window that the file then
-  " landed on top of, and the tab ended up with the file twice and no list. The
-  " timer runs once the tab has settled.
+  " Note: Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the
+  " file is loaded: building the list right here put it in a window that the
+  " file then landed on top of, and the tab ended up with the file twice and no
+  " list. The timer runs once the tab has settled.
   "
   " Note: Not while navigating, which puts the list in place by itself at the
   " moment it knows the tab is ready.
@@ -515,8 +524,8 @@ endfunc
 "
 " Note: "matchadd" and NOT the search register: this does not move the cursor,
 " does not touch what "n" would find next, and does not turn the search
-" highlight on. You can mark a name and go on searching for something else, which
-" is the whole point of marking it.
+" highlight on. You can mark a name and go on searching for something else,
+" which is the whole point of marking it.
 "
 " Note: A match belongs to a WINDOW, so it is put up again whenever you enter
 " one. Otherwise splitting, or walking to another tab, would lose it -- and a

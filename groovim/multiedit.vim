@@ -1,12 +1,19 @@
-" Note: Writing in several places at once -- the multiple carets of Notepad++,
-" which are its "Shift+Alt+arrows" (a column) and its "Ctrl+click" (wherever you
-" like).
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" MULTIPLE CARETS
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Writing in several places at once: F2->n takes whole lines and F2->m
+" takes places of their own. Vim has one cursor, so the others are drawn and the
+" typing is repeated at each of them -- which is why this is a part and not a
+" mapping. Note: Writing in several places at once -- the multiple carets of
+" Notepad++, which are its "Shift+Alt+arrows" (a column) and its "Ctrl+click"
+" (wherever you like).
 "
 " Note: Vim has neither. What it has is the visual BLOCK, and a block is not
-" this: you cannot type into it -- an "I" or an "A" is asked for first, the other
-" lines only change when you press "Esc", and the column is the same on every
-" line. Measured on four lines, entering the block and typing "XYZ": the "X" ran
-" as the "x" of Vim and took a character off each line.
+" this: you cannot type into it -- an "I" or an "A" is asked for first, the
+" other lines only change when you press "Esc", and the column is the same on
+" every line. Measured on four lines, entering the block and typing "XYZ": the
+" "X" ran as the "x" of Vim and took a character off each line.
 "
 " Note: There is a plugin for this, "vim-visual-multi", eight and a half
 " thousand lines in twenty five files, and inside its own mode it takes "m",
@@ -27,11 +34,11 @@ let g:GrooVim_MultiPoints = []
 let g:GrooVim_MultiCursorSet = get(g:, "GrooVim_MultiCursorSet", "#f6d32d")
 
 " Note: What the cursor of the terminal should be painted with, asked by the
-" part that paints it. Empty means "nothing to do with me".
-" Note: On whether this is UP, and not on whether there are carets yet: the
-" column starts with none -- they arrive with the first arrow -- and asking for
-" the carets left the cursor in the colour of insert until one appeared, which
-" is the one moment it should already have changed.
+" part that paints it. Empty means "nothing to do with me". Note: On whether
+" this is UP, and not on whether there are carets yet: the column starts with
+" none -- they arrive with the first arrow -- and asking for the carets left the
+" cursor in the colour of insert until one appeared, which is the one moment it
+" should already have changed.
 func! GrooVim_MultiCursorColour() abort
 
   if !s:on
@@ -71,10 +78,10 @@ endif
 
 " Note: The carets are drawn with a match, which belongs to the WINDOW and not
 " to the buffer -- and that is right here: the carets of a run of typing belong
-" to the window you are typing in.
-" Note: The cursor of the terminal is painted AFTER the mode settles, which is
-" what the part that paints it does with every colour: a "startinsert" has not
-" happened yet when the function that asked for it is still running.
+" to the window you are typing in. Note: The cursor of the terminal is painted
+" AFTER the mode settles, which is what the part that paints it does with every
+" colour: a "startinsert" has not happened yet when the function that asked for
+" it is still running.
 func! GrooVim_MultiCursorSoon() abort
   if exists("*GrooVim_CursorColorSoon")
     call GrooVim_CursorColorSoon()
@@ -127,15 +134,14 @@ endfunc
 " Note: What every caret does when a key that MOVES is pressed. The motion is
 " run at each caret, from where THAT caret is -- so "word right" is each one's
 " own next word, and "end of line" is each one's own end, on lines of every
-" length.
-" Note: The keys with a modifier move EVERY caret, in both shapes of this. The
-" plain arrows are the difference between the two: in the column they are the
-" block -- "Down" takes in one more line -- and in the places they are how you
-" WALK to the next place, so there they move nobody but you.
+" length. Note: The keys with a modifier move EVERY caret, in both shapes of
+" this. The plain arrows are the difference between the two: in the column they
+" are the block -- "Down" takes in one more line -- and in the places they are
+" how you WALK to the next place, so there they move nobody but you.
 "
 " Note: Which is not a taste either. Marking several places is choosing where
-" they are, and arrows that drag the carets already marked would take the
-" chosen places away as you went looking for the next one.
+" they are, and arrows that drag the carets already marked would take the chosen
+" places away as you went looking for the next one.
 let s:moves = {
  \ "<C-Left>":  "b",
  \ "<C-Right>": "el",
@@ -215,8 +221,8 @@ endfunc
 
 " Note: The places are chosen; from here they move together.
 "
-" Note: The keys are handed back and taken again, because which key does what
-" is exactly what changed: the arrows were YOUR walk and are now everybody's
+" Note: The keys are handed back and taken again, because which key does what is
+" exactly what changed: the arrows were YOUR walk and are now everybody's
 " movement, and "Esc" was this, and is the end from here.
 func! GrooVim_MultiSeal() abort
 
@@ -751,12 +757,12 @@ endfunc
 
 " Note: A line cut in two moves everything below it one line down, and whatever
 " was on that line AFTER the cut goes with it -- to the new line, counting from
-" where the cut left it.
-" Note: "alsoCursor" says whether the REAL cursor has to go down as well. When
-" the cut was its own, Vim has already taken it to the new line; when it was a
-" caret's, nobody has -- and a cursor left a line short joins the wrong two
-" lines the next time a backspace is pressed: measured, an Enter and a
-" backspace, which should leave a file exactly as it was, eating a line of it.
+" where the cut left it. Note: "alsoCursor" says whether the REAL cursor has to
+" go down as well. When the cut was its own, Vim has already taken it to the new
+" line; when it was a caret's, nobody has -- and a cursor left a line short
+" joins the wrong two lines the next time a backspace is pressed: measured, an
+" Enter and a backspace, which should leave a file exactly as it was, eating a
+" line of it.
 func! GrooVim_MultiCut(line, column, except, alsoCursor) abort
 
   let l:which = 0
@@ -920,9 +926,9 @@ augroup END
 " and leaving in one go, the other lines came out short of the last characters.
 "
 " Note: And whether insert really ended is asked AFTERWARDS, not now. Leaving it
-" is not the same as ending it: a "<C-o>" steps out to run one command and
-" walks straight back in, firing "InsertLeave" on the way -- and twenty six keys
-" of GrooVim are written that way, the paste, the unindent, the wheel, the page,
+" is not the same as ending it: a "<C-o>" steps out to run one command and walks
+" straight back in, firing "InsertLeave" on the way -- and twenty six keys of
+" GrooVim are written that way, the paste, the unindent, the wheel, the page,
 " and the F keys themselves. Every one of them would have ended this. A timer of
 " zero runs after the dust settles, and by then Vim is back in insert if it was
 " ever leaving at all.

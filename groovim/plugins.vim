@@ -1,15 +1,9 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"ENABLE PLUGINS
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" ENABLE PLUGINS
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Is a given plugin installed? Looks into the native package directories
-" of Vim 8 and later, which is the only way GrooVim loads one.
-"
-" Note: It used to look into a "bundle" directory as well, for Pathogen. That
-" answer became a lie the day GrooVim stopped sharing "~/.vim": nothing sources
-" a "bundle" directory any more, so a plugin found there would be reported as
-" installed and never load -- and a shortcut that says it is there and does
-" nothing is worse than one that says it is missing.
+" Note: Is a given plugin installed? Looks into the native package directories,
+" which is the only way GrooVim loads one.
 func! GrooVim_HasPlugin(name) abort
   for l:place in ["pack/*/start/", "pack/*/opt/"]
     if !empty(glob(g:GrooVim_Home . "/" . l:place . a:name, 0, 1))
@@ -28,7 +22,7 @@ let g:enable_all_plugins = get(g:, "enable_all_plugins", 1)
 " g:enable_all_plugins == 1" -- and a fourth reader that forgot the second half
 " would see a plugin that is off as on.
 
-" Note: Each plugin is now DETECTED instead of assumed. GrooVim promises to work
+" Each plugin is now DETECTED instead of assumed. GrooVim promises to work
 " depending only on the contents of this ".vimrc" (the "no plugin scenario"), so
 " whatever is not installed simply stays quiet instead of failing. Set any of
 " these before sourcing GrooVim to force a value.
@@ -38,9 +32,6 @@ let g:enable_tcomment_vim = get(g:, "enable_tcomment_vim", GrooVim_HasPlugin("tc
 
 " Note: nerdtree.vim.
 let g:enable_nerdtree_vim = get(g:, "enable_nerdtree_vim", GrooVim_HasPlugin("nerdtree")) && g:enable_all_plugins
-
-" Note: debugger.vim! No debug plugin is installed by the README instructions,
-" so this one stays off unless you ask for it.
 
 " Note: move.vim.
 let g:enable_move_vim = get(g:, "enable_move_vim", GrooVim_HasPlugin("vim-move")) && g:enable_all_plugins
@@ -63,7 +54,6 @@ set nocursorline
 " Note: Limit the scope of syntax in very long lines to improve performance.
 set synmaxcol=1000
 
-" Note: Don't redraw while executing macros (good performance config)!
-" Causes scroll "flickering".
-" set lazyredraw
+" Note: Don't redraw while executing macros (good performance config)! Causes
+" scroll "flickering". set lazyredraw
 

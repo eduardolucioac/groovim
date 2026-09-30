@@ -1,6 +1,14 @@
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" OCCURRENCE LIST
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: The panel that lists every line a search found, which is the one of
+" Notepad++. It is a window of its own in the tab, with a buffer nobody can
+" change and keys of its own, and it is kept in step with what the search last
+" found.
 func! GrooVim_SearchGuySyncNow(timer) abort
-  " Note: Checked again because the timer runs later and the search may have been
-  " ended in the meantime.
+  " Note: Checked again because the timer runs later and the search may have
+  " been ended in the meantime.
   if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
     call GrooVim_SearchGuySync()
   endif
@@ -26,9 +34,9 @@ if g:enable_nerdtree_vim
     endtry
   endfunc
 
-  " Note: Is there a tree in ANY tab to be mirrored? Asking first avoids the
-  " "No trees to mirror" notice that NERDTree prints on every first open.
-  " Note: Does THIS tab already own a tree, open or merely closed?
+  " Note: Is there a tree in ANY tab to be mirrored? Asking first avoids the "No
+  " trees to mirror" notice that NERDTree prints on every first open. Note: Does
+  " THIS tab already own a tree, open or merely closed?
   func! GrooVim_NERDTreeExistsForTab()
     if !exists("g:NERDTree")
       return 0
@@ -65,13 +73,12 @@ if g:enable_nerdtree_vim
   " Note: Brings THIS tab into line with the flag, and leaves you where it found
   " you: it runs on its own, from a timer, at moments nobody chose -- and
   " opening the tree puts the cursor inside it, which is the last thing you want
-  " when what you did was open a file.
-  " Note: And when this OPENED the tree, it ends on a document and never in the
-  " tree itself. Opening it puts the cursor inside it, and the window to go back
-  " to may be the tree of the tab you came FROM -- measured, a new tab arriving
-  " with the cursor in its tree instead of in the empty document it had just
-  " been given. Asking for the tree with the key is another matter: there you
-  " asked to read it.
+  " when what you did was open a file. Note: And when this OPENED the tree, it
+  " ends on a document and never in the tree itself. Opening it puts the cursor
+  " inside it, and the window to go back to may be the tree of the tab you came
+  " FROM -- measured, a new tab arriving with the cursor in its tree instead of
+  " in the empty document it had just been given. Asking for the tree with the
+  " key is another matter: there you asked to read it.
   func! GrooVim_TreeSync() abort
 
     let l:back = win_getid()
@@ -202,10 +209,10 @@ endfunc
 " never one you type into.
 "
 " Note: Written for the occurrence list and used by the list of marks too. What
-" is here is what ANY panel of GrooVim needs -- a buffer that is not a file, that
-" cannot be typed into, and where every key that would change text does nothing.
-" What each panel puts on top of it is its own: the bar it writes and what Enter
-" does on a line.
+" is here is what ANY panel of GrooVim needs -- a buffer that is not a file,
+" that cannot be typed into, and where every key that would change text does
+" nothing. What each panel puts on top of it is its own: the bar it writes and
+" what Enter does on a line.
 func! GrooVim_PanelSetup(name, hue) abort
 
   " Note: "nofile" and "nobuflisted" so the list does not behave like a file you
@@ -262,11 +269,11 @@ func! GrooVim_PanelSetup(name, hue) abort
 
 endfunc
 
-" Note: A panel is not a file, and reading one as if it were leaves a wall of one
-" colour. What is in it has SHAPE: a heading, the name of a file, the rules that
-" separate one file from the next, the number of each line and the arrow on the
-" one you came from -- and each of those is worth its own colour, the way the
-" results of Notepad++ are.
+" Note: A panel is not a file, and reading one as if it were leaves a wall of
+" one colour. What is in it has SHAPE: a heading, the name of a file, the rules
+" that separate one file from the next, the number of each line and the arrow on
+" the one you came from -- and each of those is worth its own colour, the way
+" the results of Notepad++ are.
 "
 " Note: The rules are put on the BUFFER and not on a file type of its own: a
 " panel is built and filled by GrooVim, so there is nothing to detect and nobody
@@ -290,8 +297,7 @@ func! GrooVim_PanelColours(name, hue) abort
   " they paint with are of the panel.
   "
   " Note: The heading BEFORE the plain rule: Vim takes the first item that
-  " matches at a place, and a heading is a rule with a name in the middle of
-  " it.
+  " matches at a place, and a heading is a rule with a name in the middle of it.
   exec 'syntax match GrooVimPanel' . a:name . 'Title "^-\+\[ .\{-} \]-\+$"'
   exec 'syntax match GrooVimPanel' . a:name . 'Rule "^-\+$"'
   exec "highlight default link GrooVimPanel" . a:name . "Title " . a:hue
@@ -349,8 +355,8 @@ func! GrooVim_SearchGuyBar() abort
     endif
   endfor
 
-  " Note: "%" starts a format item in a status line, so a searched value carrying
-  " one has to be doubled or the bar would eat it.
+  " Note: "%" starts a format item in a status line, so a searched value
+  " carrying one has to be doubled or the bar would eat it.
   let l:value = substitute(g:GrooVim_SearchGuyValue, "%", "%%", "g")
 
   return "Search \"" . l:value . "\" (" .
@@ -360,8 +366,9 @@ func! GrooVim_SearchGuyBar() abort
 
 endfunc
 
-" Note: Walks the windows of the CURRENT tab looking for one, and says whether it
-" found it. The name is a pattern for the list and an exact full path for a file.
+" Note: Walks the windows of the CURRENT tab looking for one, and says whether
+" it found it. The name is a pattern for the list and an exact full path for a
+" file.
 func! GrooVim_PanelFocus(name, byPath) abort
   for l:window in range(1, winnr("$"))
     exec l:window . "wincmd w"
@@ -427,8 +434,8 @@ func! GrooVim_SearchGuyCloseNow(timer) abort
   " Note: Only while there are OTHER tabs. Closing the last file leaves the list
   " alone on the last tab and it STAYS there, the way the "Search results" panel
   " of Notepad++ outlives the documents: your results are what you reopen the
-  " interesting files from. To leave, quit from the list itself -- it is the last
-  " window by then, so Vim closes as usual.
+  " interesting files from. To leave, quit from the list itself -- it is the
+  " last window by then, so Vim closes as usual.
   if tabpagenr("$") > 1 && winnr("$") == 1 &&
    \ bufname("%") =~ "GrooVim_SearchGuyResults"
     quit
@@ -445,8 +452,8 @@ endfunc
 " from the file now do exactly the same thing, and ":q" on a list that is alone
 " is a plain last window, which closes Vim as always.
 "
-" Note: Only a new search (F3->f) ends the list itself, and it ends
-" it in every tab.
+" Note: Only a new search (F3->f) ends the list itself, and it ends it in every
+" tab.
 func! GrooVim_SearchGuyQuitPre() abort
   if bufname("%") =~ "GrooVim_SearchGuyResults" && GrooVim_SearchGuyTabHasFile()
     call timer_start(0, "GrooVim_SearchGuyQuitTheFile")
@@ -456,9 +463,9 @@ endfunc
 " Note: By the time this runs the ":q" already closed the LIST window -- Vim
 " quits the window that was current when the command was typed, and moving the
 " cursor from inside "QuitPre" does not change that. So the list is put back and
-" the file is closed instead, which is the same as if you had typed ":q" over the
-" file. The list buffer is "wipe", so it really was gone and "Sync" builds a new
-" one.
+" the file is closed instead, which is the same as if you had typed ":q" over
+" the file. The list buffer is "wipe", so it really was gone and "Sync" builds a
+" new one.
 func! GrooVim_SearchGuyQuitTheFile(timer) abort
   if GrooVim_SearchGuyTabHasFile()
     call GrooVim_SearchGuySync()
@@ -498,8 +505,8 @@ func! GrooVim_SearchGuyNavigate() range abort
   let l:listPosLinToArray = (l:listPosLinCol[1] - 1)
   if l:listPosLinToArray >= 0 && g:matchedLinesGlobalNavArray[l:listPosLinToArray] != 0
 
-    " Note: An entry is "tab,path,line,column". Read from the ENDS because a path
-    " is allowed to carry a comma of its own.
+    " Note: An entry is "tab,path,line,column". Read from the ENDS because a
+    " path is allowed to carry a comma of its own.
     let l:entry = split(g:matchedLinesGlobalNavArray[l:listPosLinToArray], ",")
     let l:entryTab = l:entry[0]
     let l:entryLine = l:entry[-2]
@@ -528,9 +535,9 @@ func! GrooVim_SearchGuyNavigate() range abort
         setlocal noma nomodified
       endif
 
-      " Note: The file may not be open any more, and it may have moved to another
-      " tab. Notepad++ opens the document again when you click a result of a file
-      " that is not open, and this does the same.
+      " Note: The file may not be open any more, and it may have moved to
+      " another tab. Notepad++ opens the document again when you click a result
+      " of a file that is not open, and this does the same.
       "
       " Note: This used to be a "while" pressing "<C-w>" until the name matched.
       " With the file closed the name never came and Vim froze.
@@ -538,22 +545,22 @@ func! GrooVim_SearchGuyNavigate() range abort
         if GrooVim_SearchGuyTabHasFile()
           exec "tabnew " . fnameescape(l:entryPath)
         else
-          " Note: The tab holds nothing but the list -- you closed everything and
-          " kept the results. The file joins it right here, above the list, so the
-          " results stay where they are instead of being left behind in a tab of
-          " their own.
+          " Note: The tab holds nothing but the list -- you closed everything
+          " and kept the results. The file joins it right here, above the list,
+          " so the results stay where they are instead of being left behind in a
+          " tab of their own.
           call GrooVim_PanelFocus("GrooVim_SearchGuyResults", 0)
           exec "aboveleft split " . fnameescape(l:entryPath)
         endif
       endif
 
-      " Note: The tab you land on gets its list, whether the file was already open
-      " or had to be opened again: landing without the results would leave you
-      " with no way back to them.
+      " Note: The tab you land on gets its list, whether the file was already
+      " open or had to be opened again: landing without the results would leave
+      " you with no way back to them.
       if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
         call GrooVim_SearchGuySync()
-        " Note: "Sync" leaves you inside the list it has just built, so come back
-        " to the file before placing the cursor on the occurrence.
+        " Note: "Sync" leaves you inside the list it has just built, so come
+        " back to the file before placing the cursor on the occurrence.
         call GrooVim_PanelFocus(l:entryPath, 1)
       endif
 
@@ -580,8 +587,8 @@ func! GrooVim_SearchGuyPrepare() abort
   if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 1
 
     try
-      " Note: With this approach I can effectively "destroy" the buffer not returning
-      " "false" positives on "bufexists()" above.
+      " Note: With this approach I can effectively "destroy" the buffer not
+      " returning "false" positives on "bufexists()" above.
       exec "bwipeout! GrooVim_SearchGuyResults" . tabpagenr()
     catch
 
@@ -591,8 +598,8 @@ func! GrooVim_SearchGuyPrepare() abort
 
 endfunc
 
-" Note: For debugging purposes. To stop uses "0". Allows a "stop" on the line in that
-" is called and displays a message.
+" Note: For debugging purposes. To stop uses "0". Allows a "stop" on the line in
+" that is called and displays a message.
 func! GrooVim_PauseExecution(msg) abort
   echo "msg: \"" . a:msg . "\""
   while getchar() != 48
@@ -601,9 +608,10 @@ func! GrooVim_PauseExecution(msg) abort
 endfunc
 
 " Note: Allows normal use of the Enter (carriage return) key in visual mode.
-" Note: There used to be a "<bar>" between the delete and the insert. It produces
-" a literal "|", which in normal mode means "go to column 1", so the line break
-" was inserted at the START of the line instead of where the selection was.
+" Note: There used to be a "<bar>" between the delete and the insert. It
+" produces a literal "|", which in normal mode means "go to column 1", so the
+" line break was inserted at the START of the line instead of where the
+" selection was.
 vnoremap <silent> <Enter> "_xi<cr><Esc>
 
 " Note: Allows "multimode" normal use (delete) of the Del key.

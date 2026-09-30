@@ -1,5 +1,12 @@
-" Note: The windows that are accessories of a tab and not documents of yours. In
-" one place because more than one thing needs to know it.
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" TABS (AND THE TAB LINE)
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: The tab line and what is written on it, the names of documents that have
+" no name yet, and the windows that are accessories of a tab instead of
+" documents of yours -- the tree, the lists, the help. Note: The windows that
+" are accessories of a tab and not documents of yours. In one place because more
+" than one thing needs to know it.
 func! GrooVim_IsHelperBuffer(name) abort
   return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "GrooVim_BookmarksList" ||
    \ a:name =~ "NERD_tree_" || a:name =~ "GrooVimHelp"
@@ -8,8 +15,8 @@ endfunc
 " Note: Try to ensure that open in an editor window.
 "
 " Note: It walks the windows a bounded number of times. It used to be a "while"
-" that pressed "<C-w>" until it landed on an editor: with nothing but accessories
-" open that day never came and Vim froze.
+" that pressed "<C-w>" until it landed on an editor: with nothing but
+" accessories open that day never came and Vim froze.
 func! GrooVim_PutOnEditWindow() range abort
   for l:window in range(1, winnr("$"))
     if !GrooVim_IsHelperBuffer(expand('%:t'))
@@ -20,21 +27,21 @@ func! GrooVim_PutOnEditWindow() range abort
 endfunc
 
 " Note: The default tab label is the buffer of the CURRENT window of the tab, so
-" standing on the occurrences list renamed the tab to "GrooVim_SearchGuyResults1"
-" and your file was no longer findable among many tabs. Here the label is always
-" a document of yours: the accessories are skipped.
-" Note: A document you have not saved yet shows as "new 1", "new 2"... the way
-" Notepad++ names them, instead of the "[No Name]" of Vim.
+" standing on the occurrences list renamed the tab to
+" "GrooVim_SearchGuyResults1" and your file was no longer findable among many
+" tabs. Here the label is always a document of yours: the accessories are
+" skipped. Note: A document you have not saved yet shows as "new 1", "new 2"...
+" the way Notepad++ names them, instead of the "[No Name]" of Vim.
 "
 " Note: A name ON SCREEN and not a name on the buffer. ":file new 1" would have
-" been one line, and it would make ":w" write a file called "new 1" into whatever
-" directory you happen to be in. Nameless, Vim goes on asking you where to save
-" -- which is the Save As of Notepad++, and the reason its "new 1" is not a file
-" either.
+" been one line, and it would make ":w" write a file called "new 1" into
+" whatever directory you happen to be in. Nameless, Vim goes on asking you where
+" to save -- which is the Save As of Notepad++, and the reason its "new 1" is
+" not a file either.
 "
-" Note: The number is handed out the first time the buffer is DRAWN and then kept
-" on the buffer, so it never changes under you, and the tabs get theirs in the
-" order they are drawn -- left to right.
+" Note: The number is handed out the first time the buffer is DRAWN and then
+" kept on the buffer, so it never changes under you, and the tabs get theirs in
+" the order they are drawn -- left to right.
 "
 " Note: And it is the LOWEST one nobody is using, not the next of a counter that
 " only grows: close "new 2" of "new 1, new 2, new 3" and the one after it is
@@ -52,14 +59,14 @@ func! GrooVim_NewNameOf(buffer) abort
     return l:name
   endif
 
-  " Note: Only what is ON SCREEN holds a slot -- a buffer shown in some window of
-  " some tab.
+  " Note: Only what is ON SCREEN holds a slot -- a buffer shown in some window
+  " of some tab.
   "
   " Note: Closing a tab does not delete its buffer, it hides it, so counting
-  " everything LISTED would keep the number of a document you closed and hand you
-  " "new 4" right after closing "new 2". A document that was saved has a name of
-  " its own now and stops counting too: both give their number back without
-  " anything having to remember to do it.
+  " everything LISTED would keep the number of a document you closed and hand
+  " you "new 4" right after closing "new 2". A document that was saved has a
+  " name of its own now and stops counting too: both give their number back
+  " without anything having to remember to do it.
   let l:taken = {}
   for l:info in getbufinfo({"buflisted": 1})
     if l:info.bufnr == a:buffer || empty(l:info.windows)
@@ -130,8 +137,8 @@ func! GrooVim_TabLabel(tab) abort
   return l:new != "" ? l:new : "[No Name]"
 endfunc
 
-" Note: Like the tab line Vim draws by itself, with the same window count and the
-" same "+" for modified, except that only YOUR documents are counted: an
+" Note: Like the tab line Vim draws by itself, with the same window count and
+" the same "+" for modified, except that only YOUR documents are counted: an
 " accessory is not a window you opened.
 func! GrooVim_TabLine() abort
   let l:line = ""
@@ -195,10 +202,11 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     exec "put =g:GrooVimHelp"
     exec "norm ggdd"
     setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
-    " Note: The help syntax of Vim answers "E403: syntax sync: Line continuations
-    " pattern specified twice" when it is loaded onto a buffer that is not a real
-    " help FILE. Measured with nothing but "syntax on" in the vimrc, so it is not
-    " GrooVim's to fix, and it colours the text correctly all the same.
+    " Note: The help syntax of Vim answers "E403: syntax sync: Line
+    " continuations pattern specified twice" when it is loaded onto a buffer
+    " that is not a real help FILE. Measured with nothing but "syntax on" in the
+    " vimrc, so it is not GrooVim's to fix, and it colours the text correctly
+    " all the same.
     "
     " Note: Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
     " message is read later as a real one, by a human and by the battery alike.

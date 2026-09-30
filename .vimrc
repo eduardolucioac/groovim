@@ -28,9 +28,9 @@
 " Eduardo Lúcio
 " 2014
 
-" Note: The licence itself lives in the file "LICENSE", and what a source
-" file carries is this: the notice the GPL asks you to attach, from
-" "How to Apply These Terms to Your New Programs" at its end.
+" Note: The licence itself lives in the file "LICENSE", and what a source file
+" carries is this: the notice the GPL asks you to attach, from "How to Apply
+" These Terms to Your New Programs" at its end.
 
 " Note: The version, and the ONE place it is written.
 let g:grooVimVersion = "v3.0.0b"
@@ -61,11 +61,11 @@ set nocompatible
 " Note: GrooVim keeps a directory of its own, and does NOT share the one of the
 " Vim of your system.
 "
-" Reached through the "groovim" command, GrooVim has its own Vim and its
-" own ".vimrc" and its own plugins.
+" Reached through the "groovim" command, GrooVim has its own Vim and its own
+" ".vimrc" and its own plugins.
 "
-" The shape of the path is the one Vim builds by itself, with "~/.vim"
-" swapped for ours.
+" The shape of the path is the one Vim builds by itself, with "~/.vim" swapped
+" for ours.
 "
 " To keep it somewhere else, set "GROOVIM_HOME" in the environment:
 "
@@ -77,9 +77,9 @@ set nocompatible
 "
 " The Vim GrooVim asks for, said once and here.
 
-" Note: Vim 9.2 version is what "install.sh" builds, and GrooVim is reached
-" only through the "groovim" command, which runs that Vim -- so it is what
-" GrooVim gets.
+" Note: Vim 9.2 version is what "install.sh" builds, and GrooVim is reached only
+" through the "groovim" command, which runs that Vim -- so it is what GrooVim
+" gets.
 "
 " The clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
 " ":clipreset" and the "osc52" package that ships with it.
@@ -88,12 +88,12 @@ set nocompatible
 "
 " Vim resolves a "\uXXXX" in a double-quoted string to the bytes of whatever
 " 'encoding' is at the moment it reads the line, and it picks that from the
-" locale when it starts. On a machine with no UTF-8 locale -- a headless
-" server, a container, a sudo that strips LANG -- it starts in latin1, and the
-" "\u250A" of the indent guide collapsed into a single byte. Vim then refused
-" it: "E1512: Wrong character width for field leadmultispace", and the guides
-" were silently gone. Worse, with no listchars of its own the window fell back
-" to the default of Vim, which draws a "$" at the end of every line.
+" locale when it starts. On a machine with no UTF-8 locale -- a headless server,
+" a container, a sudo that strips LANG -- it starts in latin1, and the "\u250A"
+" of the indent guide collapsed into a single byte. Vim then refused it: "E1512:
+" Wrong character width for field leadmultispace", and the guides were silently
+" gone. Worse, with no listchars of its own the window fell back to the default
+" of Vim, which draws a "$" at the end of every line.
 
 " It is set again, along with the file encodings, in the "usability" part. This
 " is the one that has to come first.
@@ -139,9 +139,9 @@ let g:GrooVim_State = get(g:, "GrooVim_State",
  \ $GROOVIM_STATE != "" ? expand($GROOVIM_STATE) : g:GrooVim_Home)
 
 " Note: Where the answers you chose to KEEP are written down. Defined here and
-" not in the "options" part, because the file is READ before any part of
-" GrooVim runs, so the path has to exist before them. It lives with the code
-" and not with the state: it is a choice, not something this run leaves behind.
+" not in the "options" part, because the file is READ before any part of GrooVim
+" runs, so the path has to exist before them. It lives with the code and not
+" with the state: it is a choice, not something this run leaves behind.
 let g:GrooVim_OptsFile = get(g:, "GrooVim_OptsFile", g:GrooVim_Home . "/opts.vim")
 
 for s:GrooVim_Dir in [g:GrooVim_Home, g:GrooVim_State]
@@ -160,8 +160,8 @@ let &viminfofile = g:GrooVim_State . "/viminfo"
 
 " Note: Here are the rest of GrooVim, which lives beside this file.
 "
-" A single, gigantic file hinders maintenance. What loads here is other parts
-" of .vimrc in a fixed order, cut into parts named for what they hold.
+" A single, gigantic file hinders maintenance. What loads here is other parts of
+" .vimrc in a fixed order, cut into parts named for what they hold.
 "
 " Named here as a list is the "map" of GrooVim: it says what there is and what
 " each one is for, and it says it in the order they load -- which matters,
@@ -169,8 +169,8 @@ let &viminfofile = g:GrooVim_State . "/viminfo"
 " to be looked for before the keys that ask whether they are there, the colours
 " have to be named before "syntax on" wants them and so on...
 "
-" Beside THIS file and not beside your working directory: "g:GrooVim_Vimrc"
-" is where GrooVim was loaded from, so the parts are found wherever the project
+" Beside THIS file and not beside your working directory: "g:GrooVim_Vimrc" is
+" where GrooVim was loaded from, so the parts are found wherever the project
 " happens to sit.
 let s:GrooVim_Parts = [
  \ ["behaviour",   "how Vim behaves: the options that are not about a key"],
@@ -215,3 +215,4 @@ for s:GrooVim_Part in s:GrooVim_Parts
      \ "\" at " . s:GrooVim_File . "!"
   endif
 endfor
+

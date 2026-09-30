@@ -1,5 +1,5 @@
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-" GENERAL BEHAVIOR
+" BEHAVIOR (GENERAL)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: The file type of what you open, and what Vim reads because of it: the
@@ -28,14 +28,14 @@ filetype plugin indent on
 " that file. What a file IS belongs next to the detection that decides it, which
 " is the line above; how it is indented comes after, and reads the answer.
 "
-" Note: Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add to
-" without touching GrooVim, and only what is listed in it is touched -- the file
-" types Vim knows go on being found by Vim.
+" Note: Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add
+" to without touching GrooVim, and only what is listed in it is touched -- the
+" file types Vim knows go on being found by Vim.
 "
-" Note: The file type and not the syntax, which is what the two lines used to set
-" as well. Setting the type is what makes Vim read the syntax OF that type, along
-" with its indent rules and its plugin; setting the syntax alone would paint the
-" file and leave the other two behind.
+" Note: The file type and not the syntax, which is what the two lines used to
+" set as well. Setting the type is what makes Vim read the syntax OF that type,
+" along with its indent rules and its plugin; setting the syntax alone would
+" paint the file and leave the other two behind.
 let g:GrooVim_SyntaxPerExtension = get(g:, "GrooVim_SyntaxPerExtension",
       \ {"inc": "html", "gds": "vb"})
 
@@ -67,14 +67,14 @@ set mouse=a
 "
 " And the other side of the same number, measured by feeding an arrow one byte
 " at a time: the key falls apart when its bytes arrive further apart than this.
-" A keyboard sends the whole run in one go and a link is what can tear it
-" -- and a torn arrow in insert mode does not move the cursor, it TYPES "[B"
-" into the file.
+" A keyboard sends the whole run in one go and a link is what can tear it -- and
+" a torn arrow in insert mode does not move the cursor, it TYPES "[B" into the
+" file.
 "
-" 50, which is where those two meet: half the jump of a tenth of a second
-" that could be seen, against a tearing that asks for a link so slow that the
-" bytes of ONE key arrive twenty of these apart. If an arrow ever writes letters
-" over a bad line, this is the one number to raise.
+" 50, which is where those two meet: half the jump of a tenth of a second that
+" could be seen, against a tearing that asks for a link so slow that the bytes
+" of ONE key arrive twenty of these apart. If an arrow ever writes letters over
+" a bad line, this is the one number to raise.
 set ttimeout
 set ttimeoutlen=50
 
@@ -145,9 +145,9 @@ endfunc
 " is unusable here. With 0 the package sends a DA1 query and believes only an
 " answer advertising "52" -- and the terminals that do OSC 52 WITHOUT ever
 " announcing it are most of them, Konsole included. So a Vim that checks
-" concludes there is no support on a terminal where it works perfectly well,
-" and the copy never leaves the machine. Checking, here, is a worse answer than
-" not checking.
+" concludes there is no support on a terminal where it works perfectly well, and
+" the copy never leaves the machine. Checking, here, is a worse answer than not
+" checking.
 "
 " The query itself, from the package: SendDA1() is called as it starts, and
 " inside it is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". The
@@ -181,11 +181,11 @@ endtry
 " remote program could steal your clipboard), so Vim would just block waiting.
 "
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
-" reports itself unavailable and the cascade simply goes on to OSC 52.
-" Note: "needs" is the session the tool talks to, and being INSTALLED is not the
-" same as being able to work: "wl-copy" without a compositor fails -- measured,
-" it exits 1 saying the socket is not there. Without this the cascade stopped on
-" a provider that cannot copy anything, on the very machine where the next one
+" reports itself unavailable and the cascade simply goes on to OSC 52. Note:
+" "needs" is the session the tool talks to, and being INSTALLED is not the same
+" as being able to work: "wl-copy" without a compositor fails -- measured, it
+" exits 1 saying the socket is not there. Without this the cascade stopped on a
+" provider that cannot copy anything, on the very machine where the next one
 " (OSC 52) would have crossed the SSH by itself: measured, "v:clipmethod" coming
 " out "groovim" with no WAYLAND_DISPLAY and no DISPLAY, because "wl-clipboard"
 " happened to be installed there.
@@ -205,8 +205,8 @@ let g:GrooVim_ClipTools = get(g:, "GrooVim_ClipTools", [
 " for a machine where you cannot (or would rather not) use the package manager.
 " What is found here wins over "$PATH".
 "
-" The first tool that is actually there wins, and a hand placed one comes
-" before the one from "$PATH".
+" The first tool that is actually there wins, and a hand placed one comes before
+" the one from "$PATH".
 "
 " GrooVim ships NO binary and never will: a Linux executable is not portable
 " between machines (it is built for one architecture and linked against one
@@ -301,10 +301,9 @@ func! GrooVim_ClipToolCopy(reg, type, lines) abort
   " A job writes the text and walks away. "out_io"/"err_io" as null keep no pipe
   " open, and "stoponexit" empty is what lets the tool outlive Vim: with the
   " default Vim would kill it on exit and your copy would vanish from the
-  "clipboard exactly when you left the editor.
-  " The command goes as a LIST, so there is no shell and nothing to quote.
-  " Remembered BEFORE the job starts, so a read that happens in the very
-  " next instruction already finds it.
+  " clipboard exactly when you left the editor. The command goes as a LIST, so
+  " there is no shell and nothing to quote. Remembered BEFORE the job starts, so
+  " a read that happens in the very next instruction already finds it.
   let g:GrooVim_ClipCache = l:text
   let g:GrooVim_ClipCachePending = 1
   call timer_start(g:GrooVim_ClipCacheMs, "GrooVim_ClipCacheClear")
@@ -388,10 +387,9 @@ let g:GrooVim_ClipFile = g:GrooVim_State . "/clipboard"
 " Note: Which register answers as clipboard RIGHT NOW. This is not decided once
 " at startup because the OSC 52 provider is detected asynchronously (Vim asks
 " the terminal and waits for the answer), so it may only become available after
-" the ".vimrc" was read.
-" Careful: "getreg()" does NOT fail on a Vim with no clipboard, it just warns
-" (W24) and answers empty. Only "setreg()" raises E354. So availability is
-" asked to Vim itself, never probed by writing.
+" the ".vimrc" was read. Careful: "getreg()" does NOT fail on a Vim with no
+" clipboard, it just warns (W24) and answers empty. Only "setreg()" raises E354.
+" So availability is asked to Vim itself, never probed by writing.
 let g:GrooVim_ClipRegCache = ""
 func! GrooVim_ClipReg() abort
   if g:GrooVim_ClipRegCache != ""
@@ -418,12 +416,12 @@ func! GrooVim_ClipReg() abort
   "
   " Note: And the register is "+", never "*". It was asked with
   " has("unnamedplus"), which cannot answer no where this branch answers yes --
-  " read in the source of the Vim this builds, "evalfunc.c": both live inside the
-  " same "#ifdef FEAT_CLIPBOARD", "clipboard_working" is true when the method is
-  " a provider or when the X or Wayland selection is available, and "unnamedplus"
-  " is true when X11 or the Wayland clipboard was compiled in, and also when the
-  " method is a provider. Each of the two ways of reaching this line makes the
-  " other one true.
+  " read in the source of the Vim this builds, "evalfunc.c": both live inside
+  " the same "#ifdef FEAT_CLIPBOARD", "clipboard_working" is true when the
+  " method is a provider or when the X or Wayland selection is available, and
+  " "unnamedplus" is true when X11 or the Wayland clipboard was compiled in, and
+  " also when the method is a provider. Each of the two ways of reaching this
+  " line makes the other one true.
   "
   " Note: And on a Vim built without "+clipboard" this line is not reached at
   " all: measured on a build made for it, "clipboard_working" answers 0 there --
@@ -446,13 +444,13 @@ endfunc
 " because it waits for an answer many terminals never send and hangs Vim until
 " Ctrl-C -- so it is always empty. And with "clipboard=unnamedplus" a plain "P"
 " reads exactly that register: "E353: Nothing in register +", with the text
-" sitting in the file of GrooVim the whole time. Measured on a machine reached by
-" SSH, where Ctrl-Shift-V worked (that is the terminal typing, not Vim pasting)
-" and Ctrl-V did not.
+" sitting in the file of GrooVim the whole time. Measured on a machine reached
+" by SSH, where Ctrl-Shift-V worked (that is the terminal typing, not Vim
+" pasting) and Ctrl-V did not.
 "
 " Through the "z" register and never the unnamed one: with
-" "clipboard=unnamedplus", writing the unnamed register writes "+" as well, which
-" would send an OSC 52 COPY on every paste.
+" "clipboard=unnamedplus", writing the unnamed register writes "+" as well,
+" which would send an OSC 52 COPY on every paste.
 func! GrooVim_ClipPaste(mode) abort
 
   if !GrooVim_CanChange() | return | endif
@@ -464,9 +462,9 @@ func! GrooVim_ClipPaste(mode) abort
     " made anywhere else -- on the machine you are sitting at, in another
     " program -- cannot be read from here: reading it back would mean asking the
     " terminal and waiting for an answer many never send. What does work is the
-    " paste of the terminal itself, which types the text in as if you had.
-    " Short on purpose. The first try ran off the bar and only its tail
-    " was left on screen, which is worse than saying less.
+    " paste of the terminal itself, which types the text in as if you had. Short
+    " on purpose. The first try ran off the bar and only its tail was left on
+    " screen, which is worse than saying less.
     if GrooVim_ClipAssumed()
       call GrooVim_GrooVimBarMsg("From outside, use Ctrl-Shift-V!", 6)
     else
@@ -516,12 +514,12 @@ endfunc
 " "#ifdef FEAT_CLIPBOARD".
 "
 " One branch and no "try". There was a second one for "*" and a "catch" around
-" both, and neither can happen on the Vim this builds: the register is
-" never "*" (see GrooVim_ClipReg above), and the option always exists, because
-" Vim defines it whenever "+clipboard" OR "+eval" is there -- read in
-" "optiondefs.h" and "vim.h", "HAVE_CLIPMETHOD" -- and with a provider present
-" "unnamedplus" is an allowed value even on a Vim built without "+clipboard",
-" which its own manual says in as many words.
+" both, and neither can happen on the Vim this builds: the register is never "*"
+" (see GrooVim_ClipReg above), and the option always exists, because Vim defines
+" it whenever "+clipboard" OR "+eval" is there -- read in "optiondefs.h" and
+" "vim.h", "HAVE_CLIPMETHOD" -- and with a provider present "unnamedplus" is an
+" allowed value even on a Vim built without "+clipboard", which its own manual
+" says in as many words.
 func! GrooVim_ClipSyncOption() abort
   if GrooVim_ClipReg() == "+"
     set clipboard=unnamedplus
@@ -541,8 +539,8 @@ augroup GrooVim_Clipboard
   autocmd VimEnter * call GrooVim_ClipRefresh()
 augroup end
 
-" Note: The file based "transfer area", used when there is no clipboard
-" register at all. It also lets two Vim instances share a copy.
+" Note: The file based "transfer area", used when there is no clipboard register
+" at all. It also lets two Vim instances share a copy.
 func! GrooVim_ClipFileSet(value) abort
   try
     let l:dir = fnamemodify(g:GrooVim_ClipFile, ":h")
@@ -603,10 +601,10 @@ endfunc
 " Note: Write to the "transfer area". Is the clipboard in use one that can only
 " be ASSUMED?
 "
-" A copy through OSC 52 goes out as an escape sequence and the terminal is
-" never heard from again -- there is no way to know it arrived. And the paste
-" back is off (it waits for an answer many terminals never send and hangs Vim
-" until Ctrl-C), so the "+" register answers EMPTY to everything on top of that.
+" A copy through OSC 52 goes out as an escape sequence and the terminal is never
+" heard from again -- there is no way to know it arrived. And the paste back is
+" off (it waits for an answer many terminals never send and hangs Vim until
+" Ctrl-C), so the "+" register answers EMPTY to everything on top of that.
 "
 " So when that is the method, the file of GrooVim is kept as well: the copy
 " still leaves through the terminal AND stays readable on this machine. That is
@@ -620,15 +618,15 @@ endfunc
 
 " Note: Copies what is selected and leaves the cursor WHERE IT WAS.
 "
-" A plain "y" in visual mode drops the cursor at the START of what was
-" selected, which is of Vim and of nothing else: in a conventional editor you
-" copy and go on from where you are. The position is taken before the yank and
-" put back after it.
+" A plain "y" in visual mode drops the cursor at the START of what was selected,
+" which is of Vim and of nothing else: in a conventional editor you copy and go
+" on from where you are. The position is taken before the yank and put back
+" after it.
 "
-" The yank itself is still a yank -- "gvy" and not a string handed to
-" setreg -- because that is what keeps a linewise selection linewise and a block
-" a block. What is added is the file of GrooVim, and only when the method in use
-" is one whose success cannot be known: see GrooVim_ClipAssumed.
+" The yank itself is still a yank -- "gvy" and not a string handed to setreg --
+" because that is what keeps a linewise selection linewise and a block a block.
+" What is added is the file of GrooVim, and only when the method in use is one
+" whose success cannot be known: see GrooVim_ClipAssumed.
 func! GrooVim_CopyHere() abort
 
   " Note: The whole VIEW and not only the cursor. A yank over a selection that
@@ -637,17 +635,17 @@ func! GrooVim_CopyHere() abort
   " it. "winsaveview" holds where the window is looking as well as where the
   " cursor is.
   "
-  " And it is taken HERE and trusted, because the mapping comes through
-  " "<Cmd>": the selection is still up, the cursor has not been moved, and the
-  " window is the one being looked at.
+  " And it is taken HERE and trusted, because the mapping comes through "<Cmd>":
+  " the selection is still up, the cursor has not been moved, and the window is
+  " the one being looked at.
   "
-  " Through the ":<C-u>" this used to come in on, none of the three was
-  " true. Leaving visual mode with ":" drops the cursor on the first line of the
-  " range -- measured: column 8 while selecting, column 5 by the time the
-  " function ran -- and takes the window along, so the selection had to be put
-  " back with a "gv" before anything could be read. And a "gv" that lands more
-  " than a screen away makes Vim CENTRE what it lands on, which moved the window
-  " on a copy that moves nothing.
+  " Through the ":<C-u>" this used to come in on, none of the three was true.
+  " Leaving visual mode with ":" drops the cursor on the first line of the range
+  " -- measured: column 8 while selecting, column 5 by the time the function ran
+  " -- and takes the window along, so the selection had to be put back with a
+  " "gv" before anything could be read. And a "gv" that lands more than a screen
+  " away makes Vim CENTRE what it lands on, which moved the window on a copy
+  " that moves nothing.
   let l:view = winsaveview()
 
   normal! y
@@ -658,10 +656,10 @@ func! GrooVim_CopyHere() abort
 
   call winrestview(l:view)
 
-  " Note: And back to typing, which is what a conventional editor leaves you able
-  " to do after a copy. Only where typing is POSSIBLE: on a buffer you cannot
-  " change -- the help, the occurrence list -- it answered "E21: Cannot make
-  " changes, 'modifiable' is off" over a command that changes nothing.
+  " Note: And back to typing, which is what a conventional editor leaves you
+  " able to do after a copy. Only where typing is POSSIBLE: on a buffer you
+  " cannot change -- the help, the occurrence list -- it answered "E21: Cannot
+  " make changes, 'modifiable' is off" over a command that changes nothing.
   "
   " And only when Vim is not already on its way back to insert. The yank above
   " ends the selection, and a selection that was STARTED from insert mode -- a
@@ -701,8 +699,9 @@ set noswapfile
 " Note: Solve read only problem! Some files opens as read only.
 set ma
 
-" Note: When reload ".vimrc" the last search is " highlighted again.
-" set hlsearch
+" Note: When reload ".vimrc" the last search is " highlighted again. set
+" hlsearch
 
 " Note: Allows an "extra" column at the end of the lines (You want this!).
 set virtualedit=onemore
+

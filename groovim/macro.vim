@@ -1,4 +1,11 @@
-" Note: Record a macro.
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" MACROS (AND THE CASE OF A WORD)
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Keys recorded and played back, the copy of a whole file, and the three
+" cases a word can be written in -- UPPER, lower and Title. What they have in
+" common is that each one is a small operation on text that nothing else needed
+" to know about. Note: Record a macro.
 func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its
@@ -25,8 +32,8 @@ endfunc
 func! GrooVim_XenRecTrimKey() abort
   " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
   " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
-  " on its own it is not valid UTF-8. The key itself, written as "\<F2>", carries
-  " exactly the bytes to look for.
+  " on its own it is not valid UTF-8. The key itself, written as "\<F2>",
+  " carries exactly the bytes to look for.
   let l:recorded = getreg("a")
   let l:where = strridx(l:recorded, "\<F2>")
   if l:where >= 0
@@ -48,10 +55,10 @@ func! GrooVim_XenPlay(repeatExecution) range abort
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
-    " Note: Asked ONCE, and repeated as it is until the answer serves. It used to
-    " ask again with another sentence, "use a valid one!", which threw away the
-    " part that tells you about the "x" just when you most needed to read it! By
-    " Questor
+    " Note: Asked ONCE, and repeated as it is until the answer serves. It used
+    " to ask again with another sentence, "use a valid one!", which threw away
+    " the part that tells you about the "x" just when you most needed to read
+    " it! By Questor
     let l:numberOfRepetitions = GrooVim_ScreenAsk(
      \ "Number of repetitions (use \"x\" to execute to last/first line): ",
      \ {answer -> GrooVim_IsRepetitionCount(answer)})
@@ -68,7 +75,8 @@ func! GrooVim_XenPlay(repeatExecution) range abort
           let l:stopWhile = 1
         endif
 
-        " Note: If there are no more occurrences of a search then stops execution.
+        " Note: If there are no more occurrences of a search then stops
+        " execution.
         try
           " Note: Tests if still there are occurrences.
           if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
@@ -138,7 +146,8 @@ func! GrooVim_XenPlay(repeatExecution) range abort
       " asked.
       for i in range(1, l:numberOfRepetitions)
 
-        " Note: If there are no more occurrences of a search then stops execution.
+        " Note: If there are no more occurrences of a search then stops
+        " execution.
         try
           exec "norm @a"
         catch
@@ -169,16 +178,15 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
 endfunc
 
-" Note: Duplicates the current line/selection.
-" Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
-" BEFORE the cursor. Going through the mappings here made the copy land one
-" character too early, turning "DUPLICAR" into "DUPLICADUPLICARR".
-" Note: The line the cursor is on, copied under itself, with the clipboard given
-" back afterwards -- copying is how it is done, and it should not cost you what
-" you had there.
+" Note: Duplicates the current line/selection. Note: "norm!" and not "norm":
+" GrooVim remaps "p" to "P`]<Right>", which pastes BEFORE the cursor. Going
+" through the mappings here made the copy land one character too early, turning
+" "DUPLICAR" into "DUPLICADUPLICARR". Note: The line the cursor is on, copied
+" under itself, with the clipboard given back afterwards -- copying is how it is
+" done, and it should not cost you what you had there.
 "
-" Note: A function because the dispatch spelled these three lines out TWICE, once
-" for normal mode and once for insert, letter for letter.
+" Note: A function because the dispatch spelled these three lines out TWICE,
+" once for normal mode and once for insert, letter for letter.
 func! GrooVim_DuplicateLine() abort
 
   " Note: "yyp" and not "yyo<Esc>p". The "o" OPENS a line, and opening a line
@@ -203,10 +211,10 @@ func! GrooVim_DuplicateLine() abort
 
 endfunc
 
-" Note: The selection, copied under itself -- and then the key of the last command
-" is FORGOTTEN, so holding the F key down does not replicate this one. A selection
-" duplicated again and again, from a selection that has moved each time, is not
-" what anybody means by "do that again".
+" Note: The selection, copied under itself -- and then the key of the last
+" command is FORGOTTEN, so holding the F key down does not replicate this one. A
+" selection duplicated again and again, from a selection that has moved each
+" time, is not what anybody means by "do that again".
 func! GrooVim_DuplicateSelection() abort
   call GrooVim_DuplicateVisualSelection()
   call GrooVim_CommandZForget("F3")
@@ -236,16 +244,15 @@ endfunc
 " own.
 exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
-" Note: Clears the search register.
-" Note: And the marks with them. "Take the highlighting off" is one idea to a
-" reader, not two, and having to remember which key clears which half would be a
-" poor way of saying so.
+" Note: Clears the search register. Note: And the marks with them. "Take the
+" highlighting off" is one idea to a reader, not two, and having to remember
+" which key clears which half would be a poor way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
-" Note: Save to disk and open in a new tab a copy of the current file.
-" Note: Where to put a file and what to call it, asked once and used by both the
-" copy and the "save as".
+" Note: Save to disk and open in a new tab a copy of the current file. Note:
+" Where to put a file and what to call it, asked once and used by both the copy
+" and the "save as".
 "
 " Note: It was written inside the copy, and the "save as" would have been the
 " same forty lines a second time -- with the second one drifting from the first
@@ -293,12 +300,12 @@ func! GrooVim_AskFileWhere(what) abort
     if l:valueToPath == ""
       let l:definePathWarning = " (DEFINE A PATH TOO!)"
     endif
-    " Note: The name of the file you are on comes WRITTEN in the answer, ready to
-    " be edited or accepted -- which is what "Save a Copy As" of Notepad++ does.
-    " The second argument of "input()" is the text it starts with.
+    " Note: The name of the file you are on comes WRITTEN in the answer, ready
+    " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
+    " does. The second argument of "input()" is the text it starts with.
     "
-    " Note: An unnamed buffer has no name to offer, and then it starts empty as it
-    " always did.
+    " Note: An unnamed buffer has no name to offer, and then it starts empty as
+    " it always did.
     let l:valueToName = input("NAME of the " . a:what . " to be saved" .
      \ l:definePathWarning . ": ", expand("%:t"))
     if ("" . l:valueToName . "") != ""
@@ -336,9 +343,9 @@ endfunc
 " "Save As" means everywhere. The copy of F2->y is the other half of the idea:
 " it writes the file and leaves you where you were.
 "
-" Note: ":saveas" is the command of Vim for exactly this -- it renames the buffer
-" and writes it -- so what was open before stays on disk as it was, and the tab
-" you are on is the new file from here.
+" Note: ":saveas" is the command of Vim for exactly this -- it renames the
+" buffer and writes it -- so what was open before stays on disk as it was, and
+" the tab you are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
   let [l:path, l:name] = GrooVim_AskFileWhere("file")
@@ -354,9 +361,8 @@ func! GrooVim_SaveAs() range abort
 
 endfunc
 
-" Note: Saves to disk.
-" Note: Saving. In visual mode what is written is the SELECTION, to a file of its
-" own; anywhere else it is the file you are in.
+" Note: Saves to disk. Note: Saving. In visual mode what is written is the
+" SELECTION, to a file of its own; anywhere else it is the file you are in.
 func! GrooVim_Save(mode) abort
   if a:mode ==# "v"
     call GrooVim_VisualWrite()
@@ -372,8 +378,8 @@ func! GrooVim_VisualWrite() range abort
   exec "norm gv"
 endfunc
 
-" Note: Changes to uppercase/lowercase.
-" Note: Title Case: the first letter of every word up, the rest down.
+" Note: Changes to uppercase/lowercase. Note: Title Case: the first letter of
+" every word up, the rest down.
 "
 " Note: A substitution and not an operator, because Vim has "gU" and "gu" and
 " nothing for this. "\u" raises the character that follows it and "\L" lowers
@@ -386,14 +392,14 @@ endfunc
 " visual mode ends.
 "
 " Note: In normal and insert mode it is the word under the cursor, selected here
-" so that the same substitution serves all three modes.
-" Note: Puts the cursor ON the text of the line when it is sitting PAST it.
+" so that the same substitution serves all three modes. Note: Puts the cursor ON
+" the text of the line when it is sitting PAST it.
 "
-" Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one column
-" beyond the last character -- which is exactly where you are after typing to the
-" end of a line. There is no word there, and "iw" then took only the last letter:
-" changing the case of "total" gave back "totaL". Anything that works on "the
-" word under the cursor" has to step onto the text first.
+" Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one
+" column beyond the last character -- which is exactly where you are after
+" typing to the end of a line. There is no word there, and "iw" then took only
+" the last letter: changing the case of "total" gave back "totaL". Anything that
+" works on "the word under the cursor" has to step onto the text first.
 func! GrooVim_StepOntoTheText() abort
   let l:width = strlen(getline("."))
   if col(".") > l:width
@@ -401,11 +407,12 @@ func! GrooVim_StepOntoTheText() abort
   endif
 endfunc
 
-" Note: The case of the word under the cursor, with the cursor left WHERE IT WAS.
+" Note: The case of the word under the cursor, with the cursor left WHERE IT
+" WAS.
 "
-" Note: This used to be "norm gUiwe", and the "e" walks to the end of the word --
-" so changing the case of a word you were in the middle of moved you to its last
-" letter. Changing the case of a word is not a movement.
+" Note: This used to be "norm gUiwe", and the "e" walks to the end of the word
+" -- so changing the case of a word you were in the middle of moved you to its
+" last letter. Changing the case of a word is not a movement.
 func! GrooVim_CaseOfTheWord(which) abort
   let l:view = winsaveview()
   call GrooVim_StepOntoTheText()
@@ -432,9 +439,9 @@ func! GrooVim_ToTitleCase(modType) range abort
   endif
 
   " Note: "gdefault" INVERTS the "g" flag, and GrooVim has it on -- so the "/g"
-  " below would have meant "the first word and no more". Measured: only the first
-  " word of the selection changed. The counter of occurrences turns it off for
-  " the same reason, and puts it back the same way.
+  " below would have meant "the first word and no more". Measured: only the
+  " first word of the selection changed. The counter of occurrences turns it off
+  " for the same reason, and puts it back the same way.
   let l:gdefault = &gdefault
   set nogdefault
   silent! exec "'<,'>s/\\%V\\<\\(\\w\\)\\(\\w*\\)/\\u\\1\\L\\2/g"
@@ -467,6 +474,5 @@ func! GrooVim_ToUpperLower(modType) range abort
   exec "norm gv\<Esc>"
 endfunc
 
-" Note: Sudo to write.
-"cnoremap w!! w !sudo tee % >/dev/null
+" Note: Sudo to write. cnoremap w!! w !sudo tee % >/dev/null
 

@@ -1,17 +1,21 @@
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" EDITING
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: The buffer you are on may refuse to be changed. The tree of NERDTree,
-" the occurrence list and the help are all like that, and a key that edits met
-" them with "E21: Cannot make changes, 'modifiable' is off" over the bar --
-" measured: Enter, Tab, Shift-Tab, Backspace, Del, Ctrl-x, Ctrl-v, p, Ctrl-r and
-" the shortcuts that edit, eleven keys of a conventional editor answering with
-" the error number of another editor entirely.
+" the occurrence list and the help are all like that, for example, and a key
+" that edits met them with "E21: Cannot make changes, 'modifiable' is off" over
+" the bar -- measured: Enter, Tab, Shift-Tab, Backspace, Del, Ctrl-x, Ctrl-v, p,
+" Ctrl-r and the shortcuts that edit, eleven keys of a conventional editor
+" answering with the error number of another editor entirely.
 "
-" Note: ONE function decides and says so, and it is reached two ways: the keys
-" that call a function of GrooVim ask it at the door, and the shortcuts of the F
-" keys are caught by the net at the end of the dispatch -- which needs no list of
+" ONE function decides and says so, and it is reached two ways: the keys that
+" call a function of GrooVim ask it at the door, and the shortcuts of the F keys
+" are caught by the net at the end of the dispatch -- which needs no list of
 " what edits and what does not, and holds for shortcuts written after today.
 "
-" Note: "readonly" as well as "modifiable": a file opened with "view", or one
-" without write permission, refuses just the same.
+" "readonly" as well as "modifiable": a file opened with "view", or one without
+" write permission, refuses just the same.
 func! GrooVim_CanChange() abort
   if &modifiable && !&readonly
     return 1
@@ -38,7 +42,6 @@ func! GrooVim_ScrollAdm(mod, direction) range abort
 
   " Note: No "gv" here: the wheel of visual mode comes through "<Cmd>" and the
   " selection was never lost.
-
   if a:direction == "u"
     exec "norm \<Up>\<Up>\<Up>"
   elseif a:direction == "d"
@@ -53,19 +56,21 @@ nnoremap <silent> <LeftMouse> :let g:onMoveScreen = 1<cr><LeftMouse>
 
 " Note: Takes the line away, and what was in the transfer area stays there.
 "
-" Note: The "_" register is the one Vim throws things into, and GrooVim sends
-" every delete to it on purpose: in a conventional editor deleting a line does
-" not cost you what you copied ten minutes ago.
+" The "_" register is the one Vim throws things into, and GrooVim sends every
+" delete to it on purpose: in a conventional editor deleting a line does not
+" cost you what you copied ten minutes ago.
 "
 " Note: Over a selection it takes every line the selection touches, whole, which
 " is what "the line" means when more than one is in hand.
 func! GrooVim_SuppressLine(mode) abort
   if !GrooVim_CanChange() | return | endif
   if a:mode ==# "v"
+
     " Note: "V" turns the selection into WHOLE lines before it goes. Selecting
     " three characters of a line and asking for the line to be taken away has to
     " take the line, not the three characters.
     exec "normal! gvV\"_d"
+
   else
     exec "normal! \"_dd"
   endif
@@ -134,16 +139,9 @@ endfunc
 
 " Note: Walking the windows of a tab, both ways.
 "
-" Note: It was "Ctrl+w", which only ever went FORWARD -- and took from Vim the
-" key every window command of it begins with, and from insert mode the "delete
-" the word behind" that every terminal has. Both are back to being themselves.
-"
-" Note: Alt and not Ctrl, and this is not a taste: a terminal has no way of
-" sending "Ctrl" with a comma. The keyboard table of Konsole has no entry for
-" it, and with no entry what arrives is the bare "," -- measured in its own
-" default.keytab, which names no Comma and no Period. Alt is sent as an "Esc"
-" in front of the character, which every terminal does and which crosses an SSH
-" the same way.
+" It was "Ctrl+w", which only ever went FORWARD -- and took from Vim the key
+" every window command of it begins with, and from insert mode the "delete the
+" word behind" that every terminal has. Both are back to being themselves.
 "
 " Note: And the line below is what makes it arrive as a KEY. Vim does not read
 " an "Esc" in front of a character as Alt: ":h :map-alt-keys" names Konsole and
@@ -153,15 +151,15 @@ endfunc
 " Telling Vim which sequence the key IS, the mapping answers: measured again,
 " window 2 and then back to 1.
 "
-" Note: Alt with an ARROW never needed this -- "Alt+Left" and the others are
-" sent as one whole escape sequence that Vim already knows. It is the printable
-" characters that arrive as two.
+" Alt with an ARROW, for example, never needed this -- "Alt+Left" and the others
+" are sent as one whole escape sequence that Vim already knows. It is the
+" printable characters that arrive as two.
 "
-" Note: The price is that an "Esc" typed and a "," typed right after it, inside
+" The price is that an "Esc" typed and a "," typed right after it, inside
 " "ttimeoutlen", now read as Alt and comma. That is the price of every Alt
 " mapping in every terminal, and 150ms is a long time for two fingers.
 "
-" Note: In a "try", and only in a terminal: a Vim with no terminal codes to set
+" In a "try", and only in a terminal: a Vim with no terminal codes to set
 " throws, and there the key works on its own.
 if !has("gui_running")
   try
@@ -195,31 +193,33 @@ inoremap <silent> <C-v> <C-o>:call GrooVim_ClipPaste("i")<cr>
 " (do not need the "Shift" key).
 vnoremap <silent> <expr> <C-x> GrooVim_KeysIfCanChange("di")
 
-" Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v cycle)
-" (do not need the "Shift" key).
-" Note: Same shape as the Ctrl-x above on purpose: in an editor without modes you
+" Note: Allows copy to insert mode in a conventional manner (Ctrl-c/Ctrl-v
+" cycle) (do not need the "Shift" key).
+"
+" Same shape as the Ctrl-x above on purpose: in an editor without modes you
 " simply keep typing after copying or cutting, and landing on insert is what
 " comes closest to that.
-" Note: Copies and comes back to typing, which is what a conventional editor
-" leaves you able to do after a copy.
 "
-" Note: Insert only where typing is POSSIBLE. On a buffer you cannot change --
-" the help, the occurrence list -- it answered "E21: Cannot make changes,
+" Copies and comes back to typing, which is what a conventional editor leaves
+" you able to do after a copy.
+"
+" Insert only where typing is POSSIBLE. On a buffer you cannot change -- the
+" help, the occurrence list -- it answered "E21: Cannot make changes,
 " 'modifiable' is off" over a command that changes nothing.
 "
-" Note: And insert only when Vim is not on its way back there BY ITSELF. A
-" selection STARTED from insert mode -- dragging the mouse, or any road into
-" visual through "<C-o>" -- leaves Vim waiting to return to insert as soon as
-" the selection ends, and the yank ends it. The "i" this mapping used to type
-" after the copy then arrived with insert already back and was written INTO the
-" text: "filetype" came out "filetypie". It is the function that decides now,
-" because only after the yank can it be seen -- "mode(1)" answers "n" when the
-" selection came from normal mode and "niI" when insert is waiting.
+" And insert only when Vim is not on its way back there BY ITSELF. A selection
+" STARTED from insert mode -- dragging the mouse, or any road into visual
+" through "<C-o>" -- leaves Vim waiting to return to insert as soon as the
+" selection ends, and the yank ends it. The "i" this mapping used to type after
+" the copy then arrived with insert already back and was written INTO the text:
+" "filetype" came out "filetypie". It is the function that decides now, because
+" only after the yank can it be seen -- "mode(1)" answers "n" when the selection
+" came from normal mode and "niI" when insert is waiting.
 "
-" Note: A case cannot see that it worked. "feedkeys(..., \"x\")" ENDS insert mode
-" when the keys it was given run out, so a case that presses this and asks
-" "mode()" is answered "n" -- and it answers "n" for the plain "yi" that was here
-" before, which is how I know it is the asking and not the answer.
+" A case cannot see that it worked. "feedkeys(..., \"x\")" ENDS insert mode when
+" the keys it was given run out, so a case that presses this and asks "mode()"
+" is answered "n" -- and it answers "n" for the plain "yi" that was here before,
+" which is how I know it is the asking and not the answer.
 vnoremap <silent> <C-c> <Cmd>call GrooVim_CopyHere()<cr>
 
 " Note: Delete and backspace without yank.
@@ -253,10 +253,10 @@ func! GrooVim_NormalEnterOnNormalMode() abort
   " used at all. Measured on the bookmark list: the Enter answered "This one
   " cannot be changed!" and nothing opened.
   "
-  " Note: This is every quickfix and location list, not only that one: the list
-  " of a "make", of a "grep", of anything. A buffer with keys of its own -- the
-  " tree of NERDTree -- needs nothing here, because a mapping of a BUFFER
-  " already wins over a global one.
+  " This is every quickfix and location list, not only that one: the list of a
+  " "make", of a "grep", of anything. A buffer with keys of its own -- the tree
+  " of NERDTree -- needs nothing here, because a mapping of a BUFFER already
+  " wins over a global one.
   if &buftype ==# "quickfix"
     exec "normal! \<CR>"
     return
@@ -296,24 +296,24 @@ func! GrooVim_NormalBackspace() abort
 
 endfunc
 
-" Note:  Move to the next tab.
+" Note: Move to the next tab.
 nnoremap <silent> <C-Up> :tabnext<cr>
 inoremap <silent> <C-Up> <C-O>:tabnext<cr>
 vnoremap <silent> <C-Up> :<C-U>tabnext<cr>v
 
-" Note:  Move to the previous tab.
+" Note: Move to the previous tab.
 nnoremap <silent> <C-Down> :tabprevious<cr>
 inoremap <silent> <C-Down> <C-O>:tabprevious<cr>
 vnoremap <silent> <C-Down> :<C-U>tabprevious<cr>v
 
 " Note: Change the POSITION of the current tab, dragging it along the tab line.
 "
-" Note: The same direction as the keys that walk the tabs, plus "Shift": "<C-Up>"
-" goes to the next tab, so "<C-S-Up>" carries the tab THERE. Notepad++ drags the
-" tab with the mouse; in a terminal the keyboard is what there is.
+" The same direction as the keys that walk the tabs, plus "Shift": "<C-Up>" goes
+" to the next tab, so "<C-S-Up>" carries the tab THERE. Notepad++ drags the tab
+" with the mouse; in a terminal the keyboard is what there is.
 "
-" Note: At either end nothing happens, the way Notepad++ stops at the edge. A
-" message on every press of a key you hold down would be noise.
+" At either end nothing happens, the way Notepad++ stops at the edge. A message
+" on every press of a key you hold down would be noise.
 func! GrooVim_TabMove(step) abort
   let l:target = tabpagenr() + a:step
   if l:target < 1 || l:target > tabpagenr("$")
@@ -392,8 +392,8 @@ nnoremap <silent> <S-Down> :call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
 " Note: The "<Esc>" "case" has influence in the code.
 
-" Note: Allows adjust the "set virtualedit=onemore" parameter when exit the current
-" mode you are.
+" Note: Allows adjust the "set virtualedit=onemore" parameter when exit the
+" current mode you are.
 func! GrooVim_VirtualEditAdjust() range abort
   set virtualedit=onemore
 endfunc
@@ -418,8 +418,8 @@ let g:tryCathOnTabDo = 0
 let g:keepCursorOnTabDo = 0
 let g:GrooVim_TabDoViews = {}
 
-" Note: Called through "tabdo", so they run once per tab and each one sees its own
-" "tabpagenr()".
+" Note: Called through "tabdo", so they run once per tab and each one sees its
+" own "tabpagenr()".
 func! GrooVim_TabDoViewSave() abort
   let g:GrooVim_TabDoViews[tabpagenr()] = winsaveview()
 endfunc
@@ -432,13 +432,15 @@ endfunc
 
 func! GrooVim_TabDo(command) abort
   let currTab=tabpagenr()
-  " Note: "noautocmd" because this pass is pure bookkeeping and must not fire the
-  " tab events that the real command fires.
+
+  " Note: "noautocmd" because this pass is pure bookkeeping and must not fire
+  " the tab events that the real command fires.
   if g:keepCursorOnTabDo == 1
     let g:GrooVim_TabDoViews = {}
     silent noautocmd tabdo call GrooVim_TabDoViewSave()
     exec "noautocmd tabn " . currTab
   endif
+
   if g:tryCathOnTabDo == 0
     exec "tabdo " . a:command
   elseif g:tryCathOnTabDo == 1
@@ -453,13 +455,4 @@ func! GrooVim_TabDo(command) abort
   exec "tabn " . currTab
 endfunc
 com! -nargs=+ -complete=command Tabdo call GrooVim_TabDo(<q-args>)
-
-" Note: The double click is Vim's own.
-"
-" Note: There was a mapping here that did "viw" -- which is what Vim does on a
-" double click anyway, ":h double-click" -- and, before that, SLEPT 250ms
-" reading the keyboard, in case a "z" came: then it searched for the word. So
-" every double click waited a quarter of a second to do what Vim does at once,
-" for a key nothing ever wrote down. Searching for the word under the cursor is
-" F3->m and the panel it opens.
 

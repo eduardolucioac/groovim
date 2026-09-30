@@ -98,6 +98,38 @@ Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
 calls `GT_DoneHere()` before the step that leaves.
 
+## The linter, and the formatter of the notes
+
+```bash
+./tools/lint.py          # says what is wrong
+./tools/lint.py --fix    # reflows the notes and writes the files
+```
+
+There is no `black` for VimScript. The only linter there is, `vint`, has had no
+release since 2019 and judges a style of its own — so this is ours, and it
+checks the four things this project decided:
+
+* every part opens with a banner and a name;
+* a comment never runs past **80 columns**;
+* no line ends in blank space;
+* no line is indented with a tab.
+
+The width is a **hard rule for comments**, which is what `--fix` rewrites, and a
+**warning for code**: there are lines that cannot be broken — the text of the
+help, a long `exec` — and a rule that cannot be obeyed is a rule nobody reads.
+
+What `--fix` will not touch, on purpose:
+
+| | why |
+|---|---|
+| a block that does not begin with `Note:` | it is somebody's commented-out code, or a heading |
+| a paragraph with a line pushed further in | it is an example, and rewrapping turns a command you can copy into a sentence you cannot |
+| a paragraph inside `>` … `<` | the same, in the notation Vim help uses |
+| the drawings | a row of `$`, the `=D` of the `.vimrc`: one thing repeated, no words in it |
+
+The battery asks for the same two things (`19_key_groups`), so a comment that
+grows past the edge fails a run instead of waiting for somebody to notice it.
+
 ## Seeing the screen
 
 For any question of **layout** — where the prompt landed, whether a blank line

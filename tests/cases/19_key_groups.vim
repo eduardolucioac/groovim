@@ -223,6 +223,41 @@ func! GT_Body()
     \ maparg("\\zvv", "n") !~ "call ",
     \ "   (sourcing redefines every function, and Vim refuses one that is RUNNING: E127)")
 
+  " ---- every part says what it is, and no comment runs off the screen
+  "
+  " The banner at the top of a file is how you know what you opened. The width
+  " is not a taste either: a comment that runs past the edge is read by
+  " scrolling, and nobody scrolls to read a comment.
+  "
+  " "./tools/lint.py --fix" reflows them; this is what stops them growing again.
+  " Left out of the count: the drawings (a row of "$", the "=D" of the .vimrc),
+  " the examples, which are the lines pushed further in and would stop being
+  " copyable, and the CODE, where there are lines that cannot be broken -- the
+  " text of the help, a long "exec".
+  let l:wide = []
+  let l:headless = []
+  for l:file in [l:path] + sort(glob(fnamemodify(l:path, ":h") . "/groovim/*.vim", 0, 1))
+    let l:lines = readfile(l:file)
+    let l:name = fnamemodify(l:file, ":t")
+    if empty(filter(copy(l:lines[0 : 39]), 'v:val =~ "^\" \\=\\$\\$\\$"'))
+      call add(l:headless, l:name)
+    endif
+    let l:at = 0
+    for l:line in l:lines
+      let l:at = l:at + 1
+      if strchars(l:line) <= 80 | continue | endif
+      if l:line !~ '^\s*"' | continue | endif
+      if l:line =~ '^\s*"\s*\(..\=\)\1\{4,}' | continue | endif
+      if l:line =~ '^\s*"\s\s' | continue | endif
+      call add(l:wide, l:name . ":" . l:at)
+    endfor
+  endfor
+  call GT_Ok("every part opens with a banner", empty(l:headless),
+    \ "   " . (empty(l:headless) ? "(one for each of them)" : string(l:headless)))
+  call GT_Ok("and no comment runs past 80 columns", empty(l:wide),
+    \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
+    \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
+
   " ---- the debugger of 2014 is gone
   call GT_Ok("no debugger left in the source",
     \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")

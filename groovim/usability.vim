@@ -14,11 +14,11 @@ set showmode
 " an older Vim -- GrooVim asks for 9.2, where the two work together, and "list"
 " here is always on because the guides need it.
 "
-" Note: A plain ":set" and no autocmd to spread it. It reaches the window you are
-" on and becomes the default of every window opened afterwards, which is what a
-" preference should do -- and it leaves the help window alone, which asks for
-" "wrap" of its own and would lose it to anything that reimposed this on every
-" "WinEnter".
+" Note: A plain ":set" and no autocmd to spread it. It reaches the window you
+" are on and becomes the default of every window opened afterwards, which is
+" what a preference should do -- and it leaves the help window alone, which asks
+" for "wrap" of its own and would lose it to anything that reimposed this on
+" every "WinEnter".
 let g:GrooVim_WordWrap = get(g:, "GrooVim_WordWrap", 0)
 func! GrooVim_WordWrapSet() abort
   if g:GrooVim_WordWrap
@@ -41,11 +41,10 @@ set undolevels=1000
 " Note: Ignore case when searching.
 set ignorecase
 
-" Note: When searching try to be smart about cases.
-" set smartcase
+" Note: When searching try to be smart about cases. set smartcase
 
-" Note: Makes search act like search in modern browsers ("highlight"
-" occurrences already in typing).
+" Note: Makes search act like search in modern browsers ("highlight" occurrences
+" already in typing).
 set incsearch
 
 " Note: Search/replace "globally" (on a line) by default.
@@ -59,9 +58,8 @@ autocmd! BufReadPost *
 set viminfo^=%
 
 " Note: Turn persistent undo on means that you can undo even when you close a
-" buffer/VIM.
-" Note: The directory must exist, otherwise "undofile" silently fails to write
-" the undo history.
+" buffer/VIM. Note: The directory must exist, otherwise "undofile" silently
+" fails to write the undo history.
 try
   let g:GrooVim_UndoDir = g:GrooVim_State . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)
@@ -76,11 +74,9 @@ endtry
 "INDENTATION AND SYNTAX
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Always set autoindenting on.
-" set autoindent
+" Note: Always set autoindenting on. set autoindent
 
-" Note: Copy the previous indentation on autoindenting.
-" set copyindent
+" Note: Copy the previous indentation on autoindenting. set copyindent
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "PLUGINS CONFIGURATION
@@ -97,8 +93,7 @@ let NERDTreeShowBookmarks = 1
 " Note: Show hidden files, too.
 let NERDTreeShowFiles = 1
 
-" Note: Quit on opening files from the tree.
-" let NERDTreeQuitOnOpen = 1
+" Note: Quit on opening files from the tree. let NERDTreeQuitOnOpen = 1
 
 " Note: Highlight the selected entry in the tree.
 let NERDTreeHighlightCursorline = 1
@@ -120,8 +115,8 @@ let NERDTreeWinPos = "right"
 " Note: "reuse" is kept as it was: a file already open somewhere is JUMPED to
 " instead of opened again, which is what you meant by choosing it.
 "
-" Note: A directory is untouched -- there "open" means unfold, and a folder in
-" a tab of its own would be a tab with a tree in it.
+" Note: A directory is untouched -- there "open" means unfold, and a folder in a
+" tab of its own would be a tab with a tree in it.
 let g:NERDTreeCustomOpenArgs =
  \ {"file": {"reuse": "all", "where": "t", "keepopen": 1}, "dir": {}}
 
