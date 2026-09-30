@@ -8,9 +8,23 @@ checks the behaviour from the inside; the manual one checks what you see.
 
 ```bash
 ./tests/run.sh                    # uses ./.vimrc
-./tests/run.sh ~/.vimrc           # tests what is installed
+./tests/run.sh ~/.groovim/.vimrc  # tests what is INSTALLED, which is that one
 ./tests/run.sh '' 03_panel        # a single case
 ```
+
+The installed GrooVim is `~/.groovim/.vimrc` and the parts beside it in
+`~/.groovim/groovim/` — that is what the `groovim` command runs, and `~/.vimrc`
+is **yours**, for the `vim` of your system. Installing by hand is the two lines
+`install.sh` uses:
+
+```bash
+cp .vimrc ~/.groovim/.vimrc
+cp groovim/*.vim ~/.groovim/groovim/
+```
+
+Copying only the parts and leaving the `.vimrc` behind is the trap: a part that
+a newer `.vimrc` loads is never read, and the first thing that calls it answers
+`E117: Unknown function`.
 
 It exits with `0` only if every case reaches its end and no check fails. The
 whole battery takes about **29 seconds**.
