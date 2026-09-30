@@ -9,20 +9,27 @@ release since 2019 and judges a style of its own -- so this is ours, and it
 checks the four things this project decided:
 
   * every part opens with a banner and a name;
-  * a comment never runs past 80 columns;
+  * a line does not run past 85 columns;
   * no line ends in blank space;
   * no line is indented with a tab.
 
-The 80 columns are a HARD rule for comments, which is what --fix rewrites, and a
-warning for code: there are lines that cannot be broken -- the text of the help,
-a long "exec" -- and a rule that cannot be obeyed is a rule nobody reads.
+Two numbers and not one. Notes are REWRITTEN to 80, which is where --fix wraps
+them, and nothing is COMPLAINED about until 85: the five columns in between are
+for the line that would read worse broken than long -- a name, an address, a
+word that has nowhere to break.
+
+Past 85 it is an error on a comment, which --fix can rewrite, and a warning on
+code, which it cannot: there are lines that will not break -- the text of the
+help, a long "exec" -- and a rule that cannot be obeyed is a rule nobody reads.
 """
 
 import os
 import re
 import sys
 
-LIMITE = 80
+# Where a note is wrapped, and where complaining starts.
+LARGURA = 80
+LIMITE = 85
 AQUI = os.path.dirname(os.path.abspath(__file__))
 PROJETO = os.path.dirname(AQUI)
 
@@ -80,7 +87,7 @@ def reflui(paragrafo, recuo):
     junto = " ".join(texto_de(l) for l in paragrafo).strip()
     if junto == "":
         return paragrafo
-    largura = LIMITE - len(recuo) - 2          # the recuo, the quote, the space
+    largura = LARGURA - len(recuo) - 2         # the recuo, the quote, the space
     saida = []
     linha = ""
     for palavra in junto.split():
@@ -180,8 +187,9 @@ def olha(caminho, linhas):
         if len(linha) > LIMITE and not e_bandeira(linha):
             exemplo = e_comentario(linha) and texto_de(linha).startswith(" ")
             if e_comentario(linha) and not exemplo:
-                erros.append("%s: a comment of %d columns (--fix reflows it)"
-                             % (onde, len(linha)))
+                erros.append("%s: a comment of %d columns, past the %d it is"
+                             " given (--fix wraps it at %d)"
+                             % (onde, len(linha), LIMITE, LARGURA))
             else:
                 avisos.append("%s: %d columns" % (onde, len(linha)))
     return erros, avisos

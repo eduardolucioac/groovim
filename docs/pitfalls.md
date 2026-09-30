@@ -110,13 +110,19 @@ release since 2019 and judges a style of its own — so this is ours, and it
 checks the four things this project decided:
 
 * every part opens with a banner and a name;
-* a comment never runs past **80 columns**;
+* a line does not run past **85 columns**;
 * no line ends in blank space;
 * no line is indented with a tab.
 
-The width is a **hard rule for comments**, which is what `--fix` rewrites, and a
-**warning for code**: there are lines that cannot be broken — the text of the
-help, a long `exec` — and a rule that cannot be obeyed is a rule nobody reads.
+**Two numbers and not one.** Notes are *wrapped* at **80**, which is where
+`--fix` breaks them, and nothing is *complained about* until **85**. The five
+columns in between are for the line that would read worse broken than long — a
+name, an address, a word with nowhere to break.
+
+Past 85 it is an **error on a comment**, which `--fix` can rewrite, and a
+**warning on code**, which it cannot: there are lines that will not break — the
+text of the help, a long `exec` — and a rule that cannot be obeyed is a rule
+nobody reads.
 
 What `--fix` will not touch, on purpose:
 
@@ -127,8 +133,9 @@ What `--fix` will not touch, on purpose:
 | a paragraph inside `>` … `<` | the same, in the notation Vim help uses |
 | the drawings | a row of `$`, the `=D` of the `.vimrc`: one thing repeated, no words in it |
 
-The battery asks for the same two things (`19_key_groups`), so a comment that
-grows past the edge fails a run instead of waiting for somebody to notice it.
+The battery asks for the same two things (`19_key_groups`), with the same 85, so
+a comment that grows past the edge fails a run instead of waiting for somebody
+to notice it.
 
 ## Seeing the screen
 

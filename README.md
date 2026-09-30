@@ -415,7 +415,7 @@ There is a linter beside it, and a formatter for the notes in the source:
 
 ```
 ./tools/lint.py          says what is wrong
-./tools/lint.py --fix    reflows the notes to 80 columns
+./tools/lint.py --fix    reflows the notes to 80 columns (85 is the limit)
 ```
 
 If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of

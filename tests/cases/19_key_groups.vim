@@ -229,7 +229,9 @@ func! GT_Body()
   " is not a taste either: a comment that runs past the edge is read by
   " scrolling, and nobody scrolls to read a comment.
   "
-  " "./tools/lint.py --fix" reflows them; this is what stops them growing again.
+  " Two numbers and not one: notes are WRAPPED at 80, which is what
+  " "./tools/lint.py --fix" does, and nothing is refused until 85. The five
+  " columns in between are for the line that would read worse broken than long.
   " Left out of the count: the drawings (a row of "$", the "=D" of the .vimrc),
   " the examples, which are the lines pushed further in and would stop being
   " copyable, and the CODE, where there are lines that cannot be broken -- the
@@ -245,7 +247,7 @@ func! GT_Body()
     let l:at = 0
     for l:line in l:lines
       let l:at = l:at + 1
-      if strchars(l:line) <= 80 | continue | endif
+      if strchars(l:line) <= 85 | continue | endif
       if l:line !~ '^\s*"' | continue | endif
       if l:line =~ '^\s*"\s*\(..\=\)\1\{4,}' | continue | endif
       if l:line =~ '^\s*"\s\s' | continue | endif
@@ -254,7 +256,7 @@ func! GT_Body()
   endfor
   call GT_Ok("every part opens with a banner", empty(l:headless),
     \ "   " . (empty(l:headless) ? "(one for each of them)" : string(l:headless)))
-  call GT_Ok("and no comment runs past 80 columns", empty(l:wide),
+  call GT_Ok("and no comment runs past 85 columns", empty(l:wide),
     \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
     \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
 
