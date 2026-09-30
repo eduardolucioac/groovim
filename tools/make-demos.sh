@@ -29,11 +29,24 @@ fi
 
 # The look of the GIFs, in one place.
 #
-# The theme is the one of the terminal GrooVim is drawn for, and the font size
-# decides how big the GIF comes out: 14 over 76 columns lands near 700 pixels,
-# which is the width a README shows without shrinking it.
+# The font size decides how big the GIF comes out: 14 over 84 columns lands near
+# 725 pixels, which is the width a README shows without shrinking it.
 FONT_SIZE="${GROOVIM_DEMO_FONT:-14}"
-THEME="${GROOVIM_DEMO_THEME:-monokai}"
+FONT_FAMILY="${GROOVIM_DEMO_FONT_FAMILY:-MesloLGS Nerd Font Mono,JetBrains Mono,DejaVu Sans Mono}"
+LINE_HEIGHT="${GROOVIM_DEMO_LINE_HEIGHT:-1.2}"
+
+# The COLOURS of the terminal, and they are not a taste: they are the ones
+# GrooVim is drawn against. This is Breeze Teal, the scheme of KDE, written out
+# as agg wants it -- background, foreground, the eight normal colours and the
+# eight bright ones.
+#
+# The built-in themes of agg (monokai, dracula, nord...) are the palettes of
+# OTHER editors, and a demo painted in one of them shows a GrooVim nobody has:
+# the first cut of these was in monokai and the greens and oranges of the real
+# thing came out as other greens and other oranges.
+#
+# Any of the names agg knows still works: GROOVIM_DEMO_THEME=github-light.
+THEME="${GROOVIM_DEMO_THEME:-141618,eff0f1,232629,ed1515,2fbf6f,f67400,1d99f3,9b59b6,16a085,eff0f1,7f8c8d,f44f4f,1cdc9a,fdbc4b,3daee9,b76ecf,1abc9c,fcfcfc}"
 # A pause longer than this is cut down to it: standing still is what lets the eye
 # read, but three seconds of nothing is three seconds of file.
 IDLE="${GROOVIM_DEMO_IDLE:-1.0}"
@@ -49,7 +62,8 @@ for SCRIPT in demos/[0-9]*.py; do
   CAST="demos/$NAME.cast"
   GIF="demos/$NAME.gif"
 
-  "$AGG" --font-size "$FONT_SIZE" --theme "$THEME" --speed "$SPEED" \
+  "$AGG" --font-size "$FONT_SIZE" --font-family "$FONT_FAMILY" \
+    --line-height "$LINE_HEIGHT" --theme "$THEME" --speed "$SPEED" \
     --idle-time-limit "$IDLE" --last-frame-duration 2 \
     "$CAST" "$GIF" >/dev/null
 

@@ -60,6 +60,21 @@ selecting and back out of it. One key each way, and the bar says where you are.
 
 ![In and out of the modes](07_modes.gif)
 
+## What a GIF cannot show
+
+**The colour of the cursor.** GrooVim paints it with `OSC 12` -- green in
+normal, orange while typing, blue over a selection -- and that is a message to
+the TERMINAL, not something drawn on the screen. `agg` does not answer it, so in
+every GIF here the cursor is a plain block of the palette. On a real terminal it
+is the colour of the mode you are in.
+
+**The colours are the ones of the terminal GrooVim is drawn against**, and they
+are set in `tools/make-demos.sh`: Breeze Teal, the scheme of KDE, written out as
+agg wants it. The built-in themes of agg -- monokai, dracula, nord -- are the
+palettes of other editors, and a demo painted in one of them shows a GrooVim
+nobody has. Another one is one word away:
+`GROOVIM_DEMO_THEME=github-light ./tools/make-demos.sh`.
+
 ## Why a script and not a recording
 
 The same reason the battery exists. A GIF recorded by hand is true on the day it
