@@ -146,6 +146,28 @@ func! GT_FunctionText(name)
   endtry
 endfunc
 
+" Note: The battery can be pointed at the PROJECT -- the .vimrc of a checkout,
+" with the README, the LICENSE, the tools and the tests beside it -- or at an
+" INSTALLATION, which is "~/.groovim/.vimrc" and the parts, and nothing else.
+"
+" Both run the same GrooVim and answer the same behaviour. What only the first
+" one can answer is the checks that READ the files of the project: whether the
+" README says what the list says, whether the licence is whole, whether the task
+" list is empty. Asked of an installation they failed over files that were never
+" meant to be there -- and one case did not even reach its end, because
+" "readfile" on what is not there is an ERROR and not an empty list.
+func! GT_Project()
+  let l:here = fnamemodify($GROOVIM_TEST_VIMRC, ":h")
+  return filereadable(l:here . "/README.md") && filereadable(l:here . "/LICENSE")
+endfunc
+
+" Note: Said once per case, so that a run against an installation shows what it
+" did NOT ask instead of quietly asking less.
+func! GT_NotTheProject(what)
+  call GT_Ok(a:what . ": not asked of an installation", 1,
+   \ "   (the files of the project are not beside a .vimrc that was installed)")
+endfunc
+
 func! GT_SourceLines()
   let l:lines = readfile($GROOVIM_TEST_VIMRC)
   for l:part in sort(glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/*.vim", 0, 1))

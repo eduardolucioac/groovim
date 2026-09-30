@@ -222,9 +222,13 @@ let g:GrooVim_ClipTools = g:GT_TOOLS_WERE
 call GT_Ok("nothing checks the version while you type",
   \ empty(filter(readfile($GROOVIM_TEST_VIMRC), 'v:val =~ "v:version < 902"')),
   \ "   (install.sh refuses to go on below it, and the README says so)")
-call GT_Ok("  and the README says which Vim GrooVim asks for",
-  \ !empty(filter(readfile(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/README.md"),
-  \   'v:val =~ "asks for Vim 9.2 or newer"')), "")
+if !GT_Project()
+  call GT_NotTheProject("the README on the version")
+else
+  call GT_Ok("  and the README says which Vim GrooVim asks for",
+    \ !empty(filter(readfile(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/README.md"),
+    \   'v:val =~ "asks for Vim 9.2 or newer"')), "")
+endif
 
 let g:GT_Install = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/install.sh"
 if filereadable(g:GT_Install)

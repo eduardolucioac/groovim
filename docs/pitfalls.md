@@ -26,8 +26,22 @@ Copying only the parts and leaving the `.vimrc` behind is the trap: a part that
 a newer `.vimrc` loads is never read, and the first thing that calls it answers
 `E117: Unknown function`.
 
-It exits with `0` only if every case reaches its end and no check fails. The
-whole battery takes about **29 seconds**.
+It exits with `0` only if every case reaches its end and no check fails. **34
+cases and over a thousand checks**, in about **30 seconds**. A check that fails
+says `FAILED` beside it with what was read in brackets, and every case leaves its
+run in `tests/results/<case>.txt`.
+
+Nothing here is written into an installation: each case runs in a GrooVim home of
+its own, under a temporary directory that goes away with the run.
+
+Pointed at an installation there are five checks fewer, and they are named: the
+ones that read the files of the PROJECT -- the README against the list of
+shortcuts, the licence, the task list -- answer `not asked of an installation`
+instead. `GT_Project()` is what tells the two apart, by looking for the README
+and the LICENSE beside the `.vimrc` under test. Before it existed, those checks
+failed against an installation over files that were never meant to be there, and
+one case did not even reach its end: `readfile` on what is not there is an ERROR
+and not an empty list.
 
 A case that hangs is caught: the runner kills it after 90 seconds and says
 `the case did not reach its end`. To shorten that wait:
@@ -67,6 +81,14 @@ To try another: `GROOVIM_TEST_VIM=/usr/bin/vim ./tests/run.sh`.
 | `24_home_and_state` | where GrooVim is installed, and where a run writes what it leaves behind |
 | `25_help_tab` | the help of F9 in a tab of its own, and coming back to where you asked from |
 | `26_mark_word` | marking every occurrence of a word, checked with screenattr |
+| `27_clipboard` | how a copy leaves the machine: the cascade, the tools each session needs, OSC 52 on a headless server |
+| `28_file_and_edge` | the settings of the FILE that is open -- encoding, line ending -- and the vertical edge |
+| `29_cursor_colour` | green in normal, orange in insert, blue in visual, and the modes a command passes through |
+| `30_cannot_change` | a buffer that refuses to be changed -- the tree, the list, the help -- and every key that edits |
+| `31_bookmarks` | the sign in the margin, the note that follows it, the walk between them and the list |
+| `32_brackets_and_save` | walking from one bracket to the one that closes it, saving under another name, taking a line away |
+| `33_multi_edit` | the multiple carets: the column of F2->n, the scattered places of F2->m, the two phases and what every caret takes |
+| `34_dialog` | the dialogues: the buttons and the walking between them, the keys, the mouse, the link and the two ways out |
 
 Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit

@@ -192,8 +192,10 @@ func! GT_Body()
   " the same letter three times over in one of them. It is written from the list
   " now, and this refuses to pass while the two disagree.
   let l:readme = fnamemodify(l:path, ":h") . "/README.md"
-  call GT_Ok("there is a README to check", filereadable(l:readme), "   [" . l:readme . "]")
-  if filereadable(l:readme)
+  if !GT_Project()
+    call GT_NotTheProject("the README against the list")
+  else
+    call GT_Ok("there is a README to check", filereadable(l:readme), "   [" . l:readme . "]")
     let l:lines = readfile(l:readme)
     let l:from = match(l:lines, "shortcuts: written by")
     let l:to = match(l:lines, "shortcuts: end")
@@ -608,8 +610,10 @@ func! GT_Body()
   " it in, and the source carries the notice the GPL asks you to attach.
   let l:here = fnamemodify(l:path, ":h")
   let l:licence = l:here . "/LICENSE"
-  call GT_Ok("there is a LICENSE", filereadable(l:licence), "   [" . l:licence . "]")
-  if filereadable(l:licence)
+  if !GT_Project()
+    call GT_NotTheProject("the licence")
+  else
+    call GT_Ok("there is a LICENSE", filereadable(l:licence), "   [" . l:licence . "]")
     let l:text = readfile(l:licence)
     call GT_Ok("  and it is the GNU GPL, version 3",
       \ l:text[0] =~ "GNU GENERAL PUBLIC LICENSE" && l:text[1] =~ "Version 3",

@@ -101,10 +101,14 @@ func! GT_AfterSaveAs()
   call GT_Ok("nothing is left on the task list",
     \ empty(filter(readfile($GROOVIM_TEST_VIMRC), 'v:val =~ "^\" \\(ToDo\\|Bug\\|TODO\\):"')),
     \ "   (every entry was read against the code and answered)")
-  call GT_Ok("  and the README says the same",
-    \ empty(filter(readfile(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/README.md"),
-    \   'v:val =~ "^ \\* \\(ToDo\\|Bug\\|TODO\\):"')),
-    \ "   (the two lists had drifted once, twenty nine entries against twenty one)")
+  if !GT_Project()
+    call GT_NotTheProject("the task list of the README")
+  else
+    call GT_Ok("  and the README says the same",
+      \ empty(filter(readfile(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/README.md"),
+      \   'v:val =~ "^ \\* \\(ToDo\\|Bug\\|TODO\\):"')),
+      \ "   (the two lists had drifted once, twenty nine entries against twenty one)")
+  endif
 
   call delete(g:GT_FILE)
   call delete(g:GT_OTHER)

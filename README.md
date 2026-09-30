@@ -319,17 +319,54 @@ delivered: run it, press the key, and it prints what `getchar()` handed over.
 Is it working?
 -----
 
-GrooVim has a battery of tests that runs on its own:
+GrooVim has a battery of tests that runs on its own, and it is not only for
+whoever writes it: it is how you find out whether the GrooVim **on your machine**
+does what this file says it does.
 
 ```
 ./tests/run.sh
 ```
 
 It opens a real Vim for each case, presses real keys and reads what happened --
-the occurrence list, the tabs, the replace, the session, the menu. It exits `0`
-only if every case reaches its end and no check fails, and it takes about half a
-minute. `docs/pitfalls.md` says what each case covers, and carries the traps that
-cost the most to find.
+the occurrence list, the tabs, the replace, the session, the menu, the multiple
+carets, the dialogues. **34 cases, over a thousand checks, about half a minute.**
+It ends like this:
+
+```
+=== 34_dialog ===
+   the About opens a dialogue                         ok   [ About GrooVim ]
+   ...
+-----------------------------------------------
+checks: 1016   failures: 0   incomplete cases: 0
+everything passed.
+```
+
+and it exits `0` only when that last line is there. A check that fails says
+`FAILED` beside it, with what was read in brackets; every case also leaves its
+run in `tests/results/<case>.txt` to be read afterwards.
+
+Three things worth knowing:
+
+```
+./tests/run.sh                      the GrooVim of this directory
+./tests/run.sh ~/.groovim/.vimrc    the GrooVim that is INSTALLED, which is that file
+./tests/run.sh '' 23_menu           one case, by name
+```
+
+Pointed at an installation, the few checks that read the **files of the
+project** -- whether the README says what the list of shortcuts says, whether the
+licence is whole, whether the task list is empty -- answer `not asked of an
+installation` instead of failing over files that were never meant to be there.
+Everything about behaviour is asked of both.
+
+The tests live with the source and are not copied by `install.sh`: if you
+installed GrooVim and threw the directory away, get it again (`git clone`) and
+point the second line at your installation -- there is nothing to install to run
+them, and they write nothing into your GrooVim: each case runs in a GrooVim home
+of its own, in a temporary directory that goes away with the run.
+
+`docs/pitfalls.md` says what each case covers, and carries the traps that cost
+the most to find.
 
 If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
 shortcuts above is written from the same place the F9 help and the F10 menu are,
