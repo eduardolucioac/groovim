@@ -436,6 +436,40 @@ func! GT_DockNewTab()
     \ GT_FunctionText("GrooVim_BookmarksFileHere") =~ "buftype",
     \ "   (\"GrooVim_BookmarksList1\" is a name, so asking for a name is not enough)")
 
+  " ---- and the LAST mark takes the list with it
+  "
+  " An empty list is not a list: it is a window with no lines in it, which looks
+  " closed, answers nothing and still takes half the screen. Measured through a
+  " real terminal, before this: the mark deleted, the panel there by every count
+  " Vim knows, and nothing drawn where it was.
+  "
+  " It goes down the way F4->l takes it down -- everywhere, because it is a dock
+  " -- and says so.
+  while len(GrooVim_BookmarksOf(g:GT_FILE)) > 1
+    call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+    call cursor(4, 1)
+    call GrooVim_BookmarkListDelete()
+  endwhile
+  call GrooVim_PanelFocus("GrooVim_BookmarksList", 0)
+  call cursor(4, 1)
+  let g:GT_LEFT = len(GrooVim_BookmarksOf(g:GT_FILE))
+  call GT_Ok("setup: one mark left, and the list is up", g:GT_LEFT == 1
+    \ && g:GrooVim_BookmarkListOpen == 1, "   (" . g:GT_LEFT . " mark)")
+  let g:GrooVim_GrooVimBarMsgValue = ""
+  call GrooVim_BookmarkListDelete()
+  call GT_Ok("the last mark goes and the list goes with it",
+    \ empty(GrooVim_BookmarksOf(g:GT_FILE)) && g:GrooVim_BookmarkListOpen == 0,
+    \ "   (marks " . len(GrooVim_BookmarksOf(g:GT_FILE)) . ", list " .
+    \ g:GrooVim_BookmarkListOpen . ")")
+  call GT_Ok("  the panel is not there any more",
+    \ bufwinnr("GrooVim_BookmarksList" . tabpagenr()) < 0,
+    \ "   (window " . bufwinnr("GrooVim_BookmarksList" . tabpagenr()) . ")")
+  call GT_Ok("  and it says why instead of leaving an empty window",
+    \ g:GrooVim_GrooVimBarMsgValue =~ "last mark",
+    \ "   [" . trim(g:GrooVim_GrooVimBarMsgValue) . "]")
+  call GT_Ok("  with the cursor back on a file",
+    \ &buftype ==# "" , "   [" . (&buftype ==# "" ? "a file" : &buftype) . "]")
+
   call GrooVim_BookmarkList()
   tabonly!
   call delete(g:GT_FILE)

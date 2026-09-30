@@ -413,13 +413,13 @@ endfunc
 
 " Note: One caret where the cursor is, which is the "Ctrl+click" of Notepad++.
 "
-" Note: It opens for writing at once, like the column does, and for the same
-" reason: in Notepad++ you click and type. Between one caret and the next you
-" walk with whatever moves the cursor IN insert -- the arrows, the words, the
-" ends of the line -- and press it again where you want the next one.
+" It opens for writing at once, like the column does, and for the same reason:
+" in Notepad++ (inspiration) you click and type. Between one caret and the next
+" you walk with whatever moves the cursor IN insert -- the arrows, the words,
+" the ends of the line -- and press it again where you want the next one.
 "
-" Note: No arrows are taken here, and that is the difference from the column:
-" there they grow the block, and here they are how you get to the next place.
+" No arrows are taken here, and that is the difference from the column: there
+" they grow the block, and here they are how you get to the next place.
 func! GrooVim_MultiPoint() abort
 
   if !GrooVim_CanChange()
@@ -470,13 +470,13 @@ endfunc
 
 " Note: Every character typed is written down and handed to a timer.
 "
-" Note: NOT written straight into the other lines: "InsertCharPre" is under the
+" NOT written straight into the other lines: "InsertCharPre" is under the
 " |textlock| and a buffer changed from there is a change that does not happen --
 " measured, the event firing with the carets in place and the lines coming out
 " untouched. A timer of zero runs as soon as the lock is off, and the same is
 " true of the "<expr>" mapping of the backspace below.
 "
-" Note: ONE timer and a queue, and not a timer for each character: with the keys
+" ONE timer and a queue, and not a timer for each character: with the keys
 " arriving in a burst the timers ran out of order, and a backspace ate the wrong
 " letter -- measured, typing "XY", a backspace and "ZZZ" left the other lines
 " with a letter the first line did not have.
@@ -486,12 +486,11 @@ func! GrooVim_MultiTyped(char) abort
     return
   endif
 
-  " Note: While the places are being chosen, what is typed is SWALLOWED.
-  "
-  " Note: Writing with one caret in a run that is about to have five is writing
-  " in one place and meaning five: the column of every place still to be chosen
-  " would already be wrong. "v:char" emptied is the way to say no -- measured,
-  " the event firing and the line coming out exactly as it was.
+  " Note: While the places are being chosen, what is typed is SWALLOWED. Writing
+  " with one caret in a run that is about to have five is writing in one place
+  " and meaning five: the column of every place still to be chosen would already
+  " be wrong. "v:char" emptied is the way to say no -- measured, the event
+  " firing and the line coming out exactly as it was.
   if s:marking
     let v:char = ""
     call GrooVim_GrooVimBarMsg(
@@ -515,12 +514,10 @@ func! GrooVim_MultiSoon() abort
 
 endfunc
 
-" Note: What was typed, put where the other carets are.
-"
-" Note: The line and column of the REAL cursor come along with each character,
-" because a caret sharing that line has to be moved by the character Vim itself
-" has already put there: it sat further along the line, and now it sits one
-" further.
+" Note: What was typed, put where the other carets are. The line and column of
+" the REAL cursor come along with each character, because a caret sharing that
+" line has to be moved by the character Vim itself has already put there: it sat
+" further along the line, and now it sits one further.
 func! GrooVim_MultiFlush() abort
 
   let s:waiting = 0
@@ -556,6 +553,7 @@ func! GrooVim_MultiFlush() abort
     " Note: The character Vim put in itself moves whatever was after it -- and
     " the caret the cursor stands on travels with the cursor.
     if l:what ==# "\<BS>" && l:atColumn == 1 && l:atLine > 1
+
       " Note: The real cursor joined its line to the one above. Vim moved the
       " cursor itself; every caret that was on the line that went is moved here
       " -- INCLUDING the one the cursor stands on, which is skipped everywhere
@@ -564,6 +562,7 @@ func! GrooVim_MultiFlush() abort
       " writes where nobody is looking. Measured, typing after a backspace in
       " the first column: a third letter appeared on a line with no caret.
       call GrooVim_MultiJoined(l:atLine, l:atLine - 1, l:joinAt, -1, 0)
+
     elseif l:what ==# "\<Del>" && l:joinAt > 0
       call GrooVim_MultiJoined(l:atLine + 1, l:atLine, l:joinAt, -1, 0)
     elseif l:what ==# "\<Del>"
@@ -573,13 +572,12 @@ func! GrooVim_MultiFlush() abort
       " was below it is one line further down, and whatever sat after the cut on
       " that very line is now on the line BELOW, counting from its start.
       "
-      " Note: And the caret the cursor stands on goes with it -- it is skipped
-      " when the TEXT is written, because Vim writes there itself, and it is not
+      " And the caret the cursor stands on goes with it -- it is skipped when
+      " the TEXT is written, because Vim writes there itself, and it is not
       " skipped here, because Vim moved the cursor and not the caret. Left
       " behind, it stayed on the line above the cut with the column it had, and
       " an Enter and a backspace -- which should leave a file exactly as it was
-      " -- joined the wrong two lines: measured, "ccc ddd" and "eee fff" coming
-      " back as "ccc dddeee".
+      " -- joined the wrong two lines.
       call GrooVim_MultiCut(l:atLine, l:atColumn, -1, 0)
     elseif l:what ==# "\<Tab>"
       call GrooVim_MultiShift(l:atLine, l:atColumn,
@@ -617,9 +615,9 @@ endfunc
 " the one that received it, pushed along by however long that one already was;
 " and everything below it comes up one.
 "
-" Note: "alsoCursor" says whether the REAL cursor has to come up as well. When
-" the join was its own, Vim has already moved it; when it was a caret's, it has
-" not, and nobody else will.
+" "alsoCursor" says whether the REAL cursor has to come up as well. When the
+" join was its own, Vim has already moved it; when it was a caret's, it has not,
+" and nobody else will.
 func! GrooVim_MultiJoined(gone, into, offset, except, alsoCursor) abort
 
   let l:which = 0
@@ -657,10 +655,12 @@ func! GrooVim_MultiDo(which, what, room) abort
 
   if a:what ==# "\<BS>"
     if a:room >= 0
+
       " Note: In the first column a backspace does not take a character away: it
       " takes the LINE BREAK away, and the line goes up to join the one above.
       " "room" is how long that one was when the key was pressed.
       call setline(l:point[0] - 1, getline(l:point[0] - 1) . l:line)
+
       exec "silent " . l:point[0] . "delete _"
       let g:GrooVim_MultiPoints[a:which] = [l:point[0] - 1, a:room + 1]
       call GrooVim_MultiJoined(l:point[0], l:point[0] - 1, a:room, a:which, 1)
@@ -675,9 +675,11 @@ func! GrooVim_MultiDo(which, what, room) abort
 
   if a:what ==# "\<Del>"
     if a:room >= 0
+
       " Note: And at the end of the line it takes the break away FORWARD: the
       " line below comes up and joins this one.
       call setline(l:point[0], l:line . getline(l:point[0] + 1))
+
       exec "silent " . (l:point[0] + 1) . "delete _"
       call GrooVim_MultiJoined(l:point[0] + 1, l:point[0], a:room, a:which, 1)
     elseif l:at <= len(l:line)
@@ -773,11 +775,10 @@ endfunc
 " in the first would leave the second one character behind for every letter
 " typed.
 "
-" Note: "at or after" and not only after, and that is the caret the cursor is
-" standing on: it is skipped when the text is written, because Vim has already
-" written there, but it has to TRAVEL with the cursor -- left behind, it stops
-" being the cursor's own caret at the second letter and the line takes the text
-" twice.
+" "at or after" and not only after, and that is the caret the cursor is standing
+" on: it is skipped when the text is written, because Vim has already written
+" there, but it has to TRAVEL with the cursor -- left behind, it stops being the
+" cursor's own caret at the second letter and the line takes the text twice.
 func! GrooVim_MultiShift(line, column, step, except) abort
 
   let l:which = 0
@@ -792,19 +793,19 @@ endfunc
 
 " Note: The keys that are not characters have to be TOLD, one by one.
 "
-" Note: "InsertCharPre" hears the letters and nothing else: measured, typing a
-" Tab, an Enter and a Del with the event watching, and only the letter after
-" them was heard. That is why they did nothing to the other carets -- they never
-" reached this at all.
+" "InsertCharPre" hears the letters and nothing else: measured, typing a Tab, an
+" Enter and a Del with the event watching, and only the letter after them was
+" heard. That is why they did nothing to the other carets -- they never reached
+" this at all.
 "
-" Note: Each of them hands the queue what it is and then returns the key itself,
-" so the real cursor does its own work the way it always did, and the carets
-" follow in the timer afterwards.
+" Each of them hands the queue what it is and then returns the key itself, so
+" the real cursor does its own work the way it always did, and the carets follow
+" in the timer afterwards.
 "
-" Note: By NAME and not by the key. The key of a backspace is a control
-" character, and a control character written into the command of a "<Cmd>" does
-" not survive the trip: measured, the function never ran at all and the burst
-" went on doing the wrong thing with nothing said about it.
+" By NAME and not by the key. The key of a backspace is a control character, and
+" a control character written into the command of a "<Cmd>" does not survive the
+" trip: measured, the function never ran at all and the burst went on doing the
+" wrong thing with nothing said about it.
 let s:keyOf = {"BS": "\<BS>", "Del": "\<Del>", "CR": "\<CR>", "Tab": "\<Tab>"}
 
 inoremap <silent> <expr> <BS> GrooVim_MultiKey("BS")
@@ -830,15 +831,15 @@ func! GrooVim_MultiKey(name) abort
 
   " Note: A "<Cmd>" first, and the key itself after it.
   "
-  " Note: The "<Cmd>" is what lets the queue be emptied BEFORE the key is looked
-  " at, and it has to be emptied: the letters waiting in it have not moved the
+  " The "<Cmd>" is what lets the queue be emptied BEFORE the key is looked at,
+  " and it has to be emptied: the letters waiting in it have not moved the
   " carets yet, so a backspace arriving in the same burst would read a caret as
   " still being in the first column and take a line break away instead of a
   " letter. Measured, "XY" and a backspace in one go: the two lines were JOINED.
   "
-  " Note: An "<expr>" cannot empty it -- it is under the |textlock| , and a
-  " buffer changed from there is a change that does not happen -- but a "<Cmd>"
-  " can: measured, a "setline" from inside one, with the mode still insert.
+  " An "<expr>" cannot empty it -- it is under the |textlock| , and a buffer
+  " changed from there is a change that does not happen -- but a "<Cmd>" can:
+  " measured, a "setline" from inside one, with the mode still insert.
   return "\<Cmd>call GrooVim_MultiTook('" . a:name . "')\<cr>" . l:key
 
 endfunc
@@ -896,13 +897,13 @@ augroup END
 
 " Note: What is still in the queue is written BEFORE letting go.
 "
-" Note: The queue is emptied by a timer, and a timer runs when Vim is waiting.
-" An "Esc" pressed right after the last letter arrives before the wait does --
-" and the carets were dropped with the letter still in hand: measured, typing
-" and leaving in one go, the other lines came out short of the last characters.
+" The queue is emptied by a timer, and a timer runs when Vim is waiting. An
+" "Esc" pressed right after the last letter arrives before the wait does -- and
+" the carets were dropped with the letter still in hand: measured, typing and
+" leaving in one go, the other lines came out short of the last characters.
 "
-" Note: And whether insert really ended is asked AFTERWARDS, not now. Leaving it
-" is not the same as ending it: a "<C-o>" steps out to run one command and walks
+" And whether insert really ended is asked AFTERWARDS, not now. Leaving it is
+" not the same as ending it: a "<C-o>" steps out to run one command and walks
 " straight back in, firing "InsertLeave" on the way -- and twenty six keys of
 " GrooVim are written that way, the paste, the unindent, the wheel, the page,
 " and the F keys themselves. Every one of them would have ended this. A timer of
@@ -941,3 +942,4 @@ func! GrooVim_MultiState() abort
   return {"on": s:on, "column": s:column, "anchor": s:anchor, "far": s:far,
    \ "marking": s:marking}
 endfunc
+

@@ -434,15 +434,36 @@ endfunc
 " them, which is what the sync is for -- and walking every tab at every mark
 " would be a lot of work for a list nobody is looking at.
 func! GrooVim_BookmarkListRefresh() abort
+
   if !g:GrooVim_BookmarkListOpen
     return
   endif
+
   let l:back = win_getid()
-  call GrooVim_BookmarkPanelBuild()
+
+  " Note: With the last mark gone there is nothing to list, and what was left
+  " behind was not a list: it was a window with no lines in it, which looks
+  " closed, answers nothing and still takes half the screen. Measured -- the
+  " mark deleted, the panel there by every count Vim knows, and nothing drawn
+  " where it was.
+  "
+  " So it goes down the way F4->l takes it down: everywhere, because it is a
+  " dock, and with the cursor put back on a window with a file in it. What it
+  " says is what F4->l says when it is asked for a list of nothing.
+  if !GrooVim_BookmarkPanelBuild()
+    let g:GrooVim_BookmarkListOpen = 0
+    call GrooVim_BookmarkListEverywhere()
+    call GrooVim_PutOnEditWindow()
+    call GrooVim_GrooVimBarMsg("That was the last mark, so the list is gone!", 4)
+    return
+  endif
+
   if GrooVim_PanelFocus(s:panel, 0)
     call GrooVim_BookmarkPanelFill()
   endif
+
   call win_gotoid(l:back)
+
 endfunc
 
 " Note: Brings this tab into line with whether the list is open or not: it gets

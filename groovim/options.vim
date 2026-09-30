@@ -4,20 +4,20 @@
 
 " Note: The screens of F5->c: what each one asks, what an answer may be, and
 " what is done with it. And the file where the answers you chose to KEEP are
-" written, which the .vimrc reads before any part of GrooVim runs. Note: Where
-" the options you chose to KEEP are written.
+" written, which the .vimrc reads before any part of GrooVim runs. Where the
+" options you chose to KEEP are written.
 "
-" Note: Under "GrooVim/" and not under "plugin/", where it used to live: Vim
-" sources everything in "~/.vim/plugin" by itself, so the file was being run by
-" the Vim of the system too. GrooVim is reached through the "groovim" command,
-" and what it saves has to stay on its side of that line. Note:
-" "g:GrooVim_OptsFile" is defined in the ".vimrc": the file is read there,
-" before any part of GrooVim, so the path has to be known before this one runs.
+" Under "GrooVim/" and not under "plugin/", where it used to live: Vim sources
+" everything in "~/.vim/plugin" by itself, so the file was being run by the Vim
+" of the system too. GrooVim is reached through the "groovim" command, and what
+" it saves has to stay on its side of that line. "g:GrooVim_OptsFile" is defined
+" in the ".vimrc": the file is read there, before any part of GrooVim, so the
+" path has to be known before this one runs.
 
-" Note: What the screen you are on has changed, so the question at the end can
+" What the screen you are on has changed, so the question at the end can
 " write it all down if you say to keep it.
 "
-" Note: The options are applied as you answer, one by one, and only WRITTEN at
+" The options are applied as you answer, one by one, and only WRITTEN at
 " the end -- so leaving a screen with "Ctrl-C" changes the session and nothing
 " on disk.
 let g:GrooVim_OptsPending = []
@@ -27,10 +27,6 @@ func! GrooVim_OptsBegin() abort
 endfunc
 
 " Note: The last question of every configuration screen.
-"
-" Note: The keeping was written in 2014, in the third argument of
-" "GrooVim_OptsUpdate", and never called from anywhere -- which is why it had a
-" defect in each of its three situations. Now it has a way in.
 func! GrooVim_OptsEnd() abort
 
   let l:answer = GrooVim_GetOptions("Just [a]apply or [s]apply and save", ["a", "s"], "a", "")
@@ -92,19 +88,23 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
       if l:value =~ a:valueToSearch
         call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
         let l:thisOptionDoesNotExistInTheConfiguration = 0
+
         " Note: Just the new value. Gluing the search in front of it produced
         " "let g:x =let g:x = 1", which is an "E121" every time.
         exec a:valueToReplace
+
       else
         call add(l:CoolAndVimOptsArrayUpdated, l:value)
       endif
     endfor
 
     if l:thisOptionDoesNotExistInTheConfiguration == 1
+
       " Note: The option that was ASKED for, and not "l:value", which is
       " whatever the loop above happened to stop on -- an option that was not in
       " the file yet ended up duplicating the last line instead of being added.
       call add(l:CoolAndVimOptsArrayUpdated, a:valueToReplace)
+
     endif
 
     call mkdir(fnamemodify(g:GrooVim_OptsFile, ":h"), "p")
@@ -115,15 +115,16 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
 endfunc
 
 " Note: Configures the search and/or replace depending on the parameters passed.
-" Note: The one door into the settings. It asks WHICH of them and then opens
+
+" The one door into the settings. It asks WHICH of them and then opens
 " that screen, which is what a conventional editor does: one "Settings", and the
 " topics inside it.
 "
-" Note: Each screen used to have a key of its own -- four entries in the list,
+" Each screen used to have a key of its own -- four entries in the list,
 " in the help, in the menu and in the README, for four things that are the same
 " thing. Now there is one, and three letters of the F5 group came back.
 "
-" Note: Written without naming those keys, because a case reads every "FX->x" in
+" Written without naming those keys, because a case reads every "FX->x" in
 " the source and refuses one that no longer exists -- which is exactly what they
 " no longer do.
 func! GrooVim_Configure() range abort
@@ -160,11 +161,11 @@ func! GrooVim_ConfigureSearchReplace(typeOfConfig) range abort
   " Note: No header line here. The bar already says "[configuration] [search]"
   " or "[configuration] [replace]", and what an empty answer does is written in
   " the help (F9), so a line repeating it would only crowd the screen.
-
   call GrooVim_OptsBegin()
 
   let g:searchReplace_CaseSensitive = GrooVim_GetOptions("Case sensitive (SEARCH/REPLACE)", [0,1], 0, g:searchReplace_CaseSensitive)
   call GrooVim_OptsUpdate("let g:searchReplace_CaseSensitive =", "let g:searchReplace_CaseSensitive = " . g:searchReplace_CaseSensitive, 0)
+
   " Note: No "it is enabled/disabled" echo here: the prompt already shows the
   " value that was just chosen, and every extra line pushes the command area
   " around.
@@ -206,11 +207,11 @@ endfunc
 
 " Note: The settings that are not about searching or replacing. The screen is
 " the same shape as the other two: the questions come one after another, and the
-" last one asks whether to keep what you chose. Note: The "Tab Settings" of
-" Notepad++, as a screen of GrooVim.
+" last one asks whether to keep what you chose. The "Tab Settings" of Notepad++
+" (inspiration), as a screen of GrooVim.
 "
-" Note: A width here is THREE options of Vim at once -- "tabstop", "shiftwidth"
-" and "softtabstop" -- and they only mean what you expect while they agree. The
+" A width here is THREE options of Vim at once -- "tabstop", "shiftwidth" and
+" "softtabstop" -- and they only mean what you expect while they agree. The
 " question asks ONCE and moves the three together.
 func! GrooVim_ConfigureIndent() range abort
 
@@ -229,18 +230,17 @@ func! GrooVim_ConfigureIndent() range abort
   let &expandtab = g:GrooVim_IndentExpandTab
 
   " Note: The guides are not asked here any more. They are a SYMBOL drawn on the
-  " screen, not a rule about what <Tab> does, and Notepad++ puts them where they
-  " belong: View, Show Symbol -- which is the "[v]iew" screen.
-
+  " screen, not a rule about what <Tab> does, and Notepad++ (inspiration) puts
+  " them where they belong: View, Show Symbol -- which is the "[v]iew" screen.
   call GrooVim_OptsEnd()
 
 endfunc
 
-" Note: The five encodings the Encoding menu of Notepad++ offers, as GrooVim
-" asks them: the letter, then what Vim has to be told.
+" Note: The five encodings the Encoding menu of Notepad++ (inspiration) offers,
+" as GrooVim asks them: the letter, then what Vim has to be told.
 "
-" Note: "utf-16le" and "utf-16" are the LE and BE of that menu, and both carry a
-" BOM there -- a UTF-16 file without one cannot be told apart from bytes.
+" "utf-16le" and "utf-16" are the LE and BE of that menu, and both carry a BOM
+" there -- a UTF-16 file without one cannot be told apart from bytes.
 let g:GrooVim_Encodings = {
       \ "a": {"name": "ansi",          "fenc": "latin1",   "bom": 0},
       \ "u": {"name": "utf-8",         "fenc": "utf-8",    "bom": 0},
@@ -274,10 +274,10 @@ endfunc
 " Note: The settings of the FILE that is open: the Encoding menu and the "EOL
 " Conversion" of Notepad++.
 "
-" Note: This screen does NOT end with "apply or save", and it is the only one.
-" What it sets belongs to the document and not to GrooVim -- keeping "utf-16"
-" for the next time you open the editor would be keeping the wrong thing. So the
-" summary is held by a pause of its own.
+" This screen does NOT end with "apply or save", and it is the only one. What it
+" sets belongs to the document and not to GrooVim -- keeping "utf-16" for the
+" next time you open the editor would be keeping the wrong thing. So the summary
+" is held by a pause of its own.
 func! GrooVim_ConfigureFile() range abort
 
   " Note: ONE question for the encoding, over three lines, because the two
@@ -285,13 +285,13 @@ func! GrooVim_ConfigureFile() range abort
   " apart, the second read as a question about the first -- and the answer to
   " "utf-8" is not "converting", it is "utf-8, by converting".
   "
-  " Note: Every one of the four brackets is built by GrooVim_OptionsToPrompt,
-  " the same one every other question of GrooVim goes through, so that the lines
-  " that only EXPLAIN read exactly like the line that asks.
+  " Every one of the four brackets is built by GrooVim_OptionsToPrompt, the same
+  " one every other question of GrooVim goes through, so that the lines that
+  " only EXPLAIN read exactly like the line that asks.
   "
-  " Note: The meanings are messages and only the last line is the prompt. A
-  " prompt of more than one screen line overflows the message area, and the
-  " hit-enter Vim raises for that EATS the first key you press -- measured.
+  " The meanings are messages and only the last line is the prompt. A prompt of
+  " more than one screen line overflows the message area, and the hit-enter Vim
+  " raises for that EATS the first key you press -- measured.
   call GrooVim_ScreenSay("Change/convert encoding:")
   echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
    \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow())
@@ -337,10 +337,12 @@ func! GrooVim_IsLanguageAnswer(answer) abort
 endfunc
 
 func! GrooVim_IsEncodingAnswer(answer) abort
+
   " Note: Empty is the answer that changes nothing, and the default.
   if a:answer ==# ""
     return 1
   endif
+
   if strchars(a:answer) != 2
     return 0
   endif
@@ -371,12 +373,14 @@ func! GrooVim_FileSettingsApply(encoding, how, lineEnding) abort
   " nothing to read again for: what is left is the line ending, and that is a
   " conversion.
   if l:doEncoding && a:how ==# "r"
+
     " Note: Reading again throws away what is not written yet, so it is refused
     " while there is something to lose.
     if &modified
       call GrooVim_GrooVimBarMsg("Save first: reading again would lose your changes!", 6)
       return 0
     endif
+
     try
       exec "edit! ++enc=" . l:enc.fenc . " ++ff=" . l:ff
       let &l:bomb = l:enc.bom
@@ -409,10 +413,10 @@ endfunc
 " Note: "none" is the "None (Normal Text)" of that menu, and an empty file type
 " is how Vim spells it.
 "
-" Note: This is why the language is asked on the VIEW screen and not on the file
-" one: nothing here is ever written to the disk. The encoding and the line
-" ending change the bytes in the file; a language changes how the same bytes are
-" READ -- which is also why choosing one leaves a clean buffer clean.
+" This is why the language is asked on the VIEW screen and not on the file one:
+" nothing here is ever written to the disk. The encoding and the line ending
+" change the bytes in the file; a language changes how the same bytes are READ
+" -- which is also why choosing one leaves a clean buffer clean.
 func! GrooVim_LanguageApply(language) abort
   if a:language ==# ""
     return
@@ -420,9 +424,9 @@ func! GrooVim_LanguageApply(language) abort
   let &l:filetype = a:language ==# "none" ? "" : a:language
 endfunc
 
-" Note: What Notepad++ calls View, Show Symbol: what is DRAWN on the screen that
-" is not in the file. Two things for now, the two that menu has checked in the
-" screenshot this came from.
+" Note: What Notepad++ (inspiration) calls View, Show Symbol: what is DRAWN on
+" the screen that is not in the file. Two things for now, the two that menu has
+" checked in the screenshot this came from.
 func! GrooVim_ConfigureView() range abort
 
   call GrooVim_OptsBegin()
@@ -453,7 +457,7 @@ func! GrooVim_ConfigureView() range abort
 
   call GrooVim_SymbolsSet()
 
-  " Note: The "Word wrap" of the View menu of Notepad++.
+  " Note: The "Word wrap" of the View menu of Notepad++ (inspiration).
   let l:wrap = GrooVim_GetOptions("Word wrap", [0,1], 0, g:GrooVim_WordWrap)
   let g:GrooVim_WordWrap = l:wrap
   call GrooVim_OptsUpdate("let g:GrooVim_WordWrap =",
@@ -466,18 +470,19 @@ func! GrooVim_ConfigureView() range abort
   " as if it were offering to keep all three.
   call GrooVim_OptsEnd()
 
-  " Note: The Language menu of Notepad++, which in Vim is the "filetype". It is
-  " asked HERE and not on the file screen, and the reason is the one written at
-  " GrooVim_LanguageApply: a language is never written into the file. The file
-  " screen is what goes onto the disk -- the encoding and what ends a line
-  " change the bytes there -- and this changes how the same bytes are READ.
+  " Note: The Language menu of Notepad++ (inspiration), which in Vim is the
+  " "filetype". It is asked HERE and not on the file screen, and the reason is
+  " the one written at GrooVim_LanguageApply: a language is never written into
+  " the file. The file screen is what goes onto the disk -- the encoding and
+  " what ends a line change the bytes there -- and this changes how the same
+  " bytes are READ.
   "
-  " Note: It belongs to the BUFFER you are on, which is why it is below the
-  " question that keeps and not above it: keeping "python" for the next time you
-  " open GrooVim would put every file you open into python.
+  " It belongs to the BUFFER you are on, which is why it is below the question
+  " that keeps and not above it: keeping "python" for the next time you open
+  " GrooVim would put every file you open into python.
   "
-  " Note: GrooVim keeps no list of its own. <Tab> completes among the ones this
-  " Vim ships, which is the only list that can ever be right.
+  " GrooVim keeps no list of its own. <Tab> completes among the ones this Vim
+  " ships, which is the only list that can ever be right.
   call GrooVim_ScreenSay("Set language: <Tab> completes, \"none\" for plain " .
    \ "text, empty does nothing")
   let l:language = GrooVim_AskUntilValid(
@@ -505,18 +510,17 @@ func! GrooVim_ConfigureGeneral() range abort
   " Note: There is no question here about the clipboard, and working out why
   " took an hour of arguing with someone who was right.
   "
-  " Note: OSC 52 is the LAST method of the cascade. If it is reached, everything
-  " else has already failed -- so turning it off cannot leave you better off, it
+  " OSC 52 is the LAST method of the cascade. If it is reached, everything else
+  " has already failed -- so turning it off cannot leave you better off, it
   " leaves you with nothing. The only reason the question ever had an answer
   " worth giving was a gap: with OSC 52 on, the copy went out through the
   " terminal and GrooVim stopped keeping its own copy in a file, so on a
   " terminal that ignores the sequence you lost both.
   "
-  " Note: The gap is closed -- see "GrooVim_ClipAssumed" in the "behaviour"
-  " part, which keeps the file whenever the method is one that cannot be
-  " confirmed. On goes back to being never worse than off, and a question nobody
-  " can answer wrongly is a question not worth asking.
-
+  " The gap is closed -- see "GrooVim_ClipAssumed" in the "behaviour" part,
+  " which keeps the file whenever the method is one that cannot be confirmed. On
+  " goes back to being never worse than off, and a question nobody can answer
+  " wrongly is a question not worth asking.
   call GrooVim_OptsEnd()
 
 endfunc
@@ -526,7 +530,7 @@ endfunc
 " tells you the answer did not take, and it is how every question of GrooVim
 " behaves.
 "
-" Note: "IsValid" takes the answer and says whether it serves. A closure carries
+" "IsValid" takes the answer and says whether it serves. A closure carries
 " whatever else the test needs. Note: A third argument turns on the completion
 " of Vim, by name -- "filetype", "file", "buffer" and the rest of ":help
 " command-completion". It is what lets the language question offer the 831 file
@@ -535,9 +539,9 @@ endfunc
 " screen of several questions reads as several -- a block of three lines carries
 " it once, and a question that is a block on its own carries it too.
 "
-" Note: Written in ONE place and put on by the two functions below, never typed
-" into a string at a call site. That is what keeps every screen of GrooVim
-" marked the same way.
+" Written in ONE place and put on by the two functions below, never typed into a
+" string at a call site. That is what keeps every screen of GrooVim marked the
+" same way.
 let g:GrooVim_ScreenMark = "> "
 
 " Note: A section that opens with something to READ -- the lines under it are
@@ -568,21 +572,21 @@ endfunc
 " Note: Asks a question that only takes certain answers, and keeps asking until
 " it gets one of them. An empty answer keeps what is in force.
 "
-" Note: The prompt is BUILT here, from what the function already receives. Every
-" call site used to spell out "[0[default]/1][in use: \"0\"]? " by hand, in
-" eight places, and a change to the list of options would not reach the text.
-" Now it cannot drift.
+" The prompt is BUILT here, from what the function already receives. Every call
+" site used to spell out "[0[default]/1][in use: \"0\"]? " by hand, in eight
+" places, and a change to the list of options would not reach the text. Now it
+" cannot drift.
 "
-" Note: An empty "currentValue" is a question with nothing in force -- the one
-" that asks what to get from a file name is like that. No "in use" is shown and
-" an empty answer takes the factory default.
+" An empty "currentValue" is a question with nothing in force -- the one that
+" asks what to get from a file name is like that. No "in use" is shown and an
+" empty answer takes the factory default.
 "
-" Note: "in use" and not "now", which it said for years. On the screen of the
-" file settings, next to a question about CONVERTING, "now" read as part of the
+" "in use" and not "now", which it said for years. On the screen of the file
+" settings, next to a question about CONVERTING, "now" read as part of the
 " answer -- convert it now? What it means is the value the option is on.
 "
-" Note: The prompt of a question whose answer is a NUMBER and not one of a list.
-" Same shape as the one above, so the screens read alike.
+" The prompt of a question whose answer is a NUMBER and not one of a list. Same
+" shape as the one above, so the screens read alike.
 func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
@@ -620,11 +624,11 @@ endfunc
 "   A yes or a no is [0,1].    "Case sensitive (SEARCH/REPLACE)"
 "   A choice is LETTERS.       "Get [f]filename or [p]filename and path"
 "
-" Note: The letter is the first one of the word it stands for, written in front
-" of that word, so the answer is read off the question itself: "[f]forward",
+" The letter is the first one of the word it stands for, written in front of
+" that word, so the answer is read off the question itself: "[f]forward",
 " "[b]backward", "[a]apply", "[s]apply and save".
 "
-" Note: Numbers for a choice is what this is here to stop. "Get [0]filename or
+" Numbers for a choice is what this is here to stop. "Get [0]filename or
 " [1]filename and path" made the reader carry an arbitrary pairing in their head
 " for as long as the question was on screen, and there is nothing about a 0 that
 " means "filename". A 0 and a 1 mean something on their own -- no and yes -- and
@@ -644,22 +648,21 @@ func! GrooVim_GetOptions(question, possibleOptions, factoryDefault, currentValue
 
   " Note: Shows the value the question ended up with, right after the answer.
   "
-  " Note: This is not decoration. Being a MESSAGE, and not merely the leftover
-  " of "input()", is what makes the answered questions STACK on the screen
-  " instead of each one wiping the previous, which is how the configuration
-  " builds itself into a summary and ends at the "Press ENTER" prompt. Measured
-  " on the terminal: with nothing echoed, the line is erased and nothing
-  " accumulates.
+  " This is not decoration. Being a MESSAGE, and not merely the leftover of
+  " "input()", is what makes the answered questions STACK on the screen instead
+  " of each one wiping the previous, which is how the configuration builds
+  " itself into a summary and ends at the "Press ENTER" prompt. Measured on the
+  " terminal: with nothing echoed, the line is erased and nothing accumulates.
   "
-  " Note: What was TYPED, or "[empty]" when nothing was. It also has to be non
-  " empty, or the line is erased just the same.
+  " What was TYPED, or "[empty]" when nothing was. It also has to be non empty,
+  " or the line is erased just the same.
   "
-  " Note: Spaces and nothing else. What was answered is already on the line,
-  " printed by "input()" itself, so there is nothing to add: this exists only to
-  " BE a message. An empty string would not do, the line would be erased.
+  " Spaces and nothing else. What was answered is already on the line, printed
+  " by "input()" itself, so there is nothing to add: this exists only to BE a
+  " message. An empty string would not do, the line would be erased.
   "
-  " Note: And being here, inside the asker itself, every question of GrooVim
-  " gets this for free, with no per-option sentence to write.
+  " And being here, inside the asker itself, every question of GrooVim gets this
+  " for free, with no per-option sentence to write.
   echomsg "   "
 
   return l:optionReturn
@@ -690,7 +693,7 @@ endfunc
 " Note: What the macro takes as "how many times": the "x" that runs to the
 " last/first line, or a whole number above zero.
 "
-" Note: The digits are checked with a pattern and not with "str2nr()". Vim reads
+" The digits are checked with a pattern and not with "str2nr()". Vim reads
 " "3abc" as 3, so the old test took it for a valid three.
 func! GrooVim_IsRepetitionCount(answer) abort
   if a:answer ==# "x"
@@ -701,8 +704,8 @@ endfunc
 
 " Note: A whole number above zero, and nothing else.
 "
-" Note: Checked with a pattern and not with "str2nr()". Vim reads "3abc" as 3,
-" so a test made of "str2nr()" alone takes it for a valid three.
+" Checked with a pattern and not with "str2nr()". Vim reads "3abc" as 3, so a
+" test made of "str2nr()" alone takes it for a valid three.
 func! GrooVim_IsPositiveNumber(answer) abort
   return a:answer =~ '^\d\+$' && str2nr(a:answer) > 0
 endfunc
@@ -728,7 +731,7 @@ func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) abort
   return 0
 endfunc
 
-" Note: Highlight matches when jumping to next! This rewires n and N to do the
+" Note: Highlight matches when jumping to next. This rewires n and N to do the
 " highlighing the match in red.
 nnoremap <silent> <expr> n ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'n' : 'N') : (g:grooVimSearchFoward ? 'N' : 'n')) . ":call GrooVim_HLNext(\"f\", 0.4, \"1\", 1)<cr>"
 nnoremap <silent> <expr> N ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'N' : 'n') : (g:grooVimSearchFoward ? 'n' : 'N')) . ":call GrooVim_HLNext(\"b\", 0.4, \"0\", 1)<cr>"
