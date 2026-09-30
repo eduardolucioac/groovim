@@ -188,6 +188,7 @@ let s:GrooVim_Parts = [
  \ ["session",     "the session, and every way of closing"],
  \ ["shortcuts",   "the F keys: CommandZ, and the list every shortcut is written in"],
  \ ["menu",        "the menu of F10"],
+ \ ["dialog",      "the windows that say something and wait: the About, and what comes after it"],
  \ ["tabs",        "the tab line, the names of what is open, the help window"],
  \ ["macro",       "macros, saving a copy, and the case of a word"],
  \ ["appearance",  "colours, the cursor, the status bar"],

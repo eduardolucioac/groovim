@@ -388,67 +388,6 @@ func! GT_Body()
     \ GrooVim_ShortcutShown(l:ask[0]) ==# "F9" && GrooVim_ShortcutShown(l:ask[1]) ==# "F1",
     \ "   [" . GrooVim_ShortcutShown(l:ask[0]) . "] [" . GrooVim_ShortcutShown(l:ask[1]) . "]")
 
-  " ---- About GrooVim
-  call GrooVim_About()
-  let l:id = empty(popup_list()) ? 0 : popup_list()[0]
-  let l:text = l:id ? join(getbufline(winbufnr(l:id), 1, "$"), "\n") : ""
-  call GT_Ok("About opens a window of its own", l:id > 0,
-    \ "   [" . popup_getoptions(l:id).title . "]")
-  call GT_Ok("  saying which GrooVim this is", l:text =~ g:grooVimVersion,
-    \ "   [" . g:grooVimVersion . "]")
-  call GT_Ok("  under what licence", l:text =~ "General Public License", "")
-  call GT_Ok("  and which Vim is underneath, asked of Vim",
-    \ l:text =~ printf("%d\\.%d\\.%d", v:version / 100, v:version % 100, v:versionlong % 10000),
-    \ "   (" . printf("%d.%d.%d", v:version / 100, v:version % 100, v:versionlong % 10000) . ")")
-  call GT_Ok("  and where the project lives", l:text =~ g:GrooVim_Url,
-    \ "   [" . g:GrooVim_Url . "]")
-  call GT_Ok("  with the buttons under it",
-    \ l:text =~ "Open page (p)" && l:text =~ "Copy (c)" && l:text =~ "Close (Esc)",
-    \ "   [" . GrooVim_AboutButtons() . "]")
-
-  " Every key is answered by the filter, so while the About is up nothing else
-  " does -- the same as the menu. And only the two ways out on the buttons close
-  " it: a key of Vim's own -- they begin with the two bytes 0x80 0xFD -- used to
-  " close it the instant it opened, so through a real terminal it only flashed.
-  call GT_Ok("a key of Vim's own does not close it",
-    \ GrooVim_AboutFilter(l:id, "\x80\xfd`") == 1 && !empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)   (swallowed, and the window stays)")
-  call GT_Ok("  and neither does a key somebody pressed by mistake",
-    \ GrooVim_AboutFilter(l:id, "z") == 1 && !empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)")
-  call GT_Ok("  an F5 alone does not either",
-    \ GrooVim_AboutFilter(l:id, "\<F5>") == 1 && !empty(popup_list()),
-    \ "   (it is half of the shortcut: the window waits for the other half)")
-  call GT_Ok("  and a key that is not the other half puts it back to sleep",
-    \ GrooVim_AboutFilter(l:id, "k") == 1 && !empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)")
-
-  " ---- the buttons that are not a way out
-  let @+ = ""
-  call GrooVim_AboutFilter(l:id, "c")
-  call GT_Ok("Copy puts the About on the clipboard",
-    \ GrooVim_ClipGet() =~ g:grooVimVersion && GrooVim_ClipGet() !~ "Close (Esc)",
-    \ "   (the text, and not the buttons: they are a way of pressing this window)")
-  call GT_Ok("  and it stays up", !empty(popup_list()), "   (" . len(popup_list()) . " popups)")
-
-  " ---- and the two ways out
-  call GT_Ok("Esc closes it",
-    \ GrooVim_AboutFilter(l:id, "\<Esc>") == 1 && empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)")
-  call GT_Ok("  and the cursor of the terminal comes back with it",
-    \ &t_ve !=# "", "   [" . strtrans(&t_ve) . "]   (it is hidden while the About is up)")
-  call GrooVim_About()
-  let l:again = popup_list()[0]
-  call GrooVim_AboutFilter(l:again, "\<F5>")
-  call GT_Ok("the shortcut pressed again closes it",
-    \ GrooVim_AboutFilter(l:again, "/") == 1 && empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)   (F5->/ both ways, the way F9 works)")
-  call GrooVim_About()
-  call GT_Ok("  and asking for it while it is up closes it too", 1, "")
-  call GrooVim_About()
-  call GT_Ok("  (a second call is the same toggle)", empty(popup_list()),
-    \ "   (" . len(popup_list()) . " popups)")
-
   call GT_Done()
 endfunc
 

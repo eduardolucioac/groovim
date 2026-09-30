@@ -300,6 +300,10 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: It is the <F1> of Vim and nothing of GrooVim: no mapping of ours stands in front of it. On a Vim file, K over a word opens the help OF THAT WORD, which is what the keywordprg of Vim is for;
         - Note: In visual mode it does nothing -- measured, and it is Vim: <Help> is not a visual mode command;
     - `F5->/` - What GrooVim is: the version, the licence, and the Vim underneath *(normal mode/insert/visual)*;
+        - Note: It is a DIALOGUE, and every dialogue of GrooVim is answered the same way: <Left> and <Right> walk the buttons, <Enter> presses the blue one, the letter beside a label presses that one, and the mouse clicks any of them;
+        - Note: c copies what a dialogue says -- this one and every other -- which is why there is no button for it;
+        - Note: An address in a dialogue is a link: click it and it opens where you open a page. With no desktop, which is every GrooVim reached over SSH, the address goes to the clipboard instead, and the clipboard travels through the terminal to the machine you are sitting at;
+        - Note: The same F5->/ closes it, and so does the way out on it;
 
 <!-- shortcuts: end -->
 

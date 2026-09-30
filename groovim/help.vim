@@ -304,7 +304,13 @@ let g:GrooVim_Shortcuts = [
  \   "In visual mode it does nothing -- measured, and it is Vim: |<Help>| is not a visual mode command"
  \  ]},
  \ {"where": "?", "group": "F5", "key": "/", "break": 1, "modes": "niv", "run": 'call GrooVim_About()',
- \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim underneath"}
+ \  "menu": "About GrooVim", "what": "What GrooVim is: the version, the licence, and the Vim underneath",
+ \  "notes": [
+ \   "It is a DIALOGUE, and every dialogue of GrooVim is answered the same way: |<Left>| and |<Right>| walk the buttons, |<Enter>| presses the blue one, the letter beside a label presses that one, and the mouse clicks any of them",
+ \   "|c| copies what a dialogue says -- this one and every other -- which is why there is no button for it",
+ \   "An address in a dialogue is a link: click it and it opens where you open a page. With no desktop, which is every GrooVim reached over SSH, the address goes to the clipboard instead, and the clipboard travels through the terminal to the machine you are sitting at",
+ \   "The same |F5->/| closes it, and so does the way out on it"
+ \  ]}
  \ ]
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
@@ -409,10 +415,6 @@ endfunc
 " handed it -- three uses, one address.
 let g:GrooVim_Url = get(g:, "GrooVim_Url", "https://github.com/eduardolucioac/groovim")
 
-let s:aboutId = 0
-let s:aboutText = ""
-let s:aboutWaiting = 0
-
 " Note: What GrooVim is, in the shape the "?" menu of Notepad++ ends with: the
 " name, the version, whose it is, under what licence, and where it lives.
 "
@@ -434,148 +436,35 @@ func! GrooVim_AboutLines() abort
    \ "F9 opens the help of GrooVim, F1 the help of Vim."]
 endfunc
 
-" Note: The buttons, which in a terminal are a line of text and a key each. The
-" key is written beside the word, the way a dialogue of Notepad++ underlines the
-" letter that presses the button.
-func! GrooVim_AboutButtons() abort
-  return "[ Open page (p) ]   [ Copy (c) ]   [ Close (Esc) ]"
-endfunc
-
-" Note: Opens it, and closes it if it is already up -- the same key both ways,
-" which is what F9 does with the help.
+" Note: The About is a dialogue and nothing else: the text above, a button that
+" opens the page and a way out. Everything a dialogue can do -- the arrows, the
+" Enter, the mouse, the "c" that copies, the link -- it can do because it is one,
+" and not because it is the About.
+"
+" Note: Opening it while it is up closes it, which is what F9 does with the help.
+" The two keys of the shortcut are also given to the dialogue, so pressing it
+" again over the window closes it as well: while a dialogue is up, it is the only
+" thing reading keys, and the CommandZ never sees them.
+"
+" Note: The key of the way out is written "Esc" because that is what the button
+" says. The Esc itself is answered by the dialogue before any button is looked
+" at, so what this writes is the label and not a key anybody has to match.
 func! GrooVim_About() abort
 
-  if s:aboutId > 0
-    call popup_close(s:aboutId)
+  if GrooVim_DialogUp()
+    call GrooVim_DialogClose()
     return
   endif
 
-  let l:lines = GrooVim_AboutLines()
+  call GrooVim_Dialog({
+   \ "title": " About GrooVim ",
+   \ "lines": GrooVim_AboutLines(),
+   \ "shortcut": ["\<F5>", "/"],
+   \ "buttons": [
+   \  {"label": "Open page", "key": "p",
+   \   "run": "GrooVim_DialogPage", "args": [g:GrooVim_Url]},
+   \  {"label": "Close", "key": "Esc", "close": 1}]})
 
-  " Note: What the clipboard takes is the TEXT, without the buttons: they are a
-  " way of pressing this window and not something it says.
-  let s:aboutText = join(l:lines, "\n")
-
-  " Note: A popup where there is one, and the screen where there is not -- the
-  " same Vim that has no menus to open this from can still be asked for it by
-  " its key, and it has to answer something.
-  if has("popupwin")
-    call GrooVim_CursorHide()
-    let s:aboutId = popup_dialog(l:lines + ["", GrooVim_AboutButtons()],
-     \ {"title": " About GrooVim ",
-     \ "padding": [0, 1, 0, 1], "highlight": "GrooVimMenu",
-     \ "mapping": 0, "filter": "GrooVim_AboutFilter",
-     \ "callback": "GrooVim_AboutClosed"})
-    return
-  endif
-
-  for l:line in l:lines + ["", GrooVim_AboutButtons()]
-    echo l:line
-  endfor
-  while 1
-    let l:key = getchar()
-    let l:key = type(l:key) == type(0) ? nr2char(l:key) : l:key
-    if l:key ==# "c"
-      call GrooVim_AboutCopy()
-    elseif l:key ==# "p"
-      call GrooVim_AboutPage()
-    else
-      break
-    endif
-  endwhile
-
-endfunc
-
-" Note: The address, handed to whatever the desktop opens addresses with -- there
-" is no browser of ours, and there should not be one.
-"
-" With no desktop to open it on, which is every GrooVim reached over SSH, the
-" address goes to the clipboard instead: that is the useful half of "open the
-" page" when there is nothing to open it in, and GrooVim's clipboard travels
-" through the terminal, so it lands on the machine you are SITTING at.
-func! GrooVim_AboutPage() abort
-
-  let l:opener = executable("xdg-open") ? "xdg-open"
-   \ : (executable("open") ? "open" : "")
-
-  if l:opener ==# "" || (l:opener ==# "xdg-open"
-   \ && empty($DISPLAY) && empty($WAYLAND_DISPLAY))
-    call GrooVim_ClipSet(g:GrooVim_Url)
-    call GrooVim_GrooVimBarMsg("No desktop here, so the address went to the clipboard!", 6)
-    return
-  endif
-
-  " Note: A job and not a "system()", for the same reason the clipboard uses one:
-  " a browser starting up is not something Vim should be waiting for.
-  call job_start([l:opener, g:GrooVim_Url],
-   \ {"in_io": "null", "out_io": "null", "err_io": "null"})
-  call GrooVim_GrooVimBarMsg("The project page went to your browser!", 4)
-
-endfunc
-
-func! GrooVim_AboutCopy() abort
-  call GrooVim_ClipSet(s:aboutText)
-  call GrooVim_GrooVimBarMsg("The About is on the clipboard!", 4)
-endfunc
-
-" Note: While it is up, it is the only thing there is -- the same as the menu.
-" EVERY key comes here, so nothing walks the file behind it, and only the two
-" ways out written on the buttons close it: "Esc", and the shortcut that opened
-" it.
-"
-" The shortcut that opened it is read HERE, both keys of it, and not handed back
-" to the CommandZ: while this window is up it is the only thing reading keys at
-" all. Measured -- with mappings on, the "F5" handed back never reached this
-" filter again: Vim had already turned it into the command its mapping says, and
-" what arrived here was that command, letter by letter.
-"
-" The keys VIM sends are swallowed and nothing else. They begin with the two
-" bytes 0x80 0xFD, they are nobody's keystroke, and one of them -- measured,
-" "<80><fd>`" -- used to arrive on its own and shut the window in the instant it
-" opened, so through a real terminal the About did nothing but flash.
-func! GrooVim_AboutFilter(id, key) abort
-
-  if a:key[0:1] ==# "\x80\xfd"
-    return 1
-  endif
-
-  if a:key ==# "\<Esc>"
-    call popup_close(a:id)
-    return 1
-  endif
-
-  " Note: The other half of "F5->/", the shortcut pressed again. Anything else
-  " arriving after the F key is simply not the shortcut, and nothing happens.
-  if s:aboutWaiting
-    let s:aboutWaiting = 0
-    if a:key ==# "/"
-      call popup_close(a:id)
-    endif
-    return 1
-  endif
-
-  if a:key ==# "\<F5>"
-    let s:aboutWaiting = 1
-    return 1
-  endif
-
-  if a:key ==# "p"
-    call GrooVim_AboutPage()
-  elseif a:key ==# "c"
-    call GrooVim_AboutCopy()
-  endif
-
-  return 1
-
-endfunc
-
-" Note: However it was closed, the cursor of the terminal comes back. On the
-" callback and not beside the "popup_close" above, because that is the one place
-" every way out goes through.
-func! GrooVim_AboutClosed(id, result) abort
-  let s:aboutId = 0
-  let s:aboutWaiting = 0
-  call GrooVim_CursorShow()
 endfunc
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
