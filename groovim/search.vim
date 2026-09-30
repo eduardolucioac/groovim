@@ -244,6 +244,22 @@ let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
 " asked on the search screen of "F5->c" beside it.
 let g:searchReplace_WholeWord = get(g:, "searchReplace_WholeWord", 0)
 let g:grooVimSearchFoward = 1
+
+" Note: The keys that walk between what a search found, and they are here and
+" not with the screens that ask about a search: what they call, "GrooVim_HLNext",
+" is written above them, and a key written apart from the function it presses is
+" a key nobody finds.
+"
+" Each of them paints the match it lands on for four tenths of a second -- the
+" blink is what tells you WHICH of the matches you are on, when every one of
+" them is highlighted the same. The call before the jump takes the last paint
+" off.
+"
+" Which way is forward is asked of two things: "v:searchforward", which is Vim's
+" and says how the search was typed, and "g:grooVimSearchFoward", which is ours
+" and says which way the answers on the search screen asked for.
+nnoremap <silent> <expr> n ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'n' : 'N') : (g:grooVimSearchFoward ? 'N' : 'n')) . ":call GrooVim_HLNext(\"f\", 0.4, \"1\", 1)<cr>"
+nnoremap <silent> <expr> N ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'N' : 'n') : (g:grooVimSearchFoward ? 'n' : 'N')) . ":call GrooVim_HLNext(\"b\", 0.4, \"0\", 1)<cr>"
 func! GrooVim_EasySearch(mod) range abort
 
   try

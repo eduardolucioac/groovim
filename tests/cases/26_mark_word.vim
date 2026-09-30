@@ -6,6 +6,9 @@
 exec "source " . expand("<sfile>:p:h") . "/_common.vim"
 call GT_Name(expand("<sfile>:t:r"))
 
+let g:GT_SEARCH = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/search.vim"
+let g:GT_OPTIONS = fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/options.vim"
+
 " Which columns of a screen line are painted with the mark.
 "
 " "screenattr" is the only honest way to ask: a match put up with "matchadd" is
@@ -132,6 +135,35 @@ func! GT_Body()
   call GT_Ok("the panels keep their own, on their own buffer",
     \ GT_FunctionText("GrooVim_SearchGuyPanelSetup") =~ "2-LeftMouse",
     \ "   (there it means \"take me to this line\")")
+
+  " ---- and the keys that walk between what a search found
+  "
+  " They paint the match they land on for four tenths of a second, which is what
+  " tells you WHICH of them you are on when every one is highlighted the same.
+  "
+  " They were written at the end of the settings part, which is about the
+  " screens of F5->c, while the function they call lives in the search part. A
+  " key written apart from the thing it presses is a key nobody finds.
+  %delete _
+  call setline(1, ["alpha one", "nothing", "alpha two", "nothing", "alpha three"])
+  let @/ = "alpha"
+  call cursor(1, 1)
+  call feedkeys("n", "x")
+  call GT_Ok("n goes to the next match", line(".") == 3, "   (line " . line(".") . ")")
+  " The paint cannot be caught from here: the blink is SYNCHRONOUS -- it paints,
+  " redraws, sleeps and takes it off -- so by the time the key has returned
+  " there is nothing left to look at. What is asked is that it still blinks.
+  call GT_Ok("  and blinks on the one it landed on",
+    \ GT_FunctionText("GrooVim_HLNext") =~ "matchadd('WhiteOnRed'" &&
+    \ GT_FunctionText("GrooVim_HLNext") =~ "sleep" &&
+    \ GT_FunctionText("GrooVim_HLNext") =~ "matchdelete",
+    \ "   (red going forward, blue coming back)")
+  call feedkeys("N", "x")
+  call GT_Ok("N goes back", line(".") == 1, "   (line " . line(".") . ")")
+  call GT_Ok("and both are written where the search is",
+    \ !empty(filter(readfile(g:GT_SEARCH), 'v:val =~ "nnoremap .*<expr> n "')) &&
+    \ empty(filter(readfile(g:GT_OPTIONS), 'v:val =~ "GrooVim_HLNext"')),
+    \ "   (they call GrooVim_HLNext, which is in search.vim)")
 
   call GT_Done()
 endfunc

@@ -731,8 +731,3 @@ func! GrooVim_ValidateOptions(optionNow, possibleOptions, defaultOption) abort
   return 0
 endfunc
 
-" Note: Highlight matches when jumping to next. This rewires n and N to do the
-" highlighing the match in red.
-nnoremap <silent> <expr> n ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'n' : 'N') : (g:grooVimSearchFoward ? 'N' : 'n')) . ":call GrooVim_HLNext(\"f\", 0.4, \"1\", 1)<cr>"
-nnoremap <silent> <expr> N ":call GrooVim_HLNext(\"\", \"\", \"\", 0)<cr>" . (v:searchforward ? (g:grooVimSearchFoward ? 'N' : 'n') : (g:grooVimSearchFoward ? 'n' : 'N')) . ":call GrooVim_HLNext(\"b\", 0.4, \"0\", 1)<cr>"
-
