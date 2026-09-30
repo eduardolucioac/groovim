@@ -125,7 +125,7 @@ endfunc
 " items of "cursor()" are the position as it is, virtual offset included, and
 " only the fourth one changes. Moving the cursor here would drag it out of the
 " areas without character, which is exactly what this function exists to travel
-" over! By Questor
+" over.
 func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep) abort
   if (a:direction != "u" && a:direction != "d") || a:columnToKeep <= 0
     return

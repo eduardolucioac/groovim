@@ -260,6 +260,20 @@ func! GT_Body()
     \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
     \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
 
+  " ---- and no note is signed
+  "
+  " They used to end in "! By Questor", forty one of them. The name of whoever
+  " wrote a line is in the log, where it cannot drift; in the source it is noise
+  " that every reader reads and nobody needs.
+  "
+  " The first pass at this left the ones the reflow had SPLIT -- "...! By" at the
+  " end of a line and "Questor" at the start of the next -- which is why this
+  " looks at the words and not at the line.
+  let l:signed = filter(copy(GT_SourceLines()), 'v:val =~ "Questor"')
+  call GT_Ok("no note is signed", empty(l:signed),
+    \ "   " . (empty(l:signed) ? "(the log is where a name belongs)"
+    \ : string(l:signed[0 : 4])))
+
   " ---- the debugger of 2014 is gone
   call GT_Ok("no debugger left in the source",
     \ !exists("*GrooVim_ToggleDbg") && !exists("g:enable_debugger_vim"), "")

@@ -73,8 +73,7 @@ func! GrooVim_OptsUpdate(valueToSearch, valueToReplace, persistently) abort
       call add(g:optsTemp, a:valueToReplace)
     endif
 
-    " Note: Written down so the question at the end of the screen can keep it!
-    " By Questor
+    " Note: Written down so the question at the end of the screen can keep it.
     call add(g:GrooVim_OptsPending, [a:valueToSearch, a:valueToReplace])
 
     exec a:valueToReplace
@@ -241,8 +240,7 @@ endfunc
 " asks them: the letter, then what Vim has to be told.
 "
 " Note: "utf-16le" and "utf-16" are the LE and BE of that menu, and both carry a
-" BOM there -- a UTF-16 file without one cannot be told apart from bytes! By
-" Questor
+" BOM there -- a UTF-16 file without one cannot be told apart from bytes.
 let g:GrooVim_Encodings = {
       \ "a": {"name": "ansi",          "fenc": "latin1",   "bom": 0},
       \ "u": {"name": "utf-8",         "fenc": "utf-8",    "bom": 0},
@@ -257,8 +255,7 @@ let g:GrooVim_LineEndings = {
       \ "m": {"name": "Macintosh (CR)","ff": "mac"},
       \ }
 
-" Note: Which of them this buffer is on, as the letter that answers for it! By
-" Questor
+" Note: Which of them this buffer is on, as the letter that answers for it.
 func! GrooVim_EncodingNow() abort
   let l:enc = &fileencoding ==# "" ? &encoding : &fileencoding
   if l:enc =~? "^utf-16le" | return "l" | endif
@@ -294,8 +291,7 @@ func! GrooVim_ConfigureFile() range abort
   "
   " Note: The meanings are messages and only the last line is the prompt. A
   " prompt of more than one screen line overflows the message area, and the
-  " hit-enter Vim raises for that EATS the first key you press -- measured! By
-  " Questor
+  " hit-enter Vim raises for that EATS the first key you press -- measured.
   call GrooVim_ScreenSay("Change/convert encoding:")
   echomsg "1 - [a]nsi, [u]tf-8, utf-8 with [b]om, utf-16 [l]e, utf-16 b[e] " .
    \ GrooVim_OptionsToPrompt(["a", "u", "b", "l", "e"], "", GrooVim_EncodingNow())
@@ -583,9 +579,10 @@ endfunc
 "
 " Note: "in use" and not "now", which it said for years. On the screen of the
 " file settings, next to a question about CONVERTING, "now" read as part of the
-" answer -- convert it now? What it means is the value the option is on! By
-" Questor Note: The prompt of a question whose answer is a NUMBER and not one of
-" a list. Same shape as the one above, so the screens read alike.
+" answer -- convert it now? What it means is the value the option is on.
+"
+" Note: The prompt of a question whose answer is a NUMBER and not one of a list.
+" Same shape as the one above, so the screens read alike.
 func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"

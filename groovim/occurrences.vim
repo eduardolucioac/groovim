@@ -164,8 +164,7 @@ if g:enable_nerdtree_vim
       call GrooVim_TreeEverywhere()
 
       " Note: And the cursor goes into it, because you asked to read it -- the
-      " same thing the list of marked lines does when it is asked for! By
-      " Questor
+      " same thing the list of marked lines does when it is asked for.
       if g:GrooVim_TreeOpen
         silent! NERDTreeFocus
       endif
@@ -383,8 +382,7 @@ func! GrooVim_PanelFocus(name, byPath) abort
   return 0
 endfunc
 
-" Note: Whether this tab holds any document of yours, or only accessories! By
-" Questor
+" Note: Whether this tab holds any document of yours, or only accessories.
 func! GrooVim_SearchGuyTabHasFile() abort
   for l:buffer in tabpagebuflist(tabpagenr())
     if !GrooVim_IsHelperBuffer(bufname(l:buffer))

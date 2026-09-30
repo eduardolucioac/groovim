@@ -46,8 +46,7 @@ endfunc
 " Note: And it is the LOWEST one nobody is using, not the next of a counter that
 " only grows: close "new 2" of "new 1, new 2, new 3" and the one after it is
 " "new 2" again. That is how Notepad++ hands them out, and a counter would have
-" you at "new 47" on a morning when three documents were ever open at once! By
-" Questor
+" you at "new 47" on a morning when three documents were ever open at once.
 func! GrooVim_NewNameOf(buffer) abort
 
   if !GrooVim_IsADocument(a:buffer)
@@ -175,8 +174,7 @@ set tabline=%!GrooVim_TabLine()
 " toggle.
 "
 " Note: The number is enough and does not go stale: the help opens at the END of
-" the tab line, so no tab in front of it ever changes number while it is up! By
-" Questor
+" the tab line, so no tab in front of it ever changes number while it is up.
 let s:helpCameFrom = 0
 
 func! GrooVim_ToogleGrooVimHelp() range abort

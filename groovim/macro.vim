@@ -58,7 +58,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     " Note: Asked ONCE, and repeated as it is until the answer serves. It used
     " to ask again with another sentence, "use a valid one!", which threw away
     " the part that tells you about the "x" just when you most needed to read
-    " it! By Questor
+    " it.
     let l:numberOfRepetitions = GrooVim_ScreenAsk(
      \ "Number of repetitions (use \"x\" to execute to last/first line): ",
      \ {answer -> GrooVim_IsRepetitionCount(answer)})
@@ -166,8 +166,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
     endif
 
-    " Note: The same as above, for the macro that runs a number of times! By
-    " Questor
+    " Note: The same as above, for the macro that runs a number of times.
     call GrooVim_CommandZRemember("F2", "101")
 
     let g:GrooVim_XenPlayRunningWithSearch = 0
@@ -201,8 +200,7 @@ func! GrooVim_DuplicateLine() abort
   "
   " Note: The whole view and not only the cursor, so that the line you were on
   " is still the line you are on, in the same column, and the window has not
-  " moved: "p" leaves the cursor on the COPY, which is not where you were! By
-  " Questor
+  " moved: "p" leaves the cursor on the COPY, which is not where you were.
   let l:view = winsaveview()
   let l:saved_reg = GrooVim_ClipGet()
   exec "norm! yyp"
@@ -260,8 +258,7 @@ nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 " question and what is DONE with the answer; the asking is the same.
 "
 " Note: The answers come back as [path, name]. There is no way out but a valid
-" answer or a Ctrl-C, which walks out of here and out of whoever called! By
-" Questor
+" answer or a Ctrl-C, which walks out of here and out of whoever called.
 func! GrooVim_AskFileWhere(what) abort
 
   let l:valueToPath = ""

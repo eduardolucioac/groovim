@@ -158,8 +158,7 @@ let g:GrooVim_EdgeColumn = get(g:, "GrooVim_EdgeColumn", 79)
 " Note: A teal was tried in its place, on the idea that a hue of its own would
 " read as a rule. It read as a stripe: one cell is all a terminal has to draw in
 " -- there is no half column -- so at that width the quiet colour is the one
-" that behaves like a line and the vivid one becomes a band. Back to the grey!
-" By Questor
+" that behaves like a line and the vivid one becomes a band. Back to the grey.
 highlight ColorColumn ctermbg=236 guibg=#303030
 
 " Note: "colorcolumn" is window local, so it is set on entering a window, the

@@ -160,8 +160,7 @@ func! GrooVim_TabClose() abort
   endif
 
   " Note: The accessories of a tab -- the occurrence list, the tree -- are not
-  " documents of yours, so the closing lands on the document beside them! By
-  " Questor
+  " documents of yours, so the closing lands on the document beside them.
   if GrooVim_IsHelperBuffer(expand("%:t"))
     call GrooVim_PutOnEditWindow()
     if GrooVim_IsHelperBuffer(expand("%:t"))
@@ -212,8 +211,7 @@ endfunc
 " is the number that held all of them.
 "
 " Note: And you can ask for "do that again" WITHOUT waiting at all: press the
-" same F key twice. That path takes 22ms and owes nothing to this number! By
-" Questor
+" same F key twice. That path takes 22ms and owes nothing to this number.
 "
 " Note: Two numbers used to sit beside this one, and neither was about you.
 "

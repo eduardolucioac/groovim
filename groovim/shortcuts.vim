@@ -98,8 +98,7 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   " repeats from now on.
   "
   " Note: And nothing at all, the budget spent, repeats what this key last ran.
-  " That is the whole of "do that again": press the key, do not press another!
-  " By Questor
+  " That is the whole of "do that again": press the key, do not press another.
   if l:key != "" && l:key !=# get(s:GrooVim_CommandZKeys, a:GrooVim_CommandZFCallerNow, "")
     if index(values(s:GrooVim_CommandZKeys), l:key) >= 0
       call feedkeys(l:key, "t")

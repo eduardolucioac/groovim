@@ -142,8 +142,7 @@ func! GrooVim_ShortcutRun(one, mode) abort
 endfunc
 
 " Note: The two keys a shortcut is made of, ready to be pressed: the F key and
-" then the letter -- or the real key code, for the ones that are not letters! By
-" Questor
+" then the letter -- or the real key code, for the ones that are not letters.
 func! GrooVim_ShortcutKeys(one) abort
 
   " Note: A key of its own -- "<C-c>", "<A-S-Up>", "m" -- and not a pair of an F
@@ -213,11 +212,12 @@ endfunc
 "
 " Note: "room" is how much the description may take. On a narrow terminal the
 " line would otherwise run past the edge and it is the RIGHT side that is lost
-" -- which is the shortcut, the one thing a menu of a keyboard editor is for! By
-" Questor Note: What a line of the menu READS. It is not the description: that
-" one explains, and is what the help of F9 and the README are written from,
-" while this one NAMES -- "Save as..." against "Saves under another name and
-" goes on editing THAT one".
+" -- which is the shortcut, the one thing a menu of a keyboard editor is for.
+"
+" Note: What a line of the menu READS. It is not the description: that one
+" explains, and is what the help of F9 and the README are written from, while
+" this one NAMES -- "Save as..." against "Saves under another name and goes on
+" editing THAT one".
 "
 " Note: The two go together and neither is the other cut short: a menu of a
 " conventional editor is a column of names, and the three dots at the end of one
@@ -282,8 +282,7 @@ func! GrooVim_MenuPaintBar() abort
 endfunc
 
 " Note: The names the colours are painted through. "prop_type_add" throws when
-" the name is already there, which it is the second time you open the menu! By
-" Questor
+" the name is already there, which it is the second time you open the menu.
 func! GrooVim_MenuColours() abort
   for l:pair in [["GrooVimMenuOn", "PopupSelected"],
    \ ["GrooVimMenuKey", "GrooVimMenuKey"], ["GrooVimMenuRule", "GrooVimMenuRule"]]
@@ -628,8 +627,7 @@ endfunc
 
 func! GrooVim_MenuEntryChosen(id, chosen) abort
 
-  " Note: A step sideways closed the old list, and this is only its echo! By
-  " Questor
+  " Note: A step sideways closed the old list, and this is only its echo.
   if s:menuSwitching
     return
   endif
@@ -649,8 +647,7 @@ func! GrooVim_MenuEntryChosen(id, chosen) abort
 
   " Note: "t" and not "x": the keys go into the typeahead and the CommandZ reads
   " them the way it reads yours. Running the command here would need this to
-  " know what each shortcut does, which is the one thing a menu must not know!
-  " By Questor
+  " know what each shortcut does, which is the one thing a menu must not know.
   call feedkeys(GrooVim_ShortcutKeys(g:GrooVim_MenuEntries[a:chosen - 1]), "t")
 
 endfunc

@@ -383,7 +383,7 @@ vnoremap <silent> <expr> <S-Tab> GrooVim_KeysIfCanChange("<<\<Esc>gv")
 " Note: Allows Tab on normal mode when the line is empty.
 inoremap <silent> <S-Down> <Esc>v:<C-u>call GrooVim_AdjustOnEnterVisualMode()<cr>v
 
-" Note: Exit visual mode! Questor
+" Note: Exit visual mode.
 vnoremap <silent> <S-Down> <Esc>:call GrooVim_VirtualEditAdjust()<cr>
 
 " Note: Leaves the current mode with "<S-Up>" or "<S-Down>".

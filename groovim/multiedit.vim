@@ -5,28 +5,14 @@
 " Note: Writing in several places at once: F2->n takes whole lines and F2->m
 " takes places of their own. Vim has one cursor, so the others are drawn and the
 " typing is repeated at each of them -- which is why this is a part and not a
-" mapping. Note: Writing in several places at once -- the multiple carets of
-" Notepad++, which are its "Shift+Alt+arrows" (a column) and its "Ctrl+click"
-" (wherever you like).
+" mapping. The ideia: Writing in several places at once -- the multiple carets
+" of Notepad++ (inspiration), which are its "Shift+Alt+arrows" (a column) and
+" its "Ctrl+click" (wherever you like).
 "
-" Note: Vim has neither. What it has is the visual BLOCK, and a block is not
-" this: you cannot type into it -- an "I" or an "A" is asked for first, the
-" other lines only change when you press "Esc", and the column is the same on
-" every line. Measured on four lines, entering the block and typing "XYZ": the
-" "X" ran as the "x" of Vim and took a character off each line.
-"
-" Note: There is a plugin for this, "vim-visual-multi", eight and a half
-" thousand lines in twenty five files, and inside its own mode it takes "m",
-" "M", "n", "N", "q", "Q", "s", "Tab" and most of the arrows with modifiers --
-" which here are the marked lines, the search, the tabs and the brackets. It
-" would not be a feature arriving, it would be half of GrooVim changing meaning
-" while the mode is up. What is here is the BASIC of it, written where the rest
-" of GrooVim is and in the keys GrooVim already uses.
-
-" Note: Where the other carets are: a line and a column each, and the one the
-" terminal really draws is not among them -- a terminal has ONE cursor, and the
-" others are painted as a colour on the character they sit on. It is what the
-" plugin does too.
+" Where the other carets are: a line and a column each, and the one the terminal
+" really draws is not among them -- a terminal has ONE cursor, and the others
+" are painted as a colour on the character they sit on. It is what the plugin
+" does too.
 let g:GrooVim_MultiPoints = []
 
 " Note: The colour the cursor of the terminal wears while the places are set --
@@ -56,8 +42,8 @@ let s:column = 0
 " between the two: the first one SEALS the places -- from there the arrows move
 " them all -- and the second one ends the whole thing.
 "
-" Note: One key for both because they are the same idea said twice: "I am done
-" with this". Done choosing, then done editing.
+" One key for both because they are the same idea said twice: "I am done with
+" this". Done choosing, then done editing.
 let s:marking = 0
 let s:anchor = []
 let s:far = 0
@@ -78,8 +64,8 @@ endif
 
 " Note: The carets are drawn with a match, which belongs to the WINDOW and not
 " to the buffer -- and that is right here: the carets of a run of typing belong
-" to the window you are typing in. Note: The cursor of the terminal is painted
-" AFTER the mode settles, which is what the part that paints it does with every
+" to the window you are typing in. The cursor of the terminal is painted AFTER
+" the mode settles, which is what the part that paints it does with every
 " colour: a "startinsert" has not happened yet when the function that asked for
 " it is still running.
 func! GrooVim_MultiCursorSoon() abort
@@ -123,8 +109,7 @@ func! GrooVim_MultiClear() abort
   call GrooVim_MultiDraw()
   call GrooVim_MultiKeysOff()
 
-  " Note: And the cursor of the terminal goes back to the colour of the mode! By
-  " Questor
+  " Note: And the cursor of the terminal goes back to the colour of the mode.
   if exists("*GrooVim_CursorColorForMode")
     call GrooVim_CursorColorForMode()
   endif
@@ -139,8 +124,8 @@ endfunc
 " are the block -- "Down" takes in one more line -- and in the places they are
 " how you WALK to the next place, so there they move nobody but you.
 "
-" Note: Which is not a taste either. Marking several places is choosing where
-" they are, and arrows that drag the carets already marked would take the chosen
+" Which is not a taste either. Marking several places is choosing where they
+" are, and arrows that drag the carets already marked would take the chosen
 " places away as you went looking for the next one.
 let s:moves = {
  \ "<C-Left>":  "b",
@@ -154,14 +139,12 @@ let s:movesColumn = {
  \ "<Right>":   "l"
  \ }
 
-" Note: The keys taken while the carets are up, and what they were before.
-"
-" Note: Taken and GIVEN BACK, and that is not the same as unmapped: "Ctrl+Left"
-" and "Ctrl+Right" are keys GrooVim already has in insert -- the word back and
-" the word forward -- and an "iunmap" of those would not restore them, it would
+" Note: The keys taken while the carets are up, and what they were before. Taken
+" and GIVEN BACK, and that is not the same as unmapped: "Ctrl+Left" and
+" "Ctrl+Right" are keys GrooVim already has in insert -- the word back and the
+" word forward -- and an "iunmap" of those would not restore them, it would
 " DELETE them, for the rest of the session. "maparg" with the fourth argument
-" hands the whole mapping over, and "mapset" puts it back exactly as it was! By
-" Questor
+" hands the whole mapping over, and "mapset" puts it back exactly as it was.
 let s:taken = []
 let s:kept = []
 
@@ -181,12 +164,11 @@ endfunc
 " "Up" and "Down" grow the block instead -- there they are the block, here they
 " are how you get to the next place.
 "
-" Note: Through "<Cmd>" and not through a "<C-o>:". The "<C-o>" steps out of
-" insert to run one command, and stepping out FIRES "InsertLeave". ":h map-cmd"
-" never leaves the mode at all -- and a motion run from inside it moves the
-" cursor just the same: measured, a caret on another line walking to ITS next
-" word while the real cursor walked to its own, with the mode still insert! By
-" Questor
+" Through "<Cmd>" and not through a "<C-o>:". The "<C-o>" steps out of insert to
+" run one command, and stepping out FIRES "InsertLeave". ":h map-cmd" never
+" leaves the mode at all -- and a motion run from inside it moves the cursor
+" just the same: measured, a caret on another line walking to ITS next word
+" while the real cursor walked to its own, with the mode still insert.
 func! GrooVim_MultiKeysOn(column) abort
 
   let l:all = copy(s:moves)
@@ -210,6 +192,7 @@ func! GrooVim_MultiKeysOn(column) abort
     " ending. Through "<Cmd>", which does not leave insert at all -- so nothing
     " has to be entered again afterwards, and nothing blinks.
     call GrooVim_MultiKeysTake("<Esc>", "<Cmd>call GrooVim_MultiSeal()<cr>")
+
   else
     call GrooVim_MultiKeysTake("<Down>", "<Cmd>call GrooVim_MultiMove('j')<cr>")
     call GrooVim_MultiKeysTake("<Up>", "<Cmd>call GrooVim_MultiMove('k')<cr>")
@@ -221,7 +204,7 @@ endfunc
 
 " Note: The places are chosen; from here they move together.
 "
-" Note: The keys are handed back and taken again, because which key does what is
+" The keys are handed back and taken again, because which key does what is
 " exactly what changed: the arrows were YOUR walk and are now everybody's
 " movement, and "Esc" was this, and is the end from here.
 func! GrooVim_MultiSeal() abort
@@ -236,9 +219,9 @@ func! GrooVim_MultiSeal() abort
 
   " Note: And they change COLOUR, from the orange of choosing to the yellow of
   " writing -- the cursor of the terminal with them, because it is one of the
-  " carets too. It is the answer to "can I write now?", given without a word! By
-  " Questor
+  " carets too. It is the answer to "can I write now?", given without a word.
   call GrooVim_MultiDraw()
+
   if exists("*GrooVim_CursorColorForMode")
     call GrooVim_CursorColorForMode()
   endif
@@ -266,13 +249,13 @@ endfunc
 
 " Note: Every caret moves, each one running the motion where IT is.
 "
-" Note: The letters still in the queue are written FIRST. They were typed where
-" the carets are NOW, and a caret that moved before they landed would write them
+" The letters still in the queue are written FIRST. They were typed where the
+" carets are NOW, and a caret that moved before they landed would write them
 " somewhere nobody asked for.
 "
-" Note: "keepjumps", because this is one key of yours and not one jump for every
-" caret there is -- Ctrl+O would otherwise walk you back through places you
-" never went.
+" "keepjumps", because this is one key of yours and not one jump for every caret
+" there is -- Ctrl+O would otherwise walk you back through places you never
+" went.
 func! GrooVim_MultiMove(motion) abort
 
   if empty(g:GrooVim_MultiPoints)
@@ -289,8 +272,7 @@ func! GrooVim_MultiMove(motion) abort
   " character and an "l" after it only goes past when "virtualedit" says it may
   " -- so the same key left the caret one column short wherever that option was
   " not what it usually is here, and a Del there took a character away instead
-  " of taking the line break away: measured, "bbb" coming back as "bb"! By
-  " Questor
+  " of taking the line break away: measured, "bbb" coming back as "bb".
   for l:which in range(len(g:GrooVim_MultiPoints))
     let l:point = g:GrooVim_MultiPoints[l:which]
     if a:motion ==# "end"
@@ -318,15 +300,15 @@ endfunc
 " Note: Walking to the next place: the cursor alone, one line at a time, keeping
 " the column it is in.
 "
-" Note: The column is carried HERE and not left to Vim. Vim keeps it in
-" "curswant", and coming into insert through one of these keys leaves that at
-" one, whatever column you were in: measured, marking at line 1 column 4 and
-" pressing "Down" landed on line 2 column 1. Written down and read back, the
-" walk goes where a walk goes.
+" The column is carried HERE and not left to Vim. Vim keeps it in "curswant",
+" and coming into insert through one of these keys leaves that at one, whatever
+" column you were in: measured, marking at line 1 column 4 and pressing "Down"
+" landed on line 2 column 1. Written down and read back, the walk goes where a
+" walk goes.
 "
-" Note: And it is picked up again whenever the cursor is somewhere else than
-" where the last walk left it -- which is what typing, or a word, or an end of
-" line, all do.
+" And it is picked up again whenever the cursor is somewhere else than where the
+" last walk left it -- which is what typing, or a word, or an end of line, all
+" do.
 let s:walkColumn = 0
 let s:walkLeft = []
 
@@ -396,8 +378,7 @@ func! GrooVim_MultiColumnStart() abort
    \ "Several lines at once: Up and Down take in lines, Esc ends it!", 4)
 
   " Note: "startinsert" and not an "i" fed as a key: fed keys would be read by
-  " whatever is waiting for a key, and the F key that brought us here is! By
-  " Questor
+  " whatever is waiting for a key, and the F key that brought us here is.
   startinsert
   call GrooVim_MultiCursorSoon()
 
@@ -438,8 +419,7 @@ endfunc
 " ends of the line -- and press it again where you want the next one.
 "
 " Note: No arrows are taken here, and that is the difference from the column:
-" there they grow the block, and here they are how you get to the next place! By
-" Questor
+" there they grow the block, and here they are how you get to the next place.
 func! GrooVim_MultiPoint() abort
 
   if !GrooVim_CanChange()
@@ -582,8 +562,7 @@ func! GrooVim_MultiFlush() abort
       " else because Vim does its work: there Vim did the work on the TEXT and
       " not on the caret, and a caret left on a line that no longer exists
       " writes where nobody is looking. Measured, typing after a backspace in
-      " the first column: a third letter appeared on a line with no caret! By
-      " Questor
+      " the first column: a third letter appeared on a line with no caret.
       call GrooVim_MultiJoined(l:atLine, l:atLine - 1, l:joinAt, -1, 0)
     elseif l:what ==# "\<Del>" && l:joinAt > 0
       call GrooVim_MultiJoined(l:atLine + 1, l:atLine, l:joinAt, -1, 0)
@@ -842,8 +821,7 @@ func! GrooVim_MultiKey(name) abort
   endif
 
   " Note: Nothing is changed while the places are still being chosen, and that
-  " includes these: an "Enter" there would move every place that is below it! By
-  " Questor
+  " includes these: an "Enter" there would move every place that is below it.
   if s:marking
     call GrooVim_GrooVimBarMsg(
      \ "Choosing where: press Esc to set the places, then write!", 3)
@@ -860,16 +838,14 @@ func! GrooVim_MultiKey(name) abort
   "
   " Note: An "<expr>" cannot empty it -- it is under the |textlock| , and a
   " buffer changed from there is a change that does not happen -- but a "<Cmd>"
-  " can: measured, a "setline" from inside one, with the mode still insert! By
-  " Questor
+  " can: measured, a "setline" from inside one, with the mode still insert.
   return "\<Cmd>call GrooVim_MultiTook('" . a:name . "')\<cr>" . l:key
 
 endfunc
 
 " Note: What a key that is not a character needs to know, asked while it is
 " still true: how long the line that RECEIVES a join was -- for the real cursor
-" and for every caret -- because after the key the two lines are already one! By
-" Questor
+" and for every caret -- because after the key the two lines are already one.
 func! GrooVim_MultiTook(name) abort
 
   let l:key = s:keyOf[a:name]
@@ -949,8 +925,7 @@ endfunc
 " Note: "mode(1)" and not "mode()". Inside a "<C-o>" the short one says "n" --
 " it is insert-normal, and the short form calls that normal -- so asking the
 " short one threw the carets away on the very key that was adding another:
-" measured, the list going from one caret to one OTHER caret instead of two! By
-" Questor
+" measured, the list going from one caret to one OTHER caret instead of two.
 func! GrooVim_MultiEndedReally() abort
 
   if mode(1) =~# "^i" || mode(1) =~# "^ni"

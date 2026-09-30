@@ -133,8 +133,7 @@ endfunc
 
 " Note: Draws the sign of one mark, taking down whatever was there for it. The
 " sign says whether the line carries a note: two signs, so that a line with
-" something written on it can be told from a line without, at a glance! By
-" Questor
+" something written on it can be told from a line without, at a glance.
 func! GrooVim_BookmarkSignSet(file, one) abort
   let l:buffer = bufnr(a:file)
   if l:buffer < 0 || !bufloaded(l:buffer)
@@ -149,8 +148,7 @@ func! GrooVim_BookmarkSignSet(file, one) abort
 endfunc
 
 " Note: Puts the signs of a file up, all of them. Called when a window shows the
-" file, which is the moment the marks of a file opened again have to appear! By
-" Questor
+" file, which is the moment the marks of a file opened again have to appear.
 func! GrooVim_BookmarksPlace() abort
   let l:file = GrooVim_BookmarksFileHere()
   if l:file ==# "" || !has_key(g:GrooVim_Bookmarks, l:file)
@@ -202,8 +200,7 @@ endfunc
 " it first would be a step for nothing.
 "
 " Note: The note that is there comes WRITTEN in the answer, to be edited or
-" accepted, and an empty answer takes the note off and leaves the mark! By
-" Questor
+" accepted, and an empty answer takes the note off and leaves the mark.
 func! GrooVim_BookmarkAnnotate() abort
 
   let l:file = GrooVim_BookmarksFileHere()
@@ -414,8 +411,7 @@ func! GrooVim_BookmarkList() abort
 
   " Note: And the cursor goes INTO the list, because you asked for it to read
   " it. The sync leaves you where it found you -- it runs on its own, at moments
-  " nobody chose -- so the one moment somebody DID choose says so here! By
-  " Questor
+  " nobody chose -- so the one moment somebody DID choose says so here.
   call GrooVim_PanelFocus(s:panel, 0)
 
 endfunc
@@ -581,8 +577,7 @@ endfunc
 " something that can be walked to.
 "
 " Note: The sign comes off the file as well, and only if the file is open: a
-" mark of a file nobody has open is a line in a list and nothing more! By
-" Questor
+" mark of a file nobody has open is a line in a list and nothing more.
 func! GrooVim_BookmarkListDelete() abort
 
   let l:index = line(".") - 1
@@ -743,8 +738,7 @@ nnoremap <silent> M :call GrooVim_BookmarkWalk(0)<cr>
 "
 " Note: And only for a file that HAS marks. This runs on every movement of the
 " cursor, in every buffer, so the first thing it asks is the cheapest one there
-" is -- and a file nobody has marked is out before anything else happens! By
-" Questor
+" is -- and a file nobody has marked is out before anything else happens.
 let s:notePopup = 0
 let s:noteLine = 0
 

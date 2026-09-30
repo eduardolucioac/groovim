@@ -539,8 +539,7 @@ if &t_Co < 256 && !has("gui_running")
 endif
 
 " Note: What to mark: the selection if there is one, the word under the cursor
-" otherwise -- the same two things every other command of GrooVim works on! By
-" Questor
+" otherwise -- the same two things every other command of GrooVim works on.
 func! GrooVim_MarkWhat(mode) abort
   if a:mode ==# "v"
     let l:saved = GrooVim_ClipGet()

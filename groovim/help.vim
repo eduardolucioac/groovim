@@ -329,8 +329,7 @@ func! GrooVim_ShortcutKeyShown(one) abort
   return "       |" . l:name . "|- "
 endfunc
 
-" Note: Which modes a key answers in, spelled the way the help spells it! By
-" Questor
+" Note: Which modes a key answers in, spelled the way the help spells it.
 func! GrooVim_ShortcutModes(modes) abort
   let l:spelled = []
   for l:pair in [["n", "normal mode"], ["i", "insert"], ["v", "visual"]]
@@ -378,8 +377,7 @@ func! GrooVim_ShortcutsMarkdown() abort
   return l:out
 endfunc
 
-" Note: The F group sections of the help, written out of the list above! By
-" Questor
+" Note: The F group sections of the help, written out of the list above.
 func! GrooVim_ShortcutsHelp() abort
 
   let l:out = []
@@ -709,5 +707,4 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 
 " Note: The options you chose to KEEP are read in the ".vimrc", BEFORE any part
 " of GrooVim -- see "GrooVim_OptsFile" there. They used to be read here, at the
-" very end, and that only worked for the ones consulted while you type! By
-" Questor
+" very end, and that only worked for the ones consulted while you type.
