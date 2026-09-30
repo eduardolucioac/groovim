@@ -88,6 +88,20 @@ call GT_Ok("  and it is drawn as one",
 call GT_Ok("  with the underline a link has always had",
   \ synIDattr(synIDtrans(hlID("GrooVimDialogLink")), "underline") ==# "1", "")
 
+" ---- and a click on it goes the same road the button goes
+"
+" Which matters for the half of the world with no desktop to open a page on --
+" every GrooVim reached over SSH. That road ends on the clipboard instead, and a
+" link that opened addresses by itself would not have it.
+call GT_Ok("the link and the button take the same road",
+  \ GT_FunctionText("GrooVim_DialogClicked") =~ "GrooVim_DialogPage" &&
+  \ GT_FunctionText("GrooVim_About") =~ "GrooVim_DialogPage",
+  \ "   (GrooVim_DialogPage, which is where the clipboard fallback lives)")
+call GT_Ok("  and that road knows it may have nowhere to open one",
+  \ GT_FunctionText("GrooVim_DialogPage") =~ "DISPLAY" &&
+  \ GT_FunctionText("GrooVim_DialogPage") =~ "GrooVim_ClipSet",
+  \ "   (no desktop: the address goes to the clipboard, and it travels through the terminal)")
+
 " ---- the two ways out
 call GrooVim_DialogFilter(GT_Dialog(), "\<Esc>")
 call GT_Ok("Esc closes it", GT_Dialog() == 0, "   (" . len(popup_list()) . " popups)")
