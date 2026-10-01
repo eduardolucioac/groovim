@@ -280,7 +280,6 @@ func! GrooVim_NormalBackspace() abort
   let l:continue = 1
 
   if col(".") == 1 && l:continue == 1
-    " call GrooVim_PauseExecution("A")
     call feedkeys("\i")
     call feedkeys("\<Backspace>")
     call feedkeys("\<Esc>")
@@ -288,7 +287,6 @@ func! GrooVim_NormalBackspace() abort
   endif
 
   if col(".") > 1 && l:continue == 1
-    " call GrooVim_PauseExecution("A")
     call feedkeys("\<Left>")
     call feedkeys("\"_x")
     let l:continue = 0

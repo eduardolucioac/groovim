@@ -176,9 +176,9 @@ endfunc
 " ends visual mode and the marks stop being painted, so the value offered on the
 " prompt had no counterpart on the text.
 "
-" Note: "\%V" is the regex atom for "inside the Visual area", and it keeps
-" working after visual mode ended, matching what "gv" would reselect, which is
-" exactly the case here.
+" "\%V" is the regex atom for "inside the Visual area", and it keeps working
+" after visual mode ended, matching what "gv" would reselect, which is exactly
+" the case here.
 func! GrooVim_SelectionHighlight() abort
   try
     return matchadd("Visual", '\%V.\%V\|\%V')
@@ -190,7 +190,7 @@ endfunc
 " Note: Where the word under the cursor begins and how long it is, which is the
 " value offered when nothing is selected.
 "
-" Note: The boundaries come from "searchpos()" with the word atoms, and not from
+" The boundaries come from "searchpos()" with the word atoms, and not from
 " walking the string by index, because indexing a String in Vim walks BYTES and
 " would cut an accented word in half.
 func! GrooVim_WordUnderCursorPos() abort
@@ -239,16 +239,16 @@ endfunc
 let g:search_Direction = get(g:, "search_Direction", "f")
 let g:searchReplace_CaseSensitive = get(g:, "searchReplace_CaseSensitive", 0)
 
-" Note: The "Match whole word only" of Notepad++: with it on, "cat" stops
-" finding the "cat" inside "concatenate". Off by default, like the case, and
-" asked on the search screen of "F5->c" beside it.
+" Note: The "Match whole word only" of Notepad++ (inspiration): with it on,
+" "cat" stops finding the "cat" inside "concatenate". Off by default, like the
+" case, and asked on the search screen of "F5->c" beside it.
 let g:searchReplace_WholeWord = get(g:, "searchReplace_WholeWord", 0)
 let g:grooVimSearchFoward = 1
 
 " Note: The keys that walk between what a search found, and they are here and
-" not with the screens that ask about a search: what they call, "GrooVim_HLNext",
-" is written above them, and a key written apart from the function it presses is
-" a key nobody finds.
+" not with the screens that ask about a search: what they call,
+" "GrooVim_HLNext", is written above them, and a key written apart from the
+" function it presses is a key nobody finds.
 "
 " Each of them paints the match it lands on for four tenths of a second -- the
 " blink is what tells you WHICH of the matches you are on, when every one of
@@ -264,118 +264,125 @@ func! GrooVim_EasySearch(mod) range abort
 
   try
 
-  " Note: Set "hlsearch" if is off.
-  if !&hlsearch
-    " Note: Highlight search results.
-    set hlsearch
-  endif
+    " Note: Set "hlsearch" if is off.
+    if !&hlsearch
+      " Note: Highlight search results.
+      set hlsearch
+    endif
 
-  " Note: Set "ignorecase" if is off.
-  if !&ignorecase && g:searchReplace_CaseSensitive == 0
-    " Note: Case sensitive search.
-    set ignorecase
-  endif
+    " Note: Set "ignorecase" if is off.
+    if !&ignorecase && g:searchReplace_CaseSensitive == 0
+      " Note: Case sensitive search.
+      set ignorecase
+    endif
 
-  " Note: Initialize the search.
-  let g:block_GrooVim_HLNext = 0
+    " Note: Initialize the search.
+    let g:block_GrooVim_HLNext = 0
 
-  let l:valueToSearch = ""
+    let l:valueToSearch = ""
 
-  if a:mod == "v"
-    " Note: Preserve transfer area.
-    let l:saved_reg = GrooVim_ClipGet()
-    " Note: Reselect visual area and yank.
-    exec "norm gvy"
-    let l:valueToSearch = GrooVim_ClipGet()
-  else
-    let l:valueToSearch = expand("<cword>")
-  endif
+    if a:mod == "v"
 
-  if a:mod == "v"
-    " Note: Preserve transfer area.
-    call GrooVim_ClipSet(l:saved_reg)
-  endif
+      " Note: Preserve transfer area.
+      let l:saved_reg = GrooVim_ClipGet()
 
-  " Note: Paints what is being offered before asking, so you SEE it: the
-  " selection in visual mode, the word under the cursor otherwise.
-  "
-  " Note: The "redraw" is what actually paints the mark. Measured on the
-  " terminal: without it NOTHING is painted while the prompt waits, in either
-  " mode. I had claimed otherwise before, misled by a test that was catching the
-  " paint Vim does by itself while a selection is being dragged.
-  "
-  " Note: The price is that in VISUAL mode the prompt then lands on the second
-  " line of the command area, with a blank line above it. Four ways around it
-  " were measured (no redraw, "redraw!", clearing the message first, turning
-  " "showmode" off) and none avoided it.
-  let l:selectionMatch = GrooVim_OfferHighlight(a:mod)
-  redraw
+      " Note: Reselect visual area and yank.
+      exec "norm gvy"
 
-  let l:valueToSearchTemp = ""
+      let l:valueToSearch = GrooVim_ClipGet()
+    else
+      let l:valueToSearch = expand("<cword>")
+    endif
 
-  " Note: With nothing under the cursor there is no value to offer, and asking
-  " "you want to use this value?" about an empty one makes no sense.
-  "
-  " Note: In that case the answer is REQUIRED, and the loop is what makes the
-  " word true: searching for nothing would do nothing useful anyway. Ctrl-C gets
-  " you out, and it no longer leaves CommandZ blocked.
-  if ("" . l:valueToSearch . "") != ""
-    let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
-  else
+    if a:mod == "v"
+
+      " Note: Preserve transfer area.
+      call GrooVim_ClipSet(l:saved_reg)
+
+    endif
+
+    " Note: Paints what is being offered before asking, so you SEE it: the
+    " selection in visual mode, the word under the cursor otherwise.
+    "
+    " The "redraw" is what actually paints the mark. Measured on the terminal:
+    " without it NOTHING is painted while the prompt waits, in either mode. I
+    " had claimed otherwise before, misled by a test that was catching the paint
+    " Vim does by itself while a selection is being dragged.
+    "
+    " The price is that in VISUAL mode the prompt then lands on the second line
+    " of the command area, with a blank line above it. Four ways around it were
+    " measured (no redraw, "redraw!", clearing the message first, turning
+    " "showmode" off) and none avoided it.
+    let l:selectionMatch = GrooVim_OfferHighlight(a:mod)
+    redraw
+
     let l:valueToSearchTemp = ""
-    while ("" . l:valueToSearchTemp . "") == ""
-      let l:valueToSearchTemp = input("Type a value (required): ")
-    endwhile
-  endif
 
-  call GrooVim_SelectionHighlightClear(l:selectionMatch)
-  let l:selectionMatch = -1
+    " Note: With nothing under the cursor there is no value to offer, and asking
+    " "you want to use this value?" about an empty one makes no sense.
+    "
+    " In that case the answer is REQUIRED, and the loop is what makes the word
+    " true: searching for nothing would do nothing useful anyway. Ctrl-C gets
+    " you out, and it no longer leaves CommandZ blocked.
+    if ("" . l:valueToSearch . "") != ""
+      let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+    else
+      let l:valueToSearchTemp = ""
+      while ("" . l:valueToSearchTemp . "") == ""
+        let l:valueToSearchTemp = input("Type a value (required): ")
+      endwhile
+    endif
 
-  " Note: Define search pathern automatically.
-  if l:valueToSearchTemp != ""
-    let l:valueToSearch = l:valueToSearchTemp
-  endif
+    call GrooVim_SelectionHighlightClear(l:selectionMatch)
+    let l:selectionMatch = -1
 
-  " Note: What you actually typed, kept for the bar of the occurrences list. The
-  " pattern below is the escaped form, and showing it would leak the escaping to
-  " a place where you just want to read what was searched.
-  let g:GrooVim_SearchGuyValue = l:valueToSearch
+    " Note: Define search pathern automatically.
+    if l:valueToSearchTemp != ""
+      let l:valueToSearch = l:valueToSearchTemp
+    endif
 
-  let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
-  let l:search_Operator = ""
+    " Note: What you actually typed, kept for the bar of the occurrences list.
+    " The pattern below is the escaped form, and showing it would leak the
+    " escaping to a place where you just want to read what was searched.
+    let g:GrooVim_SearchGuyValue = l:valueToSearch
 
-  " Note: Select operation type.
-  if g:search_Direction == "b" && g:grooVimSearchFowardBlock == 0
-    let l:search_Operator = "?"
-    let g:grooVimSearchFoward = 0
-  elseif g:search_Direction == "f" || g:grooVimSearchFowardBlock == 1
-    let l:search_Operator = "/"
-    let g:grooVimSearchFoward = 1
-  endif
+    let l:pattern = GrooVim_EscapeSubstituteValueToSearch(l:valueToSearch)
+    let l:search_Operator = ""
 
-  " Note: This structure was made so that the search can be executed
-  " "immediately". With "feedkeys" (below) this does not happen, causing sync
-  " issues with functions that depend on "GrooVim_EasySearch" function runs
-  " first. Note: Works but does not allow default "backward search".
+    " Note: Select operation type.
+    if g:search_Direction == "b" && g:grooVimSearchFowardBlock == 0
+      let l:search_Operator = "?"
+      let g:grooVimSearchFoward = 0
+    elseif g:search_Direction == "f" || g:grooVimSearchFowardBlock == 1
+      let l:search_Operator = "/"
+      let g:grooVimSearchFoward = 1
+    endif
 
-  let @/ = l:pattern
-  let l:initialPos = getpos(".")
+    " Note: This structure was made so that the search can be executed
+    " "immediately". With "feedkeys" (below) this does not happen, causing sync
+    " issues with functions that depend on "GrooVim_EasySearch" function runs
+    " first. Note: Works but does not allow default "backward search".
 
-  " Note: This operation is duplicated ("feedkeys" and "exec") causing a double
-  " execution of the search, but it was the only way to not have problems with
-  " "n" and "N" navigating and the search with list! If not done, the highlight
-  " is lost after a few movements of the cursor.
-  if g:search_WithList == 0
-    call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
-  else
-    call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
-  endif
+    let @/ = l:pattern
+    let l:initialPos = getpos(".")
 
-  call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
+    " Note: This operation is duplicated ("feedkeys" and "exec") causing a
+    " double execution of the search, but it was the only way to not have
+    " problems with "n" and "N" navigating and the search with list. If not
+    " done, the highlight is lost after a few movements of the cursor.
+    if g:search_WithList == 0
+      call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
+    else
+      call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
+    endif
+
+    call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
 
   finally
+
     " Note: Safety net: an interruption must not leave the text painted.
     call GrooVim_SelectionHighlightClear(l:selectionMatch)
+
   endtry
 
 endfunc
@@ -445,10 +452,12 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
 
     while (getpos(".")[1] > l:cur_pos_last[1] || (getpos(".")[1] == l:cur_pos_last[1] && getpos(".")[2] > l:cur_pos_last[2])) && l:theresAMatch == 1
       let l:cur_pos_last = getpos(".")
+
       " Note: The FULL path, not just the file name: with it the list can open a
       " file again after you closed it, and two files with the same name in
       " different directories stop being the same entry.
       call GrooVim_SearchGuyMatches(getpos(".")[1], getline("."), tabpagenr(), expand('%:p'), getpos(".")[1], getpos(".")[2])
+
       exec "norm n"
     endwhile
 
@@ -501,12 +510,6 @@ func! GrooVim_SearchGuy(mod) range abort
   " entered -- so the one moment somebody DID ask says so here.
   call GrooVim_PanelFocus("GrooVim_SearchGuyResults", 0)
 
-  " Note: This "workaround" is to prevent a side effect that occurs when script
-  " changing tab which that is the loss of search highlight. The presence of
-  " redraw serves to remove the message generated by "set hlsearch". call
-  " feedkeys("\<Esc>" . g:cmdLineCaller . "set hlsearch\<cr>\<Esc>" .
-  " g:cmdLineCaller . "redraw!\<cr>")
-
   let g:grooVimSearchFowardBlock = 0
 
   if g:search_Direction == "b"
@@ -523,34 +526,36 @@ endfunc
 " a tab is accessed.
 autocmd! TabEnter * call GrooVim_TabParadise()
 func! GrooVim_TabParadise() abort
+
   " Note: If there is a search list this list is open in the current tab if the
   " functionality is enabled.
   "
-  " Note: Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the
-  " file is loaded: building the list right here put it in a window that the
-  " file then landed on top of, and the tab ended up with the file twice and no
-  " list. The timer runs once the tab has settled.
+  " Through a timer because "tabnew {file}" fires "TabEnter" BEFORE the file is
+  " loaded: building the list right here put it in a window that the file then
+  " landed on top of, and the tab ended up with the file twice and no list. The
+  " timer runs once the tab has settled.
   "
-  " Note: Not while navigating, which puts the list in place by itself at the
-  " moment it knows the tab is ready.
+  " Not while navigating, which puts the list in place by itself at the moment
+  " it knows the tab is ready.
   if g:GrooVim_SearchGuyBusy == 0 &&
    \ g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
     call timer_start(0, "GrooVim_SearchGuySyncNow")
   endif
+
 endfunc
 
 
 " Note: Every occurrence of a word, marked -- the "Style all occurrences of
 " token" of Notepad++.
 "
-" Note: "matchadd" and NOT the search register: this does not move the cursor,
-" does not touch what "n" would find next, and does not turn the search
-" highlight on. You can mark a name and go on searching for something else,
-" which is the whole point of marking it.
+" "matchadd" and NOT the search register: this does not move the cursor, does
+" not touch what "n" would find next, and does not turn the search highlight on.
+" You can mark a name and go on searching for something else, which is the whole
+" point of marking it.
 "
-" Note: A match belongs to a WINDOW, so it is put up again whenever you enter
-" one. Otherwise splitting, or walking to another tab, would lose it -- and a
-" mark you have to make again in every window is not worth making.
+" A match belongs to a WINDOW, so it is put up again whenever you enter one.
+" Otherwise splitting, or walking to another tab, would lose it -- and a mark
+" you have to make again in every window is not worth making.
 let g:GrooVim_MarkedWord = ""
 let s:markIds = {}
 
@@ -631,3 +636,4 @@ augroup GrooVim_Mark
   autocmd!
   autocmd WinEnter,BufWinEnter * call GrooVim_MarkHere()
 augroup END
+

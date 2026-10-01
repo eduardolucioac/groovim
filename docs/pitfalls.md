@@ -98,6 +98,27 @@ Every case writes into `results/<name>.txt`, **line by line**, and ends with
 `END` — the runner demands that mark. A case that ends by making Vim itself quit
 calls `GT_DoneHere()` before the step that leaves.
 
+## When something does not fire
+
+Both tools live in `groovim/debug.vim`.
+
+```vim
+:GrooVimKey
+```
+
+Press it, then press the key you are arguing about: it prints what `getchar()`
+handed over. Two keys that look the same arrive as different bytes, and the
+shortcuts of GrooVim compare exactly what it prints.
+
+```vim
+call GrooVim_PauseExecution("here")
+```
+
+A stop. Put it in the line you are doubting and GrooVim stands there, saying
+what you told it to say, until you press `0`. It is for whoever is writing
+GrooVim, which is why there is no key and no command for it: it goes in with the
+doubt and comes out with it.
+
 ## The linter, and the formatter of the notes
 
 ```bash

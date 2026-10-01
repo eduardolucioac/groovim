@@ -193,6 +193,7 @@ let s:GrooVim_Parts = [
  \ ["macro",       "macros, saving a copy, and the case of a word"],
  \ ["appearance",  "colours, the cursor, the status bar"],
  \ ["usability",   "small comforts, and the encoding"],
+ \ ["debug",       "the tools for when something does not fire: what a key really is, and a stop"],
  \ ["help",        "the help of F9, written out of the list of shortcuts"],
  \ ]
 
