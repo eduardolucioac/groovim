@@ -50,28 +50,28 @@ let v:errmsg = ""
 call feedkeys("\<PageDown>", "x")
 call GT_Ok("PageDown (GroovyMove) with no error", v:errmsg == "", "   [" . v:errmsg . "]   (it moves the cursor, it does not edit)")
 
-" ---- and the keys that walk between matches do not walk inside the REPORT
+" ---- and the keys that walk between matches hand the walk to the document
 "
-" "n" and "N" edit nothing, so they were left alone here by the rule that keeps
-" what reads and moves. They still had no business in this window: what it holds
-" is the report of a search, and pressing them in it searched the REPORT -- the
-" cursor walking from one printed line to the next and the blink painting inside
-" the panel, over occurrences that are in no file.
+" They do not walk inside this window: what it holds is the REPORT of a search,
+" and pressing them in it used to search the report -- the cursor walking from
+" one printed line to the next and the blink painting over occurrences that are
+" in no file.
 "
-" In a list the next occurrence is the next line, which is what the arrows do,
-" and what opens the one you are on is Enter.
+" They are not off here either, which is what every other panel does with them.
+" The list TAKES the cursor twice over -- when it opens, and again on the first
+" arrival in each tab, where it is built -- and a key that did nothing at those
+" two moments is a walk that stops dead at every tab.
 call GT_GoToList()
 call cursor(4, 1)
-let g:GT_AT = getcurpos()[1:2]
-call feedkeys("n", "x")
-call GT_Ok("n does nothing in the list", getcurpos()[1:2] ==# g:GT_AT,
-  \ "   " . string(getcurpos()[1:2]) . "   (it used to search the report itself)")
-call feedkeys("N", "x")
-call GT_Ok("  and neither does N", getcurpos()[1:2] ==# g:GT_AT,
-  \ "   " . string(getcurpos()[1:2]))
-call GT_Ok("  because they are off on this buffer",
-  \ maparg("n", "n") ==# "<Nop>" && maparg("N", "n") ==# "<Nop>",
+call GT_Ok("in the list, n is the hand-over and not Vim's n",
+  \ maparg("n", "n") =~ "SearchGuyWalk" && maparg("N", "n") =~ "SearchGuyWalk",
   \ "   [" . maparg("n", "n") . "]")
+call GrooVim_SearchGuyWalk("n")
+call GT_Ok("  and it puts the cursor on the document first",
+  \ bufname("%") !~ "GrooVim_SearchGuyResults",
+  \ "   [" . fnamemodify(bufname("%"), ":t") . "]   (the key is then pressed THERE)")
+call feedkeys("", "x")
+call GT_GoToList()
 
 " ---- outside the list none of this holds
 wincmd p

@@ -181,6 +181,21 @@ endif
 func! GrooVim_SearchGuySync() abort
   if bufexists("GrooVim_SearchGuyResults" . tabpagenr()) == 0
 
+    " Note: And it leaves you where it found you.
+    "
+    " Building the list ends inside it -- a ":split" makes the new window the
+    " current one -- and this runs on its own, when a tab is ENTERED, at a moment
+    " nobody chose. Walking the occurrences with "n" across tabs is exactly that
+    " moment: the walk puts the cursor on the document of the tab it reached, and
+    " the list built a breath later took the cursor away. The next "n" was then
+    " pressed inside a list, where it does nothing, and the walk stopped dead --
+    " on the FIRST visit to each tab only, because the second time there is a
+    " list already and nothing to build.
+    "
+    " Whoever wants to land in the list says so: the search itself does, after
+    " calling this.
+    let l:back = win_getid()
+
     call GrooVim_PutOnEditWindow()
 
     " Note: "setlocal" and NOT "set": on an option that belongs to a buffer or a
@@ -201,6 +216,10 @@ func! GrooVim_SearchGuySync() abort
     exec "norm! ggdd"
     setlocal noma nomodified
     call GrooVim_SearchGuyPanelSetup()
+
+    if win_id2win(l:back) > 0
+      call win_gotoid(l:back)
+    endif
   endif
 endfunc
 
@@ -346,6 +365,31 @@ func! GrooVim_SearchGuyPanelSetup() abort
   nnoremap <buffer> <silent> <Enter> :call GrooVim_SearchGuyNavigate()<cr>
   nnoremap <buffer> <silent> <2-LeftMouse> :call GrooVim_SearchGuyNavigate()<cr>
 
+  " Note: And "n" and "N" hand the walk back to the document.
+  "
+  " In every other panel they are off, because walking the matches of a REPORT
+  " walks nothing. Here they have somewhere to go: the window beside this one
+  " holds the document the list is about, and that is where the next occurrence
+  " is.
+  "
+  " It is what makes the walk flow. The list takes the cursor when it opens --
+  " you asked for a list, you get to read it -- and it takes it again on the
+  " first arrival in each tab, when it is built there. Without this, every one
+  " of those moments is a dead end: the key does nothing and the walk stops.
+  nnoremap <buffer> <silent> n :call GrooVim_SearchGuyWalk("n")<cr>
+  nnoremap <buffer> <silent> N :call GrooVim_SearchGuyWalk("N")<cr>
+
+endfunc
+
+" Note: Out of the list, onto the document of this tab, and the key is pressed
+" there -- "t", so it goes through the mapping that paints the match, which is
+" the whole point of pressing it.
+func! GrooVim_SearchGuyWalk(key) abort
+  if !GrooVim_SearchGuyPutOnFileWindow()
+    call GrooVim_GrooVimBarMsg("No document in this tab to walk!", 4)
+    return
+  endif
+  call feedkeys(a:key, "t")
 endfunc
 
 " Note: "Search \"value\" (N hits in M files of K searched)", the way Notepad++
@@ -567,8 +611,9 @@ func! GrooVim_SearchGuyNavigate() range abort
       " you with no way back to them.
       if g:GrooVim_SearchGuyEnabled == 1 && g:searchReplace_InAllOpened == 1
         call GrooVim_SearchGuySync()
-        " Note: "Sync" leaves you inside the list it has just built, so come
-        " back to the file before placing the cursor on the occurrence.
+        " Note: And onto the file, which is where the occurrence is. The sync
+        " leaves you where it found you, and where it found you here is wherever
+        " the landing happened to end.
         call GrooVim_PanelFocus(l:entryPath, 1)
       endif
 
