@@ -98,6 +98,7 @@ set laststatus=2
 " Note: While an operation is asking something, its name takes the place of the
 " "Powered by" on the bar, and the bar goes back to normal when it is over. The
 " prompt itself stays clean: the context lives here, not glued to the question.
+"
 " Note: Where you are: the encoding, what ends a line, the flags of the buffer,
 " the type, the line and the column. The half of the bar that every window
 " wants!
@@ -204,10 +205,11 @@ endif
 " walking BACK through the search results.
 "
 " Note: This has to come AFTER "syntax on" and be repeated on "ColorScheme",
-" because both reset the highlight groups. Note: "cterm=NONE gui=NONE" is not
-" decoration: the default "IncSearch" carries "reverse", which SWAPS foreground
-" and background and would show blue letters on a white block instead of white
-" on blue.
+" because both reset the highlight groups.
+"
+" Note: "cterm=NONE gui=NONE" is not decoration: the default "IncSearch" carries
+" "reverse", which SWAPS foreground and background and would show blue letters
+" on a white block instead of white on blue.
 let g:GrooVim_ReplaceHighlight = get(g:, "GrooVim_ReplaceHighlight", "cterm=NONE gui=NONE ctermbg=blue ctermfg=white guibg=blue guifg=white")
 func! GrooVim_SetReplaceHighlight() abort
   try
@@ -227,6 +229,7 @@ augroup end
 
 " Note: " Cursor -> Orange in insert mode and red in command mode! if you want
 " to use rgb color formatting: konsoleprofile CustomCursorColor=#255255255.
+"
 " Note: One color per mode, so you know where you are without looking at the
 " bar: green in normal, blue in visual, orange while typing.
 let g:cursorColorI = get(g:, "cursorColorI", "orange")
@@ -261,12 +264,13 @@ func! GrooVim_CursorColorForMode() abort
   " Note: But never over a mode that CAN be seen. The flag says "we came from
   " insert", and if it is ever left standing -- an interrupted movement used to
   " leave it so -- believing it over "mode()" painted the cursor green in visual
-  " mode, which is blue. What Vim reports wins. Note: While there are carets up,
-  " the real cursor is ONE OF THEM and wears their colour -- orange while the
-  " places are being chosen, yellow once they are set. Without this the last
-  " place marked looked different from all the others, because what is drawn on
-  " it is not a caret at all: it is the cursor of the terminal, in the colour of
-  " insert mode.
+  " mode, which is blue. What Vim reports wins.
+  "
+  " Note: While there are carets up, the real cursor is ONE OF THEM and wears
+  " their colour -- orange while the places are being chosen, yellow once they
+  " are set. Without this the last place marked looked different from all the
+  " others, because what is drawn on it is not a caret at all: it is the cursor
+  " of the terminal, in the colour of insert mode.
   if exists("*GrooVim_MultiCursorColour")
     let l:multi = GrooVim_MultiCursorColour()
     if l:multi !=# ""

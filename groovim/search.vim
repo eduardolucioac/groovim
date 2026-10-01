@@ -361,7 +361,9 @@ func! GrooVim_EasySearch(mod) range abort
     " Note: This structure was made so that the search can be executed
     " "immediately". With "feedkeys" (below) this does not happen, causing sync
     " issues with functions that depend on "GrooVim_EasySearch" function runs
-    " first. Note: Works but does not allow default "backward search".
+    " first.
+    "
+    " Note: Works but does not allow default "backward search".
 
     let @/ = l:pattern
     let l:initialPos = getpos(".")

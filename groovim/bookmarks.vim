@@ -537,9 +537,11 @@ endfunc
 
 " Note: "norm!" and not "norm": inside the panel the keys that edit are mapped
 " to nothing, and without the "!" this would run through them and do nothing at
-" all. Note: "silent" because emptying a buffer and filling it again SPEAKS --
-" "4 fewer lines", "5 more lines", and "--No lines in buffer--" when it was
-" already empty. None of that is news to anybody reading a list of marks.
+" all.
+"
+" Note: "silent" because emptying a buffer and filling it again SPEAKS -- "4
+" fewer lines", "5 more lines", and "--No lines in buffer--" when it was already
+" empty. None of that is news to anybody reading a list of marks.
 func! GrooVim_BookmarkPanelFill() abort
   setlocal ma
   silent! exec "norm! ggdG"

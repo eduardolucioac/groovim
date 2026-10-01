@@ -5,7 +5,9 @@
 " Note: Keys recorded and played back, the copy of a whole file, and the three
 " cases a word can be written in -- UPPER, lower and Title. What they have in
 " common is that each one is a small operation on text that nothing else needed
-" to know about. Note: Record a macro.
+" to know about.
+"
+" Note: Record a macro.
 func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its
@@ -177,12 +179,15 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
 endfunc
 
-" Note: Duplicates the current line/selection. Note: "norm!" and not "norm":
-" GrooVim remaps "p" to "P`]<Right>", which pastes BEFORE the cursor. Going
-" through the mappings here made the copy land one character too early, turning
-" "DUPLICAR" into "DUPLICADUPLICARR". Note: The line the cursor is on, copied
-" under itself, with the clipboard given back afterwards -- copying is how it is
-" done, and it should not cost you what you had there.
+" Note: Duplicates the current line/selection.
+"
+" Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
+" BEFORE the cursor. Going through the mappings here made the copy land one
+" character too early, turning "DUPLICAR" into "DUPLICADUPLICARR".
+"
+" Note: The line the cursor is on, copied under itself, with the clipboard given
+" back afterwards -- copying is how it is done, and it should not cost you what
+" you had there.
 "
 " Note: A function because the dispatch spelled these three lines out TWICE,
 " once for normal mode and once for insert, letter for letter.
@@ -242,15 +247,18 @@ endfunc
 " own.
 exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
-" Note: Clears the search register. Note: And the marks with them. "Take the
-" highlighting off" is one idea to a reader, not two, and having to remember
-" which key clears which half would be a poor way of saying so.
+" Note: Clears the search register.
+"
+" Note: And the marks with them. "Take the highlighting off" is one idea to a
+" reader, not two, and having to remember which key clears which half would be a
+" poor way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
-" Note: Save to disk and open in a new tab a copy of the current file. Note:
-" Where to put a file and what to call it, asked once and used by both the copy
-" and the "save as".
+" Note: Save to disk and open in a new tab a copy of the current file.
+"
+" Note: Where to put a file and what to call it, asked once and used by both the
+" copy and the "save as".
 "
 " Note: It was written inside the copy, and the "save as" would have been the
 " same forty lines a second time -- with the second one drifting from the first
@@ -358,8 +366,10 @@ func! GrooVim_SaveAs() range abort
 
 endfunc
 
-" Note: Saves to disk. Note: Saving. In visual mode what is written is the
-" SELECTION, to a file of its own; anywhere else it is the file you are in.
+" Note: Saves to disk.
+"
+" Note: Saving. In visual mode what is written is the SELECTION, to a file of
+" its own; anywhere else it is the file you are in.
 func! GrooVim_Save(mode) abort
   if a:mode ==# "v"
     call GrooVim_VisualWrite()
@@ -375,8 +385,9 @@ func! GrooVim_VisualWrite() range abort
   exec "norm gv"
 endfunc
 
-" Note: Changes to uppercase/lowercase. Note: Title Case: the first letter of
-" every word up, the rest down.
+" Note: Changes to uppercase/lowercase.
+"
+" Note: Title Case: the first letter of every word up, the rest down.
 "
 " Note: A substitution and not an operator, because Vim has "gU" and "gu" and
 " nothing for this. "\u" raises the character that follows it and "\L" lowers
@@ -389,8 +400,9 @@ endfunc
 " visual mode ends.
 "
 " Note: In normal and insert mode it is the word under the cursor, selected here
-" so that the same substitution serves all three modes. Note: Puts the cursor ON
-" the text of the line when it is sitting PAST it.
+" so that the same substitution serves all three modes.
+"
+" Note: Puts the cursor ON the text of the line when it is sitting PAST it.
 "
 " Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one
 " column beyond the last character -- which is exactly where you are after

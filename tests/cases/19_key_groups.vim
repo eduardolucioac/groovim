@@ -260,6 +260,26 @@ func! GT_Body()
     \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
     \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
 
+  " ---- and no note was swallowed by the one above it
+  "
+  " The formatter joins the paragraphs of a block, and two notes written one
+  " under the other with no blank comment line between them were one block of
+  " prose to it: "...walking two by two. Note: What a key really delivers" --
+  " two notes about two different things, in one sentence. Thirty four of them
+  " were joined that way before the formatter learned that a "Note:" opens a
+  " paragraph wherever it is found.
+  "
+  " The lines that begin with a quote of their own are code somebody commented
+  " out, and what is inside them is nobody's note.
+  " "=~#" and not "=~": GrooVim runs with "ignorecase", under which "Note:"
+  " matches "note:" -- and a sentence that says "carries a note: two signs" is
+  " a sentence and not a swallowed note.
+  let l:swallowed = filter(copy(GT_SourceLines()),
+    \ 'v:val =~# ''^\s*" [^"].*[a-z.,)"] Note: ''')
+  call GT_Ok("no note is swallowed by the one above it", empty(l:swallowed),
+    \ "   " . (empty(l:swallowed) ? "(./tools/lint.py --fix splits them)"
+    \ : string(l:swallowed[0 : 2]) . " (" . len(l:swallowed) . " of them)"))
+
   " ---- and no note is signed
   "
   " They used to end in "! By Questor", forty one of them. The name of whoever

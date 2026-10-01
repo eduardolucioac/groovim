@@ -4,9 +4,10 @@
 
 " Note: The tab line and what is written on it, the names of documents that have
 " no name yet, and the windows that are accessories of a tab instead of
-" documents of yours -- the tree, the lists, the help. Note: The windows that
-" are accessories of a tab and not documents of yours. In one place because more
-" than one thing needs to know it.
+" documents of yours -- the tree, the lists, the help.
+"
+" Note: The windows that are accessories of a tab and not documents of yours. In
+" one place because more than one thing needs to know it.
 func! GrooVim_IsHelperBuffer(name) abort
   return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "GrooVim_BookmarksList" ||
    \ a:name =~ "NERD_tree_" || a:name =~ "GrooVimHelp"
@@ -30,8 +31,10 @@ endfunc
 " standing on the occurrences list renamed the tab to
 " "GrooVim_SearchGuyResults1" and your file was no longer findable among many
 " tabs. Here the label is always a document of yours: the accessories are
-" skipped. Note: A document you have not saved yet shows as "new 1", "new 2"...
-" the way Notepad++ names them, instead of the "[No Name]" of Vim.
+" skipped.
+"
+" Note: A document you have not saved yet shows as "new 1", "new 2"... the way
+" Notepad++ names them, instead of the "[No Name]" of Vim.
 "
 " Note: A name ON SCREEN and not a name on the buffer. ":file new 1" would have
 " been one line, and it would make ":w" write a file called "new 1" into
@@ -169,6 +172,7 @@ endfunc
 set tabline=%!GrooVim_TabLine()
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!.
+"
 " Note: Which tab you were reading when you asked for the help, so that asking
 " again puts you back there. A toggle that leaves you somewhere else is not a
 " toggle.

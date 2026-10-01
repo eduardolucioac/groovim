@@ -125,10 +125,11 @@ endfunc
 "
 " Note: It asks about unsaved text, like every other way of closing in GrooVim.
 " And if you answer "Cancel" the count of tabs does not move -- which is how
-" this knows to stop, instead of asking the same question for ever. Note: A new
-" tab, at the END of the tab line, and one you can type in. See the long notes
-" on "$tabnew" and on the lock that used to leak, in "GrooVim_TabClose" and in
-" the help toggle.
+" this knows to stop, instead of asking the same question for ever.
+"
+" Note: A new tab, at the END of the tab line, and one you can type in. See the
+" long notes on "$tabnew" and on the lock that used to leak, in
+" "GrooVim_TabClose" and in the help toggle.
 func! GrooVim_TabNew() abort
   $tabnew
   setlocal ma

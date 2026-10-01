@@ -110,9 +110,10 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   let l:char = get(g:GrooVim_CommandZChars, a:GrooVim_CommandZFCallerNow, "")
 
   if l:char != "" && g:GrooVim_CommandZUnblock == 1
-    " Note: Prevents rerun a command while another is in progress. Note: The
-    " "try/finally" is what keeps a Ctrl-C from locking CommandZ for good:
-    " interrupting a prompt raises an exception, the function used to be
+    " Note: Prevents rerun a command while another is in progress.
+    "
+    " Note: The "try/finally" is what keeps a Ctrl-C from locking CommandZ for
+    " good: interrupting a prompt raises an exception, the function used to be
     " abandoned with this flag still at zero, and from then on NO F key worked
     " anymore.
     let g:GrooVim_CommandZUnblock = 0

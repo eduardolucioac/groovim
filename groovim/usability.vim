@@ -58,8 +58,10 @@ autocmd! BufReadPost *
 set viminfo^=%
 
 " Note: Turn persistent undo on means that you can undo even when you close a
-" buffer/VIM. Note: The directory must exist, otherwise "undofile" silently
-" fails to write the undo history.
+" buffer/VIM.
+"
+" Note: The directory must exist, otherwise "undofile" silently fails to write
+" the undo history.
 try
   let g:GrooVim_UndoDir = g:GrooVim_State . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)

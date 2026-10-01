@@ -131,11 +131,12 @@ func! GrooVim_Configure() range abort
 
   " Note: No default and no value in force, so no answer is assumed: an empty
   " one is not valid and the question simply asks again, which is what every
-  " other question of GrooVim does when there is nothing to fall back on. Note:
-  " One line, question and options together. It was split into a message and a
-  " short prompt for a while, and the message DISAPPEARED: the screen that opens
-  " next redraws, and a message does not survive that -- the text of a prompt
-  " does, because Vim leaves it on the line it was answered on.
+  " other question of GrooVim does when there is nothing to fall back on.
+  "
+  " Note: One line, question and options together. It was split into a message
+  " and a short prompt for a while, and the message DISAPPEARED: the screen that
+  " opens next redraws, and a message does not survive that -- the text of a
+  " prompt does, because Vim leaves it on the line it was answered on.
   let l:which = GrooVim_GetOptions(
    \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral",
    \ ["i", "v", "f", "s", "r", "g"], "", "")
@@ -325,10 +326,11 @@ endfunc
 
 " Note: An encoding answer is two letters -- one of the encodings and then "r"
 " or "c" -- or empty, which leaves the encoding as it is. Nothing else: a single
-" letter is half an answer, and there is no way to tell WHICH half. Note: Empty
-" leaves the language alone, "none" takes it off -- the "None (Normal Text)" of
-" that menu -- and anything else has to be a file type this Vim knows. Asked of
-" Vim itself, so the answer is right by construction.
+" letter is half an answer, and there is no way to tell WHICH half.
+"
+" Note: Empty leaves the language alone, "none" takes it off -- the "None
+" (Normal Text)" of that menu -- and anything else has to be a file type this
+" Vim knows. Asked of Vim itself, so the answer is right by construction.
 func! GrooVim_IsLanguageAnswer(answer) abort
   if a:answer ==# "" || a:answer ==# "none"
     return 1
@@ -525,19 +527,24 @@ func! GrooVim_ConfigureGeneral() range abort
 
 endfunc
 
-" Note: Get and validate a givem option. Note: Asks until the answer passes the
-" test, ALWAYS with the same question. Repeating the very same line is what
-" tells you the answer did not take, and it is how every question of GrooVim
-" behaves.
+" Note: Get and validate a givem option.
+"
+" Note: Asks until the answer passes the test, ALWAYS with the same question.
+" Repeating the very same line is what tells you the answer did not take, and it
+" is how every question of GrooVim behaves.
 "
 " "IsValid" takes the answer and says whether it serves. A closure carries
-" whatever else the test needs. Note: A third argument turns on the completion
-" of Vim, by name -- "filetype", "file", "buffer" and the rest of ":help
-" command-completion". It is what lets the language question offer the 831 file
-" types this Vim knows without GrooVim holding a list of its own. Note: The mark
-" of a SECTION. It goes on the first line of one and on nothing else, so that a
-" screen of several questions reads as several -- a block of three lines carries
-" it once, and a question that is a block on its own carries it too.
+" whatever else the test needs.
+"
+" Note: A third argument turns on the completion of Vim, by name -- "filetype",
+" "file", "buffer" and the rest of ":help command-completion". It is what lets
+" the language question offer the 831 file types this Vim knows without GrooVim
+" holding a list of its own.
+"
+" Note: The mark of a SECTION. It goes on the first line of one and on nothing
+" else, so that a screen of several questions reads as several -- a block of
+" three lines carries it once, and a question that is a block on its own carries
+" it too.
 "
 " Written in ONE place and put on by the two functions below, never typed into a
 " string at a call site. That is what keeps every screen of GrooVim marked the

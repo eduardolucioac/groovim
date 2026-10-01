@@ -82,15 +82,12 @@ def literal(paragrafo):
     return False
 
 
-def reflui(paragrafo, recuo):
-    """One paragraph, rewrapped to the limit. The "Note:" stays at the front."""
-    junto = " ".join(texto_de(l) for l in paragrafo).strip()
-    if junto == "":
-        return paragrafo
+def enrola(texto, recuo):
+    """The words of one paragraph, broken at the width."""
     largura = LARGURA - len(recuo) - 2         # the recuo, the quote, the space
     saida = []
     linha = ""
-    for palavra in junto.split():
+    for palavra in texto.split():
         if linha == "":
             linha = palavra
         elif len(linha) + 1 + len(palavra) <= largura:
@@ -100,6 +97,28 @@ def reflui(paragrafo, recuo):
             linha = palavra
     if linha:
         saida.append(recuo + '" ' + linha)
+    return saida
+
+
+def reflui(paragrafo, recuo):
+    """One paragraph, rewrapped to the limit. The "Note:" stays at the front.
+
+    And a "Note:" that is found INSIDE the paragraph is not inside it at all:
+    it is another note that was written under this one with no blank line
+    between them, and joining the two is exactly what this used to do. Thirty
+    four of them were joined that way before the rule existed -- "...walking two
+    by two. Note: What a key really delivers" -- so the split is done here, and
+    the notes come out two again, with the blank line the style wants.
+    """
+    junto = " ".join(texto_de(l) for l in paragrafo).strip()
+    if junto == "":
+        return paragrafo
+    pedacos = re.split(r"\s+(?=Note:\s)", junto)
+    saida = []
+    for numero, pedaco in enumerate(pedacos):
+        if numero:
+            saida.append(recuo + '"')
+        saida.extend(enrola(pedaco, recuo))
     return saida
 
 
@@ -136,6 +155,15 @@ def formata(linhas):
         novo = []
         for linha in bloco + [None]:
             vazia = linha is None or texto_de(linha) == ""
+            # Note: And a line that OPENS with "Note:" opens a paragraph, blank
+            # line above it or not. Without this the two notes were one block of
+            # prose to join, and joining them is what did the damage.
+            if not vazia and paragrafo and texto_de(linha).startswith("Note:"):
+                novo.extend(paragrafo if literal(paragrafo)
+                            else reflui(paragrafo, recuo))
+                novo.append(recuo + '"')
+                paragrafo = [linha]
+                continue
             if vazia:
                 if paragrafo:
                     novo.extend(paragrafo if literal(paragrafo)

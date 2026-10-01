@@ -23,6 +23,7 @@ filetype plugin indent on
 " GrooVim was born with; the list is yours, and ONE line adds your own: >
 "   let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"}
 " <
+"
 " Note: They lived at the end of the indent part, written into the code, under a
 " heading about syntax associations that had stopped describing anything else in
 " that file. What a file IS belongs next to the detection that decides it, which
@@ -181,11 +182,12 @@ endtry
 " remote program could steal your clipboard), so Vim would just block waiting.
 "
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
-" reports itself unavailable and the cascade simply goes on to OSC 52. Note:
-" "needs" is the session the tool talks to, and being INSTALLED is not the same
-" as being able to work: "wl-copy" without a compositor fails -- measured, it
-" exits 1 saying the socket is not there. Without this the cascade stopped on a
-" provider that cannot copy anything, on the very machine where the next one
+" reports itself unavailable and the cascade simply goes on to OSC 52.
+"
+" Note: "needs" is the session the tool talks to, and being INSTALLED is not the
+" same as being able to work: "wl-copy" without a compositor fails -- measured,
+" it exits 1 saying the socket is not there. Without this the cascade stopped on
+" a provider that cannot copy anything, on the very machine where the next one
 " (OSC 52) would have crossed the SSH by itself: measured, "v:clipmethod" coming
 " out "groovim" with no WAYLAND_DISPLAY and no DISPLAY, because "wl-clipboard"
 " happened to be installed there.

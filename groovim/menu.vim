@@ -5,7 +5,9 @@
 " Note: The bar across the top and the list under it, written out of the same
 " list of shortcuts the help of F9 is. Nothing here knows what a shortcut DOES:
 " choosing a line presses the keys of it, so the menu can never do anything the
-" keyboard would not. Note: The menu, written out of the same list the help is.
+" keyboard would not.
+"
+" Note: The menu, written out of the same list the help is.
 "
 " Note: A BAR across the top with the four groups on it, and under the one you
 " are on, what it holds -- the shape of the menu of Notepad++ and of the
@@ -161,8 +163,10 @@ func! GrooVim_ShortcutKeys(one) abort
 endfunc
 
 " Note: How a shortcut is written for a human: "F5->n", the notation every
-" message of GrooVim uses. Note: How a key is written where somebody reads it:
-" "F2->c", "Ctrl+C", "Alt+Shift+Up", "m".
+" message of GrooVim uses.
+"
+" Note: How a key is written where somebody reads it: "F2->c", "Ctrl+C",
+" "Alt+Shift+Up", "m".
 "
 " Note: Built from the key itself and not written by hand beside it. A label
 " typed into each entry is a second place for the same fact, and the day a key
@@ -351,12 +355,15 @@ endfunc
 " Note: Leaving with the menu still up handed the terminal back with the cursor
 " HIDDEN -- measured, the last thing it was told was "hide" and nothing ever
 " said otherwise. You would have got your shell prompt back with no cursor in
-" it, and nothing to tell you why. Note: "VimLeavePre" and not "VimLeave": the
-" cursor comes back through a redraw, and by "VimLeave" there is no drawing left
-" to do -- measured, leaving with the menu up ended on "hide" while leaving
-" without it ended on "show". Note: And the About as well, which is the other
-" window that hides it. Closing the menu already gives the cursor back; saying
-" it again covers a window that is not the menu.
+" it, and nothing to tell you why.
+"
+" Note: "VimLeavePre" and not "VimLeave": the cursor comes back through a
+" redraw, and by "VimLeave" there is no drawing left to do -- measured, leaving
+" with the menu up ended on "hide" while leaving without it ended on "show".
+"
+" Note: And the About as well, which is the other window that hides it. Closing
+" the menu already gives the cursor back; saying it again covers a window that
+" is not the menu.
 augroup GrooVim_MenuCursor
   autocmd!
   autocmd VimLeavePre * call GrooVim_MenuClose() | call GrooVim_CursorShow()
@@ -487,8 +494,9 @@ func! GrooVim_MenuStep(step) abort
 endfunc
 
 " Note: Left and Right walk the bar, an F key jumps to its own section, the
-" mouse clicks where it likes, and the rest is what a menu does. Note: Which F
-" key was pressed, if it was one.
+" mouse clicks where it likes, and the rest is what a menu does.
+"
+" Note: Which F key was pressed, if it was one.
 func! GrooVim_MenuFKeyPressed(key) abort
   for l:fKey in ["F2", "F3", "F4", "F5"]
     if a:key ==# eval('"\<' . l:fKey . '>"')

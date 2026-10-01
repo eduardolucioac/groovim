@@ -20,11 +20,12 @@ let g:GrooVim_MultiPoints = []
 let g:GrooVim_MultiCursorSet = get(g:, "GrooVim_MultiCursorSet", "#f6d32d")
 
 " Note: What the cursor of the terminal should be painted with, asked by the
-" part that paints it. Empty means "nothing to do with me". Note: On whether
-" this is UP, and not on whether there are carets yet: the column starts with
-" none -- they arrive with the first arrow -- and asking for the carets left the
-" cursor in the colour of insert until one appeared, which is the one moment it
-" should already have changed.
+" part that paints it. Empty means "nothing to do with me".
+"
+" Note: On whether this is UP, and not on whether there are carets yet: the
+" column starts with none -- they arrive with the first arrow -- and asking for
+" the carets left the cursor in the colour of insert until one appeared, which
+" is the one moment it should already have changed.
 func! GrooVim_MultiCursorColour() abort
 
   if !s:on
@@ -119,10 +120,12 @@ endfunc
 " Note: What every caret does when a key that MOVES is pressed. The motion is
 " run at each caret, from where THAT caret is -- so "word right" is each one's
 " own next word, and "end of line" is each one's own end, on lines of every
-" length. Note: The keys with a modifier move EVERY caret, in both shapes of
-" this. The plain arrows are the difference between the two: in the column they
-" are the block -- "Down" takes in one more line -- and in the places they are
-" how you WALK to the next place, so there they move nobody but you.
+" length.
+"
+" Note: The keys with a modifier move EVERY caret, in both shapes of this. The
+" plain arrows are the difference between the two: in the column they are the
+" block -- "Down" takes in one more line -- and in the places they are how you
+" WALK to the next place, so there they move nobody but you.
 "
 " Which is not a taste either. Marking several places is choosing where they
 " are, and arrows that drag the carets already marked would take the chosen
@@ -738,12 +741,13 @@ endfunc
 
 " Note: A line cut in two moves everything below it one line down, and whatever
 " was on that line AFTER the cut goes with it -- to the new line, counting from
-" where the cut left it. Note: "alsoCursor" says whether the REAL cursor has to
-" go down as well. When the cut was its own, Vim has already taken it to the new
-" line; when it was a caret's, nobody has -- and a cursor left a line short
-" joins the wrong two lines the next time a backspace is pressed: measured, an
-" Enter and a backspace, which should leave a file exactly as it was, eating a
-" line of it.
+" where the cut left it.
+"
+" Note: "alsoCursor" says whether the REAL cursor has to go down as well. When
+" the cut was its own, Vim has already taken it to the new line; when it was a
+" caret's, nobody has -- and a cursor left a line short joins the wrong two
+" lines the next time a backspace is pressed: measured, an Enter and a
+" backspace, which should leave a file exactly as it was, eating a line of it.
 func! GrooVim_MultiCut(line, column, except, alsoCursor) abort
 
   let l:which = 0

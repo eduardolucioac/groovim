@@ -16,8 +16,9 @@
 "
 " Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
 " It is not decoration: the case that checks this list against the code reads
-" it, and writing it wrong is a failure. Note: The sections of the menu of F10,
-" and they are not the F keys any more.
+" it, and writing it wrong is a failure.
+"
+" Note: The sections of the menu of F10, and they are not the F keys any more.
 "
 " Note: They were: the menu had four sections because there are four F keys, and
 " every line of it was a shortcut of one of them. So the menu showed what the F
@@ -315,9 +316,11 @@ let g:GrooVim_Shortcuts = [
 
 " Note: How a key is written on screen. A letter goes in plain angle brackets; a
 " named key gets its capital back; punctuation is wrapped in bars, because the
-" help syntax of Vim would otherwise eat a "/" or a "[" . Note: Written by the
-" same function the MENU writes with, so that a key is spelled one way in
-" GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is a key of its own.
+" help syntax of Vim would otherwise eat a "/" or a "[" .
+"
+" Note: Written by the same function the MENU writes with, so that a key is
+" spelled one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is
+" a key of its own.
 "
 " Note: The bars around it are what the help syntax of Vim highlights with, and
 " they only go on where the word would not be picked out otherwise.
