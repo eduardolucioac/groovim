@@ -267,10 +267,15 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "View", "group": "F5", "key": "t", "modes": "niv", "run": 'call GrooVim_TabToReturnSet()',
  \  "menu": "Pin this tab", "what": "Allows always returning to a particular tab using <Alt-Down>",
  \  "notes": [
- \   "The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want"
+ \   "The pinned tab wears a mark on the tab line, so which one it is can be seen at any moment without pressing anything. The mark is |g:GrooVim_TabPinMark| , and |\"\"| takes it off",
+ \   "Pressed ON the pinned tab it unpins; pressed anywhere else it moves the pin there. One tab at a time, because \"take me back\" has to mean one place",
+ \   "The pin lives IN the tab and not in its number: carrying the tab along the line with |Ctrl+Shift+Up| takes the pin with it"
  \  ]},
  \ {"where": "View", "keys": "<A-Down>", "modes": "niv",
- \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t"},
+ \  "menu": "Back to the pinned tab", "what": "Back to the tab set with F5->t",
+ \  "notes": [
+ \   "Pressed ON the pinned tab it does the opposite: back to the tab you came from. With no tab pinned it is always that -- the last one you were on"
+ \  ]},
  \ {"where": "View", "keys": "<A-,>", "break": 1, "modes": "niv",
  \  "menu": "Window back",
  \  "what": "To the window before this one, going round",

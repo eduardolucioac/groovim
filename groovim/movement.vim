@@ -501,31 +501,49 @@ vnoremap <silent> <A-DOWN> :<C-U>call GrooVim_TabToReturn()<cr>v
 let g:lastTab = 1
 autocmd! TabLeave * let g:lastTab = tabpagenr()
 
-func! GrooVim_TabToReturn() abort
-  if g:GrooVim_TabToReturnNumber == 0
-    exe "tabn " . g:lastTab
-  else
-    if g:GrooVim_TabToReturnNumber == tabpagenr()
-      exe "tabn " . g:lastTab
-    else
-      exe "tabn " . g:GrooVim_TabToReturnNumber
-      " Note: "redraw" ensures the message display.
-      redraw
-      echo "Tab to return is ENabled to this tab!"
+" Note: Which tab is pinned, or 0 when none is.
+"
+" The pin is kept IN the tab -- a tab-local variable -- and not as the NUMBER of
+" one. A number is a position, and a position is not a tab: pinning the second
+" one and then carrying it right with |Ctrl+Shift+Up| left the pin pointing at
+" the second position, where another document now was. Measured: pin "b.txt",
+" move it, press |Alt+Down|, and GrooVim took you to "c.txt".
+func! GrooVim_TabPinned() abort
+  for l:tab in range(1, tabpagenr("$"))
+    if gettabvar(l:tab, "GrooVim_TabPinned", 0)
+      return l:tab
     endif
-  endif
+  endfor
+  return 0
 endfunc
 
-" Note: Allows returning to a particular tab.
-let g:GrooVim_TabToReturnNumber = 0
-func! GrooVim_TabToReturnSet() abort
-  if g:GrooVim_TabToReturnNumber == 0
-    let g:GrooVim_TabToReturnNumber = tabpagenr()
-    call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
-  else
-    let g:GrooVim_TabToReturnNumber = 0
-    call GrooVim_GrooVimBarMsg("Tab to return was DISabled!", 4)
+" Note: Back to the pinned tab, and back to where you came from if you are
+" already on it. With no tab pinned it is the last one you were on, which is
+" what the key always did.
+func! GrooVim_TabToReturn() abort
+  let l:pinned = GrooVim_TabPinned()
+  if l:pinned == 0 || l:pinned == tabpagenr()
+    exe "tabn " . g:lastTab
+    return
   endif
+  exe "tabn " . l:pinned
+  call GrooVim_GrooVimBarMsg("Back on the pinned tab!", 4)
+endfunc
+
+" Note: Pins the tab you are on, and unpins it when it is already the pinned
+" one. Only one at a time: pinning somewhere else moves the pin there, which is
+" the answer to "take me back" having one place to mean.
+func! GrooVim_TabToReturnSet() abort
+  if gettabvar(tabpagenr(), "GrooVim_TabPinned", 0)
+    call settabvar(tabpagenr(), "GrooVim_TabPinned", 0)
+    call GrooVim_GrooVimBarMsg("Tab to return was DISabled!", 4)
+    return
+  endif
+  for l:tab in range(1, tabpagenr("$"))
+    call settabvar(l:tab, "GrooVim_TabPinned", 0)
+  endfor
+  call settabvar(tabpagenr(), "GrooVim_TabPinned", 1)
+  call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
 endfunc
 
 if g:enable_tcomment_vim

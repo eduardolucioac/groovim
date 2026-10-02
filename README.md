@@ -304,8 +304,11 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Shift+Up` - Moves this tab one place to the right *(normal mode/insert/visual)*;
     - `Ctrl+Shift+Down` - Moves it one place to the left *(normal mode/insert/visual)*;
     - `F5->t` - Allows always returning to a particular tab using <Alt-Down> *(normal mode/insert/visual)*;
-        - Note: The same key takes the mark off, from whatever tab you press it on. One tab holds it at a time, so moving it means turning it off and then on again on the tab you want;
+        - Note: The pinned tab wears a mark on the tab line, so which one it is can be seen at any moment without pressing anything. The mark is g:GrooVim_TabPinMark , and "" takes it off;
+        - Note: Pressed ON the pinned tab it unpins; pressed anywhere else it moves the pin there. One tab at a time, because "take me back" has to mean one place;
+        - Note: The pin lives IN the tab and not in its number: carrying the tab along the line with Ctrl+Shift+Up takes the pin with it;
     - `Alt+Down` - Back to the tab set with F5->t *(normal mode/insert/visual)*;
+        - Note: Pressed ON the pinned tab it does the opposite: back to the tab you came from. With no tab pinned it is always that -- the last one you were on;
     - `Alt+,` - To the window before this one, going round *(normal mode/insert/visual)*;
         - Note: It was Ctrl+W , which only ever went one way. And the Ctrl+W of Vim is back to being what it is everywhere else: the key every window command begins with;
     - `Alt+.` - To the next window, going round *(normal mode/insert/visual)*;

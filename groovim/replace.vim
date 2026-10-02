@@ -288,3 +288,4 @@ func! GrooVim_EscapeSubstituteReplacement(valueToTreat) abort
   let l:replacement = substitute(l:replacement, "\n$", "", "")
   return l:replacement
 endfunc
+

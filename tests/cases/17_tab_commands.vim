@@ -204,6 +204,54 @@ func! GT_Body()
     \   'has_key(v:val, "run") && type(v:val.run) == type("")
     \   && v:val.run =~ "SelectRange"')), "")
 
+  " ---- the pinned tab, which says so on the tab line
+  "
+  " F5->t pins the tab Alt+Down comes back to. It said so in a message and
+  " nowhere else, and a message is gone by the time you need to know -- what you
+  " need to know is WHICH tab it was.
+  "
+  " And the pin lives IN the tab now, not in its NUMBER. A number is a position:
+  " pinning the second tab and carrying it right with Ctrl+Shift+Up left the pin
+  " on the second position, where another document had arrived. Measured through
+  " a real terminal, before this: pin "beta", move it, press Alt+Down, and
+  " GrooVim went to "gama".
+  tabonly!
+  exec "edit " . g:GT_FIX . "/a.txt"
+  exec "tabnew " . g:GT_FIX . "/b.txt"
+  exec "tabnew " . g:GT_FIX . "/c.txt"
+  tabnext 2
+  call GrooVim_TabToReturnSet()
+  call GT_Ok("F5->t pins the tab you are on", GrooVim_TabPinned() == 2,
+    \ "   (tab " . GrooVim_TabPinned() . ")")
+  call GT_Ok("  and the tab line says which one",
+    \ GrooVim_TabLine() =~ g:GrooVim_TabPinMark . ".*b.txt",
+    \ "   [" . substitute(GrooVim_TabLine(), "%#\\w*#\\|%\\d*T", "", "g") . "]")
+  call GT_Ok("  and only that one",
+    \ len(split(GrooVim_TabLine(), g:GrooVim_TabPinMark, 1)) == 2, "")
+
+  call GrooVim_TabMove(1)
+  call GT_Ok("carrying the tab takes the pin with it", GrooVim_TabPinned() == 3,
+    \ "   (tab " . GrooVim_TabPinned() . ", and the file is " .
+    \ fnamemodify(bufname(tabpagebuflist(GrooVim_TabPinned())[0]), ":t") . ")")
+  call GT_Ok("  which is still the file that was pinned",
+    \ fnamemodify(bufname(tabpagebuflist(GrooVim_TabPinned())[0]), ":t") ==# "b.txt", "")
+
+  tabnext 1
+  call GrooVim_TabToReturn()
+  call GT_Ok("Alt+Down goes to the pinned tab", tabpagenr() == 3 &&
+    \ fnamemodify(bufname("%"), ":t") ==# "b.txt",
+    \ "   (tab " . tabpagenr() . ", " . fnamemodify(bufname("%"), ":t") . ")")
+  call GrooVim_TabToReturn()
+  call GT_Ok("  and pressed there it goes back where you came from",
+    \ tabpagenr() == 1, "   (tab " . tabpagenr() . ")")
+
+  tabnext 3
+  call GrooVim_TabToReturnSet()
+  call GT_Ok("pressed again it unpins, and the mark goes",
+    \ GrooVim_TabPinned() == 0 && GrooVim_TabLine() !~ g:GrooVim_TabPinMark,
+    \ "   [" . substitute(GrooVim_TabLine(), "%#\\w*#\\|%\\d*T", "", "g") . "]")
+  tabonly!
+
   call GT_Done()
 endfunc
 

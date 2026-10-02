@@ -142,6 +142,13 @@ endfunc
 " Note: Like the tab line Vim draws by itself, with the same window count and
 " the same "+" for modified, except that only YOUR documents are counted: an
 " accessory is not a window you opened.
+"
+" Note: The mark the pinned tab wears. An arrow that comes back, because that is
+" what the tab is for: |Alt+Down| returns to it from wherever you are. Set it to
+" "" and the tab line says nothing, which leaves the message as the only way to
+" know.
+let g:GrooVim_TabPinMark = get(g:, "GrooVim_TabPinMark", "\u21A9")
+
 func! GrooVim_TabLine() abort
   let l:line = ""
 
@@ -161,7 +168,13 @@ func! GrooVim_TabLine() abort
       endif
     endfor
 
-    let l:prefix = (l:windows > 1 ? l:windows : "") . (l:modified ? "+" : "")
+    " Note: And the mark of the pinned tab, which is the one |Alt+Down| takes
+    " you back to. It is written here and not only said in a message: a message
+    " is gone by the time you need to know, and what you need to know is WHICH
+    " tab it was -- at a glance, at any moment, without pressing anything.
+    let l:pin = gettabvar(l:tab, "GrooVim_TabPinned", 0) ? g:GrooVim_TabPinMark : ""
+
+    let l:prefix = l:pin . (l:windows > 1 ? l:windows : "") . (l:modified ? "+" : "")
     let l:line = l:line . " " . (l:prefix == "" ? "" : l:prefix . " ")
     let l:line = l:line . GrooVim_TabLabel(l:tab) . " "
   endfor
