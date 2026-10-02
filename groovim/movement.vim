@@ -534,16 +534,21 @@ endfunc
 " one. Only one at a time: pinning somewhere else moves the pin there, which is
 " the answer to "take me back" having one place to mean.
 func! GrooVim_TabToReturnSet() abort
+
   if gettabvar(tabpagenr(), "GrooVim_TabPinned", 0)
     call settabvar(tabpagenr(), "GrooVim_TabPinned", 0)
     call GrooVim_GrooVimBarMsg("Tab to return was DISabled!", 4)
+    call GrooVim_TabLineRedraw()
     return
   endif
+
   for l:tab in range(1, tabpagenr("$"))
     call settabvar(l:tab, "GrooVim_TabPinned", 0)
   endfor
   call settabvar(tabpagenr(), "GrooVim_TabPinned", 1)
   call GrooVim_GrooVimBarMsg("Tab to return was ENabled to this tab!", 4)
+  call GrooVim_TabLineRedraw()
+
 endfunc
 
 if g:enable_tcomment_vim

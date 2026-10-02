@@ -250,6 +250,12 @@ func! GT_Body()
   call GT_Ok("pressed again it unpins, and the mark goes",
     \ GrooVim_TabPinned() == 0 && GrooVim_TabLine() !~ g:GrooVim_TabPinMark,
     \ "   [" . substitute(GrooVim_TabLine(), "%#\\w*#\\|%\\d*T", "", "g") . "]")
+  call GT_Ok("  and the line is told to draw itself again, there and then",
+    \ GT_FunctionText("GrooVim_TabToReturnSet") =~ "TabLineRedraw" &&
+    \ GT_FunctionText("GrooVim_TabLineRedraw") =~ "redrawtabline",
+    \ "   (Vim draws the tab line when a tab opens, closes or is entered, and\n" .
+    \ "    pinning is none of those: the mark stayed on the line until the next\n" .
+    \ "    tab change, which is the one moment nobody is looking at it)")
   tabonly!
 
   call GT_Done()

@@ -149,6 +149,17 @@ endfunc
 " know.
 let g:GrooVim_TabPinMark = get(g:, "GrooVim_TabPinMark", "\u21A9")
 
+" Note: Draws the tab line again, right now.
+"
+" Vim draws it when it has a reason of its own -- a tab opened, closed, entered
+" -- and pinning a tab is none of those: the mark appeared and disappeared only
+" at the next tab change, so taking the pin off left the mark sitting there.
+" Measured: F5->t on the pinned tab, the pin gone by every count, the arrow
+" still on the line.
+func! GrooVim_TabLineRedraw() abort
+  redrawtabline
+endfunc
+
 func! GrooVim_TabLine() abort
   let l:line = ""
 
