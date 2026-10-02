@@ -160,37 +160,102 @@ func! GrooVim_TabLineRedraw() abort
   redrawtabline
 endfunc
 
-func! GrooVim_TabLine() abort
-  let l:line = ""
+" Note: What one tab says, and nothing about where it is drawn: the marks in
+" front of the name -- the pin, how many documents are in the tab, whether any
+" of them is modified -- and then the name.
+func! GrooVim_TabPiece(tab) abort
 
-  for l:tab in range(1, tabpagenr("$"))
-    let l:line = l:line . (l:tab == tabpagenr() ? "%#TabLineSel#" : "%#TabLine#")
-    " Note: Makes the tab clickable, just like the default one.
-    let l:line = l:line . "%" . l:tab . "T"
-
-    let l:windows = 0
-    let l:modified = 0
-    for l:buffer in tabpagebuflist(l:tab)
-      if !GrooVim_IsHelperBuffer(bufname(l:buffer))
-        let l:windows = l:windows + 1
-        if getbufvar(l:buffer, "&modified")
-          let l:modified = 1
-        endif
+  let l:windows = 0
+  let l:modified = 0
+  for l:buffer in tabpagebuflist(a:tab)
+    if !GrooVim_IsHelperBuffer(bufname(l:buffer))
+      let l:windows = l:windows + 1
+      if getbufvar(l:buffer, "&modified")
+        let l:modified = 1
       endif
-    endfor
-
-    " Note: And the mark of the pinned tab, which is the one |Alt+Down| takes
-    " you back to. It is written here and not only said in a message: a message
-    " is gone by the time you need to know, and what you need to know is WHICH
-    " tab it was -- at a glance, at any moment, without pressing anything.
-    let l:pin = gettabvar(l:tab, "GrooVim_TabPinned", 0) ? g:GrooVim_TabPinMark : ""
-
-    let l:prefix = l:pin . (l:windows > 1 ? l:windows : "") . (l:modified ? "+" : "")
-    let l:line = l:line . " " . (l:prefix == "" ? "" : l:prefix . " ")
-    let l:line = l:line . GrooVim_TabLabel(l:tab) . " "
+    endif
   endfor
 
-  return l:line . "%#TabLineFill#%T"
+  " Note: The mark of the pinned tab, which is the one |Alt+Down| takes you back
+  " to. It is written here and not only said in a message: a message is gone by
+  " the time you need to know, and what you need to know is WHICH tab it was --
+  " at a glance, at any moment, without pressing anything.
+  let l:pin = gettabvar(a:tab, "GrooVim_TabPinned", 0) ? g:GrooVim_TabPinMark : ""
+
+  let l:prefix = l:pin . (l:windows > 1 ? l:windows : "") . (l:modified ? "+" : "")
+  return " " . (l:prefix == "" ? "" : l:prefix . " ") . GrooVim_TabLabel(a:tab) . " "
+
+endfunc
+
+" Note: The first tab DRAWN, which is not always the first tab there is.
+let s:tabFirst = 1
+
+" Note: The marks at the ends, which say that the line goes on past them.
+let g:GrooVim_TabMoreLeft = get(g:, "GrooVim_TabMoreLeft", "‹")
+let g:GrooVim_TabMoreRight = get(g:, "GrooVim_TabMoreRight", "›")
+
+" Note: The tab line, which SCROLLS instead of being cut.
+"
+" With more tabs than the terminal is wide, the line used to be written whole
+" and Vim cut what did not fit -- and what it cut was the left end, so going
+" back to an old tab left you on a tab whose name was off the screen. The one
+" thing a tab line is for is saying where you are.
+"
+" So a window of tabs is drawn instead, and the window follows you: it moves
+" only as much as it has to for the tab you are ON to be whole on the screen,
+" which is what Notepad++ does with the same problem. A "<" or a ">" at the end
+" says the line goes on that way.
+func! GrooVim_TabLine() abort
+
+  let l:count = tabpagenr("$")
+  let l:here = tabpagenr()
+  let l:pieces = map(range(1, l:count), "GrooVim_TabPiece(v:val)")
+  let l:widths = map(copy(l:pieces), "strdisplaywidth(v:val)")
+
+  " Note: Two columns held back for the marks at the ends. Held back always and
+  " not only when there is something to mark: a line that fits by exactly the
+  " width of the mark it is about to need would scroll by one tab for every
+  " redraw, back and forth.
+  let l:room = &columns - 2
+
+  if s:tabFirst > l:here
+    let s:tabFirst = l:here
+  endif
+  if s:tabFirst < 1 || s:tabFirst > l:count
+    let s:tabFirst = l:here
+  endif
+
+  " Note: And forward until the tab you are on fits whole.
+  while s:tabFirst < l:here
+    let l:used = 0
+    for l:tab in range(s:tabFirst, l:here)
+      let l:used = l:used + l:widths[l:tab - 1]
+    endfor
+    if l:used <= l:room
+      break
+    endif
+    let s:tabFirst = s:tabFirst + 1
+  endwhile
+
+  let l:line = ""
+  let l:used = 0
+  let l:last = s:tabFirst - 1
+  for l:tab in range(s:tabFirst, l:count)
+    if l:used + l:widths[l:tab - 1] > l:room && l:tab != l:here
+      break
+    endif
+    let l:line = l:line . (l:tab == l:here ? "%#TabLineSel#" : "%#TabLine#")
+    " Note: Makes the tab clickable, just like the default one.
+    let l:line = l:line . "%" . l:tab . "T" . l:pieces[l:tab - 1]
+    let l:used = l:used + l:widths[l:tab - 1]
+    let l:last = l:tab
+  endfor
+
+  let l:before = s:tabFirst > 1 ? "%#TabLine#" . g:GrooVim_TabMoreLeft : ""
+  let l:after = l:last < l:count ? "%#TabLine#" . g:GrooVim_TabMoreRight : ""
+
+  return l:before . l:line . l:after . "%#TabLineFill#%T"
+
 endfunc
 
 set tabline=%!GrooVim_TabLine()

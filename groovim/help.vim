@@ -677,6 +677,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n   |-|<Ctrl-Up>/<Ctrl-Down> (normal mode/insert/visual) - Go to the next/previous tab;".
 \"\n   |-|<Ctrl-Shift-Up>/<Ctrl-Shift-Down> (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line. At either end it stays put;".
+\"\n   |-|With more tabs than the line is wide it SCROLLS: the tab you are on is always drawn whole, and a |‹| or a |›| at the end says the line goes on that way. It moves as little as it has to, so the tabs around you stay where they were. The two marks are |g:GrooVim_TabMoreLeft| and |g:GrooVim_TabMoreRight| ;".
 \"\n".
 \"\n*o*  Comment lines".
 \"\n".

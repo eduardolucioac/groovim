@@ -146,6 +146,7 @@ Script features!
     - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
+    - With more tabs than the line is wide the tab line **scrolls**: the tab you are on is always drawn whole, and a `‹` or a `›` at the end says the line goes on that way. It is `g:GrooVim_TabMoreLeft` and `g:GrooVim_TabMoreRight`;
 
 The smooth one glides instead of jumping, goes over the places where there is no
 text -- a short line, the gap after the end of one -- and keeps the column it
