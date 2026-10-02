@@ -260,6 +260,41 @@ func! GT_Body()
     \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
     \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
 
+  " ---- and a thing is written in the part it belongs to
+  "
+  " Four of these were found by reading, one at a time, and each one had been
+  " written wherever its author happened to be: the keys that START a shortcut
+  " at the end of the REPLACE part, the settings of the session under them, the
+  " keys that walk between matches at the end of the SETTINGS part, and the two
+  " tools for finding out in the indent part and in the occurrence list.
+  "
+  " A part is a promise about where to look. This is the promise, for the ones
+  " that were broken once.
+  let l:belongs = [
+    \ ["shortcuts.vim", "nnoremap <silent> <script> <F2>"],
+    \ ["session.vim", "let g:GrooVim_SessionAuto = get"],
+    \ ["session.vim", "set sessionoptions="],
+    \ ["search.vim", "nnoremap <silent> <expr> n "],
+    \ ["debug.vim", "com! GrooVimKey"],
+    \ ["debug.vim", "func! GrooVim_PauseExecution"]]
+  let l:astray = []
+  for l:pair in l:belongs
+    let l:where = []
+    for l:file in sort(glob(fnamemodify(l:path, ":h") . "/groovim/*.vim", 0, 1))
+      for l:line in readfile(l:file)
+        if stridx(l:line, l:pair[1]) == 0
+          call add(l:where, fnamemodify(l:file, ":t"))
+          break
+        endif
+      endfor
+    endfor
+    if l:where !=# [l:pair[0]]
+      call add(l:astray, l:pair[1] . " -> " . string(l:where))
+    endif
+  endfor
+  call GT_Ok("everything is written in the part it belongs to", empty(l:astray),
+    \ "   " . (empty(l:astray) ? "(" . len(l:belongs) . " of them asked)" : string(l:astray)))
+
   " ---- and no note was swallowed by the one above it
   "
   " The formatter joins the paragraphs of a block, and two notes written one

@@ -175,3 +175,25 @@ endfunc
 
 nnoremap <silent> <script> <F9> :call GrooVim_ToogleGrooVimHelp()<cr>
 
+" Note: And the four keys that start all of it, in the three modes. Each one
+" calls the same machine with its own name, and the machine reads the key that
+" comes after.
+"
+" Through "<C-o>" in insert mode, which steps out for ONE command and comes
+" back, and through ":<C-u>" in visual, which drops the range Vim would put on
+" the command line.
+nnoremap <silent> <script> <F2> :call GrooVim_CommandZ("F2", "n")<cr>
+inoremap <silent> <script> <F2> <C-o>:call GrooVim_CommandZ("F2", "i")<cr>
+vnoremap <silent> <script> <F2> :<C-u>call GrooVim_CommandZ("F2", "v")<cr>
+
+nnoremap <silent> <script> <F3> :call GrooVim_CommandZ("F3", "n")<cr>
+inoremap <silent> <script> <F3> <C-o>:call GrooVim_CommandZ("F3", "i")<cr>
+vnoremap <silent> <script> <F3> :<C-u>call GrooVim_CommandZ("F3", "v")<cr>
+
+nnoremap <silent> <script> <F4> :call GrooVim_CommandZ("F4", "n")<cr>
+inoremap <silent> <script> <F4> <C-o>:call GrooVim_CommandZ("F4", "i")<cr>
+vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
+
+nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
+inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
+vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>

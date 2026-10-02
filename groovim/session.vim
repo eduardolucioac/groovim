@@ -5,6 +5,31 @@
 " Note: What is open when you leave and what comes back when you return: the
 " tabs, the files, the cursors. And the other half of it, the ways of closing --
 " a file, a tab, everything -- because what closes decides what is saved.
+
+" Note: The session: which files were open, in which tabs, with which layout.
+"
+" Saved by itself when you leave and brought back when you open GrooVim with no
+" file, the way Notepad++ (inspiration) does. Turn it off to do it by hand
+" instead, with F5->[ and F5->].
+"
+" What it does NOT carry is unsaved text: ":mksession" writes down which files
+" were open, not what you had typed into them. So closing with something unsaved
+" still asks, session or no session.
+let g:GrooVim_SessionAuto = get(g:, "GrooVim_SessionAuto", 1)
+let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_State . "/session.vim")
+
+" Note: What the session carries, and what it deliberately does NOT.
+"
+" Out go "options" and "folds": they would bring back the settings of the day
+" the session was saved, over the ones GrooVim has just set, and folds of files
+" that may have changed since.
+"
+" Out go "winsize", "winpos" and "resize" as well. They write a "set lines=24
+" columns=80" into the session and FORCE it back on the next start -- measured,
+" and it is why the editor opened not fitting the terminal. In a terminal the
+" size belongs to the terminal.
+set sessionoptions=buffers,curdir,tabpages
+
 func! GrooVim_SessionSave() abort
   call mkdir(fnamemodify(g:GrooVim_SessionFile, ":h"), "p")
   exec "mksession! " . fnameescape(g:GrooVim_SessionFile)
