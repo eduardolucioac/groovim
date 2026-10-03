@@ -138,19 +138,15 @@ func! GrooVim_CloseAsking(command) abort
   exec "confirm " . a:command
 endfunc
 
-" Note: Closing the tab you are in.
-"
-" Vim REFUSES to close the last tab -- "E784: Cannot close last tab page" -- so
-" on that one what closes is the DOCUMENT instead, leaving the empty one
-" Notepad++ calls "new 1".
-"
-" ":enew" for the empty one, and then wiping the document that was there.
-" ":bdelete" on its own reads better and is WRONG here: it hands you a fresh
-" empty buffer only when there is no other buffer around, and after a few tabs
-" have been closed there always is -- measured, closing the last tab showed a
-" file closed three tabs ago instead of an empty page. ":enew" always opens an
-" empty one, and the wipe is what keeps the closed file from lingering in the
-" buffer list.
+" Note: Closing the tab you are in. Vim REFUSES to close the last tab -- "E784:
+" Cannot close last tab page" -- so on that one what closes is the DOCUMENT
+" instead, leaving the empty one Notepad++ calls "new 1". ":enew" for the empty
+" one, and then wiping the document that was there. ":bdelete" on its own reads
+" better and is WRONG here: it hands you a fresh empty buffer only when there is
+" no other buffer around, and after a few tabs have been closed there always is
+" -- measured, closing the last tab showed a file closed three tabs ago instead
+" of an empty page. ":enew" always opens an empty one, and the wipe is what
+" keeps the closed file from lingering in the buffer list.
 "
 " The "confirm" is on the ":enew", which is what abandons the document, so
 " unsaved text is asked about before anything happens. Answering "Cancel" leaves
@@ -204,3 +200,4 @@ func! GrooVim_TabCloseSide(side) abort
     endif
   endwhile
 endfunc
+
