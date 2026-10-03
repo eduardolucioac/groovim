@@ -493,6 +493,28 @@ endfunc
 " of "set virtualedit=onemore".
 nnoremap <silent> <End> $<Right>
 
+" Note: Up and Down walk what you SEE, when what you see is a line that wrapped.
+"
+" With "Word wrap" on, one line of the file is drawn over several rows of the
+" screen, and the arrows of Vim move by LINE: from the first row of a wrapped
+" line they jump the whole block, which is not what the arrow under your finger
+" looks like it should do. In Notepad++ -- and in every editor that wraps -- they
+" walk the rows.
+"
+" "gj" and "gk" are that, and they are asked for only while "wrap" is on: with
+" the option off a line is one row, the two are the same thing, and the plain
+" ones are what every count and every macro expects.
+nnoremap <silent> <expr> <Down> &wrap ? "gj" : "j"
+nnoremap <silent> <expr> <Up> &wrap ? "gk" : "k"
+xnoremap <silent> <expr> <Down> &wrap ? "gj" : "j"
+xnoremap <silent> <expr> <Up> &wrap ? "gk" : "k"
+
+" Note: Through "<Cmd>" in insert mode, which does not step out of it. The
+" "<C-o>" that GrooVim uses elsewhere would, and leaving insert for a key that
+" only moves the cursor fires everything that watches for the leaving.
+inoremap <silent> <expr> <Down> &wrap ? "\<Cmd>normal! gj\<cr>" : "\<Down>"
+inoremap <silent> <expr> <Up> &wrap ? "\<Cmd>normal! gk\<cr>" : "\<Up>"
+
 nnoremap <silent> <A-DOWN> :call GrooVim_TabToReturn()<cr>
 inoremap <silent> <A-DOWN> <C-O>:call GrooVim_TabToReturn()<cr>
 vnoremap <silent> <A-DOWN> :<C-U>call GrooVim_TabToReturn()<cr>v

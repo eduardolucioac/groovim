@@ -108,6 +108,8 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
  * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
    it off the screen, breaking at a space and not inside a word. It is the "Word
    wrap" of Notepad++, off by default, and it is asked on **F5 c** and then **[v]**;
+   With it on, **Up** and **Down** walk the rows you see and not the lines of the
+   file -- the same arrows of Notepad++;
 
 The width, whether Tab puts spaces, and whether the guides are drawn are asked on
 a screen of their own, with **F5 i**. It is the "Tab Settings" of Notepad++.

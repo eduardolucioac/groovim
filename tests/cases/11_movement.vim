@@ -451,7 +451,48 @@ func! GT_ViewConclude()
   endif
 
   let &lines = g:GT_KEPT_LINES
-  call GT_Done()
+  
+" ---- Up and Down walk what you SEE, when the line wrapped
+"
+" With "Word wrap" on, one line of the file is drawn over several rows, and the
+" arrows of Vim move by LINE: from the first row of a wrapped line they jump the
+" whole block. The arrow under your finger does not look like it should do that,
+" and in Notepad++ -- in every editor that wraps -- it walks the rows.
+"
+" "gj" and "gk" are that, and only while "wrap" is on: with the option off a
+" line is one row and the plain ones are what counts and macros expect.
+%delete _
+call setline(1, ["curta", repeat("palavra ", 30) . "fim", "outra curta"])
+let g:GT_KEPT_COLUMNS = &columns
+set columns=60
+
+set nowrap
+call cursor(1, 1)
+call feedkeys("\<Down>", "x")
+call GT_Ok("with no wrap, Down is the line below", line(".") == 2 && col(".") == 1,
+  \ "   (line " . line(".") . ", column " . col(".") . ")")
+call GT_Ok("  and the key says so", maparg("<Down>", "n") =~ "wrap",
+  \ "   [" . maparg("<Down>", "n") . "]")
+
+set wrap linebreak
+call cursor(2, 1)
+call feedkeys("\<Down>", "x")
+let g:GT_ROW = [line("."), col(".")]
+call GT_Ok("with wrap, Down walks the row and stays in the line",
+  \ g:GT_ROW[0] == 2 && g:GT_ROW[1] > 1, "   " . string(g:GT_ROW))
+call feedkeys("\<Down>", "x")
+call GT_Ok("  and again, further along the same line",
+  \ line(".") == 2 && col(".") > g:GT_ROW[1],
+  \ "   (line " . line(".") . ", column " . col(".") . ")")
+call feedkeys("\<Up>", "x")
+call GT_Ok("  and Up comes back the same way",
+  \ line(".") == 2 && col(".") == g:GT_ROW[1],
+  \ "   (line " . line(".") . ", column " . col(".") . ")")
+
+set nowrap
+let &columns = g:GT_KEPT_COLUMNS
+
+call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

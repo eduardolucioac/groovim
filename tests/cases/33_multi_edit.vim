@@ -235,8 +235,10 @@ func! GT_Body()
   stopinsert
   call GT_Ok("  and taken off when it ends",
     \ empty(filter(getmatches(), 'v:val.group ==# "GrooVimMultiCaret"')) &&
-    \ maparg("<Down>", "i") ==# "" && maparg("<Esc>", "n") ==# "",
-    \ "   (the arrows are the arrows of everybody again)")
+    \ maparg("<Down>", "i") !~ "Multi" && maparg("<Esc>", "n") ==# "",
+    \ "   [" . maparg("<Down>", "i") . "]   (the arrows are the arrows of\n" .
+    \ "    everybody again -- which since the wrapped lines is not nothing:\n" .
+    \ "    it is GrooVim's own, the one that walks the row you can see)")
 
   " ---- every caret moves, each one from where IT is
   "
