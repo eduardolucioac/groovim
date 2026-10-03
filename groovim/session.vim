@@ -6,7 +6,7 @@
 " tabs, the files, the cursors. And the other half of it, the ways of closing --
 " a file, a tab, everything -- because what closes decides what is saved.
 
-" Note: The session: which files were open, in which tabs, with which layout.
+" The session: which files were open, in which tabs, with which layout.
 "
 " Saved by itself when you leave and brought back when you open GrooVim with no
 " file, the way Notepad++ (inspiration) does. Turn it off to do it by hand
@@ -37,19 +37,18 @@ endfunc
 
 " Note: The directory you STARTED IN wins over the one the session remembers.
 "
-" Note: A session carries the working directory it was saved in -- "mksession"
-" writes a "cd" into it -- so coming back brought that directory along, and the
-" file tree opened wherever you had been days ago instead of where you just ran
-" the command. Measured: "groovim" started inside "_TESTE_GROOVIM" opened the
-" tree on the directory of the project the session was saved from.
+" A session carries the working directory it was saved in -- "mksession" writes
+" a "cd" into it -- so coming back brought that directory along, and the file
+" tree opened wherever you had been days ago instead of where you just ran the
+" command.
 "
-" Note: With a file named there was never a problem, because then no session
-" comes back at all. It is the empty call -- which is exactly the one that
-" restores -- that had it, and the two now behave the same.
+" With a file named there was never a problem, because then no session comes
+" back at all. It is the empty call -- which is exactly the one that restores --
+" that had it, and the two now behave the same.
 "
-" Note: Put back AFTER sourcing, and not prevented: the session names its files
-" while it loads, and a directory changed under it would be a session looking
-" for files that are no longer where it left them.
+" Put back AFTER sourcing, and not prevented: the session names its files while
+" it loads, and a directory changed under it would be a session looking for
+" files that are no longer where it left them.
 func! GrooVim_SessionLoad() abort
 
   if !filereadable(g:GrooVim_SessionFile)
@@ -72,8 +71,8 @@ endfunc
 " brings those back as EMPTY buffers carrying the old name, and it looks like
 " the editor opened something broken.
 "
-" Note: And with nothing left to show, the welcome screen comes back: an empty
-" Vim that hides its own welcome looks like something went wrong.
+" And with nothing left to show, the welcome screen comes back: an empty Vim
+" that hides its own welcome looks like something went wrong.
 func! GrooVim_SessionDropGhosts() abort
 
   for l:buffer in getbufinfo({"buflisted": 1})
@@ -93,14 +92,13 @@ func! GrooVim_SessionDropGhosts() abort
 endfunc
 
 " Note: Only with no file on the command line. Opening "groovim file.txt" means
-" you want THAT file, not everything you had open last time!
-"
-" Note: "++nested" is what makes the files come back as FILES. A command run
-" from inside an autocmd fires no autocmds of its own unless the autocmd asks
-" for it, so the ":edit" written in the session opened every file with no
-" "BufRead" -- and with no "BufRead" there is no filetype detection: measured,
-" "&filetype" empty on a ".py" that opens as "python" when named on the command
-" line. No syntax, no indent rules, no indent guides.
+" you want THAT file, not everything you had open last time. "++nested" is what
+" makes the files come back as FILES. A command run from inside an autocmd fires
+" no autocmds of its own unless the autocmd asks for it, so the ":edit" written
+" in the session opened every file with no "BufRead" -- and with no "BufRead"
+" there is no filetype detection: measured, "&filetype" empty on a ".py" that
+" opens as "python" when named on the command line. No syntax, no indent rules,
+" no indent guides.
 augroup GrooVim_Session
   autocmd!
   autocmd VimLeavePre * if g:GrooVim_SessionAuto == 1 | call GrooVim_SessionSave() | endif
@@ -132,41 +130,21 @@ func! GrooVim_SessionLoadByHand() abort
   call GrooVim_SessionLoad()
 endfunc
 
-" Note: Closing, asking about what would be lost.
-"
-" Note: ":confirm" is what turns the refusal of Vim -- "E37: No write since last
-" change" -- into a question you can answer: save, throw away, or go back.
-" Writing that by hand would be repeating what Vim already knows.
+" Note: Closing, asking about what would be lost. ":confirm" is what turns the
+" refusal of Vim -- "E37: No write since last change" -- into a question you can
+" answer: save, throw away, or go back. Writing that by hand would be repeating
+" what Vim already knows.
 func! GrooVim_CloseAsking(command) abort
   exec "confirm " . a:command
 endfunc
 
-" Note: Closes every tab on ONE SIDE of the one you are in -- the "Close All to
-" the Right" and "Close All to the Left" of the Notepad++ tab menu.
-"
-" Note: One tab at a time, and always the NEIGHBOUR: closing shifts the numbers
-" of every tab after it, so a list of numbers read up front would be wrong by
-" the second one. Asking "who is next to me" again each round cannot go stale.
-"
-" Note: It asks about unsaved text, like every other way of closing in GrooVim.
-" And if you answer "Cancel" the count of tabs does not move -- which is how
-" this knows to stop, instead of asking the same question for ever.
-"
-" Note: A new tab, at the END of the tab line, and one you can type in. See the
-" long notes on "$tabnew" and on the lock that used to leak, in
-" "GrooVim_TabClose" and in the help toggle.
-func! GrooVim_TabNew() abort
-  $tabnew
-  setlocal ma
-endfunc
-
 " Note: Closing the tab you are in.
 "
-" Note: Vim REFUSES to close the last tab -- "E784: Cannot close last tab page"
+" Vim REFUSES to close the last tab -- "E784: Cannot close last tab page"
 " -- so on that one what closes is the DOCUMENT instead, leaving the empty one
 " Notepad++ calls "new 1".
 "
-" Note: ":enew" for the empty one, and then wiping the document that was there.
+" ":enew" for the empty one, and then wiping the document that was there.
 " ":bdelete" on its own reads better and is WRONG here: it hands you a fresh
 " empty buffer only when there is no other buffer around, and after a few tabs
 " have been closed there always is -- measured, closing the last tab showed a
@@ -174,7 +152,7 @@ endfunc
 " empty one, and the wipe is what keeps the closed file from lingering in the
 " buffer list.
 "
-" Note: The "confirm" is on the ":enew", which is what abandons the document, so
+" The "confirm" is on the ":enew", which is what abandons the document, so
 " unsaved text is asked about before anything happens. Answering "Cancel" leaves
 " the buffer where it was, and the "if" below sees that nothing moved and wipes
 " nothing.
@@ -203,6 +181,16 @@ func! GrooVim_TabClose() abort
 
 endfunc
 
+" Note: Closes every tab on ONE SIDE of the one you are in -- the "Close All to
+" the Right" and "Close All to the Left" of the Notepad++ tab menu.
+"
+" One tab at a time, and always the NEIGHBOUR: closing shifts the numbers of
+" every tab after it, so a list of numbers read up front would be wrong by the
+" second one. Asking "who is next to me" again each round cannot go stale.
+"
+" It asks about unsaved text, like every other way of closing in GrooVim. And if
+" you answer "Cancel" the count of tabs does not move -- which is how this knows
+" to stop, instead of asking the same question for ever.
 func! GrooVim_TabCloseSide(side) abort
   while 1
     let l:target = a:side > 0 ? tabpagenr() + 1 : tabpagenr() - 1
@@ -216,44 +204,3 @@ func! GrooVim_TabCloseSide(side) abort
     endif
   endwhile
 endfunc
-
-" Tip: Try to "balance" the distribution of the keys to preserve your
-" hands.
-
-" Note: How long GrooVim waits for the SECOND key of a shortcut, in
-" milliseconds. It is the ONLY number the F keys have: the waiting is done in
-" slices of twenty, and when the time runs out with nothing typed, the F key
-" repeats the last command IT ran.
-"
-" Note: It is also how long "do that again" takes when you ask for it by
-" WAITING, because the two are the same instant: the moment the window closes is
-" the moment the key repeats. There is no second wait after the first.
-"
-" Note: Raise it if a second key of yours is being lost. Measured: with 400
-" here, a second key pressed 600ms after the F key does not arrive in time, and
-" what runs in its place is the repetition -- the previous command instead of
-" the one you were typing. The long trips of a keyboard, an F key at one corner
-" and an arrow at the other, take longer than they feel like they do, and 1000
-" is the number that held all of them.
-"
-" Note: And you can ask for "do that again" WITHOUT waiting at all: press the
-" same F key twice. That path takes 22ms and owes nothing to this number.
-"
-" Note: Two numbers used to sit beside this one, and neither was about you.
-"
-" Note: "CommandZSettle" waited 400ms before looking for the key the FIRST time,
-" because a terminal sends an F key as an escape sequence and reading before it
-" has all landed reads nothing. Measured with real keys through a real terminal:
-" 0ms fails, 5ms already works on all four F keys, the longest sequence
-" included. So the 400 were eighty times what was needed, and EVERY shortcut
-" paid them before doing anything. The first slice of the waiting does that job
-" now.
-"
-" Note: "CommandZRepeat" was a window for pressing the same F key twice to mean
-" "do that again", and it could never be met: the clock ran from the first
-" press, which itself burned the 400ms above, so it always read 402 to 404ms
-" against a limit of 400. Repeating cost 1.3 seconds and went through the
-" waiting every time. The same F key pressed again is read as a KEY now, and
-" repeats at once -- nothing is timed.
-let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
-

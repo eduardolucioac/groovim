@@ -5,6 +5,46 @@
 " Note: The F keys, and the wait for the second key that makes a shortcut. Which
 " shortcut does what is NOT here: it is read from the one list in the help part,
 " and this is the machine that reads the keys and looks it up.
+" Tip: Try to "balance" the distribution of the keys to preserve your
+" hands.
+
+" Note: How long GrooVim waits for the SECOND key of a shortcut, in
+" milliseconds. It is the ONLY number the F keys have: the waiting is done in
+" slices of twenty, and when the time runs out with nothing typed, the F key
+" repeats the last command IT ran.
+"
+" It is also how long "do that again" takes when you ask for it by
+" WAITING, because the two are the same instant: the moment the window closes is
+" the moment the key repeats. There is no second wait after the first.
+"
+" Raise it if a second key of yours is being lost. Measured: with 400
+" here, a second key pressed 600ms after the F key does not arrive in time, and
+" what runs in its place is the repetition -- the previous command instead of
+" the one you were typing. The long trips of a keyboard, an F key at one corner
+" and an arrow at the other, take longer than they feel like they do, and 1000
+" is the number that held all of them.
+"
+" And you can ask for "do that again" WITHOUT waiting at all: press the
+" same F key twice. That path takes 22ms and owes nothing to this number.
+"
+" Note: Two numbers used to sit beside this one, and neither was about you.
+"
+" "CommandZSettle" waited 400ms before looking for the key the FIRST time,
+" because a terminal sends an F key as an escape sequence and reading before it
+" has all landed reads nothing. Measured with real keys through a real terminal:
+" 0ms fails, 5ms already works on all four F keys, the longest sequence
+" included. So the 400 were eighty times what was needed, and EVERY shortcut
+" paid them before doing anything. The first slice of the waiting does that job
+" now.
+"
+" "CommandZRepeat" was a window for pressing the same F key twice to mean
+" "do that again", and it could never be met: the clock ran from the first
+" press, which itself burned the 400ms above, so it always read 402 to 404ms
+" against a limit of 400. Repeating cost 1.3 seconds and went through the
+" waiting every time. The same F key pressed again is read as a KEY now, and
+" repeats at once -- nothing is timed.
+let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
+
 let g:GrooVim_CommandZUnblock = 1
 " Note: The cursor keeps the colour of the mode the key was pressed in, for as
 " long as the shortcut takes.

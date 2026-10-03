@@ -205,6 +205,16 @@ let g:GrooVim_TabMoreRight = get(g:, "GrooVim_TabMoreRight", "›")
 " only as much as it has to for the tab you are ON to be whole on the screen,
 " which is what Notepad++ does with the same problem. A "<" or a ">" at the end
 " says the line goes on that way.
+" Note: A new tab, at the END of the tab line, and one you can type in.
+"
+" The "setlocal ma" is there because of a lock that used to leak: a ":set noma"
+" written somewhere else made every buffer opened afterwards refuse to be
+" changed -- see the long note on it in "GrooVim_SearchGuySync".
+func! GrooVim_TabNew() abort
+  $tabnew
+  setlocal ma
+endfunc
+
 func! GrooVim_TabLine() abort
 
   let l:count = tabpagenr("$")
