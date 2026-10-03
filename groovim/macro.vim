@@ -32,11 +32,13 @@ endfunc
 " tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
 " modifier mark in front.
 func! GrooVim_XenRecTrimKey() abort
+
   " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
   " "\%x80" does not match the raw byte 0x80 that the key leaves behind, because
   " on its own it is not valid UTF-8. The key itself, written as "\<F2>",
   " carries exactly the bytes to look for.
   let l:recorded = getreg("a")
+
   let l:where = strridx(l:recorded, "\<F2>")
   if l:where >= 0
     call setreg("a", strpart(l:recorded, 0, l:where))
@@ -49,14 +51,17 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
   if a:repeatExecution == 0
     exec "norm @a"
+
     " Note: Running a macro REPLAYS keys, F keys among them, and replaying one
     " writes over what its group was repeating. So F2 is told again that it was
     " "w" -- this very command -- or pressing F2 alone afterwards would do
     " whatever the macro happened to press last.
     call GrooVim_CommandZRemember("F2", "119")
+
   elseif a:repeatExecution == 1
     let g:block_GrooVim_HLNext = 1
     let g:GrooVim_XenPlayRunningWithSearch = 0
+
     " Note: Asked ONCE, and repeated as it is until the answer serves. It used
     " to ask again with another sentence, "use a valid one!", which threw away
     " the part that tells you about the "x" just when you most needed to read
@@ -64,10 +69,13 @@ func! GrooVim_XenPlay(repeatExecution) range abort
     let l:numberOfRepetitions = GrooVim_ScreenAsk(
      \ "Number of repetitions (use \"x\" to execute to last/first line): ",
      \ {answer -> GrooVim_IsRepetitionCount(answer)})
+
     " Note: Runs up to the last/first row!.
     if l:numberOfRepetitions == "x"
+
       " Note: "set nowrapscan" serves to avoid going back to the beginning.
       set nowrapscan
+
       let l:stopWhile = 0
       let l:firstExecution = 1
       let l:executionDirection = ""
@@ -80,6 +88,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
         " Note: If there are no more occurrences of a search then stops
         " execution.
         try
+
           " Note: Tests if still there are occurrences.
           if l:executionDirection != "" && g:GrooVim_XenPlayRunningWithSearch == 1
             if l:executionDirection == "d"
@@ -90,6 +99,7 @@ func! GrooVim_XenPlay(repeatExecution) range abort
             endif
             call setpos(".", l:posBefore)
           endif
+
           exec "norm @a"
 
         catch
@@ -131,8 +141,10 @@ func! GrooVim_XenPlay(repeatExecution) range abort
 
         if l:stopWhile == 0 && g:GrooVim_GrooVimBarMsgEnabled == 0
           call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
+
           " Note: The "redraw!" is to ensure that the message is displayed!.
           redraw!
+
         endif
 
         " Note: To see execution.
@@ -159,11 +171,15 @@ func! GrooVim_XenPlay(repeatExecution) range abort
         let g:onMoveScreen = 1
         if g:GrooVim_GrooVimBarMsgEnabled == 0
           call GrooVim_GrooVimBarMsg("Use Ctrl+C to stop!", 1)
+
           " Note: The "redraw!" is to ensure that the message is displayed.
           redraw!
+
         endif
+
         " Note: To see execution.
         redraw!
+
       endfor
 
     endif
@@ -207,6 +223,7 @@ func! GrooVim_DuplicateLine() abort
   " still the line you are on, in the same column, and the window has not moved:
   " "p" leaves the cursor on the COPY, which is not where you were.
   let l:view = winsaveview()
+
   let l:saved_reg = GrooVim_ClipGet()
   exec "norm! yyp"
   call winrestview(l:view)
@@ -254,7 +271,6 @@ exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimr
 " way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
-
 " Note: Save to disk and open in a new tab a copy of the current file.
 "
 " Where to put a file and what to call it, asked once and used by both the copy
@@ -279,8 +295,10 @@ func! GrooVim_AskFileWhere(what) abort
         let l:valueToPath = GrooVim_ClipGet()
       else
         call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+
         " Note: The "redraw!" is to ensure that the message is displayed.
         redraw!
+
       endif
     elseif l:valueToPath == "1"
       let l:stopWhile = 1
@@ -305,6 +323,7 @@ func! GrooVim_AskFileWhere(what) abort
     if l:valueToPath == ""
       let l:definePathWarning = " (DEFINE A PATH TOO!)"
     endif
+
     " Note: The name of the file you are on comes WRITTEN in the answer, ready
     " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
     " does. The second argument of "input()" is the text it starts with.
@@ -313,6 +332,7 @@ func! GrooVim_AskFileWhere(what) abort
     " always did.
     let l:valueToName = input("NAME of the " . a:what . " to be saved" .
      \ l:definePathWarning . ": ", expand("%:t"))
+
     if ("" . l:valueToName . "") != ""
       if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
         let l:stopWhile = 1
@@ -452,8 +472,10 @@ func! GrooVim_ToTitleCase(modType) range abort
   let @/ = l:search
 
   if a:modType == "v"
+
     " Note: Repositioning on final, like the upper and lower above.
     exec "norm! gv\<Esc>"
+
   else
     call winrestview(l:view)
   endif
@@ -462,6 +484,7 @@ endfunc
 
 " Note: Changes to uppercase/lowercase.
 func! GrooVim_ToUpperLower(modType) range abort
+
   " Note: Reselect area.
   exec "norm gv"
 
@@ -475,7 +498,6 @@ func! GrooVim_ToUpperLower(modType) range abort
 
   " Note: Repositioning on final.
   exec "norm gv\<Esc>"
-endfunc
 
-" Note: Sudo to write. cnoremap w!! w !sudo tee % >/dev/null
+endfunc
 

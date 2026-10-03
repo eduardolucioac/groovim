@@ -35,7 +35,8 @@ endfunc
 " A name ON SCREEN and not a name on the buffer: ":file new 1" would be one
 " line, and it would make ":w" write a file called "new 1" into whatever
 " directory you happen to be in. Nameless, Vim goes on asking you where to save
-" -- the Save As of Notepad++, and the reason its "new 1" is not a file either.
+" -- the Save As of Notepad++ (inspiration), and the reason its "new 1" is not a
+" file either.
 "
 " The number is handed out the first time the buffer is DRAWN and then kept on
 " the buffer, so it never changes under you and the tabs get theirs left to
@@ -199,8 +200,8 @@ endfunc
 " Note: The tab line, which SCROLLS instead of being cut: with more tabs than
 " the terminal is wide, a WINDOW of tabs is drawn and the window follows you. It
 " moves only as much as it has to for the tab you are ON to be whole on the
-" screen, which is what Notepad++ does with the same problem, and a "‹" or a "›"
-" at the end says the line goes on that way.
+" screen, which is what Notepad++ (inspiration) does with the same problem, and
+" a "‹" or a "›" at the end says the line goes on that way.
 func! GrooVim_TabLine() abort
 
   let l:count = tabpagenr("$")
@@ -241,8 +242,10 @@ func! GrooVim_TabLine() abort
       break
     endif
     let l:line = l:line . (l:tab == l:here ? "%#TabLineSel#" : "%#TabLine#")
+
     " Note: Makes the tab clickable, just like the default one.
     let l:line = l:line . "%" . l:tab . "T" . l:pieces[l:tab - 1]
+
     let l:used = l:used + l:widths[l:tab - 1]
     let l:last = l:tab
   endfor
@@ -256,7 +259,7 @@ endfunc
 
 set tabline=%!GrooVim_TabLine()
 
-" Note: Displays the help for GrooVim. This text is in the own GrooVim body!.
+" Note: Displays the help for GrooVim. This text is in the own GrooVim body.
 "
 " Which tab you were reading when you asked for the help, so that asking again
 " puts you back there. A toggle that leaves you somewhere else is not a toggle.
@@ -284,10 +287,12 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " locked the global "modifiable", and from then on every new buffer of the
     " session answered "E21" to anything, a copy included.
     setlocal ma
+
     silent exec "file GrooVimHelp"
     exec "put =g:GrooVimHelp"
     exec "norm ggdd"
     setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
+
     " Note: The help syntax of Vim answers "E403: syntax sync: Line
     " continuations pattern specified twice" when it is loaded onto a buffer
     " that is not a real help FILE. Measured with nothing but "syntax on" in the
@@ -297,13 +302,17 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
     " message is read later as a real one, by a human and by the battery alike.
     let l:errmsgWas = v:errmsg
+
     silent! setlocal syntax=help
     let v:errmsg = l:errmsgWas
     let &l:statusline = "%!GrooVim_GrooVimHelpBar()"
+
     " Note: The help was WRITTEN into, so Vim marks it changed and the bar shows
     " a "+" on a buffer nobody can change.
     setlocal noma nomodified
+
   else
+
     " Note: Wiping the buffer takes its tab with it, there being nothing else in
     " that tab. And wiping and not closing, so that "bufexists()" above answers
     " honestly the next time.

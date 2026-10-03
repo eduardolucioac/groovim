@@ -20,7 +20,6 @@
 " only takes room from the ones that differ. Ctrl+C would be the obvious key and
 " cannot be used: measured, it does not arrive here at all, it INTERRUPTS -- the
 " filter never ran and the keys after it were never read.
-
 let s:dialog = {}
 
 " Note: The colours of a dialogue are the colours of the menu, because they are
@@ -352,3 +351,4 @@ func! GrooVim_DialogOnScreen(spec) abort
   endwhile
 
 endfunc
+

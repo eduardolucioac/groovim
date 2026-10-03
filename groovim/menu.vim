@@ -261,6 +261,7 @@ func! GrooVim_MenuBarText() abort
   let l:text = ""
   let l:at = []
   for l:group in GrooVim_MenuSectionsHere()
+
     " Note: The name of the section and nothing else. It used to be " F2 Edit ",
     " which taught that F2 was Edit -- and could, because a section WAS an F
     " key. A section holds keys of every shape now, and each line under it
@@ -268,6 +269,7 @@ func! GrooVim_MenuBarText() abort
     let l:piece = " " . l:group[0] . " "
     call add(l:at, [strchars(l:text) + 1, strchars(l:piece)])
     let l:text = l:text . l:piece
+
   endfor
   return [l:text, l:at]
 endfunc
@@ -511,6 +513,7 @@ func! GrooVim_MenuSectionOfFKey(fKey) abort
     endif
     let l:count[l:one.where] = get(l:count, l:one.where, 0) + 1
   endfor
+
   " Note: Walked in the order of the sections and not in the order of the keys
   " of a dictionary, which Vim does not promise -- a draw has to fall the same
   " way every time.
@@ -522,6 +525,7 @@ func! GrooVim_MenuSectionOfFKey(fKey) abort
     endif
   endfor
   return l:best
+
 endfunc
 
 func! GrooVim_MenuFilter(id, key) abort
@@ -546,6 +550,7 @@ func! GrooVim_MenuFilter(id, key) abort
     call popup_close(a:id, s:menuLine)
     return 1
   endif
+
   " Note: "F10" closes it as well as opens it. While the menu is up every key
   " comes HERE and the mapping never runs, so the toggle has to live in the
   " filter.
@@ -657,5 +662,4 @@ endfunc
 nnoremap <silent> <script> <F10> :call GrooVim_Menu()<cr>
 inoremap <silent> <script> <F10> <C-o>:call GrooVim_Menu()<cr>
 vnoremap <silent> <script> <F10> :<C-u>call GrooVim_Menu()<cr>
-
 

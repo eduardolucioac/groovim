@@ -6,7 +6,7 @@
 " shortcut does what is NOT here: it is read from the one list in the help part,
 " and this is the machine that reads the keys and looks it up.
 
-" Note: How long GrooVim waits for the SECOND key of a shortcut, in
+" How long GrooVim waits for the SECOND key of a shortcut, in
 " milliseconds. When it runs out with nothing typed, the F key repeats the last
 " command IT ran: the window closing and the repeat are the same instant, so
 " there is no second wait after the first.
@@ -21,6 +21,7 @@
 let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
 
 let g:GrooVim_CommandZUnblock = 1
+
 " Note: The cursor keeps the colour of the mode the key was pressed in, for as
 " long as the shortcut takes.
 "
@@ -212,3 +213,4 @@ vnoremap <silent> <script> <F4> :<C-u>call GrooVim_CommandZ("F4", "v")<cr>
 nnoremap <silent> <script> <F5> :call GrooVim_CommandZ("F5", "n")<cr>
 inoremap <silent> <script> <F5> <C-o>:call GrooVim_CommandZ("F5", "i")<cr>
 vnoremap <silent> <script> <F5> :<C-u>call GrooVim_CommandZ("F5", "v")<cr>
+
