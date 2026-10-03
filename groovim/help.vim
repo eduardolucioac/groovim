@@ -474,10 +474,20 @@ func! GrooVim_About() abort
 
 endfunc
 
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"THE TEXT OF THE HELP
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" THE TEXT OF THE HELP
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" Note: Prose, written in the markup of a help file of Vim: a "|" on each side
+" of a word highlights it, a "~" ends a heading, and ">" and "<" open and close
+" an example. The window that shows it is put in the state that renders that
+" markup by "GrooVim_ToogleGrooVimHelp()", in the tabs part.
+"
+" To look at it by hand while writing it, put the buffer you are on in the same
+" state: >
+"   setlocal wrap linebreak nolist textwidth=0 wrapmargin=0 formatoptions+=l
+"   setlocal syntax=help
+" <
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n|GrooVim|=D|" . g:grooVimVersion . "|-|Vi|IMproved\'n\'GrooVIed!|".
 \"\n Last change: 2026 September 19".
@@ -712,11 +722,3 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n"
 
-" Note: To test the help use: "set wrap | set linebreak | set nolist | set
-" textwidth=0 | set wrapḿargin=0 | set formatoptions+=l | set syntax=help".
-
-" =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
-
-" Note: The options you chose to KEEP are read in the ".vimrc", BEFORE any part
-" of GrooVim -- see "GrooVim_OptsFile" there. They used to be read here, at the
-" very end, and that only worked for the ones consulted while you type.

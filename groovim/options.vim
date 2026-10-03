@@ -4,8 +4,7 @@
 
 " The screens of F5->c: what each one asks, what an answer may be, and what is
 " done with it. And the file where the answers you chose to KEEP are written,
-" which the .vimrc reads before any part of GrooVim runs. Where the options you
-" chose to KEEP are written.
+" which the .vimrc reads before any part of GrooVim runs.
 "
 " Under "GrooVim/" and not under "plugin/", where it used to live: Vim sources
 " everything in "~/.vim/plugin" by itself, so the file was being run by the Vim
