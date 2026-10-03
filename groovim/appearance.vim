@@ -108,7 +108,8 @@ set laststatus=2
 " Notepad++ (inspiration) keeps it on its bar for the same reason.
 
 " Note: How much is selected, the "Sel" that Notepad++ (inspiration) keeps on
-" its bar: "[sel 46 in 3]" is 46 characters lying on 3 lines.
+" its bar: "[46,3]" is 46 characters lying on 3 lines, in the shape the bar uses
+" for a pair of numbers.
 "
 " Vim only half answers this on its own. Its count, in the corner, says
 " CHARACTERS while the selection is inside one line and silently becomes LINES
@@ -134,16 +135,17 @@ func! GrooVim_BarSelection() abort
   let l:here = getpos(".")
   let l:there = getpos("v")
 
-  " Note: Over the limit only the lines are said, and the text is never asked
-  " for. Both the asking and the counting walk the selected text on EVERY
-  " redraw, which is every key of a selection that is growing: measured at 1.1
-  " microseconds per line of 80 characters just to count, so the 2000 of the
-  " limit cost about two milliseconds and the 100000 lines of a big file would
-  " cost a tenth of a second -- a bar that answers after the key instead of with
-  " it. The line span is arithmetic on two positions, and costs nothing.
+  " Note: Over the limit a "-" stands where the characters would be, and the
+  " text is never asked for. Both the asking and the counting walk the selected
+  " text on EVERY redraw, which is every key of a selection that is growing:
+  " measured at 1.1 microseconds per line of 80 characters just to count, so the
+  " 2000 of the limit cost about two milliseconds and the 100000 lines of a big
+  " file would cost a tenth of a second -- a bar that answers after the key
+  " instead of with it. The line span is arithmetic on two positions, and costs
+  " nothing.
   let l:span = abs(l:here[1] - l:there[1]) + 1
   if l:span > g:GrooVim_SelectionCountLimit
-    return " [sel " . l:span . " lines]"
+    return " [-," . l:span . "]"
   endif
 
   " Note: In a "try" because this runs on every redraw: an error inside a
@@ -159,12 +161,12 @@ func! GrooVim_BarSelection() abort
     let l:chars += strchars(l:line)
   endfor
 
-  return " [sel " . l:chars . " in " . len(l:lines) . "]"
+  return " [" . l:chars . "," . len(l:lines) . "]"
 endfunc
 
 func! GrooVim_GrooVimBarWhere() abort
   return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v]' .
-   \ '%{GrooVim_BarSelection()} [%p%%]'
+   \ ' [%p%%]%{GrooVim_BarSelection()}'
 endfunc
 
 func! GrooVim_GrooVimBar() abort

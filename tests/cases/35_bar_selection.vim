@@ -24,31 +24,31 @@ func! GT_Body()
   call setline(1, ["alpha bravo charlie", "delta echo", "foxtrot golf hotel"])
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("v4l")
-  call GT_Ok("five characters of one line", l:sel ==# " [sel 5 in 1]",
+  call GT_Ok("five characters of one line", l:sel ==# " [5,1]",
     \ "   [" . l:sel . "]")
 
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("vj")
-  call GT_Ok("a selection that crosses a line", l:sel ==# " [sel 20 in 2]",
+  call GT_Ok("a selection that crosses a line", l:sel ==# " [20,2]",
     \ "   [" . l:sel . "]   (19 of the first line and 1 of the second)")
 
   " ---- whole lines
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("V2j")
-  call GT_Ok("three whole lines", l:sel ==# " [sel 47 in 3]",
+  call GT_Ok("three whole lines", l:sel ==# " [47,3]",
     \ "   [" . l:sel . "]   (19 + 10 + 18, and the line breaks are not characters)")
 
   " ---- a block, which is the F2->b of GrooVim and not a Ctrl-V (that pastes)
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("\<F2>b2j3l")
-  call GT_Ok("a block of three lines by four columns", l:sel ==# " [sel 12 in 3]",
+  call GT_Ok("a block of three lines by four columns", l:sel ==# " [12,3]",
     \ "   [" . l:sel . "]")
 
   " ---- characters and not bytes
   call setline(1, "ação coração")
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("v11l")
-  call GT_Ok("an accented letter counts as ONE", l:sel ==# " [sel 12 in 1]",
+  call GT_Ok("an accented letter counts as ONE", l:sel ==# " [12,1]",
     \ "   [" . l:sel . "]   (14 bytes, 12 characters)")
 
   " ---- nothing at all while there is no selection
@@ -68,13 +68,13 @@ func! GT_Body()
   let g:GrooVim_SelectionCountLimit = 10
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("V20j")
-  call GT_Ok("over the limit, only the lines are said", l:sel ==# " [sel 21 lines]",
+  call GT_Ok("over the limit, only the lines are said", l:sel ==# " [-,21]",
     \ "   [" . l:sel . "]")
 
   call cursor(1, 1)
   let l:sel = GT_SelectionWith("V2j")
   call GT_Ok("  and under it the characters come back",
-    \ l:sel =~# "^ \\[sel \\d\\+ in 3\\]$", "   [" . l:sel . "]")
+    \ l:sel =~# "^ \\[\\d\\+,3\\]$", "   [" . l:sel . "]")
   let g:GrooVim_SelectionCountLimit = 2000
 
   call GT_Done()
