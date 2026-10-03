@@ -78,9 +78,9 @@ if g:enable_nerdtree_vim
   " opening the tree puts the cursor inside it, which is the last thing you want
   " when what you did was open a file.
   "
-  " Note: And when this OPENED the tree, it ends on a document and never in the
-  " tree itself. Opening it puts the cursor inside it, and the window to go back
-  " to may be the tree of the tab you came FROM -- measured, a new tab arriving
+  " And when this OPENED the tree, it ends on a document and never in the tree
+  " itself. Opening it puts the cursor inside it, and the window to go back to
+  " may be the tree of the tab you came FROM -- measured, a new tab arriving
   " with the cursor in its tree instead of in the empty document it had just
   " been given. Asking for the tree with the key is another matter: there you
   " asked to read it.

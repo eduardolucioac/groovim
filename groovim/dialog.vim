@@ -15,11 +15,11 @@
 " with the key written beside the label, and clicked with the mouse. An address
 " anywhere in the text is a link: it is drawn as one and a click opens it.
 "
-" Note: "c" copies what a dialogue says, and it is not a button. It is the same
-" on every one of them, and a button that is on every window teaches nothing --
-" it only takes room from the ones that differ. Ctrl+C would be the obvious key
-" and cannot be used: measured, it does not arrive here at all, it INTERRUPTS --
-" the filter never ran and the keys after it were never read.
+" "c" copies what a dialogue says, and it is not a button. It is the same on
+" every one of them, and a button that is on every window teaches nothing -- it
+" only takes room from the ones that differ. Ctrl+C would be the obvious key and
+" cannot be used: measured, it does not arrive here at all, it INTERRUPTS -- the
+" filter never ran and the keys after it were never read.
 
 let s:dialog = {}
 
@@ -244,15 +244,15 @@ endfunc
 " Note: While it is up, every key comes here, so nothing walks the file behind
 " it, and only the ways out written on the window take it down.
 "
-" Note: The keys VIM sends itself are swallowed and nothing else. They begin
-" with the two bytes 0x80 0xFD -- measured, one of them, "<80><fd>`", used to
-" arrive on its own and shut the window in the instant it opened. The mouse is
-" in that same family and is asked about FIRST, because a click is somebody's.
+" The keys VIM sends itself are swallowed and nothing else. They begin with the
+" two bytes 0x80 0xFD -- measured, one of them, "<80><fd>`", used to arrive on
+" its own and shut the window in the instant it opened. The mouse is in that
+" same family and is asked about FIRST, because a click is somebody's.
 "
-" Note: A shortcut is read here key by key, both of them, and not handed back to
-" the CommandZ. Measured with mappings on: the F key handed back never came to
-" this filter again -- Vim had already turned it into the command its mapping
-" says, and what arrived was that command, letter by letter.
+" A shortcut is read here key by key, both of them, and not handed back to the
+" CommandZ. Measured with mappings on: the F key handed back never came to this
+" filter again -- Vim had already turned it into the command its mapping says,
+" and what arrived was that command, letter by letter.
 func! GrooVim_DialogFilter(id, key) abort
 
   if a:key ==# "\<LeftMouse>"

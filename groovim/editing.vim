@@ -60,8 +60,8 @@ nnoremap <silent> <LeftMouse> :let g:onMoveScreen = 1<cr><LeftMouse>
 " delete to it on purpose: in a conventional editor deleting a line does not
 " cost you what you copied ten minutes ago.
 "
-" Note: Over a selection it takes every line the selection touches, whole, which
-" is what "the line" means when more than one is in hand.
+" Over a selection it takes every line the selection touches, whole, which is
+" what "the line" means when more than one is in hand.
 func! GrooVim_SuppressLine(mode) abort
   if !GrooVim_CanChange() | return | endif
   if a:mode ==# "v"
@@ -80,12 +80,12 @@ endfunc
 " "]", "{" to "}". Vim already PAINTS the pair under the cursor; this walks to
 " it.
 "
-" Note: It is the "%" of Vim, which needs no help from anybody, given a key a
+" It is the "%" of Vim, which needs no help from anybody, given a key a
 " conventional editor would look for. In insert mode it goes out and back with a
 " "<C-o>", and in visual it takes the selection with it -- which is how you grab
 " a whole block from one bracket to the other.
 "
-" Note: This key used to be the visual block, which is now on F2->b.
+" This key used to be the visual block, which is now on F2->b.
 nnoremap <silent> <C-b> %
 inoremap <silent> <C-b> <C-o>%
 vnoremap <silent> <C-b> %
@@ -143,8 +143,8 @@ endfunc
 " every window command of it begins with, and from insert mode the "delete the
 " word behind" that every terminal has. Both are back to being themselves.
 "
-" Note: And the line below is what makes it arrive as a KEY. Vim does not read
-" an "Esc" in front of a character as Alt: ":h :map-alt-keys" names Konsole and
+" And the line below is what makes it arrive as a KEY. Vim does not read an
+" "Esc" in front of a character as Alt: ":h :map-alt-keys" names Konsole and
 " says so -- "some mainstream terminals like gnome-terminal and konsole use the
 " ESC prefix", and Vim "doesn't know what happened". The mapping was there and
 " the key did nothing; measured, window 1 of 2 before and window 1 after.

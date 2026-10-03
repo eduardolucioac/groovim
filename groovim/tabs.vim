@@ -6,8 +6,8 @@
 " no name yet, and the windows that are accessories of a tab instead of
 " documents of yours -- the tree, the lists, the help.
 "
-" Note: The windows that are accessories of a tab and not documents of yours. In
-" one place because more than one thing needs to know it.
+" The windows that are accessories of a tab and not documents of yours. In one
+" place because more than one thing needs to know it.
 func! GrooVim_IsHelperBuffer(name) abort
   return a:name =~ "GrooVim_SearchGuyResults" || a:name =~ "GrooVim_BookmarksList" ||
    \ a:name =~ "NERD_tree_" || a:name =~ "GrooVimHelp"
@@ -15,9 +15,9 @@ endfunc
 
 " Note: Try to ensure that open in an editor window.
 "
-" Note: It walks the windows a bounded number of times. It used to be a "while"
-" that pressed "<C-w>" until it landed on an editor: with nothing but
-" accessories open that day never came and Vim froze.
+" It walks the windows a bounded number of times. It used to be a "while" that
+" pressed "<C-w>" until it landed on an editor: with nothing but accessories
+" open that day never came and Vim froze.
 func! GrooVim_PutOnEditWindow() range abort
   for l:window in range(1, winnr("$"))
     if !GrooVim_IsHelperBuffer(expand('%:t'))
@@ -33,23 +33,23 @@ endfunc
 " tabs. Here the label is always a document of yours: the accessories are
 " skipped.
 "
-" Note: A document you have not saved yet shows as "new 1", "new 2"... the way
+" A document you have not saved yet shows as "new 1", "new 2"... the way
 " Notepad++ names them, instead of the "[No Name]" of Vim.
 "
-" Note: A name ON SCREEN and not a name on the buffer. ":file new 1" would have
-" been one line, and it would make ":w" write a file called "new 1" into
-" whatever directory you happen to be in. Nameless, Vim goes on asking you where
-" to save -- which is the Save As of Notepad++, and the reason its "new 1" is
-" not a file either.
+" A name ON SCREEN and not a name on the buffer. ":file new 1" would have been
+" one line, and it would make ":w" write a file called "new 1" into whatever
+" directory you happen to be in. Nameless, Vim goes on asking you where to save
+" -- which is the Save As of Notepad++, and the reason its "new 1" is not a file
+" either.
 "
-" Note: The number is handed out the first time the buffer is DRAWN and then
-" kept on the buffer, so it never changes under you, and the tabs get theirs in
-" the order they are drawn -- left to right.
+" The number is handed out the first time the buffer is DRAWN and then kept on
+" the buffer, so it never changes under you, and the tabs get theirs in the
+" order they are drawn -- left to right.
 "
-" Note: And it is the LOWEST one nobody is using, not the next of a counter that
-" only grows: close "new 2" of "new 1, new 2, new 3" and the one after it is
-" "new 2" again. That is how Notepad++ hands them out, and a counter would have
-" you at "new 47" on a morning when three documents were ever open at once.
+" And it is the LOWEST one nobody is using, not the next of a counter that only
+" grows: close "new 2" of "new 1, new 2, new 3" and the one after it is "new 2"
+" again. That is how Notepad++ hands them out, and a counter would have you at
+" "new 47" on a morning when three documents were ever open at once.
 func! GrooVim_NewNameOf(buffer) abort
 
   if !GrooVim_IsADocument(a:buffer)
@@ -64,7 +64,7 @@ func! GrooVim_NewNameOf(buffer) abort
   " Note: Only what is ON SCREEN holds a slot -- a buffer shown in some window
   " of some tab.
   "
-  " Note: Closing a tab does not delete its buffer, it hides it, so counting
+  " Closing a tab does not delete its buffer, it hides it, so counting
   " everything LISTED would keep the number of a document you closed and hand
   " you "new 4" right after closing "new 2". A document that was saved has a
   " name of its own now and stops counting too: both give their number back
@@ -143,9 +143,9 @@ endfunc
 " the same "+" for modified, except that only YOUR documents are counted: an
 " accessory is not a window you opened.
 "
-" Note: The mark the pinned tab wears. An arrow that comes back, because that is
-" what the tab is for: |Alt+Down| returns to it from wherever you are. Set it to
-" "" and the tab line says nothing, which leaves the message as the only way to
+" The mark the pinned tab wears. An arrow that comes back, because that is what
+" the tab is for: |Alt+Down| returns to it from wherever you are. Set it to ""
+" and the tab line says nothing, which leaves the message as the only way to
 " know.
 let g:GrooVim_TabPinMark = get(g:, "GrooVim_TabPinMark", "\u21A9")
 
@@ -205,7 +205,8 @@ let g:GrooVim_TabMoreRight = get(g:, "GrooVim_TabMoreRight", "›")
 " only as much as it has to for the tab you are ON to be whole on the screen,
 " which is what Notepad++ does with the same problem. A "<" or a ">" at the end
 " says the line goes on that way.
-" Note: A new tab, at the END of the tab line, and one you can type in.
+"
+" A new tab, at the END of the tab line, and one you can type in.
 "
 " The "setlocal ma" is there because of a lock that used to leak: a ":set noma"
 " written somewhere else made every buffer opened afterwards refuse to be
@@ -272,12 +273,11 @@ set tabline=%!GrooVim_TabLine()
 
 " Note: Displays the help for GrooVim. This text is in the own GrooVim body!.
 "
-" Note: Which tab you were reading when you asked for the help, so that asking
-" again puts you back there. A toggle that leaves you somewhere else is not a
-" toggle.
+" Which tab you were reading when you asked for the help, so that asking again
+" puts you back there. A toggle that leaves you somewhere else is not a toggle.
 "
-" Note: The number is enough and does not go stale: the help opens at the END of
-" the tab line, so no tab in front of it ever changes number while it is up.
+" The number is enough and does not go stale: the help opens at the END of the
+" tab line, so no tab in front of it ever changes number while it is up.
 let s:helpCameFrom = 0
 
 func! GrooVim_ToogleGrooVimHelp() range abort
@@ -291,7 +291,7 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " you read it -- and it does not belong on top of the document you opened it
     " to ask about.
     "
-    " Note: At the END of the tab line, where a new tab goes.
+    " At the END of the tab line, where a new tab goes.
     $tabnew
 
     " Note: "setlocal" and NOT "set" -- see the long note in
@@ -309,7 +309,7 @@ func! GrooVim_ToogleGrooVimHelp() range abort
     " vimrc, so it is not GrooVim's to fix, and it colours the text correctly
     " all the same.
     "
-    " Note: Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
+    " Kept quiet, and "v:errmsg" handed back as it was -- a leftover error
     " message is read later as a real one, by a human and by the battery alike.
     let l:errmsgWas = v:errmsg
     silent! setlocal syntax=help

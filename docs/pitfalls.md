@@ -132,6 +132,7 @@ checks the four things this project decided:
 
 * every part opens with a banner and a name;
 * a line does not run past **85 columns**;
+* `Note:` is written **once per note**, on the paragraph it starts;
 * no line ends in blank space;
 * no line is indented with a tab.
 
@@ -144,6 +145,10 @@ Past 85 it is an **error on a comment**, which `--fix` can rewrite, and a
 **warning on code**, which it cannot: there are lines that will not break — the
 text of the help, a long `exec` — and a rule that cannot be obeyed is a rule
 nobody reads.
+
+A note that runs over several paragraphs is **one note**: announcing each of them
+again says "here is something new" where nothing new begins, and the word stops
+meaning anything. What ends a note is the code under it — a block is a note.
 
 What `--fix` will not touch, on purpose:
 

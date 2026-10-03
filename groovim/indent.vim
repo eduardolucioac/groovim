@@ -48,8 +48,8 @@ let &expandtab = g:GrooVim_IndentExpandTab
 " columns and a width of 8 goes to 8, not to 10. Unindenting comes back the same
 " way.
 "
-" Note: Without it, "Tab" over a line with 2 columns gave 2, 10, 18, 26, because
-" ">>" adds "shiftwidth" to the indent in place. Native to Vim, one option.
+" Without it, "Tab" over a line with 2 columns gave 2, 10, 18, 26, because ">>"
+" adds "shiftwidth" to the indent in place. Native to Vim, one option.
 set shiftround
 
 " Note: Draws a dot on every space and an arrow on every tab, which is "Show
@@ -92,8 +92,8 @@ func! GrooVim_SymbolsSet() abort
   " Note: Assigning the option instead of using ":set" avoids having to escape
   " the spaces with a backslash.
   "
-  " Note: The one thing that can be refused here is the CHARACTER, and it is the
-  " user who chooses it. Vim wants one single-width char per column in a
+  " The one thing that can be refused here is the CHARACTER, and it is the user
+  " who chooses it. Vim wants one single-width char per column in a
   " "leadmultispace", so a double-width char, an emoji, a control char or the
   " comma that separates the fields answer "E1512" or "E1511". Measured on the
   " Vim GrooVim builds.
@@ -188,7 +188,7 @@ endfunc
 " Note: Applies the per file type width, and ONLY for what is listed. The guides
 " are refreshed on window entry because "listchars" is window local.
 "
-" Note: And on "OptionSet", so that typing ":set shiftwidth=8" by hand moves the
+" And on "OptionSet", so that typing ":set shiftwidth=8" by hand moves the
 " guides right then. Without it the width was read only when you entered the
 " window, and a changed "shiftwidth" left the guides drawn at the OLD spacing
 " until you walked out and back in.

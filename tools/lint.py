@@ -10,6 +10,7 @@ checks the four things this project decided:
 
   * every part opens with a banner and a name;
   * a line does not run past 85 columns;
+  * "Note:" is written once per note, on the paragraph it starts;
   * no line ends in blank space;
   * no line is indented with a tab.
 
@@ -141,7 +142,12 @@ def blocos(linhas):
 def formata(linhas):
     """The file with its notes reflowed. Only the notes: a block that does not
     begin with "Note:" is somebody's commented-out code or a heading, and the
-    only safe thing to do with those is nothing."""
+    only safe thing to do with those is nothing.
+
+    And "Note:" once per note. A note that runs over several paragraphs is one
+    note: announcing each of them again says "here is something new" where
+    nothing new begins, and the word stops meaning anything at all. What ends a
+    note is the code under it -- a block is a note."""
     saida = []
     fim_anterior = 0
     for comeco, fim, recuo in blocos(linhas):
@@ -153,21 +159,37 @@ def formata(linhas):
             continue
         paragrafo = []
         novo = []
+        primeiro = [True]
+
+        def guarda(linhas_do_paragrafo):
+            """One paragraph, wrapped, and with its "Note:" only if it opens the
+            block."""
+            if literal(linhas_do_paragrafo):
+                primeiro[0] = False
+                return linhas_do_paragrafo
+            # Note: Taken off BEFORE the wrapping and not after, or the first
+            # line would come out six columns short and the rest of the
+            # paragraph would keep the breaks it had.
+            if not primeiro[0]:
+                linhas_do_paragrafo = list(linhas_do_paragrafo)
+                linhas_do_paragrafo[0] = re.sub(
+                    r'^(\s*"\s*)Note:\s*', r"\1", linhas_do_paragrafo[0])
+            primeiro[0] = False
+            return reflui(linhas_do_paragrafo, recuo)
+
         for linha in bloco + [None]:
             vazia = linha is None or texto_de(linha) == ""
             # Note: And a line that OPENS with "Note:" opens a paragraph, blank
             # line above it or not. Without this the two notes were one block of
             # prose to join, and joining them is what did the damage.
             if not vazia and paragrafo and texto_de(linha).startswith("Note:"):
-                novo.extend(paragrafo if literal(paragrafo)
-                            else reflui(paragrafo, recuo))
+                novo.extend(guarda(paragrafo))
                 novo.append(recuo + '"')
                 paragrafo = [linha]
                 continue
             if vazia:
                 if paragrafo:
-                    novo.extend(paragrafo if literal(paragrafo)
-                                else reflui(paragrafo, recuo))
+                    novo.extend(guarda(paragrafo))
                     paragrafo = []
                 if linha is not None:
                     novo.append(linha.rstrip())
@@ -205,6 +227,14 @@ def olha(caminho, linhas):
 
     if cabecalho(linhas) == "":
         erros.append("%s: no banner with a name at the top" % caminho)
+
+    for comeco, fim, recuo in blocos(linhas):
+        if not texto_de(linhas[comeco]).startswith("Note:"):
+            continue
+        for numero in range(comeco + 1, fim):
+            if texto_de(linhas[numero]).startswith("Note:"):
+                erros.append("%s:%d: a second \"Note:\" in one note"
+                             " (--fix takes it off)" % (caminho, numero + 1))
 
     for numero, linha in enumerate(linhas, 1):
         onde = "%s:%d" % (caminho, numero)

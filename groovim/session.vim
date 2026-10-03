@@ -140,8 +140,8 @@ endfunc
 
 " Note: Closing the tab you are in.
 "
-" Vim REFUSES to close the last tab -- "E784: Cannot close last tab page"
-" -- so on that one what closes is the DOCUMENT instead, leaving the empty one
+" Vim REFUSES to close the last tab -- "E784: Cannot close last tab page" -- so
+" on that one what closes is the DOCUMENT instead, leaving the empty one
 " Notepad++ calls "new 1".
 "
 " ":enew" for the empty one, and then wiping the document that was there.

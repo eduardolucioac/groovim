@@ -8,17 +8,17 @@ set showmode
 " Note: Word wrap, the one of the View menu of Notepad++. Off by default, which
 " is what GrooVim always did, and asked on the view screen of "F5->c".
 "
-" Note: "linebreak" goes with it, and it is not an extra: what Notepad++ does is
-" break the line at a SPACE, and Vim without "linebreak" breaks in the middle of
-" a word. The restriction that "linebreak" did nothing while "list" was on is of
+" "linebreak" goes with it, and it is not an extra: what Notepad++ does is break
+" the line at a SPACE, and Vim without "linebreak" breaks in the middle of a
+" word. The restriction that "linebreak" did nothing while "list" was on is of
 " an older Vim -- GrooVim asks for 9.2, where the two work together, and "list"
 " here is always on because the guides need it.
 "
-" Note: A plain ":set" and no autocmd to spread it. It reaches the window you
-" are on and becomes the default of every window opened afterwards, which is
-" what a preference should do -- and it leaves the help window alone, which asks
-" for "wrap" of its own and would lose it to anything that reimposed this on
-" every "WinEnter".
+" A plain ":set" and no autocmd to spread it. It reaches the window you are on
+" and becomes the default of every window opened afterwards, which is what a
+" preference should do -- and it leaves the help window alone, which asks for
+" "wrap" of its own and would lose it to anything that reimposed this on every
+" "WinEnter".
 let g:GrooVim_WordWrap = get(g:, "GrooVim_WordWrap", 0)
 func! GrooVim_WordWrapSet() abort
   if g:GrooVim_WordWrap
@@ -60,8 +60,8 @@ set viminfo^=%
 " Note: Turn persistent undo on means that you can undo even when you close a
 " buffer/VIM.
 "
-" Note: The directory must exist, otherwise "undofile" silently fails to write
-" the undo history.
+" The directory must exist, otherwise "undofile" silently fails to write the
+" undo history.
 try
   let g:GrooVim_UndoDir = g:GrooVim_State . "/undo"
   if !isdirectory(g:GrooVim_UndoDir)
@@ -109,16 +109,16 @@ let NERDTreeWinPos = "right"
 
 " Note: A file chosen in the tree opens in a TAB OF ITS OWN.
 "
-" Note: It used to open in the window you came from, which means the file you
-" were reading is gone from the screen -- you asked to open one more, not to
-" swap the one you had. Every editor with a file tree opens a document beside
-" the ones already open, and the tabs of GrooVim are where the open ones live.
+" It used to open in the window you came from, which means the file you were
+" reading is gone from the screen -- you asked to open one more, not to swap the
+" one you had. Every editor with a file tree opens a document beside the ones
+" already open, and the tabs of GrooVim are where the open ones live.
 "
-" Note: "reuse" is kept as it was: a file already open somewhere is JUMPED to
-" instead of opened again, which is what you meant by choosing it.
+" "reuse" is kept as it was: a file already open somewhere is JUMPED to instead
+" of opened again, which is what you meant by choosing it.
 "
-" Note: A directory is untouched -- there "open" means unfold, and a folder in a
-" tab of its own would be a tab with a tree in it.
+" A directory is untouched -- there "open" means unfold, and a folder in a tab
+" of its own would be a tab with a tree in it.
 let g:NERDTreeCustomOpenArgs =
  \ {"file": {"reuse": "all", "where": "t", "keepopen": 1}, "dir": {}}
 
@@ -132,9 +132,8 @@ if g:enable_move_vim
   " here presses. Measured: with two lines selected, "Ctrl+J" and "Ctrl+K" left
   " the file exactly as it was, while the same keys moved a single line.
   "
-  " Note: It is the same key for both on purpose: moving a line and moving the
-  " lines you marked are one idea, and the number of them is not the user's
-  " problem.
+  " It is the same key for both on purpose: moving a line and moving the lines
+  " you marked are one idea, and the number of them is not the user's problem.
   let g:move_key_modifier = "C"
   let g:move_key_modifier_visualmode = "C"
   inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>

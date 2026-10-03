@@ -6,14 +6,14 @@
 " syntax of the language, the indent rules of the language, and the plugin of
 " the language.
 "
-" Note: It was written in the ".vimrc", under the section about where GrooVim
-" lives and which parts it loads, and it is neither of those: it is how Vim
-" behaves, which is this file. It stays FIRST among the parts, because this is
-" the first one the ".vimrc" reads and the parts that set an indent or a syntax
-" come after it.
+" It was written in the ".vimrc", under the section about where GrooVim lives
+" and which parts it loads, and it is neither of those: it is how Vim behaves,
+" which is this file. It stays FIRST among the parts, because this is the first
+" one the ".vimrc" reads and the parts that set an indent or a syntax come after
+" it.
 "
-" Note: The line that carried it said "after the plugins loaded", and that has
-" not been true for as long as GrooVim has had its own Vim: packages under
+" The line that carried it said "after the plugins loaded", and that has not
+" been true for as long as GrooVim has had its own Vim: packages under
 " "pack/*/start" are loaded when the ".vimrc" has been read to its end, so
 " anything written IN it runs before them, wherever in it that is.
 filetype plugin indent on
@@ -24,19 +24,19 @@ filetype plugin indent on
 "   let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"}
 " <
 "
-" Note: They lived at the end of the indent part, written into the code, under a
+" They lived at the end of the indent part, written into the code, under a
 " heading about syntax associations that had stopped describing anything else in
 " that file. What a file IS belongs next to the detection that decides it, which
 " is the line above; how it is indented comes after, and reads the answer.
 "
-" Note: Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add
-" to without touching GrooVim, and only what is listed in it is touched -- the
-" file types Vim knows go on being found by Vim.
+" Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add to
+" without touching GrooVim, and only what is listed in it is touched -- the file
+" types Vim knows go on being found by Vim.
 "
-" Note: The file type and not the syntax, which is what the two lines used to
-" set as well. Setting the type is what makes Vim read the syntax OF that type,
-" along with its indent rules and its plugin; setting the syntax alone would
-" paint the file and leave the other two behind.
+" The file type and not the syntax, which is what the two lines used to set as
+" well. Setting the type is what makes Vim read the syntax OF that type, along
+" with its indent rules and its plugin; setting the syntax alone would paint the
+" file and leave the other two behind.
 let g:GrooVim_SyntaxPerExtension = get(g:, "GrooVim_SyntaxPerExtension",
       \ {"inc": "html", "gds": "vb"})
 
@@ -184,10 +184,10 @@ endtry
 " Nothing here is a requirement of GrooVim. With no tool around, this provider
 " reports itself unavailable and the cascade simply goes on to OSC 52.
 "
-" Note: "needs" is the session the tool talks to, and being INSTALLED is not the
-" same as being able to work: "wl-copy" without a compositor fails -- measured,
-" it exits 1 saying the socket is not there. Without this the cascade stopped on
-" a provider that cannot copy anything, on the very machine where the next one
+" "needs" is the session the tool talks to, and being INSTALLED is not the same
+" as being able to work: "wl-copy" without a compositor fails -- measured, it
+" exits 1 saying the socket is not there. Without this the cascade stopped on a
+" provider that cannot copy anything, on the very machine where the next one
 " (OSC 52) would have crossed the SSH by itself: measured, "v:clipmethod" coming
 " out "groovim" with no WAYLAND_DISPLAY and no DISPLAY, because "wl-clipboard"
 " happened to be installed there.
@@ -416,19 +416,19 @@ func! GrooVim_ClipReg() abort
   " itself works perfectly well. The branch above cannot fire there, and this
   " one is what finds the register.
   "
-  " Note: And the register is "+", never "*". It was asked with
-  " has("unnamedplus"), which cannot answer no where this branch answers yes --
-  " read in the source of the Vim this builds, "evalfunc.c": both live inside
-  " the same "#ifdef FEAT_CLIPBOARD", "clipboard_working" is true when the
-  " method is a provider or when the X or Wayland selection is available, and
-  " "unnamedplus" is true when X11 or the Wayland clipboard was compiled in, and
-  " also when the method is a provider. Each of the two ways of reaching this
-  " line makes the other one true.
+  " And the register is "+", never "*". It was asked with has("unnamedplus"),
+  " which cannot answer no where this branch answers yes -- read in the source
+  " of the Vim this builds, "evalfunc.c": both live inside the same "#ifdef
+  " FEAT_CLIPBOARD", "clipboard_working" is true when the method is a provider
+  " or when the X or Wayland selection is available, and "unnamedplus" is true
+  " when X11 or the Wayland clipboard was compiled in, and also when the method
+  " is a provider. Each of the two ways of reaching this line makes the other
+  " one true.
   "
-  " Note: And on a Vim built without "+clipboard" this line is not reached at
-  " all: measured on a build made for it, "clipboard_working" answers 0 there --
-  " the whole answer is inside that "#ifdef" -- and the branch above, the
-  " provider one, is what hands back "+".
+  " And on a Vim built without "+clipboard" this line is not reached at all:
+  " measured on a build made for it, "clipboard_working" answers 0 there -- the
+  " whole answer is inside that "#ifdef" -- and the branch above, the provider
+  " one, is what hands back "+".
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = "+"
     return g:GrooVim_ClipRegCache

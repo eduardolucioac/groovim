@@ -4,30 +4,29 @@
 
 " Note: The F keys, and the wait for the second key that makes a shortcut. Which
 " shortcut does what is NOT here: it is read from the one list in the help part,
-" and this is the machine that reads the keys and looks it up.
-" Tip: Try to "balance" the distribution of the keys to preserve your
-" hands.
+" and this is the machine that reads the keys and looks it up. Tip: Try to
+" "balance" the distribution of the keys to preserve your hands.
 
 " Note: How long GrooVim waits for the SECOND key of a shortcut, in
 " milliseconds. It is the ONLY number the F keys have: the waiting is done in
 " slices of twenty, and when the time runs out with nothing typed, the F key
 " repeats the last command IT ran.
 "
-" It is also how long "do that again" takes when you ask for it by
-" WAITING, because the two are the same instant: the moment the window closes is
-" the moment the key repeats. There is no second wait after the first.
+" It is also how long "do that again" takes when you ask for it by WAITING,
+" because the two are the same instant: the moment the window closes is the
+" moment the key repeats. There is no second wait after the first.
 "
-" Raise it if a second key of yours is being lost. Measured: with 400
-" here, a second key pressed 600ms after the F key does not arrive in time, and
-" what runs in its place is the repetition -- the previous command instead of
-" the one you were typing. The long trips of a keyboard, an F key at one corner
-" and an arrow at the other, take longer than they feel like they do, and 1000
-" is the number that held all of them.
+" Raise it if a second key of yours is being lost. Measured: with 400 here, a
+" second key pressed 600ms after the F key does not arrive in time, and what
+" runs in its place is the repetition -- the previous command instead of the one
+" you were typing. The long trips of a keyboard, an F key at one corner and an
+" arrow at the other, take longer than they feel like they do, and 1000 is the
+" number that held all of them.
 "
-" And you can ask for "do that again" WITHOUT waiting at all: press the
-" same F key twice. That path takes 22ms and owes nothing to this number.
+" And you can ask for "do that again" WITHOUT waiting at all: press the same F
+" key twice. That path takes 22ms and owes nothing to this number.
 "
-" Note: Two numbers used to sit beside this one, and neither was about you.
+" Two numbers used to sit beside this one, and neither was about you.
 "
 " "CommandZSettle" waited 400ms before looking for the key the FIRST time,
 " because a terminal sends an F key as an escape sequence and reading before it
@@ -37,31 +36,31 @@
 " paid them before doing anything. The first slice of the waiting does that job
 " now.
 "
-" "CommandZRepeat" was a window for pressing the same F key twice to mean
-" "do that again", and it could never be met: the clock ran from the first
-" press, which itself burned the 400ms above, so it always read 402 to 404ms
-" against a limit of 400. Repeating cost 1.3 seconds and went through the
-" waiting every time. The same F key pressed again is read as a KEY now, and
-" repeats at once -- nothing is timed.
+" "CommandZRepeat" was a window for pressing the same F key twice to mean "do
+" that again", and it could never be met: the clock ran from the first press,
+" which itself burned the 400ms above, so it always read 402 to 404ms against a
+" limit of 400. Repeating cost 1.3 seconds and went through the waiting every
+" time. The same F key pressed again is read as a KEY now, and repeats at once
+" -- nothing is timed.
 let g:GrooVim_CommandZWait = get(g:, "GrooVim_CommandZWait", 400)
 
 let g:GrooVim_CommandZUnblock = 1
 " Note: The cursor keeps the colour of the mode the key was pressed in, for as
 " long as the shortcut takes.
 "
-" Note: A shortcut fired from insert mode arrives through a "<C-o>", which steps
-" out of insert, and then GrooVim WAITS for the second key of the combination --
-" in slices, with a "sleep" between them, and a "sleep" is exactly when Vim runs
+" A shortcut fired from insert mode arrives through a "<C-o>", which steps out
+" of insert, and then GrooVim WAITS for the second key of the combination -- in
+" slices, with a "sleep" between them, and a "sleep" is exactly when Vim runs
 " its timers. So the cursor was painted by the mode of that moment, which is
 " normal: measured, "orange, green, orange" on a command that never left insert.
 "
-" Note: The "finally" is not decoration. Interrupting a prompt with Ctrl-C walks
-" out of here, and a flag left standing would keep the cursor orange in every
-" mode from then on -- the same trap that once left CommandZ blocked for good.
+" The "finally" is not decoration. Interrupting a prompt with Ctrl-C walks out
+" of here, and a flag left standing would keep the cursor orange in every mode
+" from then on -- the same trap that once left CommandZ blocked for good.
 "
-" Note: Only from insert. A shortcut fired from normal mode has nothing to hold,
-" and one fired from visual really does end the selection -- the ":" of its
-" mapping does it -- so normal is the truth there.
+" Only from insert. A shortcut fired from normal mode has nothing to hold, and
+" one fired from visual really does end the selection -- the ":" of its mapping
+" does it -- so normal is the truth there.
 func! GrooVim_CommandZ(GrooVim_CommandZFCallerNow, modType) abort
 
   if a:modType ==# "i"
@@ -108,15 +107,15 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
   " Note: Waits for the second key, in slices of twenty milliseconds.
   "
-  " Note: The FIRST slice is what lets the key arrive. A terminal sends an F key
-  " as an escape sequence, and reading before it has all landed reads nothing --
+  " The FIRST slice is what lets the key arrive. A terminal sends an F key as an
+  " escape sequence, and reading before it has all landed reads nothing --
   " measured with real keys through a real terminal, with no wait at all the
   " second key is never seen. Five milliseconds were already enough on all four
   " F keys; twenty is the slice, and the slice does that job.
   "
-  " Note: And it goes on waiting to the end of the budget, because one flat
-  " sleep gives up on anyone slower than itself: measured, a second key pressed
-  " 600ms after the F key is lost with a budget of 400.
+  " And it goes on waiting to the end of the budget, because one flat sleep
+  " gives up on anyone slower than itself: measured, a second key pressed 600ms
+  " after the F key is lost with a budget of 400.
   let l:key = ""
   let l:waited = 0
   while l:key == "" && l:waited < g:GrooVim_CommandZWait
@@ -127,18 +126,18 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
   " Note: What was pressed, and what it means.
   "
-  " Note: The SAME F key again means "do that again". It is read as a key and
-  " not timed, so it repeats at once and there is nothing new to remember.
+  " The SAME F key again means "do that again". It is read as a key and not
+  " timed, so it repeats at once and there is nothing new to remember.
   "
-  " Note: ANOTHER F key is not a second key at all -- it is another shortcut
-  " starting -- so nothing is repeated and the key is handed back, to run as
-  " itself. It used to be swallowed here.
+  " ANOTHER F key is not a second key at all -- it is another shortcut starting
+  " -- so nothing is repeated and the key is handed back, to run as itself. It
+  " used to be swallowed here.
   "
-  " Note: Anything else IS the second key, and it becomes what this F key
-  " repeats from now on.
+  " Anything else IS the second key, and it becomes what this F key repeats from
+  " now on.
   "
-  " Note: And nothing at all, the budget spent, repeats what this key last ran.
-  " That is the whole of "do that again": press the key, do not press another.
+  " And nothing at all, the budget spent, repeats what this key last ran. That
+  " is the whole of "do that again": press the key, do not press another.
   if l:key != "" && l:key !=# get(s:GrooVim_CommandZKeys, a:GrooVim_CommandZFCallerNow, "")
     if index(values(s:GrooVim_CommandZKeys), l:key) >= 0
       call feedkeys(l:key, "t")
@@ -152,8 +151,8 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   if l:char != "" && g:GrooVim_CommandZUnblock == 1
     " Note: Prevents rerun a command while another is in progress.
     "
-    " Note: The "try/finally" is what keeps a Ctrl-C from locking CommandZ for
-    " good: interrupting a prompt raises an exception, the function used to be
+    " The "try/finally" is what keeps a Ctrl-C from locking CommandZ for good:
+    " interrupting a prompt raises an exception, the function used to be
     " abandoned with this flag still at zero, and from then on NO F key worked
     " anymore.
     let g:GrooVim_CommandZUnblock = 0
@@ -161,14 +160,14 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
 
     " Note: The shortcut is LOOKED UP, not spelled out.
     "
-    " Note: This was three hundred lines of "if the key is this, do that" --
-    " fifty of them, in four blocks, one per F key. Every shortcut lived in two
-    " places at once: an "if" here and an entry in the list the help is written
-    " from, and the two drifted. A key that moved group stayed answering under
-    " the old one; a key the list claimed did not answer at all.
+    " This was three hundred lines of "if the key is this, do that" -- fifty of
+    " them, in four blocks, one per F key. Every shortcut lived in two places at
+    " once: an "if" here and an entry in the list the help is written from, and
+    " the two drifted. A key that moved group stayed answering under the old
+    " one; a key the list claimed did not answer at all.
     "
-    " Note: Now the list is the only place. What a shortcut IS -- its group, its
-    " key, the modes it answers in, what it does and how to say so -- is written
+    " Now the list is the only place. What a shortcut IS -- its group, its key,
+    " the modes it answers in, what it does and how to say so -- is written
     " once, and the help, the menu and this all read it.
     for l:one in g:GrooVim_Shortcuts
 

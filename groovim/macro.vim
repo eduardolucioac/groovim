@@ -7,7 +7,7 @@
 " common is that each one is a small operation on text that nothing else needed
 " to know about.
 "
-" Note: Record a macro.
+" Record a macro.
 func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its
@@ -26,10 +26,10 @@ endfunc
 
 " Note: Takes the keys that STOPPED the recording off the end of it.
 "
-" Note: Vim records a key BEFORE the mapping decides what to do with it, so both
-" the "F2" and the "q" pressed to stop land inside the macro -- and running it
-" would fire CommandZ in the middle of your own keys. Measured on the register,
-" the tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
+" Vim records a key BEFORE the mapping decides what to do with it, so both the
+" "F2" and the "q" pressed to stop land inside the macro -- and running it would
+" fire CommandZ in the middle of your own keys. Measured on the register, the
+" tail is "<80>k2q": the key code of "F2" and then the "q", sometimes with a
 " modifier mark in front.
 func! GrooVim_XenRecTrimKey() abort
   " Note: Cut at the LAST "F2", and not with a pattern of byte codes: measured,
@@ -181,16 +181,16 @@ endfunc
 
 " Note: Duplicates the current line/selection.
 "
-" Note: "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
+" "norm!" and not "norm": GrooVim remaps "p" to "P`]<Right>", which pastes
 " BEFORE the cursor. Going through the mappings here made the copy land one
 " character too early, turning "DUPLICAR" into "DUPLICADUPLICARR".
 "
-" Note: The line the cursor is on, copied under itself, with the clipboard given
-" back afterwards -- copying is how it is done, and it should not cost you what
-" you had there.
+" The line the cursor is on, copied under itself, with the clipboard given back
+" afterwards -- copying is how it is done, and it should not cost you what you
+" had there.
 "
-" Note: A function because the dispatch spelled these three lines out TWICE,
-" once for normal mode and once for insert, letter for letter.
+" A function because the dispatch spelled these three lines out TWICE, once for
+" normal mode and once for insert, letter for letter.
 func! GrooVim_DuplicateLine() abort
 
   " Note: "yyp" and not "yyo<Esc>p". The "o" OPENS a line, and opening a line
@@ -200,12 +200,12 @@ func! GrooVim_DuplicateLine() abort
   " doubled. And it depended on the file type, because the leader does: the same
   " duplication in a python file came back clean.
   "
-  " Note: "p" puts a whole line under this one on its own. There was never any
-  " need to open one first.
+  " "p" puts a whole line under this one on its own. There was never any need to
+  " open one first.
   "
-  " Note: The whole view and not only the cursor, so that the line you were on
-  " is still the line you are on, in the same column, and the window has not
-  " moved: "p" leaves the cursor on the COPY, which is not where you were.
+  " The whole view and not only the cursor, so that the line you were on is
+  " still the line you are on, in the same column, and the window has not moved:
+  " "p" leaves the cursor on the COPY, which is not where you were.
   let l:view = winsaveview()
   let l:saved_reg = GrooVim_ClipGet()
   exec "norm! yyp"
@@ -240,33 +240,33 @@ endfunc
 
 " Note: Reads the .vimrc again, in every tab.
 "
-" Note: Plain mappings with the path written in at load time, and NOT a function
-" that does the work: sourcing the .vimrc redefines every function it holds, and
-" Vim refuses to redefine one that is RUNNING -- "E127: Cannot redefine function
+" Plain mappings with the path written in at load time, and NOT a function that
+" does the work: sourcing the .vimrc redefines every function it holds, and Vim
+" refuses to redefine one that is RUNNING -- "E127: Cannot redefine function
 " ...: It is in use". Measured, with the reload wrapped in a function of its
 " own.
 exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimrc) . "<cr>:tabfirst<cr>"
 
 " Note: Clears the search register.
 "
-" Note: And the marks with them. "Take the highlighting off" is one idea to a
-" reader, not two, and having to remember which key clears which half would be a
-" poor way of saying so.
+" And the marks with them. "Take the highlighting off" is one idea to a reader,
+" not two, and having to remember which key clears which half would be a poor
+" way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
 
 " Note: Save to disk and open in a new tab a copy of the current file.
 "
-" Note: Where to put a file and what to call it, asked once and used by both the
-" copy and the "save as".
+" Where to put a file and what to call it, asked once and used by both the copy
+" and the "save as".
 "
-" Note: It was written inside the copy, and the "save as" would have been the
-" same forty lines a second time -- with the second one drifting from the first
-" the day one of them was touched. What differs between them is one word in the
+" It was written inside the copy, and the "save as" would have been the same
+" forty lines a second time -- with the second one drifting from the first the
+" day one of them was touched. What differs between them is one word in the
 " question and what is DONE with the answer; the asking is the same.
 "
-" Note: The answers come back as [path, name]. There is no way out but a valid
-" answer or a Ctrl-C, which walks out of here and out of whoever called.
+" The answers come back as [path, name]. There is no way out but a valid answer
+" or a Ctrl-C, which walks out of here and out of whoever called.
 func! GrooVim_AskFileWhere(what) abort
 
   let l:valueToPath = ""
@@ -309,8 +309,8 @@ func! GrooVim_AskFileWhere(what) abort
     " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
     " does. The second argument of "input()" is the text it starts with.
     "
-    " Note: An unnamed buffer has no name to offer, and then it starts empty as
-    " it always did.
+    " An unnamed buffer has no name to offer, and then it starts empty as it
+    " always did.
     let l:valueToName = input("NAME of the " . a:what . " to be saved" .
      \ l:definePathWarning . ": ", expand("%:t"))
     if ("" . l:valueToName . "") != ""
@@ -348,9 +348,9 @@ endfunc
 " "Save As" means everywhere. The copy of F2->y is the other half of the idea:
 " it writes the file and leaves you where you were.
 "
-" Note: ":saveas" is the command of Vim for exactly this -- it renames the
-" buffer and writes it -- so what was open before stays on disk as it was, and
-" the tab you are on is the new file from here.
+" ":saveas" is the command of Vim for exactly this -- it renames the buffer and
+" writes it -- so what was open before stays on disk as it was, and the tab you
+" are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
   let [l:path, l:name] = GrooVim_AskFileWhere("file")
@@ -368,8 +368,8 @@ endfunc
 
 " Note: Saves to disk.
 "
-" Note: Saving. In visual mode what is written is the SELECTION, to a file of
-" its own; anywhere else it is the file you are in.
+" Saving. In visual mode what is written is the SELECTION, to a file of its own;
+" anywhere else it is the file you are in.
 func! GrooVim_Save(mode) abort
   if a:mode ==# "v"
     call GrooVim_VisualWrite()
@@ -387,28 +387,28 @@ endfunc
 
 " Note: Changes to uppercase/lowercase.
 "
-" Note: Title Case: the first letter of every word up, the rest down.
+" Title Case: the first letter of every word up, the rest down.
 "
-" Note: A substitution and not an operator, because Vim has "gU" and "gu" and
-" nothing for this. "\u" raises the character that follows it and "\L" lowers
-" everything after, so one pass does both halves of each word.
+" A substitution and not an operator, because Vim has "gU" and "gu" and nothing
+" for this. "\u" raises the character that follows it and "\L" lowers everything
+" after, so one pass does both halves of each word.
 "
-" Note: "\%V" is what keeps it INSIDE the selection. A plain ":s" works on whole
+" "\%V" is what keeps it INSIDE the selection. A plain ":s" works on whole
 " LINES, and a selection of half a line would have taken the other half with it.
 " It reads the area "gv" would bring back, which is why the "<Esc>" below comes
 " BEFORE the substitution and not after: the area is only written down when
 " visual mode ends.
 "
-" Note: In normal and insert mode it is the word under the cursor, selected here
-" so that the same substitution serves all three modes.
+" In normal and insert mode it is the word under the cursor, selected here so
+" that the same substitution serves all three modes.
 "
-" Note: Puts the cursor ON the text of the line when it is sitting PAST it.
+" Puts the cursor ON the text of the line when it is sitting PAST it.
 "
-" Note: GrooVim runs with "virtualedit=onemore", so the cursor can sit one
-" column beyond the last character -- which is exactly where you are after
-" typing to the end of a line. There is no word there, and "iw" then took only
-" the last letter: changing the case of "total" gave back "totaL". Anything that
-" works on "the word under the cursor" has to step onto the text first.
+" GrooVim runs with "virtualedit=onemore", so the cursor can sit one column
+" beyond the last character -- which is exactly where you are after typing to
+" the end of a line. There is no word there, and "iw" then took only the last
+" letter: changing the case of "total" gave back "totaL". Anything that works on
+" "the word under the cursor" has to step onto the text first.
 func! GrooVim_StepOntoTheText() abort
   let l:width = strlen(getline("."))
   if col(".") > l:width
@@ -419,9 +419,9 @@ endfunc
 " Note: The case of the word under the cursor, with the cursor left WHERE IT
 " WAS.
 "
-" Note: This used to be "norm gUiwe", and the "e" walks to the end of the word
-" -- so changing the case of a word you were in the middle of moved you to its
-" last letter. Changing the case of a word is not a movement.
+" This used to be "norm gUiwe", and the "e" walks to the end of the word -- so
+" changing the case of a word you were in the middle of moved you to its last
+" letter. Changing the case of a word is not a movement.
 func! GrooVim_CaseOfTheWord(which) abort
   let l:view = winsaveview()
   call GrooVim_StepOntoTheText()

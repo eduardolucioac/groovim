@@ -374,8 +374,8 @@ func! GrooVim_BookmarkList() abort
   " dock and not a window of a tab: Notepad++ shows its panels beside whatever
   " document you are looking at, and the occurrence list of F3 does the same.
   "
-  " Note: The cursor goes back to a window with a file in it instead of being
-  " left wherever the closing happened to leave it.
+  " The cursor goes back to a window with a file in it instead of being left
+  " wherever the closing happened to leave it.
   if g:GrooVim_BookmarkListOpen
     let g:GrooVim_BookmarkListOpen = 0
     call GrooVim_BookmarkListEverywhere()

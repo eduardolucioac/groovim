@@ -5,37 +5,22 @@
 " Note: To facilitate and avoid performance problems that text should always be
 " the last.
 
-" Note: Every shortcut of the F groups, in ONE place.
-"
-" Note: The help of "F9" is WRITTEN from this list, and so is the menu. It used
-" to be two hundred lines of prose kept by hand beside the block of code that
-" answers the keys, and the two drifted every time anything moved: keys that
-" changed group and were still listed under the old one, a whole "<F5>" block
-" that did not exist at all, messages sending you to letters that had been
-" retired. One list, and the drift has nowhere left to happen.
-"
-" Note: "modes" is where the key answers -- "n" normal, "i" insert, "v" visual.
-" It is not decoration: the case that checks this list against the code reads
-" it, and writing it wrong is a failure.
-"
 " Note: The sections of the menu of F10, and they are not the F keys any more.
 "
-" Note: They were: the menu had four sections because there are four F keys, and
-" every line of it was a shortcut of one of them. So the menu showed what the F
-" keys do and NOT what GrooVim does -- and the keys a conventional editor is
-" pressed with, Ctrl+C, the arrows with their modifiers, "n" and "m", were
-" nowhere. It is the map of the editor now, which is what the menu bar of
-" Notepad++ is.
+" They were: the menu had four sections because there are four F keys, and every
+" line of it was a shortcut of one of them. So the menu showed what the F keys
+" do and NOT what GrooVim does -- and the keys a conventional editor is pressed
+" with, Ctrl+C, the arrows with their modifiers, "n" and "m", were nowhere. It
+" is the map of the editor now, which is what the menu bar of Notepad++ is.
 "
-" Note: A section no longer says which F key it belongs to, and there is nothing
-" to say: a section holds keys of every shape. Which F key goes with what is
+" A section no longer says which F key it belongs to, and there is nothing to
+" say: a section holds keys of every shape. Which F key goes with what is
 " deducible from the lines under it -- they carry the keys that do them, and
 " nearly every line of "Edit" carries an F2.
 "
-" Note: Written "an F2" and not with the arrow after it: a case of the battery
-" reads every shortcut named anywhere in the source and refuses one that is not
-" on the list -- and a sentence ABOUT the notation would be read as one more use
-" of it.
+" Written "an F2" and not with the arrow after it: a case of the battery reads
+" every shortcut named anywhere in the source and refuses one that is not on the
+" list -- and a sentence ABOUT the notation would be read as one more use of it.
 let g:GrooVim_MenuSections = [
  \ ["File", "The file itself: saving it, opening another, leaving"],
  \ ["Edit", "Changing the text: the transfer area, undo, the indent, the case"],
@@ -47,6 +32,18 @@ let g:GrooVim_MenuSections = [
  \ ["?", "The help of GrooVim, the help of Vim, and what this is"]
  \ ]
 
+" Note: Every shortcut of the F groups, in ONE place.
+"
+" The help of "F9" is WRITTEN from this list, and so is the menu. It used to be
+" two hundred lines of prose kept by hand beside the block of code that answers
+" the keys, and the two drifted every time anything moved: keys that changed
+" group and were still listed under the old one, a whole "<F5>" block that did
+" not exist at all, messages sending you to letters that had been retired. One
+" list, and the drift has nowhere left to happen.
+"
+" "modes" is where the key answers -- "n" normal, "i" insert, "v" visual. It is
+" not decoration: the case that checks this list against the code reads it, and
+" writing it wrong is a failure.
 let g:GrooVim_Shortcuts = [
  \
 "\ ---- File
@@ -323,12 +320,12 @@ let g:GrooVim_Shortcuts = [
 " named key gets its capital back; punctuation is wrapped in bars, because the
 " help syntax of Vim would otherwise eat a "/" or a "[" .
 "
-" Note: Written by the same function the MENU writes with, so that a key is
-" spelled one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is
-" a key of its own.
+" Written by the same function the MENU writes with, so that a key is spelled
+" one way in GrooVim: "F2->c" where it is an F key, "Ctrl+C" where it is a key
+" of its own.
 "
-" Note: The bars around it are what the help syntax of Vim highlights with, and
-" they only go on where the word would not be picked out otherwise.
+" The bars around it are what the help syntax of Vim highlights with, and they
+" only go on where the word would not be picked out otherwise.
 func! GrooVim_ShortcutKeyShown(one) abort
   let l:name = GrooVim_ShortcutShown(a:one)
   if l:name =~ '^\w\+$'
@@ -350,14 +347,14 @@ endfunc
 
 " Note: The same list, written as Markdown for the README.
 "
-" Note: The README used to keep its own copy of every shortcut, and it drifted
-" the furthest of all of them: it still listed the layout of three groups, with
-" no "F5" at all, and the same letter three times over in one of them. It is
+" The README used to keep its own copy of every shortcut, and it drifted the
+" furthest of all of them: it still listed the layout of three groups, with no
+" "F5" at all, and the same letter three times over in one of them. It is
 " written from here now, and a case of the battery refuses to pass while the
 " file and this disagree.
 "
-" Note: The marks the help syntax needs are taken out -- "|" is a link in a help
-" file and a table in Markdown.
+" The marks the help syntax needs are taken out -- "|" is a link in a help file
+" and a table in Markdown.
 func! GrooVim_ShortcutsMarkdown() abort
 
   let l:out = []
@@ -446,14 +443,14 @@ endfunc
 " Enter, the mouse, the "c" that copies, the link -- it can do because it is
 " one, and not because it is the About.
 "
-" Note: Opening it while it is up closes it, which is what F9 does with the
-" help. The two keys of the shortcut are also given to the dialogue, so pressing
-" it again over the window closes it as well: while a dialogue is up, it is the
-" only thing reading keys, and the CommandZ never sees them.
+" Opening it while it is up closes it, which is what F9 does with the help. The
+" two keys of the shortcut are also given to the dialogue, so pressing it again
+" over the window closes it as well: while a dialogue is up, it is the only
+" thing reading keys, and the CommandZ never sees them.
 "
-" Note: The key of the way out is written "Esc" because that is what the button
-" says. The Esc itself is answered by the dialogue before any button is looked
-" at, so what this writes is the label and not a key anybody has to match.
+" The key of the way out is written "Esc" because that is what the button says.
+" The Esc itself is answered by the dialogue before any button is looked at, so
+" what this writes is the label and not a key anybody has to match.
 func! GrooVim_About() abort
 
   if GrooVim_DialogUp()

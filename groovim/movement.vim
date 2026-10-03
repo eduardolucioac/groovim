@@ -498,8 +498,8 @@ nnoremap <silent> <End> $<Right>
 " With "Word wrap" on, one line of the file is drawn over several rows of the
 " screen, and the arrows of Vim move by LINE: from the first row of a wrapped
 " line they jump the whole block, which is not what the arrow under your finger
-" looks like it should do. In Notepad++ -- and in every editor that wraps -- they
-" walk the rows.
+" looks like it should do. In Notepad++ -- and in every editor that wraps --
+" they walk the rows.
 "
 " "gj" and "gk" are that, and they are asked for only while "wrap" is on: with
 " the option off a line is one row, the two are the same thing, and the plain

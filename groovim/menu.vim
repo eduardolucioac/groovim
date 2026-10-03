@@ -7,22 +7,22 @@
 " choosing a line presses the keys of it, so the menu can never do anything the
 " keyboard would not.
 "
-" Note: The menu, written out of the same list the help is.
+" The menu, written out of the same list the help is.
 "
-" Note: A BAR across the top with the four groups on it, and under the one you
-" are on, what it holds -- the shape of the menu of Notepad++ and of the
-" "vim-quickui" plugin. Left and Right walk the bar, Up and Down the list, Enter
-" picks and Esc leaves. Pressing the F key of a section jumps straight to it,
-" which is the same key that runs its shortcuts. The mouse works everywhere: a
-" click on the bar opens a section, a click on a line runs it.
+" A BAR across the top with the four groups on it, and under the one you are on,
+" what it holds -- the shape of the menu of Notepad++ and of the "vim-quickui"
+" plugin. Left and Right walk the bar, Up and Down the list, Enter picks and Esc
+" leaves. Pressing the F key of a section jumps straight to it, which is the
+" same key that runs its shortcuts. The mouse works everywhere: a click on the
+" bar opens a section, a click on a line runs it.
 "
-" Note: Two popups and not one: the bar stays put while the list under it is
-" thrown away and built again at every step sideways.
+" Two popups and not one: the bar stays put while the list under it is thrown
+" away and built again at every step sideways.
 "
-" Note: Choosing an entry PRESSES THE KEYS. Nothing here knows what any shortcut
-" does, only which two keys to send, so the menu can never do something
-" different from the keyboard -- and the shortcut shown on the right of every
-" line is the one it will press.
+" Choosing an entry PRESSES THE KEYS. Nothing here knows what any shortcut does,
+" only which two keys to send, so the menu can never do something different from
+" the keyboard -- and the shortcut shown on the right of every line is the one
+" it will press.
 let g:GrooVim_MenuEntries = []
 let s:menuBar = 0
 let s:menuDrop = 0
@@ -31,9 +31,9 @@ let s:menuLine = 1
 
 " Note: Raised while a step sideways throws the old list away.
 "
-" Note: Closing a popup makes Vim call its callback, and a list closed to make
-" room for the next one answers "-1" -- which is the very same answer as leaving
-" the menu with Esc. Without this flag, walking sideways would take the bar down
+" Closing a popup makes Vim call its callback, and a list closed to make room
+" for the next one answers "-1" -- which is the very same answer as leaving the
+" menu with Esc. Without this flag, walking sideways would take the bar down
 " with it.
 let s:menuSwitching = 0
 
@@ -44,20 +44,20 @@ let s:menuCursorWas = ""
 " Note: The colours of the menu. Four and not one: the menu itself, the line you
 " are on, the keys on the right, and the rules between blocks.
 "
-" Note: LIGHT, and dark under it -- a menu of a conventional editor stands out
-" from the document, it does not blend into it. That is how Notepad++ draws its
-" own, and it is where these values come from.
+" LIGHT, and dark under it -- a menu of a conventional editor stands out from
+" the document, it does not blend into it. That is how Notepad++ draws its own,
+" and it is where these values come from.
 "
-" Note: Measured, every pair of them: near black on near white is 13.3 to 1, and
-" the blue of the keys against the same white, and the white of the chosen line
+" Measured, every pair of them: near black on near white is 13.3 to 1, and the
+" blue of the keys against the same white, and the white of the chosen line
 " against that blue, are 5.7 to 1. Nothing here is under the 4.5 that counts as
 " readable.
 "
-" Note: In a terminal of 256 colours "#005faf" IS the colour numbered 25,
-" exactly and not nearly; the other two land on the nearest greys there are.
+" In a terminal of 256 colours "#005faf" IS the colour numbered 25, exactly and
+" not nearly; the other two land on the nearest greys there are.
 "
-" Note: "PopupSelected" is the name VIM reads for the line you are on inside a
-" popup -- there is no per popup option for it.
+" "PopupSelected" is the name VIM reads for the line you are on inside a popup
+" -- there is no per popup option for it.
 if &t_Co >= 256 || has("gui_running")
   highlight GrooVimMenu ctermbg=255 ctermfg=235 guibg=#eff0f1 guifg=#232629
   highlight GrooVimMenuKey ctermbg=255 ctermfg=25 guibg=#eff0f1 guifg=#005faf
@@ -73,9 +73,9 @@ endif
 
 " Note: Whether the key that was pressed is the key of this shortcut.
 "
-" Note: "getchar()" hands over a NUMBER for a plain key and a STRING for a named
-" one, which is why the two are asked about differently. It is the same split
-" the list itself carries: "h" against "up".
+" "getchar()" hands over a NUMBER for a plain key and a STRING for a named one,
+" which is why the two are asked about differently. It is the same split the
+" list itself carries: "h" against "up".
 func! GrooVim_ShortcutIsKey(pressed, key) abort
 
   let l:named = {"up": "\<Up>", "down": "\<Down>", "end": "\<End>",
@@ -91,14 +91,14 @@ endfunc
 
 " Note: Is this shortcut something this GrooVim can actually do?
 "
-" Note: A shortcut whose work belongs to a plugin only exists when the plugin
-" does. The entry says which switch answers for it, and everything that reads
-" the list -- the menu, the help of F9 and the dispatch -- asks here first.
+" A shortcut whose work belongs to a plugin only exists when the plugin does.
+" The entry says which switch answers for it, and everything that reads the list
+" -- the menu, the help of F9 and the dispatch -- asks here first.
 "
-" Note: This is what a machine with no plugins taught: the entry for the
-" NERDTree was written down with no condition on it, while the function behind
-" it lives inside "if g:enable_nerdtree_vim". Pressing F4->n there did not say
-" the plugin was missing, it said "E117: Unknown function".
+" This is what a machine with no plugins taught: the entry for the NERDTree was
+" written down with no condition on it, while the function behind it lives
+" inside "if g:enable_nerdtree_vim". Pressing F4->n there did not say the plugin
+" was missing, it said "E117: Unknown function".
 func! GrooVim_ShortcutAvailable(one) abort
   return !has_key(a:one, "needs") || get(g:, a:one.needs.switch, 0)
 endfunc
@@ -121,10 +121,10 @@ endfunc
 
 " Note: Runs what the shortcut says to run.
 "
-" Note: "run" is one line of VimScript, or a handful of them keyed by the modes
-" each belongs to -- uppercase is one thing on a word and another on a
-" selection. Inside them "l:mode" is the mode you are in, which is why it is a
-" name and not an argument.
+" "run" is one line of VimScript, or a handful of them keyed by the modes each
+" belongs to -- uppercase is one thing on a word and another on a selection.
+" Inside them "l:mode" is the mode you are in, which is why it is a name and not
+" an argument.
 func! GrooVim_ShortcutRun(one, mode) abort
 
   let l:mode = a:mode
@@ -165,12 +165,12 @@ endfunc
 " Note: How a shortcut is written for a human: "F5->n", the notation every
 " message of GrooVim uses.
 "
-" Note: How a key is written where somebody reads it: "F2->c", "Ctrl+C",
+" How a key is written where somebody reads it: "F2->c", "Ctrl+C",
 " "Alt+Shift+Up", "m".
 "
-" Note: Built from the key itself and not written by hand beside it. A label
-" typed into each entry is a second place for the same fact, and the day a key
-" moves the label stays.
+" Built from the key itself and not written by hand beside it. A label typed
+" into each entry is a second place for the same fact, and the day a key moves
+" the label stays.
 func! GrooVim_ShortcutShown(one) abort
 
   if has_key(a:one, "keys")
@@ -203,9 +203,9 @@ endfunc
 " they would just be litter -- "Opens the file|.vimrc|" reads badly enough on a
 " menu line.
 "
-" Note: The bars become a SPACE and not nothing: in the help they are what
-" separates the word from the text around it, so dropping them would glue
-" "file.vimrc" together.
+" The bars become a SPACE and not nothing: in the help they are what separates
+" the word from the text around it, so dropping them would glue "file.vimrc"
+" together.
 func! GrooVim_ShortcutPlain(text) abort
   let l:plain = substitute(a:text, '[|*]', " ", "g")
   return trim(substitute(l:plain, '  \+', " ", "g"))
@@ -214,16 +214,16 @@ endfunc
 " Note: One line of a section: what it does on the left, the keys that do it on
 " the right, the way a menu of a conventional editor shows them.
 "
-" Note: "room" is how much the description may take. On a narrow terminal the
-" line would otherwise run past the edge and it is the RIGHT side that is lost
-" -- which is the shortcut, the one thing a menu of a keyboard editor is for.
+" "room" is how much the description may take. On a narrow terminal the line
+" would otherwise run past the edge and it is the RIGHT side that is lost --
+" which is the shortcut, the one thing a menu of a keyboard editor is for.
 "
-" Note: What a line of the menu READS. It is not the description: that one
-" explains, and is what the help of F9 and the README are written from, while
-" this one NAMES -- "Save as..." against "Saves under another name and goes on
-" editing THAT one".
+" What a line of the menu READS. It is not the description: that one explains,
+" and is what the help of F9 and the README are written from, while this one
+" NAMES -- "Save as..." against "Saves under another name and goes on editing
+" THAT one".
 "
-" Note: The two go together and neither is the other cut short: a menu of a
+" The two go together and neither is the other cut short: a menu of a
 " conventional editor is a column of names, and the three dots at the end of one
 " are the convention that says it will ask you something.
 func! GrooVim_ShortcutMenu(one) abort
@@ -352,18 +352,18 @@ endfunc
 
 " Note: And whatever happens, the cursor goes back before GrooVim does.
 "
-" Note: Leaving with the menu still up handed the terminal back with the cursor
-" HIDDEN -- measured, the last thing it was told was "hide" and nothing ever
-" said otherwise. You would have got your shell prompt back with no cursor in
-" it, and nothing to tell you why.
+" Leaving with the menu still up handed the terminal back with the cursor HIDDEN
+" -- measured, the last thing it was told was "hide" and nothing ever said
+" otherwise. You would have got your shell prompt back with no cursor in it, and
+" nothing to tell you why.
 "
-" Note: "VimLeavePre" and not "VimLeave": the cursor comes back through a
-" redraw, and by "VimLeave" there is no drawing left to do -- measured, leaving
-" with the menu up ended on "hide" while leaving without it ended on "show".
+" "VimLeavePre" and not "VimLeave": the cursor comes back through a redraw, and
+" by "VimLeave" there is no drawing left to do -- measured, leaving with the
+" menu up ended on "hide" while leaving without it ended on "show".
 "
-" Note: And the About as well, which is the other window that hides it. Closing
-" the menu already gives the cursor back; saying it again covers a window that
-" is not the menu.
+" And the About as well, which is the other window that hides it. Closing the
+" menu already gives the cursor back; saying it again covers a window that is
+" not the menu.
 augroup GrooVim_MenuCursor
   autocmd!
   autocmd VimLeavePre * call GrooVim_MenuClose() | call GrooVim_CursorShow()
@@ -472,15 +472,15 @@ func! GrooVim_MenuStep(step) abort
 
   " Note: And the list is scrolled to where the cursor went.
   "
-  " Note: A popup does NOT follow its cursor the way a window does: moving it
-  " with "win_execute" leaves what is shown exactly where it was. Measured, on a
+  " A popup does NOT follow its cursor the way a window does: moving it with
+  " "win_execute" leaves what is shown exactly where it was. Measured, on a
   " screen of 24 lines with a section of 30 entries: thirty four steps down and
   " the first line shown was still the first line of the list -- everything past
   " the twenty third was out of reach, on a menu whose whole point is to show
   " what there is.
   "
-  " Note: "core_height" and not "height": the border and the padding are not
-  " lines of the list.
+  " "core_height" and not "height": the border and the padding are not lines of
+  " the list.
   let l:pos = popup_getpos(s:menuDrop)
   if !empty(l:pos)
     if s:menuLine < l:pos.firstline
@@ -496,7 +496,7 @@ endfunc
 " Note: Left and Right walk the bar, an F key jumps to its own section, the
 " mouse clicks where it likes, and the rest is what a menu does.
 "
-" Note: Which F key was pressed, if it was one.
+" Which F key was pressed, if it was one.
 func! GrooVim_MenuFKeyPressed(key) abort
   for l:fKey in ["F2", "F3", "F4", "F5"]
     if a:key ==# eval('"\<' . l:fKey . '>"')
@@ -562,10 +562,10 @@ func! GrooVim_MenuFilter(id, key) abort
 
   " Note: An F key opens the section where that F key mostly lives.
   "
-  " Note: It used to open the section OF that key, and could, because a section
-  " was an F key. Now a section holds keys of every shape and an F key is spread
-  " over several of them -- so what is kept is the hand: F2 lands on "Edit", F3
-  " on "Search", F4 on "View", F5 on "File", which is where each one has most of
+  " It used to open the section OF that key, and could, because a section was an
+  " F key. Now a section holds keys of every shape and an F key is spread over
+  " several of them -- so what is kept is the hand: F2 lands on "Edit", F3 on
+  " "Search", F4 on "View", F5 on "File", which is where each one has most of
   " its shortcuts and is what the four used to be called.
   let l:fKey = GrooVim_MenuFKeyPressed(a:key)
   if l:fKey !=# ""
