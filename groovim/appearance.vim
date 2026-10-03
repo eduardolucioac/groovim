@@ -1,6 +1,6 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"APPEARANCE
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" APPEARANCE
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Displays the number of each line.
 set number
@@ -8,7 +8,7 @@ set number
 " Note: Always show current position.
 set ruler
 
-" Note: Height of the command bar! One line keeps the prompts of the "super
+" Note: Height of the command bar. One line keeps the prompts of the "super
 " commands" on the first line of the command area, without a blank line above
 " them, and gives one more line to the text.
 set cmdheight=1
@@ -41,8 +41,6 @@ set belloff=all
 set noerrorbells
 set novisualbell
 
-" Note: Allow the cursor to go into "invalid" places. set virtualedit=all
-
 " Note: Always turn on syntax highlighting for diffs (select by the file-suffix
 " directly).
 augroup PatchDiffHighlight
@@ -66,6 +64,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration) abort
       let g:GrooVim_GrooVimBarMsgValue = ""
       let g:GrooVim_GrooVimBarMsgEnabled = 0
     endif
+
     " Note: The status line is "%!GrooVim_GrooVimBar()", so it is Vim that calls
     " it when redrawing. Just calling it here changed nothing on screen: the
     " message only appeared at the next screen update, whenever that came.
@@ -80,6 +79,7 @@ func! GrooVim_GrooVimBarMsg(msgValue, msgDuration) abort
       catch
       endtry
     endif
+
   endif
 
 endfun
@@ -95,6 +95,7 @@ endfunc
 
 " Note: Displays an information bar.
 set laststatus=2
+
 " Note: While an operation is asking something, its name takes the place of the
 " "Powered by" on the bar, and the bar goes back to normal when it is over. The
 " prompt itself stays clean: the context lives here, not glued to the question.
@@ -104,13 +105,12 @@ set laststatus=2
 "
 " The line ending is there because it can be CHANGED -- F5->c and then [f] --
 " and a setting you can change and cannot see is a setting you cannot trust.
-" Notepad++ keeps it on its bar for the same reason.
+" Notepad++ (inspiration) keeps it on its bar for the same reason.
 func! GrooVim_GrooVimBarWhere() abort
   return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
 endfunc
 
 func! GrooVim_GrooVimBar() abort
-
   let l:barContents = '%{GrooVim_FileLabel()} ' . GrooVim_GrooVimBarWhere()
 
   if g:GrooVim_GrooVimBarContext != ""
@@ -118,7 +118,6 @@ func! GrooVim_GrooVimBar() abort
   endif
 
   return l:barContents . " Powered by [GrooVim =D " . g:grooVimVersion . "]!" . g:GrooVim_GrooVimBarMsgValue
-
 endfun
 
 " Note: The bar of the help: WHAT you are reading and WHERE in it you are.
@@ -131,7 +130,9 @@ endfun
 func! GrooVim_GrooVimHelpBar() abort
   return "%f [%l/%L,%v] [%p%%]"
 endfunc
+
 set stl=%!GrooVim_GrooVimBar()
+
 " Note: Displays a message on the initial run.
 call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 
@@ -142,7 +143,7 @@ call GrooVim_GrooVimBarMsg("F9 for help and F10 for the menu!", 10)
 " character that EXISTS, so the old one marked column 81 of the long lines and
 " left nothing on the short ones -- a dotted trail instead of a line.
 " "colorcolumn" paints the column on every row, which is the line Notepad++
-" draws.
+" (inspiration) draws.
 "
 " Column 79 and not 80. A line of 79 characters is the last one that fits in 80
 " columns, so the mark sits ON the first column you should not reach.
@@ -182,17 +183,14 @@ augroup GrooVim_Edge
 augroup end
 call GrooVim_EdgeSet()
 
-" Note: Make trailing whitespace and non-breaking spaces visible.
+" Note: With this off NOTHING of "listchars" is drawn -- not the tab, not the
+" dot on a trailing space, not the indentation guide -- so it is always on, and
+" the switch of the "Show Symbol" menu is in the symbols themselves.
 set list
+
 " Note: The trailing/non breaking space marks AND the indentation guides are all
 " built by this one, so that both always agree on the same "listchars".
 call GrooVim_SymbolsSet()
-
-" " Note: Make tabs, trailing whitespace and non-breaking spaces visible.
-" " Note: Type I.
-" "exec "set listchars=tab:\uBB\uBB,trail:\uB7,nbsp:~"
-" " Note: Type II.
-" exec "set listchars=tab:▒░,trail:\uB7,nbsp:~"
 
 " Note: Switch syntax highlighting on, when the terminal has colors.
 if &t_Co > 2 || has("gui_running")
