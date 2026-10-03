@@ -77,6 +77,7 @@ Some editor features!
  * Text selection:
     - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
     - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
+    - How much is selected is on the bar at the bottom while you hold it, the "Sel" of Notepad++: `[sel 46 in 3]` is 46 **characters** -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over `g:GrooVim_SelectionCountLimit` lines (2000) only the lines are said, because counting the characters of a selection that big is slower than the key that grows it;
 
  * Conventional text editors commands:
     - Ctrl-c (visual mode) - Copy to clipboard;

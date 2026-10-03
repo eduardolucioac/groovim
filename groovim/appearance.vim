@@ -106,8 +106,65 @@ set laststatus=2
 " The line ending is there because it can be CHANGED -- F5->c and then [f] --
 " and a setting you can change and cannot see is a setting you cannot trust.
 " Notepad++ (inspiration) keeps it on its bar for the same reason.
+
+" Note: How much is selected, the "Sel" that Notepad++ (inspiration) keeps on
+" its bar: "[sel 46 in 3]" is 46 characters lying on 3 lines.
+"
+" Vim only half answers this on its own. Its count, in the corner, says
+" CHARACTERS while the selection is inside one line and silently becomes LINES
+" as soon as it crosses one, so the number is there without telling you which of
+" the two you are reading. This one always says both.
+"
+" Characters and not bytes: "getregion()" hands back the text and "strchars()"
+" counts it, so an accented letter is one. The line breaks are not characters
+" here -- they are the second number.
+"
+" Nothing at all outside of a selection, which is where the bar goes back to the
+" shape it has while you type.
+let g:GrooVim_SelectionCountLimit = get(g:, "GrooVim_SelectionCountLimit", 2000)
+func! GrooVim_BarSelection() abort
+
+  " Note: Select mode is the same selection with the keys typing over it, so it
+  " is measured by the visual mode of the same shape.
+  let l:type = get({"s": "v", "S": "V", "\<C-s>": "\<C-v>"}, mode(), mode())
+  if l:type !~# "^[vV\<C-v>]$"
+    return ""
+  endif
+
+  let l:here = getpos(".")
+  let l:there = getpos("v")
+
+  " Note: Over the limit only the lines are said, and the text is never asked
+  " for. Both the asking and the counting walk the selected text on EVERY
+  " redraw, which is every key of a selection that is growing: measured at 1.1
+  " microseconds per line of 80 characters just to count, so the 2000 of the
+  " limit cost about two milliseconds and the 100000 lines of a big file would
+  " cost a tenth of a second -- a bar that answers after the key instead of with
+  " it. The line span is arithmetic on two positions, and costs nothing.
+  let l:span = abs(l:here[1] - l:there[1]) + 1
+  if l:span > g:GrooVim_SelectionCountLimit
+    return " [sel " . l:span . " lines]"
+  endif
+
+  " Note: In a "try" because this runs on every redraw: an error inside a
+  " "statusline" paints the error over the bar and keeps painting it.
+  try
+    let l:lines = getregion(l:there, l:here, #{type: l:type})
+  catch
+    return ""
+  endtry
+
+  let l:chars = 0
+  for l:line in l:lines
+    let l:chars += strchars(l:line)
+  endfor
+
+  return " [sel " . l:chars . " in " . len(l:lines) . "]"
+endfunc
+
 func! GrooVim_GrooVimBarWhere() abort
-  return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v] [%p%%]'
+  return '[%{(&fenc==""?&enc:&fenc).(&bomb?",B":"").",".&ff}%M%R%H%W] %y [%l/%L,%v]' .
+   \ '%{GrooVim_BarSelection()} [%p%%]'
 endfunc
 
 func! GrooVim_GrooVimBar() abort
@@ -332,6 +389,7 @@ endfunc
 " Note: A plain Linux console has no colored cursor and inside a GUI these
 " terminal codes make no sense.
 let g:GrooVim_CursorColorEnabled = !has("gui_running") && &term !~ "^\\(linux\\|dumb\\|cons\\)"
+
 if g:GrooVim_CursorColorEnabled
   augroup GrooVim_CursorColor
     autocmd!

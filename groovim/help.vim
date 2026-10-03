@@ -561,6 +561,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n*o*  Text selection:".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
+\"\n   |-|How much is selected is on the bar at the bottom while you hold it, the \"Sel\" of Notepad++: |[sel|46|in|3]| is 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over |g:GrooVim_SelectionCountLimit| lines (2000) only the lines are said, because counting the characters of a selection that big is slower than the key that grows it;".
 \"\n".
 \"\n*o*  Conventional text editors commands:".
 \"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
