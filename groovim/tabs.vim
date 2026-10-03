@@ -27,29 +27,22 @@ func! GrooVim_PutOnEditWindow() range abort
   endfor
 endfunc
 
-" Note: The default tab label is the buffer of the CURRENT window of the tab, so
-" standing on the occurrences list renamed the tab to
-" "GrooVim_SearchGuyResults1" and your file was no longer findable among many
-" tabs. Here the label is always a document of yours: the accessories are
-" skipped.
+" Note: The label is always a document of YOURS -- the accessories are skipped,
+" or standing on the occurrence list would rename the tab to
+" "GrooVim_SearchGuyResults1" -- and a document you have not saved yet shows as
+" "new 1", "new 2"... the way Notepad++ names them, instead of "[No Name]".
 "
-" A document you have not saved yet shows as "new 1", "new 2"... the way
-" Notepad++ names them, instead of the "[No Name]" of Vim.
-"
-" A name ON SCREEN and not a name on the buffer. ":file new 1" would have been
-" one line, and it would make ":w" write a file called "new 1" into whatever
+" A name ON SCREEN and not a name on the buffer: ":file new 1" would be one
+" line, and it would make ":w" write a file called "new 1" into whatever
 " directory you happen to be in. Nameless, Vim goes on asking you where to save
-" -- which is the Save As of Notepad++, and the reason its "new 1" is not a file
-" either.
+" -- the Save As of Notepad++, and the reason its "new 1" is not a file either.
 "
 " The number is handed out the first time the buffer is DRAWN and then kept on
-" the buffer, so it never changes under you, and the tabs get theirs in the
-" order they are drawn -- left to right.
-"
-" And it is the LOWEST one nobody is using, not the next of a counter that only
-" grows: close "new 2" of "new 1, new 2, new 3" and the one after it is "new 2"
-" again. That is how Notepad++ hands them out, and a counter would have you at
-" "new 47" on a morning when three documents were ever open at once.
+" the buffer, so it never changes under you and the tabs get theirs left to
+" right. And it is the LOWEST one nobody is using: close "new 2" of "new 1, new
+" 2, new 3" and the next document is "new 2" again, as in Notepad++. A counter
+" that only grows would have you at "new 47" on a morning when three documents
+" were ever open at once.
 func! GrooVim_NewNameOf(buffer) abort
 
   if !GrooVim_IsADocument(a:buffer)
@@ -194,28 +187,20 @@ let s:tabFirst = 1
 let g:GrooVim_TabMoreLeft = get(g:, "GrooVim_TabMoreLeft", "‹")
 let g:GrooVim_TabMoreRight = get(g:, "GrooVim_TabMoreRight", "›")
 
-" Note: The tab line, which SCROLLS instead of being cut.
-"
-" With more tabs than the terminal is wide, the line used to be written whole
-" and Vim cut what did not fit -- and what it cut was the left end, so going
-" back to an old tab left you on a tab whose name was off the screen. The one
-" thing a tab line is for is saying where you are.
-"
-" So a window of tabs is drawn instead, and the window follows you: it moves
-" only as much as it has to for the tab you are ON to be whole on the screen,
-" which is what Notepad++ does with the same problem. A "<" or a ">" at the end
-" says the line goes on that way.
-"
-" A new tab, at the END of the tab line, and one you can type in.
-"
-" The "setlocal ma" is there because of a lock that used to leak: a ":set noma"
-" written somewhere else made every buffer opened afterwards refuse to be
-" changed -- see the long note on it in "GrooVim_SearchGuySync".
+" Note: A new tab, at the END of the tab line, and one you can type in. The
+" "setlocal ma" is there because a ":set noma" written elsewhere leaks into
+" every buffer opened afterwards -- see the note on it in
+" "GrooVim_SearchGuySync".
 func! GrooVim_TabNew() abort
   $tabnew
   setlocal ma
 endfunc
 
+" Note: The tab line, which SCROLLS instead of being cut: with more tabs than
+" the terminal is wide, a WINDOW of tabs is drawn and the window follows you. It
+" moves only as much as it has to for the tab you are ON to be whole on the
+" screen, which is what Notepad++ does with the same problem, and a "‹" or a "›"
+" at the end says the line goes on that way.
 func! GrooVim_TabLine() abort
 
   let l:count = tabpagenr("$")

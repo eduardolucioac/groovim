@@ -385,24 +385,7 @@ func! GrooVim_VisualWrite() range abort
   exec "norm gv"
 endfunc
 
-" Note: Changes to uppercase/lowercase.
-"
-" Title Case: the first letter of every word up, the rest down.
-"
-" A substitution and not an operator, because Vim has "gU" and "gu" and nothing
-" for this. "\u" raises the character that follows it and "\L" lowers everything
-" after, so one pass does both halves of each word.
-"
-" "\%V" is what keeps it INSIDE the selection. A plain ":s" works on whole
-" LINES, and a selection of half a line would have taken the other half with it.
-" It reads the area "gv" would bring back, which is why the "<Esc>" below comes
-" BEFORE the substitution and not after: the area is only written down when
-" visual mode ends.
-"
-" In normal and insert mode it is the word under the cursor, selected here so
-" that the same substitution serves all three modes.
-"
-" Puts the cursor ON the text of the line when it is sitting PAST it.
+" Note: Puts the cursor ON the text of the line when it is sitting PAST it.
 "
 " GrooVim runs with "virtualedit=onemore", so the cursor can sit one column
 " beyond the last character -- which is exactly where you are after typing to
@@ -417,11 +400,7 @@ func! GrooVim_StepOntoTheText() abort
 endfunc
 
 " Note: The case of the word under the cursor, with the cursor left WHERE IT
-" WAS.
-"
-" This used to be "norm gUiwe", and the "e" walks to the end of the word -- so
-" changing the case of a word you were in the middle of moved you to its last
-" letter. Changing the case of a word is not a movement.
+" WAS: changing the case of a word is not a movement.
 func! GrooVim_CaseOfTheWord(which) abort
   let l:view = winsaveview()
   call GrooVim_StepOntoTheText()
@@ -429,6 +408,20 @@ func! GrooVim_CaseOfTheWord(which) abort
   call winrestview(l:view)
 endfunc
 
+" Note: Title Case: the first letter of every word up, the rest down.
+"
+" A substitution and not an operator, because Vim has "gU" and "gu" and nothing
+" for this. "\u" raises the character that follows it and "\L" lowers everything
+" after, so one pass does both halves of each word.
+"
+" "\%V" is what keeps it INSIDE the selection. A plain ":s" works on whole
+" LINES, and a selection of half a line would have taken the other half with it.
+" It reads the area "gv" would bring back, which is why the "<Esc>" below comes
+" BEFORE the substitution and not after: the area is only written down when
+" visual mode ends.
+"
+" In normal and insert mode it is the word under the cursor, selected here so
+" that the same substitution serves all three modes.
 func! GrooVim_ToTitleCase(modType) range abort
 
   let l:search = @/
@@ -467,6 +460,7 @@ func! GrooVim_ToTitleCase(modType) range abort
 
 endfunc
 
+" Note: Changes to uppercase/lowercase.
 func! GrooVim_ToUpperLower(modType) range abort
   " Note: Reselect area.
   exec "norm gv"

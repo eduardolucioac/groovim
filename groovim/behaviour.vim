@@ -24,19 +24,13 @@ filetype plugin indent on
 "   let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"}
 " <
 "
-" They lived at the end of the indent part, written into the code, under a
-" heading about syntax associations that had stopped describing anything else in
-" that file. What a file IS belongs next to the detection that decides it, which
-" is the line above; how it is indented comes after, and reads the answer.
-"
 " Same shape as "g:GrooVim_IndentWidthPerType": a dictionary you can add to
 " without touching GrooVim, and only what is listed in it is touched -- the file
 " types Vim knows go on being found by Vim.
 "
-" The file type and not the syntax, which is what the two lines used to set as
-" well. Setting the type is what makes Vim read the syntax OF that type, along
-" with its indent rules and its plugin; setting the syntax alone would paint the
-" file and leave the other two behind.
+" The file TYPE and not the syntax: setting the type is what makes Vim read the
+" syntax OF that type, along with its indent rules and its plugin, while setting
+" the syntax alone would paint the file and leave the other two behind.
 let g:GrooVim_SyntaxPerExtension = get(g:, "GrooVim_SyntaxPerExtension",
       \ {"inc": "html", "gds": "vb"})
 
@@ -51,31 +45,23 @@ augroup end
 " Note: The mouse: clicking, selecting and the wheel, in every mode.
 set mouse=a
 
-" Note: "Esc" answers AT ONCE.
+" Note: "Esc" answers AT ONCE, and so does the column the cursor lands on when
+" insert mode ends.
 "
 " A terminal sends an arrow or an F key as a run of bytes that begins with the
-" very same "Esc", so Vim waits to see whether more is coming -- and with no
-" "ttimeoutlen" set it waits "timeoutlen", a whole second. Pressing Esc showed
-" "^[" in the corner and nothing happened until the second was up. This is the
-" wait for the REST OF A KEY, which a keyboard sends in one go; it is not the
-" wait for the second key of a shortcut, which is a hand travelling and has its
-" own patience in "g:GrooVim_CommandZWait".
+" very same "Esc", so Vim waits to see whether more is coming. This is the wait
+" for the REST OF A KEY, which a keyboard sends in one go; it is not the wait
+" for the second key of a shortcut, which is a hand travelling and has its own
+" patience in "g:GrooVim_CommandZWait". With nothing set Vim waits a whole
+" second, and that second is "^[" in the corner, or the cursor one column left,
+" until it finishes the key and runs what GrooVim hangs on "InsertLeave".
 "
-" This wait is also how long the cursor sits in the WRONG column every time you
-" leave insert mode. Vim steps one column left on the way out, paints it, and
-" only when the wait is over does it finish the key and run what GrooVim hangs
-" on "InsertLeave", which puts the column back.
-"
-" And the other side of the same number, measured by feeding an arrow one byte
-" at a time: the key falls apart when its bytes arrive further apart than this.
-" A keyboard sends the whole run in one go and a link is what can tear it -- and
-" a torn arrow in insert mode does not move the cursor, it TYPES "[B" into the
-" file.
-"
-" 50, which is where those two meet: half the jump of a tenth of a second that
-" could be seen, against a tearing that asks for a link so slow that the bytes
-" of ONE key arrive twenty of these apart. If an arrow ever writes letters over
-" a bad line, this is the one number to raise.
+" The other side of the same number, measured by feeding an arrow one byte at a
+" time: a key falls apart when its bytes arrive further apart than this, and a
+" torn arrow in insert mode does not move the cursor, it TYPES "[B" into the
+" file. 50 is where the two meet -- half the jump of a tenth of a second that
+" could be seen, against a tearing that asks for a link twenty times slower than
+" that. If an arrow ever writes letters over a bad line, raise this.
 set ttimeout
 set ttimeoutlen=50
 
@@ -91,10 +77,9 @@ set ttimeoutlen=50
 "      tty with a terminal that speaks nothing;
 "   4. The unnamed register, our last resort.
 
-" There is nothing to configure about OSC 52, and getting to that took a long
-" argument. It is the LAST method of the cascade, so reaching it means
-" Wayland, X11 and every tool have already failed -- and from there every knob
-" could only SUBTRACT:
+" There is nothing to configure about OSC 52. It is the LAST method of the
+" cascade, so reaching it means Wayland, X11 and every tool have already failed
+" -- and from there every knob could only SUBTRACT:
 "
 "   turning it off      leaves the file of GrooVim and nothing going out
 "   asking the terminal leaves "clipmethod=none" whenever it does not answer,
@@ -149,11 +134,6 @@ endfunc
 " concludes there is no support on a terminal where it works perfectly well, and
 " the copy never leaves the machine. Checking, here, is a worse answer than not
 " checking.
-"
-" The query itself, from the package: SendDA1() is called as it starts, and
-" inside it is "if !has('gui_running') && !get(g:, 'osc52_force_avail', 0)". The
-" call happens and the sequence is NOT sent while this is 1 -- with our value,
-" Vim never consults the terminal at all.
 "
 " Written here, after the function it calls, and not at the top of the file: a
 " "let" up there would run before that function exists ("E117").
@@ -416,19 +396,11 @@ func! GrooVim_ClipReg() abort
   " itself works perfectly well. The branch above cannot fire there, and this
   " one is what finds the register.
   "
-  " And the register is "+", never "*". It was asked with has("unnamedplus"),
-  " which cannot answer no where this branch answers yes -- read in the source
-  " of the Vim this builds, "evalfunc.c": both live inside the same "#ifdef
-  " FEAT_CLIPBOARD", "clipboard_working" is true when the method is a provider
-  " or when the X or Wayland selection is available, and "unnamedplus" is true
-  " when X11 or the Wayland clipboard was compiled in, and also when the method
-  " is a provider. Each of the two ways of reaching this line makes the other
-  " one true.
-  "
-  " And on a Vim built without "+clipboard" this line is not reached at all:
-  " measured on a build made for it, "clipboard_working" answers 0 there -- the
-  " whole answer is inside that "#ifdef" -- and the branch above, the provider
-  " one, is what hands back "+".
+  " And the register is "+", never "*", with no has("unnamedplus") asked on top:
+  " it cannot answer no where this branch answers yes, since each of the two
+  " ways of reaching this line makes the other one true. On a Vim built without
+  " "+clipboard" the line is not reached at all -- "clipboard_working" answers 0
+  " there, and the provider branch above is what hands back "+".
   if has("clipboard_working")
     let g:GrooVim_ClipRegCache = "+"
     return g:GrooVim_ClipRegCache
@@ -507,21 +479,14 @@ endfunc
 " unnamed register and "@+" came back empty; with it set, "@+" holds the line.
 "
 " What it asks is which register the CASCADE ended up on, which is what
-" GrooVim_ClipReg() answers. Not has("clipboard_working"), which cannot tell
-" WHICH register to write down and does not even answer the same way twice:
-" measured on a Vim built with "+clipboard" it says yes wherever the cascade
-" found anything, a provider included; measured on one built WITHOUT it -- a
-" real build, made for this, "-clipboard -wayland -X11" -- it says NO while OSC
-" 52 was carrying every copy out, because the whole of that answer lives inside
-" "#ifdef FEAT_CLIPBOARD".
+" GrooVim_ClipReg() answers -- not has("clipboard_working"), which cannot tell
+" WHICH register to write down and does not even answer the same way twice: on a
+" Vim built WITHOUT "+clipboard" it says no while OSC 52 carries every copy out.
 "
-" One branch and no "try". There was a second one for "*" and a "catch" around
-" both, and neither can happen on the Vim this builds: the register is never "*"
-" (see GrooVim_ClipReg above), and the option always exists, because Vim defines
-" it whenever "+clipboard" OR "+eval" is there -- read in "optiondefs.h" and
-" "vim.h", "HAVE_CLIPMETHOD" -- and with a provider present "unnamedplus" is an
-" allowed value even on a Vim built without "+clipboard", which its own manual
-" says in as many words.
+" One branch and no "try": the register is never "*" (see GrooVim_ClipReg
+" above), and the option is always there, since Vim defines it whenever
+" "+clipboard" OR "+eval" is -- and with a provider present "unnamedplus" is an
+" allowed value even on a Vim built without "+clipboard".
 func! GrooVim_ClipSyncOption() abort
   if GrooVim_ClipReg() == "+"
     set clipboard=unnamedplus
@@ -640,14 +605,6 @@ func! GrooVim_CopyHere() abort
   " And it is taken HERE and trusted, because the mapping comes through "<Cmd>":
   " the selection is still up, the cursor has not been moved, and the window is
   " the one being looked at.
-  "
-  " Through the ":<C-u>" this used to come in on, none of the three was true.
-  " Leaving visual mode with ":" drops the cursor on the first line of the range
-  " -- measured: column 8 while selecting, column 5 by the time the function ran
-  " -- and takes the window along, so the selection had to be put back with a
-  " "gv" before anything could be read. And a "gv" that lands more than a screen
-  " away makes Vim CENTRE what it lands on, which moved the window on a copy
-  " that moves nothing.
   let l:view = winsaveview()
 
   normal! y

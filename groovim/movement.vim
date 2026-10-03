@@ -10,18 +10,9 @@
 " Note: Every mapping of visual mode here reaches its function through "<Cmd>".
 "
 " Typing ":" in visual mode puts the cursor on the FIRST line of the range (see
-" ":h v_:") and the window goes there with it, so every one of these functions
-" had to put the selection back with a "gv" -- and a "gv" that lands more than a
-" screen away makes Vim CENTRE what it lands on. Measured: window on 80..120 and
-" cursor on 115, one Shift-Alt-Up left the window on 95..135 with the cursor on
-" 100, a line that had been on the screen the whole time.
-"
-" Putting the window back afterwards fixes where it ENDS and not what is painted
-" on the way. Between the ":" and the "gv" the window really is somewhere else
-" -- measured, on 20..60 with the cursor on the first line of the range -- and
-" whatever paints in that instant shows it. Vim paints when something makes it,
-" and GrooVim keeps a timer of its own up, polling the Caps Lock. That frame is
-" the blink, and it is why it is only seen SOMETIMES.
+" ":h v_:") and takes the window with it, so the selection has to be put back
+" with a "gv" -- and the window blinks somewhere else in between, which is seen
+" whenever anything paints in that instant.
 "
 " "<Cmd>" runs the command without leaving the mode it was called in: the cursor
 " does not move, so the window has nothing to come back from, and the selection

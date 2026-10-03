@@ -527,24 +527,10 @@ func! GrooVim_ConfigureGeneral() range abort
 
 endfunc
 
-" Note: Get and validate a givem option.
-"
-" Asks until the answer passes the test, ALWAYS with the same question.
-" Repeating the very same line is what tells you the answer did not take, and it
-" is how every question of GrooVim behaves.
-"
-" "IsValid" takes the answer and says whether it serves. A closure carries
-" whatever else the test needs.
-"
-" A third argument turns on the completion of Vim, by name -- "filetype",
-" "file", "buffer" and the rest of ":help command-completion". It is what lets
-" the language question offer the 831 file types this Vim knows without GrooVim
-" holding a list of its own.
-"
-" The mark of a SECTION. It goes on the first line of one and on nothing else,
-" so that a screen of several questions reads as several -- a block of three
-" lines carries it once, and a question that is a block on its own carries it
-" too.
+" Note: The mark of a SECTION of a screen. It goes on the first line of one and
+" on nothing else, so that a screen of several questions reads as several -- a
+" block of three lines carries it once, and a question that is a block on its
+" own carries it too.
 "
 " Written in ONE place and put on by the two functions below, never typed into a
 " string at a call site. That is what keeps every screen of GrooVim marked the
@@ -564,6 +550,15 @@ func! GrooVim_ScreenAsk(prompt, IsValid, ...) abort
    \ [g:GrooVim_ScreenMark . a:prompt, a:IsValid] + a:000)
 endfunc
 
+" Note: Asks until the answer passes the test, ALWAYS with the same question.
+" Repeating the very same line is what tells you the answer did not take, and it
+" is how every question of GrooVim behaves.
+"
+" "IsValid" takes the answer and says whether it serves, and a closure carries
+" whatever else the test needs. A third argument turns on the completion of Vim
+" by name -- "filetype", "file", "buffer" and the rest of ":help
+" command-completion" -- which is what lets the language question offer the 831
+" file types this Vim knows without GrooVim holding a list of its own.
 func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
   let l:completion = a:0 > 0 ? a:1 : ""
   while 1
@@ -576,24 +571,8 @@ func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
   endwhile
 endfunc
 
-" Note: Asks a question that only takes certain answers, and keeps asking until
-" it gets one of them. An empty answer keeps what is in force.
-"
-" The prompt is BUILT here, from what the function already receives. Every call
-" site used to spell out "[0[default]/1][in use: \"0\"]? " by hand, in eight
-" places, and a change to the list of options would not reach the text. Now it
-" cannot drift.
-"
-" An empty "currentValue" is a question with nothing in force -- the one that
-" asks what to get from a file name is like that. No "in use" is shown and an
-" empty answer takes the factory default.
-"
-" "in use" and not "now", which it said for years. On the screen of the file
-" settings, next to a question about CONVERTING, "now" read as part of the
-" answer -- convert it now? What it means is the value the option is on.
-"
-" The prompt of a question whose answer is a NUMBER and not one of a list. Same
-" shape as the one above, so the screens read alike.
+" Note: The prompt of a question whose answer is a NUMBER and not one of a list.
+" Same shape as the one of a list, so the screens read alike.
 func! GrooVim_NumberToPrompt(factoryDefault, currentValue) abort
 
   let l:prompt = "[a number, " . a:factoryDefault . "[default]]"
@@ -678,6 +657,17 @@ endfunc
 " Note: The bracket part of the prompt: the options, which of them is the
 " factory default, and the value in force. In list order, so what you see
 " follows what the caller declared.
+"
+" The prompt of a question, BUILT here out of what the question already knows
+" and never spelled out at a call site -- the list of answers, which of them is
+" the factory default, and which value is in force.
+"
+" An empty "currentValue" is a question with nothing in force: no "in use" is
+" shown and an empty answer takes the factory default.
+"
+" "in use" and not "now": on the screen of the file settings, next to a question
+" about CONVERTING, "now" read as part of the answer -- convert it now? What it
+" means is the value the option is on.
 func! GrooVim_OptionsToPrompt(possibleOptions, factoryDefault, currentValue) abort
 
   let l:parts = []

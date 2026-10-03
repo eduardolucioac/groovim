@@ -3,18 +3,12 @@
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: The bar across the top and the list under it, written out of the same
-" list of shortcuts the help of F9 is. Nothing here knows what a shortcut DOES:
-" choosing a line presses the keys of it, so the menu can never do anything the
-" keyboard would not.
+" list of shortcuts the help of F9 is -- the shape of the menu of Notepad++.
 "
-" The menu, written out of the same list the help is.
-"
-" A BAR across the top with the four groups on it, and under the one you are on,
-" what it holds -- the shape of the menu of Notepad++ and of the "vim-quickui"
-" plugin. Left and Right walk the bar, Up and Down the list, Enter picks and Esc
-" leaves. Pressing the F key of a section jumps straight to it, which is the
-" same key that runs its shortcuts. The mouse works everywhere: a click on the
-" bar opens a section, a click on a line runs it.
+" Left and Right walk the bar, Up and Down the list, Enter picks and Esc leaves.
+" Pressing the F key of a section jumps straight to it, which is the same key
+" that runs its shortcuts. The mouse works everywhere: a click on the bar opens
+" a section, a click on a line runs it.
 "
 " Two popups and not one: the bar stays put while the list under it is thrown
 " away and built again at every step sideways.

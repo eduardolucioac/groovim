@@ -5,18 +5,15 @@
 " Note: To facilitate and avoid performance problems that text should always be
 " the last.
 
-" Note: The sections of the menu of F10, and they are not the F keys any more.
+" Note: The sections of the menu of F10, which are what GrooVim DOES and not the
+" four F keys -- the map of the editor, which is what the menu bar of Notepad++
+" is. So the keys a conventional editor is pressed with, Ctrl+C, the arrows with
+" their modifiers, "n" and "m", are on it too.
 "
-" They were: the menu had four sections because there are four F keys, and every
-" line of it was a shortcut of one of them. So the menu showed what the F keys
-" do and NOT what GrooVim does -- and the keys a conventional editor is pressed
-" with, Ctrl+C, the arrows with their modifiers, "n" and "m", were nowhere. It
-" is the map of the editor now, which is what the menu bar of Notepad++ is.
-"
-" A section no longer says which F key it belongs to, and there is nothing to
-" say: a section holds keys of every shape. Which F key goes with what is
-" deducible from the lines under it -- they carry the keys that do them, and
-" nearly every line of "Edit" carries an F2.
+" A section does not say which F key it belongs to: it holds keys of every
+" shape, and which F key goes with what is deducible from the lines under it --
+" they carry the keys that do them, and nearly every line of "Edit" carries an
+" F2.
 "
 " Written "an F2" and not with the arrow after it: a case of the battery reads
 " every shortcut named anywhere in the source and refuses one that is not on the

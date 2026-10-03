@@ -74,12 +74,10 @@ set nocompatible
 " and everything moves at once -- plugins, saved options, undo history, the
 " clipboard file and the "viminfo". Two of those, side by side, are two GrooVim
 " that know nothing of each other.
-"
-" The Vim GrooVim asks for, said once and here.
 
-" Note: Vim 9.2 version is what "install.sh" builds, and GrooVim is reached only
-" through the "groovim" command, which runs that Vim -- so it is what GrooVim
-" gets.
+" Note: The Vim GrooVim asks for, said once and here. 9.2 is what "install.sh"
+" builds, and GrooVim is reached only through the "groovim" command, which runs
+" that Vim -- so it is what GrooVim gets.
 "
 " The clipboard depends on what arrived in it: "v:clipproviders", "clipmethod",
 " ":clipreset" and the "osc52" package that ships with it.

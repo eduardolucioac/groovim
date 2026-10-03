@@ -139,17 +139,11 @@ endfunc
 
 " Note: Walking the windows of a tab, both ways.
 "
-" It was "Ctrl+w", which only ever went FORWARD -- and took from Vim the key
-" every window command of it begins with, and from insert mode the "delete the
-" word behind" that every terminal has. Both are back to being themselves.
-"
-" And the line below is what makes it arrive as a KEY. Vim does not read an
-" "Esc" in front of a character as Alt: ":h :map-alt-keys" names Konsole and
-" says so -- "some mainstream terminals like gnome-terminal and konsole use the
-" ESC prefix", and Vim "doesn't know what happened". The mapping was there and
-" the key did nothing; measured, window 1 of 2 before and window 1 after.
-" Telling Vim which sequence the key IS, the mapping answers: measured again,
-" window 2 and then back to 1.
+" The line below is what makes the key ARRIVE. Vim does not read an "Esc" in
+" front of a character as Alt: ":h :map-alt-keys" names Konsole and says so --
+" "some mainstream terminals like gnome-terminal and konsole use the ESC
+" prefix", and Vim "doesn't know what happened". Without it the mapping is there
+" and the key does nothing.
 "
 " Alt with an ARROW, for example, never needed this -- "Alt+Left" and the others
 " are sent as one whole escape sequence that Vim already knows. It is the
@@ -200,26 +194,18 @@ vnoremap <silent> <expr> <C-x> GrooVim_KeysIfCanChange("di")
 " simply keep typing after copying or cutting, and landing on insert is what
 " comes closest to that.
 "
-" Copies and comes back to typing, which is what a conventional editor leaves
-" you able to do after a copy.
+" Insert only where typing is POSSIBLE -- on a buffer you cannot change, the
+" help or the occurrence list, it would answer "E21" over a command that changes
+" nothing -- and only when Vim is not on its way back there BY ITSELF. A
+" selection STARTED from insert mode, through a mouse drag or any road via
+" "<C-o>", leaves Vim waiting to return to insert as soon as the selection ends,
+" and the yank ends it: an "i" typed after the copy would land in the TEXT.
+" "GrooVim_CopyHere()" decides, because only after the yank can it be seen --
+" "mode(1)" answers "n" when the selection came from normal mode and "niI" when
+" insert is waiting.
 "
-" Insert only where typing is POSSIBLE. On a buffer you cannot change -- the
-" help, the occurrence list -- it answered "E21: Cannot make changes,
-" 'modifiable' is off" over a command that changes nothing.
-"
-" And insert only when Vim is not on its way back there BY ITSELF. A selection
-" STARTED from insert mode -- dragging the mouse, or any road into visual
-" through "<C-o>" -- leaves Vim waiting to return to insert as soon as the
-" selection ends, and the yank ends it. The "i" this mapping used to type after
-" the copy then arrived with insert already back and was written INTO the text:
-" "filetype" came out "filetypie". It is the function that decides now, because
-" only after the yank can it be seen -- "mode(1)" answers "n" when the selection
-" came from normal mode and "niI" when insert is waiting.
-"
-" A case cannot see that it worked. "feedkeys(..., \"x\")" ENDS insert mode when
-" the keys it was given run out, so a case that presses this and asks "mode()"
-" is answered "n" -- and it answers "n" for the plain "yi" that was here before,
-" which is how I know it is the asking and not the answer.
+" A case cannot see that it worked: "feedkeys(..., \"x\")" ends insert mode when
+" the keys run out, so "mode()" answers "n" whatever the mapping does.
 vnoremap <silent> <C-c> <Cmd>call GrooVim_CopyHere()<cr>
 
 " Note: Delete and backspace without yank.
