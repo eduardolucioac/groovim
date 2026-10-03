@@ -31,6 +31,38 @@ func! GT_FKeys()
   return filter(copy(g:GrooVim_Shortcuts), 'has_key(v:val, "group")')
 endfunc
 
+" The header of a part: a banner with the name, what the file is FOR, and a
+" shorter row of "$" closing it. Answers 1 when the three are there.
+func! GT_HeaderOf(lines)
+  let l:drawing = '^\s*"\s*\(..\=\)\1\{4,}'
+  let l:at = 0
+  while l:at < len(a:lines) && a:lines[l:at] !~ l:drawing
+    let l:at += 1
+  endwhile
+  let l:second = l:at + 2
+  while l:second < len(a:lines) && l:second <= l:at + 5 && a:lines[l:second] !~ l:drawing
+    let l:second += 1
+  endwhile
+  if l:second > l:at + 5 || l:second >= len(a:lines)
+    return 0
+  endif
+  let l:at = l:second + 1
+  while l:at < len(a:lines) && a:lines[l:at] =~ '^\s*$'
+    let l:at += 1
+  endwhile
+  let l:text = l:at
+  while l:at < len(a:lines) && a:lines[l:at] =~ '^\s*"' && a:lines[l:at] !~ l:drawing
+    let l:at += 1
+  endwhile
+  if l:at == l:text
+    return 0
+  endif
+  while l:at < len(a:lines) && a:lines[l:at] =~ '^\s*$'
+    let l:at += 1
+  endwhile
+  return l:at < len(a:lines) && a:lines[l:at] =~ l:drawing
+endfunc
+
 func! GT_Body()
   let l:path = $GROOVIM_TEST_VIMRC
   let l:source = GT_SourceLines()
@@ -238,11 +270,15 @@ func! GT_Body()
   " text of the help, a long "exec".
   let l:wide = []
   let l:headless = []
+  let l:nameless = []
   for l:file in [l:path] + sort(glob(fnamemodify(l:path, ":h") . "/groovim/*.vim", 0, 1))
     let l:lines = readfile(l:file)
     let l:name = fnamemodify(l:file, ":t")
     if empty(filter(copy(l:lines[0 : 39]), 'v:val =~ "^\" \\=\\$\\$\\$"'))
       call add(l:headless, l:name)
+    endif
+    if GT_HeaderOf(l:lines) == 0
+      call add(l:nameless, l:name)
     endif
     let l:at = 0
     for l:line in l:lines
@@ -256,6 +292,9 @@ func! GT_Body()
   endfor
   call GT_Ok("every part opens with a banner", empty(l:headless),
     \ "   " . (empty(l:headless) ? "(one for each of them)" : string(l:headless)))
+  call GT_Ok("  and says what it is FOR under the banner", empty(l:nameless),
+    \ "   " . (empty(l:nameless) ? "(a description, closed by a shorter row of \"$\")"
+    \ : string(l:nameless)))
   call GT_Ok("and no comment runs past 85 columns", empty(l:wide),
     \ "   " . (empty(l:wide) ? "(run ./tools/lint.py --fix if one ever does)"
     \ : string(l:wide[0 : 9]) . " (" . len(l:wide) . " of them)"))
@@ -344,12 +383,28 @@ func! GT_Body()
   for l:file in [$GROOVIM_TEST_VIMRC] +
    \ glob(fnamemodify($GROOVIM_TEST_VIMRC, ":h") . "/groovim/*.vim", 0, 1)
     let l:lines = readfile(l:file)
+    " Note: The width of a heading rule, which is the WIDEST in the file: the
+    " one that closes the description is shorter, and in the ".vimrc" it is the
+    " first of them all.
+    let l:full = 0
+    for l:line in l:lines
+      if l:line =~ '^" \=\$\$\$' && strchars(l:line) > l:full
+        let l:full = strchars(l:line)
+      endif
+    endfor
+
     let l:rules = []
     for l:i in range(len(l:lines))
       " Note: With or without the space after the quote: the style of the
       " comments is the author's and this is not the place to hold an opinion
       " about it.
-      if l:lines[l:i] =~ '^" \=\$\$\$'
+      if l:lines[l:i] !~ '^" \=\$\$\$'
+        continue
+      endif
+      " Note: A SHORTER rule is the one that closes the description at the top
+      " of the file, and it stands alone on purpose. Only the rules as wide as
+      " the first one are halves of a heading.
+      if strchars(l:lines[l:i]) >= l:full
         call add(l:rules, l:i)
       endif
     endfor

@@ -2,9 +2,12 @@
 " SEARCHING
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Searching, what it paints while it is on, and the walk between what it
-" found. The list it can leave behind is the occurrence part; here is what
-" finds, highlights and walks.
+" Searching, what it paints while it is on, and the walk between what it found.
+" The list it can leave behind is the occurrence part; here is what finds,
+" highlights and walks.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 let g:tabChanged = 0
 let g:block_GrooVim_HLNext = 0
 highlight WhiteOnRed ctermbg=red ctermfg=white

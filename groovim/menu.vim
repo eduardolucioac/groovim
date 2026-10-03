@@ -2,8 +2,8 @@
 " MENU (F10)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: The bar across the top and the list under it, written out of the same
-" list of shortcuts the help of F9 is -- the shape of the menu of Notepad++.
+" The bar across the top and the list under it, written out of the same list of
+" shortcuts the help of F9 is -- the shape of the menu of Notepad++.
 "
 " Left and Right walk the bar, Up and Down the list, Enter picks and Esc leaves.
 " Pressing the F key of a section jumps straight to it, which is the same key
@@ -17,6 +17,11 @@
 " only which two keys to send, so the menu can never do something different from
 " the keyboard -- and the shortcut shown on the right of every line is the one
 " it will press.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: What the menu is at this instant: the entries of the list on screen, the
+" two popups it is made of, and where the choice is standing.
 let g:GrooVim_MenuEntries = []
 let s:menuBar = 0
 let s:menuDrop = 0

@@ -2,10 +2,10 @@
 " SETTINGS (THE SCREENS AND THE ANSWERS)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: The screens of F5->c: what each one asks, what an answer may be, and
-" what is done with it. And the file where the answers you chose to KEEP are
-" written, which the .vimrc reads before any part of GrooVim runs. Where the
-" options you chose to KEEP are written.
+" The screens of F5->c: what each one asks, what an answer may be, and what is
+" done with it. And the file where the answers you chose to KEEP are written,
+" which the .vimrc reads before any part of GrooVim runs. Where the options you
+" chose to KEEP are written.
 "
 " Under "GrooVim/" and not under "plugin/", where it used to live: Vim sources
 " everything in "~/.vim/plugin" by itself, so the file was being run by the Vim
@@ -13,6 +13,8 @@
 " it saves has to stay on its side of that line. "g:GrooVim_OptsFile" is defined
 " in the ".vimrc": the file is read there, before any part of GrooVim, so the
 " path has to be known before this one runs.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " What the screen you are on has changed, so the question at the end can
 " write it all down if you say to keep it.

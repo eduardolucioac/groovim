@@ -2,6 +2,13 @@
 " APPEARANCE
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" What the editor LOOKS like while you work: the bar at the bottom and
+" everything written on it, the colour the cursor takes in each mode, the line
+" that marks where a line is getting long, and the colours a search and a
+" replace paint with.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: Displays the number of each line.
 set number
 

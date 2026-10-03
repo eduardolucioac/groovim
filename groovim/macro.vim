@@ -2,12 +2,14 @@
 " MACROS (AND THE CASE OF A WORD)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Keys recorded and played back, the copy of a whole file, and the three
-" cases a word can be written in -- UPPER, lower and Title. What they have in
-" common is that each one is a small operation on text that nothing else needed
-" to know about.
-"
-" Record a macro.
+" Keys recorded and played back, the copy of a whole file, and the three cases a
+" word can be written in -- UPPER, lower and Title. What they have in common is
+" that each one is a small operation on text that nothing else needed to know
+" about.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Record a macro.
 func! GrooVim_XenRec() range abort
 
   " Note: The same keys start and stop. It used to take "F5", a whole key of its

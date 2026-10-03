@@ -2,10 +2,11 @@
 " DEBUGGING (WHEN SOMETHING DOES NOT FIRE)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: The tools for finding out, which is not the same work as editing. They
-" were written where whoever needed them happened to be: the one that reports a
-" key in the indent part, the one that stops the code inside the occurrence
-" list. Neither has anything to do with either.
+" The tools for finding OUT, which is not the same work as editing: the one that
+" reports what a key really delivers, and the one that stops the code where it
+" runs so that you can look at it.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: What a key really delivers, which is the only way to settle an argument
 " about a shortcut that does not fire.

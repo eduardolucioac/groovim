@@ -4,6 +4,13 @@
 " GrooVim =D - Vi IMproved'n'GrooVIed!
 " =D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D=D
 
+" The index of GrooVim: what has to be settled before anything else, where
+" GrooVim lives on the disk, and the parts under "groovim/" that it reads, in
+" the order it reads them. The editor itself is written in those; what is
+" written HERE is what cannot wait for them.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 " LICENSE (GNU General Public License v3.0 or later)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

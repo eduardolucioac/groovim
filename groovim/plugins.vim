@@ -2,6 +2,12 @@
 " ENABLE PLUGINS
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" The plugins GrooVim can use, and the answer to whether each one is there.
+" GrooVim works with none of them installed, so every one of them is DETECTED
+" instead of assumed, and what is missing simply stays quiet.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: Is a given plugin installed? Looks into the native package directories,
 " which is the only way GrooVim loads one.
 func! GrooVim_HasPlugin(name) abort

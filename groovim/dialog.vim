@@ -2,9 +2,9 @@
 " DIALOGUES
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: A window that says something and waits. The About of the "?" section is
-" the first one; an information, a warning, a question with Yes and No are the
-" same window with other words and other buttons in it.
+" A window that says something and waits. The About of the "?" section is the
+" first one; an information, a warning, a question with Yes and No are the same
+" window with other words and other buttons in it.
 "
 " What one is made of: lines of text, a row of buttons under them, and -- while
 " it is up -- the only thing in GrooVim that reads a key. The menu of F10 works
@@ -20,6 +20,11 @@
 " only takes room from the ones that differ. Ctrl+C would be the obvious key and
 " cannot be used: measured, it does not arrive here at all, it INTERRUPTS -- the
 " filter never ran and the keys after it were never read.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: The dialogue that is on the screen, or empty while there is none: only
+" one is ever up.
 let s:dialog = {}
 
 " Note: The colours of a dialogue are the colours of the menu, because they are

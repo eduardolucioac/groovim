@@ -425,6 +425,23 @@ There is a linter beside it, and a formatter for the notes in the source:
 ./tools/lint.py --fix    reflows the notes to 80 columns (85 is the limit)
 ```
 
+Every part opens with the same header, and the linter and the battery both ask
+for it: a banner with the name, what the file is **for** in plain prose, and a
+shorter row of `$` closing it. The description carries no `Note:` -- a note
+explains the code beside it, and this one explains the file:
+
+```vim
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" DEBUGGING (WHEN SOMETHING DOES NOT FIRE)
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" The tools for finding OUT, which is not the same work as editing: the one that
+" reports what a key really delivers, and the one that stops the code where it
+" runs so that you can look at it.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+```
+
 If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
 shortcuts above is written from the same place the F9 help and the F10 menu are,
 and the battery refuses to pass while this file disagrees with it.

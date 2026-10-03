@@ -2,6 +2,13 @@
 " EDITING
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" The keys that CHANGE the text and the rules they all answer to: a buffer that
+" refuses to be changed, the undo and the redo of a conventional editor, the
+" Tab, the Enter and the Backspace of one, and the keys that move a line or
+" comment it.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: The buffer you are on may refuse to be changed. The tree of NERDTree,
 " the occurrence list and the help are all like that, for example, and a key
 " that edits met them with "E21: Cannot make changes, 'modifiable' is off" over

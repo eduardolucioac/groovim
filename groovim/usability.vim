@@ -1,12 +1,19 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"USABILITY
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" USABILITY
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" The settings that decide how the editor feels under the hands: the word wrap
+" of the View menu, how much Vim remembers, what Backspace is allowed to delete,
+" and the search that ignores case until you type one.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Always show what mode we're currently editing in.
 set showmode
 
-" Note: Word wrap, the one of the View menu of Notepad++. Off by default, which
-" is what GrooVim always did, and asked on the view screen of "F5->c".
+" Note: Word wrap, the one of the View menu of Notepad++ (inspiration). Off by
+" default, which is what GrooVim always did, and asked on the view screen of
+" "F5->c".
 "
 " "linebreak" goes with it, and it is not an extra: what Notepad++ does is break
 " the line at a SPACE, and Vim without "linebreak" breaks in the middle of a
@@ -35,13 +42,12 @@ set backspace=indent,eol,start
 " Note: Remember more commands and search history.
 set history=1000
 
-" Note: Use many/muchos levels of undo.
+" Note: Use many levels of undo.
 set undolevels=1000
 
-" Note: Ignore case when searching.
+" Note: Ignore case when searching. Tip: When searching try to be smart about
+" cases: `set smartcase`.
 set ignorecase
-
-" Note: When searching try to be smart about cases. set smartcase
 
 " Note: Makes search act like search in modern browsers ("highlight" occurrences
 " already in typing).
@@ -76,9 +82,9 @@ endtry
 "INDENTATION AND SYNTAX
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Always set autoindenting on. set autoindent
+" Tip: Always set autoindenting on: `set autoindent`.
 
-" Note: Copy the previous indentation on autoindenting. set copyindent
+" Tip: Copy the previous indentation on autoindenting: `set copyindent`.
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 "PLUGINS CONFIGURATION
@@ -95,7 +101,7 @@ let NERDTreeShowBookmarks = 1
 " Note: Show hidden files, too.
 let NERDTreeShowFiles = 1
 
-" Note: Quit on opening files from the tree. let NERDTreeQuitOnOpen = 1
+" Tip: Quit on opening files from the tree: `let NERDTreeQuitOnOpen = 1`.
 
 " Note: Highlight the selected entry in the tree.
 let NERDTreeHighlightCursorline = 1
@@ -126,6 +132,7 @@ let g:NERDTreeCustomOpenArgs =
 
 " Note: Mapping to move-vim.
 if g:enable_move_vim
+
   " Note: TWO settings and not one. The plugin asks which modifier moves a LINE
   " and, separately, which one moves a SELECTION -- and only the first was ever
   " given, so a selection went on waiting for "Alt+j" and "Alt+k", which nobody
@@ -135,9 +142,11 @@ if g:enable_move_vim
   " It is the same key for both on purpose: moving a line and moving the lines
   " you marked are one idea, and the number of them is not the user's problem.
   let g:move_key_modifier = "C"
+
   let g:move_key_modifier_visualmode = "C"
   inoremap <silent> <C-k> <C-o>:call GrooVim_Move_Vim_OnInsert("up")<cr>
   inoremap <silent> <C-j> <C-o>:call GrooVim_Move_Vim_OnInsert("down")<cr>
+
   " Note: This workaround is for the "Move Vim" can be fired in insert mode.
   func! GrooVim_Move_Vim_OnInsert(direc)
     if a:direc == "up"
@@ -146,6 +155,7 @@ if g:enable_move_vim
       exec "norm \<C-j>"
     endif
   endfun
+
 endif
 
 "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$

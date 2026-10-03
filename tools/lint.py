@@ -139,6 +139,25 @@ def blocos(linhas):
         yield comeco, i, recuo
 
 
+def so_enrola(bloco, recuo):
+    """A block of prose wrapped paragraph by paragraph, and nothing else done to
+    it. It is what the description under a banner needs: no "Note:" to put in or
+    to take off."""
+    saida = []
+    paragrafo = []
+    for linha in list(bloco) + [None]:
+        if linha is None or texto_de(linha) == "":
+            if paragrafo:
+                saida.extend(paragrafo if literal(paragrafo)
+                             else reflui(paragrafo, recuo))
+                paragrafo = []
+            if linha is not None:
+                saida.append(linha.rstrip())
+        else:
+            paragrafo.append(linha)
+    return saida
+
+
 def formata(linhas):
     """The file with its notes reflowed. Only the notes: a block that does not
     begin with "Note:" is somebody's commented-out code or a heading, and the
@@ -150,9 +169,14 @@ def formata(linhas):
     note is the code under it -- a block is a note."""
     saida = []
     fim_anterior = 0
+    descricao = faixa_da_descricao(linhas)
     for comeco, fim, recuo in blocos(linhas):
         saida.extend(linhas[fim_anterior:comeco])
         bloco = linhas[comeco:fim]
+        if descricao == (comeco, fim):
+            saida.extend(so_enrola(bloco, recuo))
+            fim_anterior = fim
+            continue
         if not texto_de(bloco[0]).startswith("Note:"):
             saida.extend(bloco)
             fim_anterior = fim
@@ -221,12 +245,47 @@ def cabecalho(linhas):
     return ""
 
 
+def faixa_da_descricao(linhas):
+    """Where the description under the banner begins and ends, or None.
+
+    The header of a part is a banner, what the file is FOR, and a shorter row of
+    "$" closing it. That description is prose like any note and is wrapped like
+    one -- what it does not carry is a "Note:", because a note explains the code
+    beside it and this one explains the file.
+    """
+    for i in range(min(len(linhas), 40)):
+        if not e_bandeira(linhas[i]):
+            continue
+        for j in range(i + 2, min(i + 6, len(linhas))):
+            if not e_bandeira(linhas[j]):
+                continue
+            k = j + 1
+            while k < len(linhas) and linhas[k].strip() == "":
+                k += 1
+            comeco = k
+            while (k < len(linhas) and e_comentario(linhas[k])
+                   and not e_bandeira(linhas[k])):
+                k += 1
+            if k == comeco:
+                return None
+            fim = k
+            while k < len(linhas) and linhas[k].strip() == "":
+                k += 1
+            if k < len(linhas) and e_bandeira(linhas[k]):
+                return comeco, fim
+            return None
+    return None
+
+
 def olha(caminho, linhas):
     erros = []
     avisos = []
 
     if cabecalho(linhas) == "":
         erros.append("%s: no banner with a name at the top" % caminho)
+    elif faixa_da_descricao(linhas) is None:
+        erros.append("%s: no description under the banner, closed by a row of"
+                     " \"$\" (what the file is FOR, in prose)" % caminho)
 
     for comeco, fim, recuo in blocos(linhas):
         if not texto_de(linhas[comeco]).startswith("Note:"):

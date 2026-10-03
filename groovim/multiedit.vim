@@ -2,17 +2,18 @@
 " MULTIPLE CARETS
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Writing in several places at once: F2->n takes whole lines and F2->m
-" takes places of their own. Vim has one cursor, so the others are drawn and the
+" Writing in several places at once: F2->n takes whole lines and F2->m takes
+" places of their own. Vim has one cursor, so the others are drawn and the
 " typing is repeated at each of them -- which is why this is a part and not a
-" mapping. The ideia: Writing in several places at once -- the multiple carets
-" of Notepad++ (inspiration), which are its "Shift+Alt+arrows" (a column) and
-" its "Ctrl+click" (wherever you like).
-"
-" Where the other carets are: a line and a column each, and the one the terminal
-" really draws is not among them -- a terminal has ONE cursor, and the others
-" are painted as a colour on the character they sit on. It is what the plugin
-" does too.
+" mapping. They are the multiple carets of Notepad++ (inspiration), which are
+" its "Shift+Alt+arrows" (a column) and its "Ctrl+click" (wherever you like).
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Where the other carets are: a line and a column each, and the one the
+" terminal really draws is not among them -- a terminal has ONE cursor, and the
+" others are painted as a colour on the character they sit on. It is what the
+" plugin does too.
 let g:GrooVim_MultiPoints = []
 
 " Note: The colour the cursor of the terminal wears while the places are set --

@@ -2,10 +2,12 @@
 " MOVEMENT (GROOVYMOVE, AND THE KEYS THAT WALK)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Walking the text: the smooth movement of Alt+Shift with the arrows, the
-" short one of Ctrl+Alt, the page keys, and the word keys. What they have in
-" common is that they go over the places where there is no text, which is what a
+" Walking the text: the smooth movement of Alt+Shift with the arrows, the short
+" one of Ctrl+Alt, the page keys, and the word keys. What they have in common is
+" that they go over the places where there is no text, which is what a
 " conventional editor does and Vim does not.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: Every mapping of visual mode here reaches its function through "<Cmd>".
 "

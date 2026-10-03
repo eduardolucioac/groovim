@@ -2,9 +2,11 @@
 " SHORTCUTS (COMMANDZ)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: The F keys, and the wait for the second key that makes a shortcut. Which
+" The F keys, and the wait for the second key that makes a shortcut. Which
 " shortcut does what is NOT here: it is read from the one list in the help part,
 " and this is the machine that reads the keys and looks it up.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " How long GrooVim waits for the SECOND key of a shortcut, in
 " milliseconds. When it runs out with nothing typed, the F key repeats the last

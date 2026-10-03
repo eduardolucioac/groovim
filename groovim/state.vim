@@ -2,6 +2,12 @@
 " STATE
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" What GrooVim knows about the moment it is in: the operation that is running
+" and what the bar says while it runs, the last message Vim showed, whether Caps
+" Lock is on, and what has to happen on entering and on leaving insert mode.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: Get shown messages.
 let g:messagesHolder = ""
 func! GrooVim_GetMessages() abort

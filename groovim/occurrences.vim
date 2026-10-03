@@ -2,10 +2,13 @@
 " OCCURRENCE LIST
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: The panel that lists every line a search found, which is the one of
-" Notepad++ (inspiration). It is a window of its own in the tab, with a buffer
-" nobody can change and keys of its own, and it is kept in step with what the
-" search last found.
+" The panel that lists every line a search found, which is the one of Notepad++
+" (inspiration). It is a window of its own in the tab, with a buffer nobody can
+" change and keys of its own, and it is kept in step with what the search last
+" found.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 func! GrooVim_SearchGuySyncNow(timer) abort
 
   " Note: Checked again because the timer runs later and the search may have

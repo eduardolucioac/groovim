@@ -2,11 +2,13 @@
 " REPLACING
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: Replacing, with and without confirmation, in this file or in every tab
-" that is open. It is the "Replace" of Notepad++, and what it mostly is,
-" underneath, is a ":substitute" with the flags decided by the answers.
-"
-" Treat a string and return a substring to use in prompts.
+" Replacing, with and without confirmation, in this file or in every tab that is
+" open. It is the "Replace" of Notepad++, and what it mostly is, underneath, is
+" a ":substitute" with the flags decided by the answers.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: Treat a string and return a substring to use in prompts.
 func! GrooVim_SubstringToPrompt(stringToBeTreated) abort
   let l:lineSplited = split(a:stringToBeTreated, "\n")
   let l:transferAreaToShow = ""

@@ -1,9 +1,17 @@
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-"HELP
-"$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" HELP
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: To facilitate and avoid performance problems that text should always be
-" the last.
+" The help of F9 and the About of the "?" section, and the ONE list they are
+" written from: every shortcut of GrooVim, its keys, the modes it works in and
+" what it does. The menu of F10 and the README are written from that same list,
+" so a shortcut is described once and never twice.
+"
+" The text of the help itself comes LAST in the file, after everything that
+" reads the list: it is the biggest thing GrooVim carries, and nothing in here
+" waits on it.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " Note: The sections of the menu of F10, which are what GrooVim DOES and not the
 " four F keys -- the map of the editor, which is what the menu bar of Notepad++

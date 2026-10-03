@@ -2,9 +2,11 @@
 " SESSION (AND EVERY WAY OF CLOSING)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" Note: What is open when you leave and what comes back when you return: the
-" tabs, the files, the cursors. And the other half of it, the ways of closing --
-" a file, a tab, everything -- because what closes decides what is saved.
+" What is open when you leave and what comes back when you return: the tabs, the
+" files, the cursors. And the other half of it, the ways of closing -- a file, a
+" tab, everything -- because what closes decides what is saved.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
 
 " The session: which files were open, in which tabs, with which layout.
 "

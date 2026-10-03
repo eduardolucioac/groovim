@@ -2,6 +2,12 @@
 " BEHAVIOR (GENERAL)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" How Vim behaves before a key of yours is pressed: the type it gives what you
+" open, the clipboard and the four ways GrooVim has of reaching one, and the
+" waits that decide whether a key answers at once.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: The file type of what you open, and what Vim reads because of it: the
 " syntax of the language, the indent rules of the language, and the plugin of
 " the language.

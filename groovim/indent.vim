@@ -2,6 +2,12 @@
 " INDENTATION (AND WHAT SHOWS IT)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" How wide an indent is, whether it is made of spaces or of a real tab, and the
+" symbols that SHOW it on the screen: the guides down the levels, the dot on a
+" space, the arrow on a tab.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: General indent width.
 let g:GrooVim_IndentWidth = get(g:, "GrooVim_IndentWidth", 2)
 

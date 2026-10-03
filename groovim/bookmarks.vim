@@ -2,6 +2,12 @@
 " BOOKMARKS
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
+" Marked lines: the flag drawn on the margin, the note you can write on one, the
+" walk from one to the next, the panel that lists every one of them, and the
+" file that keeps them between sessions.
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
 " Note: Where the marks live, in memory. One entry per marked line:
 "
 "   g:GrooVim_Bookmarks["/path/file"] = [{"line": 12, "note": "", "text": "x = 1", "id": 9501}]
