@@ -442,6 +442,22 @@ explains the code beside it, and this one explains the file:
 " $$$$$$$$$$$$$$$$$$$$$$$
 ```
 
+To see the help of **F9** as it reads, with no install in between:
+
+```
+./tools/help.sh          opens GrooVim out of the source, help already open
+```
+
+It is the real editor and the real F9 -- only the session is sent to a directory
+of the moment, so previewing never reopens or loses what you had open. Write,
+quit, run it again.
+
+Without leaving the session you are in, after saving `groovim/help.vim`:
+
+```
+;source %     then F9 to close the help and F9 again to build it anew
+```
+
 If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
 shortcuts above is written from the same place the F9 help and the F10 menu are,
 and the battery refuses to pass while this file disagrees with it.

@@ -518,7 +518,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * What is GrooVim?~".
 \"\n".
-\"\n The|GrooVim|is an extensive script -- a|.vimrc|and the parts it loads -- that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
+\"\n The|GrooVim|is an extensive script that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
 \"\n*o*  Allow use with just a few instructions by a public accustomed to editors/IDEs default;".
 \"\n*o*  Facilitate and accelerate widely the use, being also a integrated \"UI\";".
 \"\n*o*  Preserving always that possible the default behavior of Vim;".
