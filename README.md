@@ -290,6 +290,10 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `Ctrl+Left` - A word back *(normal mode/insert/visual)*;
     - `Ctrl+Right` - A word forward *(normal mode/insert/visual)*;
     - `Ctrl+B` - From one bracket to the one that closes it, and back *(normal mode/insert/visual)*;
+    - `Alt+I` - To the place you were before the jump, and the one before that *(normal mode/insert/visual)*;
+        - Note: A JUMP and not a step: what a search, a G , an occurrence of the list or opening another file left behind. Walking with the arrows leaves nothing to come back to, which is what you want -- it is the jumplist of Vim;
+        - Note: It is kept per WINDOW, so each window remembers its own way back;
+    - `Alt+O` - Undoes the going back, up to where you first pressed it *(normal mode/insert/visual)*;
 
  * **View** *(What is beside the text: the tree, the marked lines, the tabs, the help)*
 

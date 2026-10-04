@@ -492,6 +492,50 @@ call GT_Ok("  and Up comes back the same way",
 set nowrap
 let &columns = g:GT_KEPT_COLUMNS
 
+" ---- back to where you came from, and forward again
+"
+" The "Go Back" of a conventional editor, which in Vim is the jump list. The
+" keys are read off the keyboard and not off the manual: Alt+i goes BACK, and
+" under it is the "<C-o>" of Vim, which is the OLDER position.
+"
+" The forward one is the trap. A terminal sends the same byte for "<C-i>" and
+" for Tab, and Tab indents here -- what saves it is that the right side of a
+" "noremap" is never mapped again, which is what the last check asks.
+exec "enew!"
+call setline(1, map(range(1, 60), {_, n -> "line " . n}))
+
+call cursor(1, 1)
+call feedkeys("G", "x")
+call feedkeys("gg", "x")
+call feedkeys("\<A-i>", "x")
+call GT_Ok("Alt+i goes back to where the jump came from", line(".") == 60,
+  \ "   (line " . line(".") . ", and the G had gone to 60)")
+call feedkeys("\<A-o>", "x")
+call GT_Ok("  and Alt+o undoes the going back", line(".") == 1,
+  \ "   (line " . line(".") . ")")
+
+call cursor(1, 1)
+call feedkeys("G", "x")
+call feedkeys("gg", "x")
+call feedkeys("i\<A-i>", "x")
+call GT_Ok("  and it answers from insert mode too", line(".") == 60,
+  \ "   (line " . line(".") . ")")
+exec "normal! \<Esc>"
+
+call cursor(1, 1)
+call feedkeys("G", "x")
+call feedkeys("gg", "x")
+call feedkeys("v\<A-i>", "x")
+call GT_Ok("  and from a selection, letting it go first",
+  \ line(".") == 60 && mode() ==# "n",
+  \ "   (line " . line(".") . ", mode " . mode() . ")   (a jump dragging a selection would take everything in between)")
+
+call setline(5, "no tab here")
+call cursor(5, 1)
+call feedkeys("\<Tab>", "x")
+call GT_Ok("  and Tab goes on indenting", getline(5) ==# "  no tab here",
+  \ "   [" . getline(5) . "]   (the same byte as <C-i>, which is why the jump is in the right side of a noremap)")
+
 call GT_Done()
 endfunc
 

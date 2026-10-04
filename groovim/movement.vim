@@ -594,3 +594,40 @@ if g:enable_tcomment_vim
   endfunc
 endif
 
+" Note: Back to where you came FROM, and forward again: the jump list of Vim,
+" which is the "Go Back" and "Go Forward" of a conventional editor.
+"
+" What goes on it is a JUMP and not a step -- a search, a "G", an occurrence
+" opened from the list, another file. The arrows leave nothing behind, which is
+" what you want: coming back from a search should land you where you searched
+" from, and not one line above.
+"
+" Alt+i goes BACK and Alt+o goes forward, and under them the keys of Vim are the
+" other way round: "<C-o>" is the OLDER position and "<C-i>" the newer one. The
+" letters here are read off the keyboard and not off the manual -- "i" sits to
+" the left of "o", and back is to the left.
+"
+" "<C-i>" could not be the key itself: a terminal sends the very same byte for
+" it and for Tab, and Tab indents here. In the right side of a "noremap" it is
+" safe, because what a "noremap" runs is never mapped again -- measured: Alt+o
+" jumps forward and Tab goes on indenting.
+if !has("gui_running")
+  try
+    exec "set <A-i>=\<Esc>i"
+    exec "set <A-o>=\<Esc>o"
+  catch
+  endtry
+endif
+
+nnoremap <silent> <A-i> <C-o>
+nnoremap <silent> <A-o> <C-i>
+
+" Note: In insert mode it stays in insert: "i_CTRL-O" runs ONE command and comes
+" back, which is the key of the jump itself in the first of the two.
+inoremap <silent> <A-i> <C-o><C-o>
+inoremap <silent> <A-o> <C-o><C-i>
+
+" Note: And a selection is let go of first. A jump lands somewhere else
+" entirely, and a selection dragged along would take everything in between.
+vnoremap <silent> <A-i> <Esc><C-o>
+vnoremap <silent> <A-o> <Esc><C-i>

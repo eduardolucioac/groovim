@@ -233,6 +233,16 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Word right", "what": "A word forward"},
  \ {"where": "Move", "keys": "<C-b>", "break": 1, "modes": "niv",
  \  "menu": "Go to matching bracket", "what": "From one bracket to the one that closes it, and back"},
+ \ {"where": "Move", "keys": "<A-i>", "break": 1, "modes": "niv",
+ \  "menu": "Back to where you came from",
+ \  "what": "To the place you were before the jump, and the one before that",
+ \  "notes": [
+ \   "A JUMP and not a step: what a search, a |G| , an occurrence of the list or opening another file left behind. Walking with the arrows leaves nothing to come back to, which is what you want -- it is the |jumplist| of Vim",
+ \   "It is kept per WINDOW, so each window remembers its own way back"
+ \  ]},
+ \ {"where": "Move", "keys": "<A-o>", "modes": "niv",
+ \  "menu": "Forward again",
+ \  "what": "Undoes the going back, up to where you first pressed it"},
  \
 "\ ---- View
  \ {"where": "View", "group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
@@ -536,7 +546,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n--------".
 \"\n".
 \"\n*o*  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;".
-\"\n*o*  These plugins will be installed with Groovim;  ?????? UPDATE PLUGINS LIST".
+\"\n*o*  These plugins will be installed with Groovim;  ?????? Update plugins list".
 \"\n   |-|*NERDTree*".
 \"\n      |[https://github.com/preservim/nerdtree]|".
 \"\n   |-|*tcomment*".
@@ -570,9 +580,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n*o*  Text selection:".
 \"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
-\"\n   |-|How much is selected is on the bar at the bottom while you hold it, the \"Sel\" of Notepad++, after the percentage: |[46,3]| is 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over |g:GrooVim_SelectionCountLimit| lines (2000) a |-| stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it;".
+\"\n   |-|How much is selected is on the bar at the bottom while you hold it, after the percentage: |[46,3]| is 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over |g:GrooVim_SelectionCountLimit| lines (2000) a |-| stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it;".
 \"\n".
-\"\n*o*  Conventional text editors commands:".
+\"\n*o*  Common text editors commands:".
 \"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
 \"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;".
 \"\n   |-|<Ctrl-x> (visual mode) - Cut to the clipboard;".
@@ -582,6 +592,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Plugins:".
 \"\n   |-|move-vim;|".
 \"\n        <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Move line or selection up/down;".
+\"\n   ?????? Falta atalho do plugin de \"comment\" entre outros não F".
 \"\n".
 \"\n * Relevant changes in the default Vim behavior!~".
 \"\n".
