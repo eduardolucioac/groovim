@@ -42,15 +42,15 @@ func! GT_Body()
     \ "   (mode [" . strtrans(mode()) . "])")
   exec "normal! \<Esc>"
 
-  " ---- F2 l takes the line away, and leaves the transfer area alone
+  " ---- F3 l takes the line away, and leaves the transfer area alone
   "
   " In a conventional editor, deleting a line does not cost you what you copied
   " ten minutes ago. Every delete of GrooVim goes to the "_" register for that.
   call GrooVim_ClipSet("do not touch me")
   call setline(1, ["um", "dois", "tres", "quatro"])
   call cursor(2, 1)
-  call GT_Press("\<F2>l")
-  call GT_Ok("F2 l takes the line away",
+  call GT_Press("\<F3>l")
+  call GT_Ok("F3 l takes the line away",
     \ getline(1, "$") ==# ["um", "tres", "quatro"], "   " . string(getline(1, "$")))
   call GT_Ok("  and what you had copied is still there",
     \ GrooVim_ClipGet() ==# "do not touch me", "   [" . GrooVim_ClipGet() . "]")
@@ -59,7 +59,7 @@ func! GT_Body()
   call cursor(2, 1)
   call feedkeys("v", "x")
   call cursor(3, 2)
-  call GT_Press("\<F2>l")
+  call GT_Press("\<F3>l")
   call GT_Ok("  and over a selection it takes every line it touches, whole",
     \ getline(1, "$") ==# ["um", "quatro"], "   " . string(getline(1, "$")) .
     \ "   (three characters were selected, not two lines)")

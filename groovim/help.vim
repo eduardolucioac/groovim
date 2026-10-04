@@ -117,7 +117,7 @@ let g:GrooVim_Shortcuts = [
  \  ]},
  \ {"where": "Edit", "group": "F2", "key": "w", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [0])', "menu": "Play macro", "what": "Run a macro"},
  \ {"where": "Edit", "group": "F2", "key": "e", "modes": "niv", "run": 'call GrooVim_Operation("[macro]", "GrooVim_XenPlay", [1])', "menu": "Play macro many times...", "what": "Run a macro certain number of times or repeatedly until the last line"},
- \ {"where": "Edit", "group": "F2", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
+ \ {"where": "Edit", "group": "F3", "key": "l", "break": 1, "modes": "niv", "run": 'call GrooVim_SuppressLine(l:mode)',
  \  "menu": "Delete line", "what": "Takes the line away, without touching the transfer area"},
  \ {"where": "Edit", "group": "F3", "key": "d", "modes": "niv", "run": {"n": 'call GrooVim_DuplicateLine()', "i": 'call GrooVim_DuplicateLine()', "v": 'call GrooVim_DuplicateSelection()'},
  \  "menu": "Duplicate line", "what": "Duplicates the current line/selection",
@@ -531,9 +531,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n * Before you start with the GrooVim!~".
 \"\n".
 \"\n--------".
-\"\n *IMPORTANT_I!* If you do not know how Vim works, please open a terminal, run|vimtutor|and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!".
+\"\n *IMPORTANT_I!* If you do not know how Vim works, please open a terminal, run|vimtutor|and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!".
 \"\n *IMPORTANT_II!* The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!".
-\"\n *IMPORTANT_III!* Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your \"all day\" Vim use a terminal that allows more possibilities and features!".
 \"\n--------".
 \"\n".
 \"\n*o*  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;".

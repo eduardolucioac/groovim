@@ -231,7 +231,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - Note: What is recorded goes into the register a , and F2->w runs it. The F2->q that ends the recording is cut off the register, so playing it back does not start another one;
     - `F2->w` - Run a macro *(normal mode/insert/visual)*;
     - `F2->e` - Run a macro certain number of times or repeatedly until the last line *(normal mode/insert/visual)*;
-    - `F2->l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
+    - `F3->l` - Takes the line away, without touching the transfer area *(normal mode/insert/visual)*;
     - `F3->d` - Duplicates the current line/selection *(normal mode/insert/visual)*;
         - Note: If in the visual mode can not be replicated;
     - `Ctrl+C` - Copies what is selected, and leaves the cursor where it was *(visual)*;
