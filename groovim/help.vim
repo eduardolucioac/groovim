@@ -519,16 +519,14 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n * What is GrooVim?~".
 \"\n".
 \"\n The|GrooVim|is an extensive script that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
-\"\n*o*  Allow use with just a few instructions by a public accustomed to editors/IDEs default;".
-\"\n*o*  Facilitate and accelerate widely the use, being also a integrated \"UI\";".
-\"\n*o*  Preserving always that possible the default behavior of Vim;".
+\"\n*o*  Allow use with just a few instructions by a public familiar to editors/IDEs default;".
+\"\n*o*  Facilitate and accelerate widely the use with its integrated UI;".
 \"\n*o*  Enhancing Vim project as a general purpose IDE;".
-\"\n*o*  Approach Vim of \"standard\" text editors in what is convenient and positive and modify Vim in its negative aspects;".
-\"\n*o*  Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;".
-\"\n*o*  Enhancing Vim project as a free alternative (GNU General Public License v3.0 or later), independent and community-supported initiative;".
-\"\n*o*  Encourage the use of shell Vim;".
-\"\n*o*  Working on its own, with no plugin needed for anything it does. Plugins are welcome and each one is found by itself, but nothing GrooVim promises rests on one;".
-\"\n*o*  Being a script for all types of terminals;".
+\"\n*o*  Approach Vim of \"standard\" text editors in what is convenient;".
+\"\n*o*  Promote Vim as a good alternative to market general-purpose editors;".
+\"\n*o*  Promote this project as a good OSS alternative (GNU General Public License v3.0 or later), independent and community-supported initiative;".
+\"\n*o*  Empower users that need to use headless enviroments;".
+\"\n*o*  Being a solution for the majority of terminals and enviroments;".
 \"\n".
 \"\n * Before you start with the GrooVim!~".
 \"\n".
