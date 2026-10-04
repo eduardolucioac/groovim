@@ -62,7 +62,7 @@ The GrooVim solves the following "problems"!
  * PageDown/PageUp - With navigation across the screen (invalid areas);
  * MouseScrollDown/MouseScrollUp - With navigation across the screen (invalid areas);
  * MouseClick (normal mode) - Across the screen (invalid areas);
- * Just a Ctrl-w switches between windows;
+ * Alt-./Alt-, - One key walks to the next/previous window, going round -- and Ctrl-w stays the key of Vim, which every window command begins with;
  * And much more!
 
 Some editor features!

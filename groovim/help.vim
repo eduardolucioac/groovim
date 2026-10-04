@@ -536,36 +536,30 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n--------".
 \"\n".
 \"\n*o*  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;".
-\"\n*o*  To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using <Shift-Left>/<Shift-Right>. These two keyboard shortcuts (<Shift-Left>/<Shift-Right>) are not mapped in GrooVim to that you use in the way mentioned;".
-\"\n   |-|Note: KDE desktop environment already works in that way with its terminal;".
-\"\n*o*  The GrooVim was designed to work with tabs;".
-\"\n*o*  The GrooVim was designed to work without constant use of \'virtualedit\' (\"virtualedit set=all\") to facilitate cursor navigation \"despising invalid areas\" (or without character) when convenient;".
-\"\n*o*  The GrooVim was designed to work with the best plugins;".
-\"\n   |-|We recommend install ALL the following plugins:".
-\"\n      |-|*NERDTree*".
-\"\n         |[https://github.com/preservim/nerdtree]|".
-\"\n      |-|*tcomment*".
-\"\n         |[https://github.com/tomtom/tcomment_vim]|".
-\"\n      |-|*move*".
-\"\n         |[https://github.com/matze/vim-move]|".
+\"\n*o*  These plugins will be installed with Groovim;  ?????? UPDATE PLUGINS LIST".
+\"\n   |-|*NERDTree*".
+\"\n      |[https://github.com/preservim/nerdtree]|".
+\"\n   |-|*tcomment*".
+\"\n      |[https://github.com/tomtom/tcomment_vim]|".
+\"\n   |-|*move*".
+\"\n      |[https://github.com/matze/vim-move]|".
 \"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
 \"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
 \"\n".
 \"\n * The GrooVim solves the following \"problems\"!!~".
 \"\n".
 \"\n*o*  <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;".
-\"\n*o*  <Tab> (normal mode/visual)- Indent in a conventional and practical way;".
-\"\n*o*  <Enter> (normal mode/visual) - Use in a conventional and practical way;".
-\"\n*o*  <Backspace> (normal mode/visual) - Use in a conventional and practical way;".
-\"\n*o*  <Del> (normal mode/visual) - Use in a conventional and practical way;".
-\"\n*o*  <Space> (normal mode/visual) - Use in a conventional and practical way;".
+\"\n*o*  <Tab> (normal mode/visual)- Indent in a conventional way;".
+\"\n*o*  <Enter> (normal mode/visual) - Use in a conventional way;".
+\"\n*o*  <Backspace> (normal mode/visual) - Use in a conventional way;".
+\"\n*o*  <Del> (normal mode/visual) - Use in a conventional way;".
+\"\n*o*  <Space> (normal mode/visual) - Use in a conventional way;".
 \"\n*o*  In the alternation between modes the cursor stays correctly positioned;".
 \"\n*o*  Use default clipboard in a correct and conventional way (copy, cut and paste);".
-\"\n*o* |Replace|, <x> (remove) and <d> (delete) preserving the clipboard;".
 \"\n*o*  <PageDown>/<PageUp> - With navigation across the screen (invalid areas);".
 \"\n*o*  <MouseScrollDown>/<MouseScrollUp> - With navigation across the screen (invalid areas);".
 \"\n*o*  <MouseClick> (normal mode) - Across the screen (invalid areas);".
-\"\n*o*  Just a <Ctrl-w> switches between windows;".
+\"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round -- and <Ctrl-w> stays the key of Vim, which every window command begins with;".
 \"\n*o*  Etc...".
 \"\n".
 \"\n * Editor features!~".
