@@ -476,8 +476,10 @@ func! GrooVim_GetFileNameAndPath() range abort
 
   let l:filenameOrFilenameAndPath = ""
 
+  " Note: The PATH is the default, because the name alone is the half you can
+  " read on the tab and the bar already.
   let l:getFilenameOrFilenameAndPath = GrooVim_GetOptions(
-   \ "Get [f]filename or [p]filename and path", ["f", "p"], "f", "")
+   \ "Get [f]filename or [p]filename and path", ["f", "p"], "p", "")
   if l:getFilenameOrFilenameAndPath ==# "f"
     let l:filenameOrFilenameAndPath = expand('%:t')
     echomsg " -> Filename \"" . l:filenameOrFilenameAndPath . "\" on transfer area!"
