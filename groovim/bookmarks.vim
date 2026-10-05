@@ -774,7 +774,11 @@ func! GrooVim_BookmarkNoteShow() abort
     return
   endif
 
-  if line(".") == s:noteLine && GrooVim_TipUp()
+  " Note: The LINE and not whether the balloon is still up. Walking along the
+  " same line takes it down -- that is what "moved" does -- and asking whether it
+  " is up would put it back at every step, which is a balloon flashing under your
+  " hands. What it answers is "this line has already been told about".
+  if line(".") == s:noteLine
     return
   endif
   call GrooVim_BookmarkNoteHide()

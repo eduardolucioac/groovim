@@ -496,6 +496,22 @@ call GT_Ok("in normal mode the note comes up", GrooVim_TipUp(),
 call GT_Ok("  and at the CURSOR, which is the line it is about",
   \ GrooVim_TipWhere() ==# "cursor", "   [" . GrooVim_TipWhere() . "]")
 
+" Walking ALONG the line does not put it up again: "moved" takes it down at the
+" first step, and a note that came back at every one of them is a balloon
+" flashing under your hands.
+call GrooVim_TipClose()
+call cursor(2, 2)
+call GrooVim_BookmarkNoteShow()
+call GT_Ok("  and walking along the same line does not bring it back",
+  \ !GrooVim_TipUp(), "   (it is told once per LINE, not once per step)")
+
+call cursor(1, 1)
+call GrooVim_BookmarkNoteShow()
+call cursor(2, 1)
+call GrooVim_BookmarkNoteShow()
+call GT_Ok("  and coming back to the line tells it again", GrooVim_TipUp(),
+  \ "   [" . GrooVim_TipText() . "]")
+
 call feedkeys("v", "x")
 call GrooVim_BookmarkNoteShow()
 call GT_Ok("  and a selection takes it down", !GrooVim_TipUp(),
