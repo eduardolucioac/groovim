@@ -114,10 +114,21 @@ call GT_Ok("  and a tab that collides with nobody keeps its plain name",
 
 exec "tabnew " . g:GT_OUT . "/um/dentro/fundo.txt"
 exec "tabnew " . g:GT_OUT . "/dois/dentro/fundo.txt"
-call GT_Ok("  and when the directory is the same too, it goes one deeper",
-  \ GrooVim_TabLabel(4) ==# "um/dentro/fundo.txt" &&
-  \ GrooVim_TabLabel(5) ==# "dois/dentro/fundo.txt",
-  \ "   [" . GrooVim_TabLabel(4) . "] [" . GrooVim_TabLabel(5) . "]")
+call GT_Ok("  and when the directory is the same too, the deeper one answers",
+  \ GrooVim_TabLabel(4) ==# "um/.../fundo.txt" &&
+  \ GrooVim_TabLabel(5) ==# "dois/.../fundo.txt",
+  \ "   [" . GrooVim_TabLabel(4) . "] [" . GrooVim_TabLabel(5) . "]" .
+  \ "   (what lies between is the same for both, so it is not an answer)")
+
+" The same FILE in two tabs is not a collision of names: no path separates it
+" from itself, and a tab that answered with one would be answering a question
+" nobody asked.
+exec "tabnew " . g:GT_OUT . "/um/igual.txt"
+call GT_Ok("  and the same file in two tabs keeps its plain name",
+  \ GrooVim_TabLabel(1) ==# "um/igual.txt" && GrooVim_TabLabel(6) ==# "um/igual.txt",
+  \ "   [" . GrooVim_TabLabel(1) . "] [" . GrooVim_TabLabel(6) . "]" .
+  \ "   (both still answer the \"dois/igual.txt\" of tab 2)")
+exec "tabclose 6"
 
 exec "tabclose 2"
 call GT_Ok("  and closing one gives the other its plain name back",

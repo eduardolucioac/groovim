@@ -125,9 +125,14 @@ func! GrooVim_TabBufferOf(tab) abort
 endfunc
 
 " Note: How many DIRECTORIES have to be shown for two paths to read apart. Zero
-" means the file names already differ; 1 means the directory holding them tells
-" them apart, and so on up the tree.
+" means nothing has to be: either the file names already differ, or the two are
+" THE SAME FILE and no amount of path will ever separate them -- that is a file
+" open in two tabs, which the path cannot explain and should not try to.
 func! GrooVim_TabPathApart(mine, other) abort
+  if a:mine ==# a:other
+    return 0
+  endif
+
   let l:mine = reverse(split(a:mine, "/"))
   let l:other = reverse(split(a:other, "/"))
 
@@ -140,14 +145,34 @@ func! GrooVim_TabPathApart(mine, other) abort
   return l:deep
 endfunc
 
+" Note: The label for a name that has to carry path: the directory that makes
+" the difference, and the file. What lies between them is not an answer to
+" anything -- it is the same for everybody who collided -- so it becomes "...".
+"
+"   um/help.vim                 the difference is the directory it is in
+"   b/.../help.vim              the difference is further up
+func! GrooVim_TabWithPath(path, deep) abort
+  let l:parts = split(a:path, "/")
+  let l:take = min([a:deep, len(l:parts) - 1])
+  if l:take < 1
+    return l:parts[-1]
+  endif
+  if l:take == 1
+    return join(l:parts[-2:], "/")
+  endif
+  return l:parts[-(l:take + 1)] . "/.../" . l:parts[-1]
+endfunc
+
 " Note: Two tabs with the SAME file name show enough of the path to be told
-" apart: "groovim/help.vim" beside ".groovim/help.vim".
+" apart: "um/help.vim" beside "dois/help.vim", and "b/.../help.vim" beside
+" "d/.../help.vim" when what differs is further up.
 "
 " The name alone is what a tab wants to be -- it is what you call the file --
 " and two of them written the same way is a tab line that cannot answer the one
 " question it exists to answer. So the path is given only where it is NEEDED,
-" and only as much of it as it takes: the first directory that differs, which
-" for the two above is one, and deeper only where that is not enough.
+" and of the path only the piece that ANSWERS: the deepest directory that
+" differs. A whole path on a tab is unreadable and nearly all of it is shared
+" anyway.
 "
 " Measured against the other tabs and not against a list kept somewhere: a tab
 " that stops colliding -- the other one closed -- goes back to its plain name by
@@ -156,6 +181,7 @@ func! GrooVim_TabApartFrom(tab, name, buffer) abort
   let l:mine = fnamemodify(bufname(a:buffer), ":p")
 
   let l:deep = 0
+  let l:others = []
   for l:other in range(1, tabpagenr("$"))
     if l:other == a:tab
       continue
@@ -164,17 +190,27 @@ func! GrooVim_TabApartFrom(tab, name, buffer) abort
     if l:that == 0 || fnamemodify(bufname(l:that), ":t") !=# a:name
       continue
     endif
-    let l:deep = max([l:deep,
-     \ GrooVim_TabPathApart(l:mine, fnamemodify(bufname(l:that), ":p"))])
+    let l:path = fnamemodify(bufname(l:that), ":p")
+    call add(l:others, l:path)
+    let l:deep = max([l:deep, GrooVim_TabPathApart(l:mine, l:path)])
   endfor
 
   if l:deep < 1
     return a:name
   endif
 
-  let l:parts = split(l:mine, "/")
-  let l:take = min([l:deep, len(l:parts) - 1])
-  return join(l:parts[-(l:take + 1):], "/")
+  " Note: And the "..." is dropped where it would lie: with three tabs or more,
+  " the one directory that answers for one of them may be shared with a third,
+  " and then the whole chain is the only honest label.
+  let l:label = GrooVim_TabWithPath(l:mine, l:deep)
+  for l:path in l:others
+    if GrooVim_TabWithPath(l:path, l:deep) ==# l:label && l:path !=# l:mine
+      let l:parts = split(l:mine, "/")
+      return join(l:parts[-(min([l:deep, len(l:parts) - 1]) + 1):], "/")
+    endif
+  endfor
+
+  return l:label
 endfunc
 
 func! GrooVim_TabLabel(tab) abort
