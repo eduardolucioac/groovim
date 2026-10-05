@@ -192,7 +192,8 @@ func! GrooVim_ShortcutShown(one) abort
     return substitute(l:text, '\(+\)\(\a\)$', '\1\u\2', "")
   endif
 
-  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del"}
+  let l:named = {"up": "Up", "down": "Down", "end": "End", "del": "Del",
+   \ " ": "Space"}
   return a:one.group . "->" . get(l:named, a:one.key, a:one.key)
 
 endfunc

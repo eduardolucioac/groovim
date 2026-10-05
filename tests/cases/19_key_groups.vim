@@ -175,13 +175,23 @@ func! GT_Body()
     while 1
       let l:at = match(l:line, 'F[2-5]->', l:at)
       if l:at < 0 | break | endif
-      let l:shortcut = strpart(l:line, l:at, 5)
+      let l:which = strpart(l:line, l:at, 2)
+      let l:rest = strpart(l:line, l:at + 4)
       let l:at = l:at + 4
-      if len(l:shortcut) < 5 | continue | endif
+
+      " Note: What follows the arrow is one character, or the NAME of a key that
+      " has no character: the same names the menu and the help write, because
+      " what is being read here is what they wrote.
+      let l:spelled = matchstr(l:rest, '^\(Space\|Up\|Down\|End\|Del\)')
+      let l:key = l:spelled !=# "" ? tolower(l:spelled) : strpart(l:rest, 0, 1)
+      if l:spelled ==# "Space"
+        let l:key = " "
+      endif
+      if l:key ==# "" | continue | endif
+
+      let l:shortcut = l:which . "->" . (l:spelled !=# "" ? l:spelled : l:key)
       if index(l:named, l:shortcut) < 0 | call add(l:named, l:shortcut) | endif
-      let l:which = strpart(l:shortcut, 0, 2)
-      let l:key = tolower(strpart(l:shortcut, 4, 1))
-      if empty(filter(GT_Of(l:which), 'v:val.key ==# "' . escape(l:key, '\"') . '"'))
+      if empty(filter(GT_Of(l:which), 'v:val.key ==# "' . escape(tolower(l:key), '\"') . '"'))
         call add(l:wrong, l:shortcut . " -- no such key in " . l:which)
       endif
     endwhile

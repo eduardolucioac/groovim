@@ -1,10 +1,13 @@
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-" DIALOGUES
+" DIALOGUES (AND BALLOONS)
 " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-" A window that says something and waits. The About of the "?" section is the
-" first one; an information, a warning, a question with Yes and No are the same
-" window with other words and other buttons in it.
+" The windows that say something over the text: the DIALOGUES, which wait for an
+" answer, and the BALLOONS, which say one thing and go away by themselves.
+"
+" A dialogue is a window that says something and waits. The About of the "?"
+" section is the first one; an information, a warning, a question with Yes and
+" No are the same window with other words and other buttons in it.
 "
 " What one is made of: lines of text, a row of buttons under them, and -- while
 " it is up -- the only thing in GrooVim that reads a key. The menu of F10 works
@@ -357,3 +360,77 @@ func! GrooVim_DialogOnScreen(spec) abort
 
 endfunc
 
+" Note: A balloon: one line said over the text, where the cursor is, that goes
+" away by itself. It is not a dialogue -- it waits for nothing, it blocks
+" nothing, and you go on typing with it up.
+"
+" It goes down on the cursor MOVING or on |<Esc>| , and those are two different
+" roads: the moving is Vim's own, asked for with "moved", and the Esc is the
+" filter below. A balloon with no filter cannot be dismissed on purpose, and one
+" that swallowed keys would be a dialogue wearing another name.
+"
+" The colours are the colours of the menu, which is where GrooVim says things
+" over the text. One source for them, in the menu part.
+let s:tip = 0
+
+" Note: Whether a balloon is up. Asked by whoever put one there, because it can
+" have gone down without them -- the cursor moved, or Esc was pressed.
+func! GrooVim_TipUp() abort
+  return s:tip != 0 && !empty(popup_getpos(s:tip))
+endfunc
+
+" Note: What the balloon is saying, for whoever has to check it.
+func! GrooVim_TipText() abort
+  if !GrooVim_TipUp()
+    return ""
+  endif
+  return join(getbufline(winbufnr(s:tip), 1, "$"), "\n")
+endfunc
+
+func! GrooVim_TipClose() abort
+  if s:tip
+    try
+      call popup_close(s:tip)
+    catch
+    endtry
+    let s:tip = 0
+  endif
+endfunc
+
+" Note: Every key is handed back to Vim -- "0" means "not mine" -- so the only
+" one this takes is the Esc that closes it. Measured: with the balloon up, the
+" letters typed went into the file.
+func! GrooVim_TipFilter(id, key) abort
+  if a:key ==# "\<Esc>"
+    call GrooVim_TipClose()
+    return 1
+  endif
+  return 0
+endfunc
+
+func! GrooVim_Tip(text) abort
+  if !exists("*popup_atcursor")
+    call GrooVim_GrooVimBarMsg(a:text, 6)
+    return 0
+  endif
+
+  call GrooVim_TipClose()
+  let s:tip = popup_atcursor(" " . a:text . " ",
+   \ {"highlight": "GrooVimMenu", "border": [],
+   \  "borderchars": ["\u2500", "\u2502", "\u2500", "\u2502",
+   \                 "\u250C", "\u2510", "\u2518", "\u2514"],
+   \  "moved": "any", "line": "cursor+1", "close": "click",
+   \  "filter": "GrooVim_TipFilter"})
+  return s:tip
+endfunc
+
+" Note: The whole path of the file you are on, which the bar can only show as
+" much of as fits. Said where your eyes already are and not on the bar, because
+" the bar is where the SHORT one already is.
+func! GrooVim_PathTip() abort
+  let l:name = expand("%:p")
+  if l:name ==# ""
+    let l:name = GrooVim_NewNameOf(bufnr("%"))
+  endif
+  call GrooVim_Tip(l:name ==# "" ? "This one has no name yet!" : l:name)
+endfunc

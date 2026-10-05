@@ -134,8 +134,7 @@ endfunc
 " Half the screen for the path and the other half for everything else on the
 " bar. Vim has no bar of two lines -- measured: a "\n" in "statusline" is drawn
 " as a "^@" in the middle of the one line, and there is no "winbar" in Vim -- so
-" the whole path goes to the TITLE of the terminal, which is a line nobody was
-" using, and the bar carries as much of it as it can read.
+" what does not fit is not written, and F2->Space says the whole of it.
 func! GrooVim_FileLabel() abort
   let l:name = GrooVim_NewNameOf(bufnr("%"))
   if l:name != ""
@@ -146,36 +145,6 @@ func! GrooVim_FileLabel() abort
   endif
   return GrooVim_PathShort(expand("%:p"), max([24, &columns / 2]))
 endfunc
-
-" Note: The title of the terminal, which is the line this was missing: it costs
-" nothing of the screen, it is already there -- Konsole was writing "groovim :
-" vim" in it -- and it holds the path whole, however long.
-"
-" It travels over SSH like everything else: the title is an escape sequence in
-" the stream of bytes ("ESC ] 2 ; ... BEL", measured), read by the terminal in
-" front of you and not by the machine running GrooVim. On a terminal with no
-" title line -- a bare tty, "TERM=linux" -- Vim sends nothing at all and nothing
-" is lost.
-func! GrooVim_TitleText() abort
-  let l:name = GrooVim_NewNameOf(bufnr("%"))
-  if l:name == "" && expand("%") != ""
-    let l:name = expand("%:p")
-  endif
-  if l:name == ""
-    let l:name = "GrooVim"
-  endif
-  return l:name . (&modified ? " +" : "")
-endfunc
-
-set title
-
-" Note: And the WHOLE of it: by default Vim cuts the title down to 85% of the
-" width of the terminal and marks what it cut with a "<" at the front --
-" measured, on the very path this was written for. The screen has a width; the
-" title bar of a window does not have to pretend it has the same one.
-set titlelen=0
-
-let &titlestring = "%{GrooVim_TitleText()}"
 
 " Note: Which buffer a tab is NAMED after: the one of the window you are on, and
 " the first document of the tab when that window is an accessory. 0 when the tab
@@ -563,8 +532,8 @@ func! GrooVim_TabOnceSeen() abort
     if l:tab != tabpagenr() && index(tabpagebuflist(l:tab), l:buffer) >= 0
 
       " Note: Later and not here: this runs while Vim is still opening the
-      " window, and closing a tab in the middle of that is how you get an
-      " editor with no window left to draw in.
+      " window, and closing a tab in the middle of that is how you get an editor
+      " with no window left to draw in.
       let s:tabOnceGo = l:tab
       call timer_start(0, "GrooVim_TabOnceBack")
       return

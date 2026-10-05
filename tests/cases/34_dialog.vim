@@ -148,6 +148,54 @@ call GT_Ok("  and a click on the text does nothing at all", GT_Dialog() > 0,
   \ "   (a dialogue goes down by its ways out, not by being clicked beside them)")
 call GrooVim_DialogClose()
 
+" ---- the balloon: one line said over the text, that goes away by itself
+"
+" Not a dialogue: it waits for nothing and blocks nothing. What it answers to is
+" the cursor MOVING -- Vim's own "moved" -- and the Esc of its filter, and every
+" other key is handed back, which is why you can go on typing with it up.
+exec "enew!"
+call setline(1, ["um", "dois", "tres"])
+call cursor(1, 1)
+
+call GrooVim_Tip("alguma coisa")
+call GT_Ok("a balloon goes up", GrooVim_TipUp(), "   (and it is not a dialogue)")
+call GT_Ok("  and it did not take the editor with it", GrooVim_DialogUp() == 0,
+  \ "   (a dialogue is the only thing that reads every key)")
+
+call feedkeys("A!\<Esc>", "x")
+call GT_Ok("  and the keys went into the FILE", getline(1) ==# "um!",
+  \ "   [" . getline(1) . "]")
+
+call GrooVim_TipClose()
+call GT_Ok("  and it goes down when told to", !GrooVim_TipUp(), "")
+
+call cursor(1, 1)
+call GrooVim_Tip("outra coisa")
+call GrooVim_TipFilter(0, "\<Esc>")
+call GT_Ok("  and Esc takes it down", !GrooVim_TipUp(), "")
+
+call GrooVim_Tip("mais uma")
+call GT_Ok("  and a key that is not Esc is handed back",
+  \ GrooVim_TipFilter(0, "x") == 0 && GrooVim_TipUp(),
+  \ "   (\"0\" is what tells Vim the key was not ours)")
+call GrooVim_TipClose()
+
+" The path of the file, which is the first thing a balloon was asked for: the
+" bar can only show as much of it as fits.
+exec "edit! " . g:GT_FIX . "/a.txt"
+call GrooVim_PathTip()
+call GT_Ok("F2->Space says the WHOLE path", GrooVim_TipUp(),
+  \ "   (the bar shows as much of it as can be read)")
+call GT_Ok("  and it is the whole path, not the short one",
+  \ GrooVim_TipText() ==# " " . expand("%:p") . " ",
+  \ "   [" . GrooVim_TipText() . "]")
+call GrooVim_TipClose()
+
+call GT_Press("\<F2> ")
+call GT_Ok("  and the two keys really do it", GrooVim_TipUp(),
+  \ "   (F2 and then the space bar)")
+call GrooVim_TipClose()
+
 call GT_Done()
 endfunc
 

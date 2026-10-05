@@ -37,10 +37,6 @@ func! GrooVim_BookmarksDefine() abort
   highlight default link GrooVim_BookmarkSignHl Identifier
   highlight GrooVim_BookmarkNoteSignHl ctermfg=yellow guifg=yellow ctermbg=NONE guibg=NONE
 
-  " Note: And the balloon that shows what is written, in the same yellow: dark
-  " letters on it, because a balloon is a piece of paper laid over the text and
-  " not a hole in it.
-  highlight GrooVim_BookmarkNotePopup ctermfg=black ctermbg=yellow guifg=#232629 guibg=#f6d32d
   call sign_define("GrooVim_Bookmark",
    \ {"text": strwidth(g:GrooVim_BookmarkSign) == 1 ? g:GrooVim_BookmarkSign : ">",
    \  "texthl": "GrooVim_BookmarkSignHl"})
@@ -755,18 +751,11 @@ nnoremap <silent> M :call GrooVim_BookmarkWalk(0)<cr>
 " And only for a file that HAS marks. This runs on every movement of the cursor,
 " in every buffer, so the first thing it asks is the cheapest one there is --
 " and a file nobody has marked is out before anything else happens.
-let s:notePopup = 0
 let s:noteLine = 0
 
 func! GrooVim_BookmarkNoteHide() abort
-  if s:notePopup
-    try
-      call popup_close(s:notePopup)
-    catch
-    endtry
-    let s:notePopup = 0
-    let s:noteLine = 0
-  endif
+  call GrooVim_TipClose()
+  let s:noteLine = 0
 endfunc
 
 func! GrooVim_BookmarkNoteShow() abort
@@ -775,7 +764,7 @@ func! GrooVim_BookmarkNoteShow() abort
     return
   endif
 
-  if line(".") == s:noteLine && s:notePopup
+  if line(".") == s:noteLine && GrooVim_TipUp()
     return
   endif
   call GrooVim_BookmarkNoteHide()
@@ -800,10 +789,7 @@ func! GrooVim_BookmarkNoteShow() abort
   endif
 
   let s:noteLine = line(".")
-  let s:notePopup = popup_atcursor(" " . l:one.note . " ",
-   \ {"highlight": "GrooVim_BookmarkNotePopup", "border": [],
-   \  "borderchars": ["─", "│", "─", "│", "┌", "┐", "┘", "└"],
-   \  "moved": "any", "line": "cursor+1", "close": "click"})
+  call GrooVim_Tip(l:one.note)
 
 endfunc
 

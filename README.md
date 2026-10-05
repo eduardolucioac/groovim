@@ -149,8 +149,7 @@ Script features!
     - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
-    - The **path** of the file is whole on the **title of the terminal** -- the line it was writing "vim" in -- and on the bar as much of it as can be read: your home as `~`, and the middle taken out when it does not fit (`~/Data0/.../_GROOVIM/01.txt`). Vim has no status bar of two lines;
-        - Note: Your terminal may be throwing that title away, and most do by default -- it is a setting of the TERMINAL and not of GrooVim. In Konsole: *Settings -> Configure Konsole -> General -> "Show window title on the titlebar"*, whose own tooltip is "Show window title set by escape sequence on the titlebar". To have it on the TAB as well, put a `%w` in *Edit Current Profile -> Tabs -> Tab title format* (the default is `%d : %n`, which has no room for what the program sends);
+    - The **path** of the file is on the bar, with your home as `~` and the middle taken out when it does not fit (`~/Data0/.../_GROOVIM/01.txt`). Vim has no status bar of two lines, so what does not fit is not written -- **F2 Space** says the whole of it, in a balloon;
     - A file already **open is not opened again**: the new tab gives way and you land on the tab that has it, the way every conventional editor does. It is `g:GrooVim_TabOnePerFile`, and it is caught at the birth of a tab -- walking buffers inside a tab of your own is untouched;
     - Two tabs with the **same file name** show the piece of the path that tells them apart: `a/help.vim` beside `b/help.vim`, and `b/.../help.vim` when what differs is further up. The name comes back alone as soon as the collision is gone;
     - With more tabs than the line is wide the tab line **scrolls**: the tab you are on is always drawn whole, and a `‹` or a `›` at the end says the line goes on that way. It is `g:GrooVim_TabMoreLeft` and `g:GrooVim_TabMoreRight`;
@@ -197,6 +196,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
  * **File** *(The file itself: saving it, opening another, leaving)*
 
     - `F2->p` - Copies to the clipboard the name or path and name of the current buffer/file *(normal mode/insert/visual)*;
+    - `F2->Space` - Says the WHOLE path of the file you are on, in a balloon *(normal mode/insert/visual)*;
+        - Note: The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on <Esc> , and nothing it covers is lost -- you go on typing with it up;
     - `F2->y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
     - `F5->s` - Save to disk *(normal mode/insert/visual)*;
         - Note: In visual mode it writes the SELECTION to a file of its own;

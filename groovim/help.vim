@@ -53,6 +53,12 @@ let g:GrooVim_Shortcuts = [
  \
 "\ ---- File
  \ {"where": "File", "group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "menu": "Copy file name or path", "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
+ \ {"where": "File", "group": "F2", "key": " ", "modes": "niv", "run": 'call GrooVim_PathTip()',
+ \  "menu": "Where this file is",
+ \  "what": "Says the WHOLE path of the file you are on, in a balloon",
+ \  "notes": [
+ \   "The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on |<Esc>| , and nothing it covers is lost -- you go on typing with it up"
+ \  ]},
  \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "menu": "Save a copy as...", "what": "Save to disk and open in a new tab a copy of the current file"},
  \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
  \  "menu": "Save", "what": "Save to disk",
@@ -631,9 +637,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n What the file is on right now is on the bar at the bottom, beside the encoding: |[utf-8,unix]| , with a |,B| when there is a BOM.".
 \"\n".
-\"\n The PATH of the file is on the bar as well, and whole on the TITLE of the terminal -- the line your terminal was writing \"vim\" in. Vim has no bar of two lines, so the bar carries as much of the path as can be read: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . The ends are what answer -- where it is rooted and which file it is.".
-\"\n".
-\"\n Your terminal may be throwing that title AWAY, and most do by default -- it is a setting of the terminal and not of GrooVim. In Konsole: |Settings|->|Configure|Konsole|->|General| , \"Show window title on the titlebar\". To have it on the TAB too, put a |%w| in |Edit|Current|Profile|->|Tabs|->|Tab|title|format| , whose default |%d|:|%n| has no room for what the program sends.".
+\"\n The PATH of the file is on the bar as well, written to be read in the room there is: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . The ends are what answer -- where it is rooted and which file it is -- and |F2->Space| says the whole of it, in a balloon.".
 \"\n".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".

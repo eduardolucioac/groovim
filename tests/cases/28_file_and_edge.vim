@@ -20,23 +20,13 @@ endfunc
 
 func! GT_Body()
 
-" ---- the path of the file: whole in the title, readable on the bar
+" ---- the path of the file on the bar
 "
 " Vim has no bar of two lines -- measured: a "\n" in "statusline" is drawn as a
 " "^@" in the middle of the one line, and there is no "winbar" in Vim. So the
-" whole path goes to the TITLE of the terminal, a line nobody was using, and the
-" bar carries as much of it as can be read.
-call GT_Ok("the title is on", &title == 1, "   (title=" . &title . ")")
-call GT_Ok("  and it is not cut to a percentage of the screen", &titlelen == 0,
-  \ "   (titlelen=" . &titlelen . ", and 85 would put a \"<\" over the start of it)")
-call GT_Ok("  and it is written by GrooVim", &titlestring =~# "GrooVim_TitleText",
-  \ "   [" . &titlestring . "]")
-
+" bar carries as much of the path as can be read, and F2->Space says the whole
+" of it.
 exec "edit! " . g:GT_FIX . "/a.txt"
-call GT_Ok("  and it carries the WHOLE path",
-  \ GrooVim_TitleText() ==# expand("%:p"),
-  \ "   [" . GrooVim_TitleText() . "]")
-
 let s:long = "/home/alguem/Data0/_PROFISSIONAL/_DEV_HOST/_QUEST/_PROJECTS/_GROOVIM/01.txt"
 call GT_Ok("a path that fits is written whole",
   \ GrooVim_PathShort(s:long, 200) ==# s:long, "   [" . GrooVim_PathShort(s:long, 200) . "]")
