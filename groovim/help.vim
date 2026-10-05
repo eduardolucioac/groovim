@@ -53,11 +53,12 @@ let g:GrooVim_Shortcuts = [
  \
 "\ ---- File
  \ {"where": "File", "group": "F2", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[file name]", "GrooVim_GetFileNameAndPath", [])', "menu": "Copy file name or path", "what": "Copies to the clipboard the name or path and name of the current buffer/file"},
- \ {"where": "File", "group": "F2", "key": " ", "modes": "niv", "run": 'call GrooVim_PathTip()',
+ \ {"where": "File", "group": "F2", "key": " ", "modes": "niv", "run": 'call GrooVim_PathTip(l:mode)',
  \  "menu": "Where this file is",
  \  "what": "Says the WHOLE path of the file you are on, in a balloon",
  \  "notes": [
- \   "The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on |<Esc>| , and nothing it covers is lost -- you go on typing with it up"
+ \   "The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on |<Esc>| , and nothing it covers is lost -- you go on typing with it up",
+ \   "From INSERT mode it stands in the MIDDLE of the screen: at the cursor it would sit on the very line you are writing"
  \  ]},
  \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "menu": "Save a copy as...", "what": "Save to disk and open in a new tab a copy of the current file"},
  \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',

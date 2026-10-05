@@ -372,6 +372,7 @@ endfunc
 " The colours are the colours of the menu, which is where GrooVim says things
 " over the text. One source for them, in the menu part.
 let s:tip = 0
+let s:tipWhere = ""
 
 " Note: Whether a balloon is up. Asked by whoever put one there, because it can
 " have gone down without them -- the cursor moved, or Esc was pressed.
@@ -385,6 +386,14 @@ func! GrooVim_TipText() abort
     return ""
   endif
   return join(getbufline(winbufnr(s:tip), 1, "$"), "\n")
+endfunc
+
+" Note: Where the balloon that is up was PUT, for whoever has to check it. Said
+" and not worked out from the screen: a popup in the middle of a short window and
+" one at the cursor can land on the same row, and then no measurement of where it
+" is tells you what it was asked to be.
+func! GrooVim_TipWhere() abort
+  return GrooVim_TipUp() ? s:tipWhere : ""
 endfunc
 
 func! GrooVim_TipClose() abort
@@ -408,29 +417,62 @@ func! GrooVim_TipFilter(id, key) abort
   return 0
 endfunc
 
-func! GrooVim_Tip(text) abort
+" Note: Where a balloon goes: at the CURSOR, which is where your eyes are, or in
+" the MIDDLE of the screen, which is where they are not.
+"
+" The middle is for insert mode. At the cursor it would sit on the very text you
+" are typing, and the one thing you must not lose sight of while typing is the
+" line you are writing.
+func! GrooVim_Tip(text, ...) abort
+  let l:where = a:0 > 0 ? a:1 : "cursor"
+
   if !exists("*popup_atcursor")
     call GrooVim_GrooVimBarMsg(a:text, 6)
     return 0
   endif
 
   call GrooVim_TipClose()
-  let s:tip = popup_atcursor(" " . a:text . " ",
-   \ {"highlight": "GrooVimMenu", "border": [],
-   \  "borderchars": ["\u2500", "\u2502", "\u2500", "\u2502",
-   \                 "\u250C", "\u2510", "\u2518", "\u2514"],
-   \  "moved": "any", "line": "cursor+1", "close": "click",
-   \  "filter": "GrooVim_TipFilter"})
+  let s:tipWhere = l:where
+
+  let l:how = {"highlight": "GrooVimMenu", "border": [],
+   \ "borderchars": ["\u2500", "\u2502", "\u2500", "\u2502",
+   \                "\u250C", "\u2510", "\u2518", "\u2514"],
+   \ "moved": "any", "close": "click", "filter": "GrooVim_TipFilter"}
+
+  if l:where ==# "center"
+    let s:tip = popup_create(" " . a:text . " ",
+     \ extend(copy(l:how), {"pos": "center"}))
+  else
+    let s:tip = popup_atcursor(" " . a:text . " ",
+     \ extend(copy(l:how), {"line": "cursor+1"}))
+  endif
+
   return s:tip
 endfunc
 
 " Note: The whole path of the file you are on, which the bar can only show as
 " much of as fits. Said where your eyes already are and not on the bar, because
 " the bar is where the SHORT one already is.
-func! GrooVim_PathTip() abort
+"
+" From INSERT mode it goes up LATER, on a timer of zero, and in the middle of
+" the screen. Both for the same reason: the key was read inside an "i_CTRL-O",
+" which runs one command and goes back to insert, and going back MOVES the
+" cursor -- measured, the balloon went up and came straight back down, because
+" "moved" is what takes it down. The timer lets the cursor land first, and the
+" middle keeps it off the line you are typing.
+func! GrooVim_PathTip(...) abort
+  let l:mode = a:0 > 0 ? a:1 : "n"
+
   let l:name = expand("%:p")
   if l:name ==# ""
     let l:name = GrooVim_NewNameOf(bufnr("%"))
   endif
-  call GrooVim_Tip(l:name ==# "" ? "This one has no name yet!" : l:name)
+  let l:text = l:name ==# "" ? "This one has no name yet!" : l:name
+
+  if l:mode =~# "i"
+    call timer_start(0, {-> GrooVim_Tip(l:text, "center")})
+    return
+  endif
+
+  call GrooVim_Tip(l:text)
 endfunc

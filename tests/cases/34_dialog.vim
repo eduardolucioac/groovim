@@ -196,6 +196,18 @@ call GT_Ok("  and the two keys really do it", GrooVim_TipUp(),
   \ "   (F2 and then the space bar)")
 call GrooVim_TipClose()
 
+" From insert mode the balloon goes up on a timer, so the case has to let the
+" timer run: pressed and asked in the same breath, it was asking before the
+" balloon existed.
+call GT_Press("i\<F2> ")
+sleep 60m
+call GT_Ok("  and from insert mode as well", GrooVim_TipUp(), "")
+call GT_Ok("  and there it stands in the MIDDLE of the screen",
+  \ GrooVim_TipWhere() ==# "center",
+  \ "   [" . GrooVim_TipWhere() . "]   (at the cursor it would sit on the line you are typing)")
+call GrooVim_TipClose()
+exec "normal! \<Esc>"
+
 call GT_Done()
 endfunc
 
