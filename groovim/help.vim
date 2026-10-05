@@ -241,14 +241,14 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Word right", "what": "A word forward"},
  \ {"where": "Move", "keys": "<C-b>", "break": 1, "modes": "niv",
  \  "menu": "Go to matching bracket", "what": "From one bracket to the one that closes it, and back"},
- \ {"where": "Move", "keys": "<A-i>", "break": 1, "modes": "niv",
+ \ {"where": "Move", "keys": "<A-i>", "press": "<F18>", "break": 1, "modes": "niv",
  \  "menu": "Back to where you came from",
  \  "what": "To the place you were before the jump, and the one before that",
  \  "notes": [
  \   "A JUMP and not a step: what a search, a |G| , an occurrence of the list or opening another file left behind. Walking with the arrows leaves nothing to come back to, which is what you want -- it is the |jumplist| of Vim",
  \   "It is kept per WINDOW, so each window remembers its own way back"
  \  ]},
- \ {"where": "Move", "keys": "<A-o>", "modes": "niv",
+ \ {"where": "Move", "keys": "<A-o>", "press": "<F19>", "modes": "niv",
  \  "menu": "Forward again",
  \  "what": "Undoes the going back, up to where you first pressed it"},
  \
@@ -296,13 +296,13 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "Pressed ON the pinned tab it does the opposite: back to the tab you came from. With no tab pinned it is always that -- the last one you were on"
  \  ]},
- \ {"where": "View", "keys": "<A-,>", "break": 1, "modes": "niv",
+ \ {"where": "View", "keys": "<A-,>", "press": "<F16>", "break": 1, "modes": "niv",
  \  "menu": "Window back",
  \  "what": "To the window before this one, going round",
  \  "notes": [
  \   "It was |Ctrl+W| , which only ever went one way. And the |Ctrl+W| of Vim is back to being what it is everywhere else: the key every window command begins with"
  \  ]},
- \ {"where": "View", "keys": "<A-.>", "modes": "niv",
+ \ {"where": "View", "keys": "<A-.>", "press": "<F17>", "modes": "niv",
  \  "menu": "Window forward",
  \  "what": "To the next window, going round"},
  \ {"where": "View", "keys": "<F10>", "break": 1, "modes": "niv",
@@ -618,13 +618,13 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The width and whether <Tab> puts spaces are asked with F5->c and then |[i]| . It is the \"Tab Settings\", and like every other screen it ends asking whether to keep what you chose for the next time.".
 \"\n".
-\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why we keep it in \"View, Show Symbol\" and not in its tab settings.".
+\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why we keep it in \"View, Show Symbol\" and not in its tab settings. ?????? Este HELP está com muitos detalhes. Qual a necessidade de explicar porque esta decisão de design foi tomada?".
 \"\n".
 \"\n That screen also sets the LANGUAGE, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right.".
 \"\n".
 \"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean.".
 \"\n".
-\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block.".
+\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block. ?????? Mais detalhes t".
 \"\n".
 \"\n *THE FILE YOU HAVE OPEN*".
 \"\n".

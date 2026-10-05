@@ -492,6 +492,28 @@ call GT_Ok("  and Up comes back the same way",
 set nowrap
 let &columns = g:GT_KEPT_COLUMNS
 
+" ---- a letter with an accent is a LETTER, not a shortcut
+"
+" In Vim the name "<A-i>" is not a key: it is "e" with an acute, measured. While
+" the jump was hung on that name, typing a word in Portuguese jumped the screen
+" -- and "<A-,>" and "<A-.>" are the same thing wearing other characters. What
+" the sequence hangs on now is an F key no terminal here sends.
+exec "enew!"
+call setline(1, "")
+call cursor(1, 1)
+call feedkeys("Acafe\u00e9 cora\u00e7\u00e3o n\u00e3o \u00ac \u00ae\<Esc>", "x")
+call GT_Ok("the accented letters are letters", getline(1) ==# "cafe\u00e9 cora\u00e7\u00e3o n\u00e3o \u00ac \u00ae",
+  \ "   [" . getline(1) . "]   (every one of them is the NAME of some Alt key)")
+call GT_Ok("  and the sequence the terminal sends is on a key of its own",
+  \ &t_F8 ==# "\<Esc>i" && &t_F9 ==# "\<Esc>o" &&
+  \ &t_F6 ==# "\<Esc>," && &t_F7 ==# "\<Esc>.",
+  \ "   [" . strtrans(&t_F6) . " " . strtrans(&t_F7) . " " .
+  \ strtrans(&t_F8) . " " . strtrans(&t_F9) . "]   (Alt+, Alt+. Alt+i Alt+o)")
+call GT_Ok("  and no mapping is left on the characters themselves",
+  \ maparg("\u00e9", "n") ==# "" && maparg("\u00ef", "n") ==# "" &&
+  \ maparg("\u00ac", "n") ==# "" && maparg("\u00ae", "n") ==# "",
+  \ "   (mapping the name of an Alt key maps the letter)")
+
 " ---- back to where you came from, and forward again
 "
 " The "Go Back" of a conventional editor, which in Vim is the jump list. The
@@ -507,17 +529,17 @@ call setline(1, map(range(1, 60), {_, n -> "line " . n}))
 call cursor(1, 1)
 call feedkeys("G", "x")
 call feedkeys("gg", "x")
-call feedkeys("\<A-i>", "x")
+call feedkeys("\<F18>", "x")
 call GT_Ok("Alt+i goes back to where the jump came from", line(".") == 60,
   \ "   (line " . line(".") . ", and the G had gone to 60)")
-call feedkeys("\<A-o>", "x")
+call feedkeys("\<F19>", "x")
 call GT_Ok("  and Alt+o undoes the going back", line(".") == 1,
   \ "   (line " . line(".") . ")")
 
 call cursor(1, 1)
 call feedkeys("G", "x")
 call feedkeys("gg", "x")
-call feedkeys("i\<A-i>", "x")
+call feedkeys("i\<F18>", "x")
 call GT_Ok("  and it answers from insert mode too", line(".") == 60,
   \ "   (line " . line(".") . ")")
 exec "normal! \<Esc>"
@@ -525,7 +547,7 @@ exec "normal! \<Esc>"
 call cursor(1, 1)
 call feedkeys("G", "x")
 call feedkeys("gg", "x")
-call feedkeys("v\<A-i>", "x")
+call feedkeys("v\<F18>", "x")
 call GT_Ok("  and from a selection, letting it go first",
   \ line(".") == 60 && mode() ==# "n",
   \ "   (line " . line(".") . ", mode " . mode() . ")   (a jump dragging a selection would take everything in between)")

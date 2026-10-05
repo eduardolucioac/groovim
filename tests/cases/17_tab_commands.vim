@@ -157,20 +157,26 @@ func! GT_Body()
   " character -- so a "<C-,>" mapping would never fire, here or over an SSH.
   for s:mode in ["n", "i", "v"]
     call GT_Ok("Alt+, and Alt+. walk the windows in mode " . s:mode,
-      \ maparg("<A-,>", s:mode) =~ "C-W.W" && maparg("<A-.>", s:mode) =~ "C-W.w",
-      \ "   [" . maparg("<A-,>", s:mode) . "] [" . maparg("<A-.>", s:mode) . "]")
+      \ maparg("<F16>", s:mode) =~ "C-W.W" && maparg("<F17>", s:mode) =~ "C-W.w",
+      \ "   [" . maparg("<F16>", s:mode) . "] [" . maparg("<F17>", s:mode) . "]")
   endfor
+
   " And the key has to ARRIVE. Vim does not read an "Esc" in front of a
   " character as Alt -- ":h :map-alt-keys" names Konsole as one of the terminals
   " that send it that way -- so the mapping was there and the key did nothing.
-  " What answers it is the sequence being declared as the key itself.
-  let s:said = execute("set <A-,>?") . execute("set <A-.>?")
+  " What answers it is the sequence being declared as a key.
+  "
+  " On "<F16>" and not on "<A-,>": that name is not a key in Vim, it is the
+  " CHARACTER with the eighth bit set, and mapping it maps the character.
   call GT_Ok("  and GrooVim tells Vim which sequence the key IS",
-    \ s:said =~ "\\^\\[," && s:said =~ "\\^\\[\\.",
-    \ "   [" . trim(substitute(s:said, "\n", " ", "g")) . "]")
+    \ &t_F6 ==# "\<Esc>," && &t_F7 ==# "\<Esc>.",
+    \ "   [" . strtrans(&t_F6) . "] [" . strtrans(&t_F7) . "]")
+  call GT_Ok("  and nothing is mapped on the characters themselves",
+    \ maparg("\u00ac", "n") ==# "" && maparg("\u00ae", "n") ==# "",
+    \ "   (\u00ac and \u00ae, which is what Vim calls <A-,> and <A-.>)")
 
   call GT_Ok("  and they go opposite ways",
-    \ maparg("<A-,>", "n") !=# maparg("<A-.>", "n"),
+    \ maparg("<F16>", "n") !=# maparg("<F17>", "n"),
     \ "   (W is the window before this one, w the next)")
   call GT_Ok("and Ctrl+W is Vim's own again",
     \ maparg("<C-w>", "n") ==# "" && maparg("<C-w>", "i") ==# "",
@@ -183,10 +189,10 @@ func! GT_Body()
   split
   call GT_Ok("setup: two windows", winnr("$") == 2, "   (" . winnr("$") . ")")
   let s:where = winnr()
-  call GT_Press("\<A-.>")
+  call GT_Press("\<F17>")
   call GT_Ok("Alt+. moved to the other one", winnr() != s:where,
     \ "   (window " . s:where . " -> " . winnr() . ")")
-  call GT_Press("\<A-,>")
+  call GT_Press("\<F16>")
   call GT_Ok("  and Alt+, came back", winnr() == s:where,
     \ "   (window " . winnr() . ")")
   only!

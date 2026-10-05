@@ -611,23 +611,28 @@ endif
 " it and for Tab, and Tab indents here. In the right side of a "noremap" it is
 " safe, because what a "noremap" runs is never mapped again -- measured: Alt+o
 " jumps forward and Tab goes on indenting.
+"
+" On an F key nobody has and not on the name "<A-i>", which in Vim is not
+" a key at all: it is "e" with an acute, measured. Mapping it mapped the LETTER,
+" and typing a word in Portuguese jumped the screen. See the note in the editing
+" part, where the same thing was done for Alt+, and Alt+.
 if !has("gui_running")
   try
-    exec "set <A-i>=\<Esc>i"
-    exec "set <A-o>=\<Esc>o"
+    exec "set <F18>=\<Esc>i"
+    exec "set <F19>=\<Esc>o"
   catch
   endtry
 endif
 
-nnoremap <silent> <A-i> <C-o>
-nnoremap <silent> <A-o> <C-i>
+nnoremap <silent> <F18> <C-o>
+nnoremap <silent> <F19> <C-i>
 
 " Note: In insert mode it stays in insert: "i_CTRL-O" runs ONE command and comes
 " back, which is the key of the jump itself in the first of the two.
-inoremap <silent> <A-i> <C-o><C-o>
-inoremap <silent> <A-o> <C-o><C-i>
+inoremap <silent> <F18> <C-o><C-o>
+inoremap <silent> <F19> <C-o><C-i>
 
 " Note: And a selection is let go of first. A jump lands somewhere else
 " entirely, and a selection dragged along would take everything in between.
-vnoremap <silent> <A-i> <Esc><C-o>
-vnoremap <silent> <A-o> <Esc><C-i>
+vnoremap <silent> <F18> <Esc><C-o>
+vnoremap <silent> <F19> <Esc><C-i>

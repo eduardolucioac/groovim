@@ -146,6 +146,15 @@ endfunc
 " then the letter -- or the real key code, for the ones that are not letters.
 func! GrooVim_ShortcutKeys(one) abort
 
+  " Note: Where the key GrooVim hangs the mapping on is not the key you press,
+  " the entry says so: "Alt+," is read by a terminal as an "Esc" and a comma, and
+  " GrooVim parks that on an F key nobody has, because the NAME "<A-,>" is a
+  " printable character in Vim and mapping it maps the character. The menu has to
+  " feed what is mapped, and the help has to show what is pressed.
+  if has_key(a:one, "press")
+    return eval('"\' . a:one.press . '"')
+  endif
+
   " Note: A key of its own -- "<C-c>", "<A-S-Up>", "m" -- and not a pair of an F
   " key and a letter. Written the way Vim writes a key, so that what the menu
   " feeds is what the keyboard would have sent.

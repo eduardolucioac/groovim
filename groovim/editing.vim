@@ -162,20 +162,30 @@ endfunc
 "
 " In a "try", and only in a terminal: a Vim with no terminal codes to set
 " throws, and there the key works on its own.
+" And the sequence is parked on an F key nobody has, NOT on the name
+" "<A-,>". In Vim that name is not a key at all, it is the CHARACTER with the
+" eighth bit set: measured, "<A-,>" is "\u00AC" and "<A-.>" is "\u00AE" --
+" and "<A-i>" is "e" with an acute, which is how typing a word in Portuguese
+" came to jump the screen. Mapping the name maps the letter.
+"
+" "<F16>" and up are keys Vim knows and no terminal here sends -- Konsole stops
+" at F12, read in its own key table -- so the sequence has a carrier of its own
+" and the letters stay letters. The help goes on saying Alt+, because that IS
+" the key you press; what changed is where GrooVim hangs it.
 if !has("gui_running")
   try
-    exec "set <A-,>=\<Esc>,"
-    exec "set <A-.>=\<Esc>."
+    exec "set <F16>=\<Esc>,"
+    exec "set <F17>=\<Esc>."
   catch
   endtry
 endif
 
-nnoremap <silent> <A-,> <C-w>W
-inoremap <silent> <A-,> <Esc><C-w>W
-vnoremap <silent> <A-,> <Esc><C-w>W
-nnoremap <silent> <A-.> <C-w>w
-inoremap <silent> <A-.> <Esc><C-w>w
-vnoremap <silent> <A-.> <Esc><C-w>w
+nnoremap <silent> <F16> <C-w>W
+inoremap <silent> <F16> <Esc><C-w>W
+vnoremap <silent> <F16> <Esc><C-w>W
+nnoremap <silent> <F17> <C-w>w
+inoremap <silent> <F17> <Esc><C-w>w
+vnoremap <silent> <F17> <Esc><C-w>w
 
 " Note: Allows yank a line without the return character.
 nnoremap <silent> yy 0y$
