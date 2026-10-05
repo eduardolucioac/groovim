@@ -507,9 +507,8 @@ endfunc
 "   setlocal syntax=help
 " <
 let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
-\"\n|GrooVim|=D|" . g:grooVimVersion . "|-|Vi|IMproved\'n\'GrooVIed!|".
-\"\n Last change: 2026 September 19".
-\"\n Eduardo L\u00facio Amorim Costa~".
+\"\n|GrooVim|=D|" . g:grooVimVersion . "|-|Vi|IMproved'n'GrooVIed!|".
+\"\n Eduardo Lúcio Amorim Costa~".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n                   {+}".
@@ -534,196 +533,132 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n|BETA|VERSION!|".
 \"\n".
-\"\n * What is GrooVim?~".
+\"\n * What GrooVim is~".
 \"\n".
-\"\n The|GrooVim|is an extensive script that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:".
-\"\n*o*  Allow use with just a few instructions by a public familiar to editors/IDEs default;".
-\"\n*o*  Facilitate and accelerate widely the use with its integrated UI;".
-\"\n*o*  Enhancing Vim project as a general purpose IDE;".
-\"\n*o*  Approach Vim of \"standard\" text editors in what is convenient;".
-\"\n*o*  Promote Vim as a good alternative to market general-purpose editors;".
-\"\n*o*  Promote this project as a good OSS alternative (GNU General Public License v3.0 or later), independent and community-supported initiative;".
-\"\n*o*  Empower users that need to use headless enviroments;".
-\"\n*o*  Being a solution for the majority of terminals and enviroments;".
+\"\n A Vim remodelled to be used the way you already use an editor: the keys mean".
+\"\n what they mean everywhere else, the mouse works, there is a menu, and nothing".
+\"\n of Vim is taken away from you.".
 \"\n".
-\"\n * Before you start with the GrooVim!~".
+\"\n What it is after:".
+\"\n".
+\"\n*o*  Usable from the first minute by whoever comes from an editor or an IDE;".
+\"\n*o*  A real interface -- a menu, screens that ask, panels, a bar that answers;".
+\"\n*o*  Vim as a general purpose editor, for people who do not live in the terminal;".
+\"\n*o*  Free software (GNU GPL v3.0 or later), open and community-supported;".
+\"\n*o*  At home where only a terminal exists: a server, an SSH, a machine with no desktop.".
+\"\n".
+\"\n * Before you start~".
 \"\n".
 \"\n--------".
-\"\n *IMPORTANT_I!* If you do not know how Vim works, please open a terminal, run|vimtutor|and do the exercises (takes 25 to 30 minutes). Then continue reading this document! IT IS IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!".
-\"\n *IMPORTANT_II!* The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!".
+\"\n *IMPORTANT_I!* If you do not know how Vim works, open a terminal, run|vimtutor|and do the exercises -- 25 to 30 minutes. GrooVim does not replace the Vim underneath it, it sits on top.".
+\"\n *IMPORTANT_II!* Everything here was possible because of the Vim API. The editor you are using is Vim; what GrooVim adds is how it answers you.".
 \"\n--------".
 \"\n".
-\"\n*o*  The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occur we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;".
-\"\n*o*  These plugins will be installed with Groovim;  ?????? Update plugins list".
-\"\n   |-|*NERDTree*".
-\"\n      |[https://github.com/preservim/nerdtree]|".
-\"\n   |-|*tcomment*".
-\"\n      |[https://github.com/tomtom/tcomment_vim]|".
-\"\n   |-|*move*".
-\"\n      |[https://github.com/matze/vim-move]|".
-\"\n*o*  No plugin manager is needed: Vim 8 and later load whatever is under|~/.groovim/pack/*/start| by themselves, and GrooVim enables the mapping of each plugin it finds, so nothing missing causes an error;".
-\"\n*o*  Each plugin is DETECTED and its mapping enabled by itself. Force any of them with|let|g:enable_tcomment_vim|=|0/1| , or ignore all at once with|let|g:enable_all_plugins|=|0| ;".
+\"\n*o*  The shortcuts may clash with the ones of YOUR system. A terminal cannot carry every combination, so when there is a clash it is easier to move the one of the system;".
+\"\n*o*  Three plugins are used when they are installed, and GrooVim works without any of them: *NERDTree* , the file tree; *tcomment* , which comments lines; *move* , which moves a line or a selection:".
+\"\n   |-||[https://github.com/preservim/nerdtree]|".
+\"\n   |-||[https://github.com/tomtom/tcomment_vim]|".
+\"\n   |-||[https://github.com/matze/vim-move]|".
+\"\n*o*  No plugin manager is needed: Vim loads whatever is under|~/.groovim/pack/*/start| by itself. Each one is DETECTED, so what is missing simply stays quiet, and a shortcut that needs it says so instead of failing;".
+\"\n*o*  To force or to ignore one:|let|g:enable_tcomment_vim|=|0/1| , or all of them at once with|let|g:enable_all_plugins|=|0| .".
 \"\n".
-\"\n * The GrooVim solves the following \"problems\"!!~".
+\"\n * The keys you already know~".
 \"\n".
-\"\n*o*  <Ctrl-Left>/<Ctrl-Right> (normal mode/insert/visual) - Navigate by words in a conventional and practical way;".
-\"\n*o*  <Tab> (normal mode/visual)- Indent in a conventional way;".
-\"\n*o*  <Enter> (normal mode/visual) - Use in a conventional way;".
-\"\n*o*  <Backspace> (normal mode/visual) - Use in a conventional way;".
-\"\n*o*  <Del> (normal mode/visual) - Use in a conventional way;".
-\"\n*o*  <Space> (normal mode/visual) - Use in a conventional way;".
-\"\n*o*  In the alternation between modes the cursor stays correctly positioned;".
-\"\n*o*  Use default clipboard in a correct and conventional way (copy, cut and paste);".
-\"\n*o*  <PageDown>/<PageUp> - With navigation across the screen (invalid areas);".
-\"\n*o*  <MouseScrollDown>/<MouseScrollUp> - With navigation across the screen (invalid areas);".
-\"\n*o*  <MouseClick> (normal mode) - Across the screen (invalid areas);".
-\"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round -- and <Ctrl-w> stays the key of Vim, which every window command begins with;".
-\"\n*o*  Etc...".
+\"\n These do in GrooVim what they do in any editor:".
 \"\n".
-\"\n * Editor features!~".
+\"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time;".
+\"\n*o*  <Tab> - indents, in normal mode and over a selection;".
+\"\n*o*  <Enter> , <Backspace> , <Del> and <Space> - in normal mode and over a selection;".
+\"\n*o*  <Ctrl-c> , <Ctrl-v> , <Ctrl-x> - copy, paste and cut, through the system clipboard;".
+\"\n*o*  <Ctrl-u> and <Ctrl-r> - undo and redo, in every mode;".
+\"\n*o*  <PageDown>/<PageUp> , the mouse wheel and a click - and they reach the places with no text on them;".
+\"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round. <Ctrl-w> stays the key of Vim, which every window command begins with;".
+\"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode. The cursor does not move when the mode changes.".
 \"\n".
-\"\n*o*  Switching between modes:".
-\"\n   |-|<Shift-Up> (normal mode/insert/visual) - Enter or exit the insert mode;".
-\"\n   |-|<Shift-Down> (normal mode/insert/visual) - Enter or exit the visual mode;".
+\"\n * Moving and selecting~".
 \"\n".
-\"\n*o*  Text selection:".
-\"\n   |-|<Alt-End>/<Alt-Home> (normal mode/insert) - Select text on the line until the end/beginning from the current point;".
-\"\n   |-|How much is selected is on the bar at the bottom while you hold it, after the percentage: |[46,3]| is 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over |g:GrooVim_SelectionCountLimit| lines (2000) a |-| stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it;".
+\"\n*o*  <Shift-Alt-Arrows> - the smooth movement: it glides a long stretch, goes over the places where there is no text and keeps the column it started in;".
+\"\n*o*  <Ctrl-Alt-Arrows> - the same, one short step at a time;".
+\"\n*o*  <Alt-Right>/<Alt-Left> - take the word to the right/left;".
+\"\n*o*  <Alt-End>/<Alt-Home> - take the rest of the line, from where you are;".
+\"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again: a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
+\"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it;".
+\"\n*o*  |m| and |M| - to the next marked line and to the one before.".
 \"\n".
-\"\n*o*  Common text editors commands:".
-\"\n   |-|<Ctrl-c> (visual mode) - Copy to clipboard;".
-\"\n   |-|<Ctrl-v> (normal mode/insert/visual) - Paste from clipboard;".
-\"\n   |-|<Ctrl-x> (visual mode) - Cut to the clipboard;".
-\"\n   |-|<Ctrl-u> (normal mode/insert/visual) - Undo;".
-\"\n   |-|<Ctrl-r> (normal mode/insert/visual) - Redo;".
+\"\n * Your tabs~".
 \"\n".
-\"\n*o*  Plugins:".
-\"\n   |-|move-vim;|".
-\"\n        <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Move line or selection up/down;".
-\"\n   ?????? Falta atalho do plugin de \"comment\" entre outros não F e para outros plugins".
+\"\n*o*  <Ctrl-Up>/<Ctrl-Down> - the next tab, the one before;".
+\"\n*o*  <Ctrl-Shift-Up>/<Ctrl-Shift-Down> - carry the tab you are on to the next place in the line. At either end it stays put;".
+\"\n*o*  F5->t pins a tab and marks it on the line; <Alt-Down> goes back to it from wherever you are, and pressing it there goes back to where you called it from;".
+\"\n*o*  With more tabs than the line is wide it SCROLLS: the tab you are on is drawn whole, and a |‹| or a |›| at the end says the line goes on that way;".
+\"\n*o*  Two tabs with the same file NAME show enough of the path to be told apart, |a/help.vim| beside |b/help.vim| ;".
+\"\n*o*  A file already open is not opened again: you land on the tab that has it.".
 \"\n".
-\"\n * Relevant changes in the default Vim behavior!~".
+\"\n * The bar at the bottom~".
 \"\n".
-\"\n   |-|Use |F2->b| to enable visual block mode. |Ctrl+b| walks from one bracket to the one that closes it -- |(| to |)| , |[| to |]| , |{| to |}| -- and takes the selection with it in visual mode;".
-\"\n   |-|When changes from |visual|mode| to |insert|mode|the cursor do not move;".
-\"\n   |-|Use the system clipboard when it can be reached, see |Clipboard|below;".
-\"\n   |-|The \"insert\" and \"paste\" from the same cursor position;".
-\"\n   |-|Extensions Vim does not know are given a type: an|.inc|opens as HTML and a|.gds|as Visual Basic. The list is|g:GrooVim_SyntaxPerExtension| , and ONE line adds your own -- what you write there REPLACES the two, so keep the ones you want: >".
-\"\n     let g:GrooVim_SyntaxPerExtension = {\"inc\": \"html\", \"gds\": \"vb\", \"ejs\": \"html\"}".
-\"\n<".
+\"\n From left to right: the path of the file, the encoding and what ends a line, the file type, the line and column, how much of the file is above you, and how much is selected while you hold a selection.".
 \"\n".
-\"\n * Indentation!~".
+\"\n*o*  The PATH is written to be read in the room there is: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . F2->Space says the WHOLE of it, in a balloon that goes away when the cursor moves or on <Esc> ;".
+\"\n*o*  |[utf-8,unix]| is what the file is on right now, with a |,B| when there is a BOM;".
+\"\n*o*  |[46,3]| is the selection: 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines;".
+\"\n*o*  Messages of GrooVim come up there too, after the |Powered|by| , and go away by themselves.".
 \"\n".
-\"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
+\"\n * The file you have open~".
 \"\n".
-\"\n The width and whether <Tab> puts spaces are asked with F5->c and then |[i]| . It is the \"Tab Settings\", and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n The encoding and what ends a line belong to the DOCUMENT and not to the editor. Both are asked on one screen, with F5->c and then |[f]| :".
 \"\n".
-\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why we keep it in \"View, Show Symbol\" and not in its tab settings. ?????? Este HELP está com muitos detalhes. Qual a necessidade de explicar porque esta decisão de design foi tomada?".
-\"\n".
-\"\n That screen also sets the LANGUAGE, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right.".
-\"\n".
-\"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean.".
-\"\n".
-\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block. ?????? Há necessidade desse detalhe técnico? Eis mais um problema.".
-\"\n".
-\"\n *THE FILE YOU HAVE OPEN*".
-\"\n".
-\"\n The encoding and what ends a line belong to the DOCUMENT, not to the editor, and they are asked with F5->c and then |[f]| . It is the Encoding menu and the \"EOL Conversion\" of Notepad++, in one screen: ".
-\"\n".
-\"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which reads the file AGAIN with that encoding -- the bytes do not move and their meaning changes, which is the top of that menu -- or |[c]| , which converts the file, its \"Convert to\": the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
+\"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which READS the file again with that encoding -- the bytes do not move and their meaning changes -- or |[c]| , which CONVERTS the file -- the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
 \"\n*o*  What ends a line: |[u]nix| LF, |[w]indows| CRLF, |[m]acintosh| CR;".
-\"\n*o*  A |>| marks where a SECTION begins, and nothing else: a block of three lines carries it once, on its first, and a question that is a block on its own carries it too. What only explains may be as long as it likes, because it is a message -- a QUESTION wider than your terminal wraps, and Vim answers a wrapped prompt with a hit-enter that eats the key you meant for it;".
-\"\n*o*  An EMPTY answer means \"leave THIS one alone\" and not \"leave the screen\": give it to the encoding and the line ending is still asked, give it to both and nothing happens at all. It is the default of both questions, so pressing <Enter> through the screen leaves the file as it found it, and what was done and what was not is on the bar afterwards;".
+\"\n*o*  An EMPTY answer leaves THAT question alone and goes on to the next, so pressing <Enter> through the screen leaves the file as it found it. What was done and what was not is said on the bar afterwards;".
+\"\n*o*  Reading again throws away what you have not written yet, so it is refused while there is something to lose.".
 \"\n".
-\"\n Reading again throws away what you have not written yet, so it is refused while there is something to lose. Converting marks the buffer as changed on purpose: Vim writes the new encoding at the next write and not before, and a buffer that claimed to have nothing to write would leave the setting looking applied with the file untouched.".
+\"\n The LANGUAGE -- what Vim calls the |filetype| , and what decides the colours, the indenting and the comment character -- is asked one screen over, with F5->c and then |[v]| . It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\"; <Tab> completes among the hundreds Vim ships.".
 \"\n".
-\"\n What the file is on right now is on the bar at the bottom, beside the encoding: |[utf-8,unix]| , with a |,B| when there is a BOM.".
+\"\n * Indentation~".
 \"\n".
-\"\n The PATH of the file is on the bar as well, written to be read in the room there is: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . The ends are what answer -- where it is rooted and which file it is -- and |F2->Space| says the whole of it, in a balloon.".
+\"\n The indent is |2| columns wide and made of SPACES, and the guides that draw the levels are native to Vim.".
 \"\n".
-\"\n".
-\"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
+\"\n*o*  F5->c and then |[i]| asks the width and whether <Tab> puts spaces. It is the \"Tab Settings\", and like every screen it ends asking whether to keep what you chose for the next time;".
+\"\n*o*  F5->c and then |[v]| asks what the screen SHOWS: the guides, a dot on every space, an arrow on every tab, the vertical line that marks a long line, and the word wrap;".
+\"\n*o*  To change only the buffer you are on, without leaving the keyboard: >".
 \"\n     GrooVimIndent 4".
-\"\n< Without an argument it tells you the width in force. Setting|shiftwidth| by hand instead leaves the editor half changed: the guides follow the new width and the Tab key keeps the old one.".
+\"\n<  With no argument it tells you the width in force;".
+\"\n*o*  Only the file types you choose are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste -- *make* needs a REAL tab on its recipe lines.".
 \"\n".
-\"\n*o*  |g:GrooVim_IndentWidth| - the general width;".
-\"\n*o*  |g:GrooVim_IndentWidthPerType| - the width per file type, the same idea of the \"Tab Settings\" per language of Notepad++. One line is enough: >".
-\"\n     let g:GrooVim_IndentWidthPerType = {\"python\": 4, \"javascript\": 2}".
-\"\n<".
-\"\n*o*  |g:GrooVim_IndentGuideChar| - the char of the guide, or \"\" to turn the guides off. F5->c and then |[v]| turns them off and on, and hands back the char you chose;".
-\"\n*o*  |g:GrooVim_IndentExpandTab| - 1 for spaces, 0 for a real tab;".
-\"\n*o*  |g:GrooVim_ShowSpaceAndTab| - 1 draws a dot on every space and an arrow on every tab, which is \"Show Space and Tab\" of Notepad++. ON by default, which is where GrooVim parts from it: a space and a tab look the same and are not;".
-\"\n*o*  |g:GrooVim_EdgeColumn| - the column the vertical line is drawn on, |79| by default, or 0 for no line. It is the \"Vertical Edge\" of Notepad++, and it is drawn on EVERY row -- a short line gets it too;".
-\"\n*o*  |g:GrooVim_WordWrap| - 1 wraps a long line onto the next row instead of running it off the screen, which is \"Word wrap\" of Notepad++. OFF by default, asked on F5->c and then |[v]|, and it breaks at a SPACE and not in the middle of a word. With it on, |<Up>| and |<Down>| walk the ROWS you see and not the lines of the file, which is what the same arrows do in Notepad++;".
+\"\n Every setting of this has a name of its own you can write in your own configuration, and they are listed in the|README.md|of the project.".
 \"\n".
-\"\n Only the file types you list are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste: *make* needs a REAL tab on its recipe lines and *go* is written with tabs by gofmt. Those are left alone.".
+\"\n * The clipboard~".
 \"\n".
-\"\n The guides read the width from the standard Vim options when drawing, so they follow a|modeline| , a file type plugin or a|:set|shiftwidth=| you type.".
+\"\n GrooVim reaches the clipboard through a CASCADE and needs nothing installed. The first of these that answers is the one used:".
 \"\n".
-\"\n * Clipboard (the \"transfer area\")!~".
-\"\n".
-\"\n GrooVim reaches the clipboard through a CASCADE, and it requires nothing to be installed. It uses the first of these that answers:".
-\"\n".
-\"\n*o*  |1.| *Wayland* , and Vim talks to the compositor ITSELF -- the Vim that|install.sh|builds has|+wayland| . It asks the compositor for the|wlr-data-control| or the|ext-data-control| protocol, and a compositor that offers neither leaves this one out (to see yours:|wayland-info|\\||grep|-E|'ext_data_control\\|zwlr_data_control'| );".
-\"\n*o*  |2.| *X11* , the same way, with|+xterm_clipboard| ;".
-\"\n*o*  |3.| A clipboard TOOL (*wl-copy* / *wl-paste* , *xclip* or *xsel* ), used only if one is already there -- and only reached when the two above do NOT answer, which today means a Wayland compositor without those protocols;".
-\"\n*o*  |4.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no X11, no Wayland and no desktop, and it crosses SSH, so a copy made on a remote server lands on the clipboard of the machine you are sitting at. Vim ships this one, there is nothing to install;".
-\"\n*o*  |5.| A file in|~/.groovim/clipboard| , which always works and also lets two Vim instances share a copy;".
+\"\n*o*  |1.| *Wayland* , with Vim talking to the compositor ITSELF;".
+\"\n*o*  |2.| *X11* , the same way;".
+\"\n*o*  |3.| A clipboard TOOL (*wl-copy* , *xclip* or *xsel* ), if one is already there;".
+\"\n*o*  |4.| *OSC*52* , an escape sequence that carries the clipboard THROUGH the terminal. It needs no desktop and it crosses SSH, so a copy made on a remote server lands on the machine in front of you;".
+\"\n*o*  |5.| A file in|~/.groovim/clipboard| , which always works and lets two GrooVim share a copy.".
 \"\n".
 \"\n To see which one is in use:|:echo|v:clipmethod| and|:echo|GrooVim_ClipReg()| .".
 \"\n".
-\"\n *PASTING*FROM*ANOTHER*APPLICATION!* This is the one case that needs help. OSC 52 carries a copy OUT, but reading the clipboard BACK would require the terminal to ANSWER a query, and almost no terminal does that on purpose (a program running over SSH could steal your clipboard). So:".
+\"\n *PASTING*FROM*ANOTHER*APPLICATION!* Copying OUT always works. Reading the clipboard BACK is the one case that may need help, because OSC 52 would need the terminal to ANSWER a query and almost none do:".
 \"\n".
-\"\n*o*  With NO tool installed, <Ctrl-v> pastes what Vim itself copied. To bring in what another application copied, use your terminal own paste, usually <Ctrl-Shift-v> ;".
-\"\n*o*  On Wayland or X11 with the methods above answering, this case does not arise at all: Vim reads the clipboard itself, and nothing needs installing;".
-\"\n*o*  Where they do NOT answer, a tool brings <Ctrl-v> back to the system clipboard, and nothing has to be changed in your|.vimrc|:".
-\"\n      |-|Wayland:|sudo|pacman|-S|wl-clipboard| or|sudo|apt|install|wl-clipboard| ;".
-\"\n      |-|X11:|sudo|pacman|-S|xclip| or|sudo|apt|install|xclip| ;".
+\"\n*o*  On Wayland or X11 the case does not arise: Vim reads the clipboard itself;".
+\"\n*o*  Where neither answers, <Ctrl-v> pastes what GrooVim itself copied, and the paste of your terminal -- usually <Ctrl-Shift-v> -- brings in what another application copied;".
+\"\n*o*  Installing a tool brings <Ctrl-v> back to the system clipboard, with nothing to change in your configuration: |sudo|pacman|-S|wl-clipboard| or |sudo|apt|install|xclip| .".
 \"\n".
-\"\n GrooVim looks for the tool inside|~/.groovim/bin| first (see|g:GrooVim_ClipBinDir| ) and then in your|$PATH| . That first directory is there so you can drop a tool BY HAND on a machine where you cannot use the package manager.".
+\"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is built for one architecture and linked against one libc; what works on the machine it was built on is exactly what cannot be promised anywhere else. GrooVim looks for the tool in|~/.groovim/bin| first and then in your|$PATH| , so you can drop one there by hand where a package manager is not an option.".
 \"\n".
-\"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is not portable: it is built for one architecture, it is linked against one libc, and|wl-copy|also needs libwayland-client at run time. And on a headless server there is no compositor for it to talk to anyway, which is exactly the case OSC 52 already covers by itself.".
+\"\n * The F keys (CommandZ)~".
 \"\n".
-\"\n Knobs:|g:GrooVim_EnableClipTool| ,|g:GrooVim_ClipTools| ,|g:GrooVim_ClipBinDir| .".
+\"\n |CommandZ| is a kind of \"super leader\": <F2>, <F3>, <F4> or <F5> and then one more key. It is what gives GrooVim room for many shortcuts in a terminal, where the combinations a keyboard can send run out fast.".
 \"\n".
-\"\n * Script features!~".
+\"\n You do not have to remember any of them. <F10> puts a BAR across the top with the sections on it, and under the one you are on, what it holds. |<Left>| and |<Right>| walk the bar, |<Up>| and |<Down>| the list, <Enter> picks and <Esc> leaves -- and pressing an |F| key jumps to the section where that key mostly lives. The mouse works everywhere.".
 \"\n".
-\"\n*o*  Navigation".
+\"\n Every line of the menu shows the keys that do it. Choosing one PRESSES those keys, so the menu can never do something the keyboard would not.".
 \"\n".
-\"\n   |-|<Shift-Alt-Arrows> (normal mode/insert/visual) - Smooth navigation across the screen with long movements (invalid areas);".
-\"\n   |-|<Ctrl-Alt-Arrows> (normal mode/insert/visual) - Navigation with arrows across the screen (invalid areas) using shorts movements;".
-\"\n   |-|<Alt-Down> (normal mode/insert/visual) - Returns to the previous tab;".
-\"\n".
-\"\n*o*  Word selection".
-\"\n".
-\"\n   |-|<Alt-Right>/<Alt-Left> (normal mode/insert/visual) - Word selection to the right/left;".
-\"\n".
-\"\n*o*  Tabs".
-\"\n".
-\"\n   |-|<Ctrl-Up>/<Ctrl-Down> (normal mode/insert/visual) - Go to the next/previous tab;".
-\"\n   |-|<Ctrl-Shift-Up>/<Ctrl-Shift-Down> (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line. At either end it stays put;".
-\"\n   |-|With more tabs than the line is wide it SCROLLS: the tab you are on is always drawn whole, and a |‹| or a |›| at the end says the line goes on that way. It moves as little as it has to, so the tabs around you stay where they were. The two marks are |g:GrooVim_TabMoreLeft| and |g:GrooVim_TabMoreRight| ;".
-\"\n".
-\"\n*o*  Comment lines".
-\"\n".
-\"\n   |-|<Alt-Up> (normal mode/insert/visual) - Comment lines using *tcomment.vim* ;".
-\"\n   |-||m| and |M| (normal mode) - Walk to the next marked line and to the one before. They take the |m| that sets a mark of Vim and the |M| that jumps to the middle of the screen: the bookmarks replace what marks were FOR, and|:mark|a|still writes one from the command line;".
-\"\n".
-\"\n * F\'S Shortcuts (CommandZ)!~".
-\"\n".
-\"\n  The |CommandZ| is a kind of \"super leader\" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing <F2>, <F3>, <F4> or <F5> keys and then another key.".
-\"\n".
-\"\n  You do not have to remember any of them: <F10> puts a BAR across the top with the four groups on it, and under the one you are on, what it holds. |<Left>| and |<Right>| walk the bar, |<Up>| and |<Down>| the list, <Enter> picks and <Esc> leaves -- and pressing the <F> key of a section jumps straight to it, which is the same key that runs its shortcuts.".
-\"\n  The mouse works everywhere: a click on the bar opens a section, a click on a line runs it, a click outside leaves.".
-\"\n  Every line shows the keys that do it, on the right. Choosing one PRESSES those keys, so the menu can never do anything the keyboard would not. The menu and the list below are written from the same place.".
-\"\n".
-\"\n  When one of them does not fire, |:GrooVimKey| says what the key really delivered: run it, press the key, and it prints what |getchar()| handed over. Two keys that look the same can arrive as different keys, and the second one of a shortcut has |400ms| to arrive -- see |g:GrooVim_CommandZWait| below.".
-\"\n".
-\"\n*o*  Features".
-\"\n ".
-\"\n |-|Every |F| key remembers the last command IT ran, and runs it again when you press it with no key after it. |F2| repeats what |F2| did and |F3| what |F3| did -- one memory each, so a command of another group can never come out of this one;".
-\"\n |-|Pressing the same |F| key TWICE repeats at once, without waiting for a second key that is not coming. And if you hold it down the command is replicated several times;".
-\"\n |-|You have |400ms| to press the second key, and it is the same |400ms| after which the |F| key repeats: the moment the window closes is the moment it repeats, there is no second wait. Raise it with|let|g:GrooVim_CommandZWait|=|1000|if a second key of yours arrives too late -- an |F| key at one corner of the keyboard and an arrow at the other is a long trip, and a key that misses the window runs the REPETITION instead;".
+\"\n*o*  Every |F| key remembers the last command IT ran, and runs it again when you press it with no key after it -- one memory each;".
+\"\n*o*  Pressing the same |F| key TWICE repeats at once, and holding it down repeats it again and again;".
+\"\n*o*  You have |400ms| to press the second key. Raise it with|let|g:GrooVim_CommandZWait|=|1000| if a key of yours arrives too late;".
+\"\n*o*  When a shortcut does not fire, |:GrooVimKey| says what the key really delivered: run it and press the key. Two keys that look the same can arrive as different keys, and that is the only way to settle it.".
 \"\n".
 \ GrooVim_ShortcutsHelp() .
 \"\n".
@@ -731,6 +666,4 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The list lives in the|README.md|of the project, beside the code. It moves too often to be worth keeping in two places, and a list of bugs that is out of date is worse than none.".
 \"\n".
-\"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
-\"\n"
-
+\"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*"
