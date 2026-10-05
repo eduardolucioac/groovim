@@ -492,6 +492,48 @@ call GT_Ok("  and Up comes back the same way",
 set nowrap
 let &columns = g:GT_KEPT_COLUMNS
 
+" ---- a movement that comes BACK to where it started
+"
+" Three presses out and three presses home have to land on the very column and
+" line they left. Two things were breaking it, and both were one-liners pulling
+" in opposite directions: the rightward movement stepped one column further
+" whenever it ended on a space and nothing stepped back, and with the lines
+" wrapping the column to keep was put back in BUFFER columns over a walk that
+" had been made in SCREEN rows.
+exec "enew!"
+call setline(1, map(range(1, 200), {_, n -> "linha " . n . " com texto suficiente para " .
+  \ "passar de oitenta colunas e obrigar a tela a dobrar esta linha em mais de uma, " .
+  \ "que e o caso que importa aqui"}))
+
+func! GT_IdaEVolta(ida, volta, quantas)
+  let l:era = [line("."), col(".")]
+  for l:n in range(1, a:quantas)
+    call GrooVim_GroovyMove("n", a:ida, 1, 0)
+  endfor
+  for l:n in range(1, a:quantas)
+    call GrooVim_GroovyMove("n", a:volta, 1, 0)
+  endfor
+  return l:era == [line("."), col(".")]
+endfunc
+
+set nowrap
+call cursor(50, 4)
+call GT_Ok("three movements right and three back land where they started",
+  \ GT_IdaEVolta("r", "l", 3), "   (line " . line(".") . ", column " . col(".") . ")")
+call cursor(50, 4)
+call GT_Ok("  and so do three down and three up",
+  \ GT_IdaEVolta("d", "u", 3), "   (line " . line(".") . ", column " . col(".") . ")")
+
+set wrap
+call cursor(50, 4)
+call GT_Ok("  and so do they with the lines WRAPPING",
+  \ GT_IdaEVolta("d", "u", 3),
+  \ "   (line " . line(".") . ", column " . col(".") . ")   (there the walk is in screen rows)")
+call cursor(50, 4)
+call GT_Ok("  and sideways with them wrapping too",
+  \ GT_IdaEVolta("r", "l", 3), "   (line " . line(".") . ", column " . col(".") . ")")
+set nowrap
+
 " ---- a letter with an accent is a LETTER, not a shortcut
 "
 " In Vim the name "<A-i>" is not a key: it is "e" with an acute, measured. While

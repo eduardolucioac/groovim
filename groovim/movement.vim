@@ -119,8 +119,23 @@ endfunc
 " only the fourth one changes. Moving the cursor here would drag it out of the
 " areas without character, which is exactly what this function exists to travel
 " over.
+"
+" What loses the column in the first place is everything GrooVim does around the
+" walk -- the "virtualedit" and, in insert mode, the "<C-o>"; Vim keeps it by
+" itself between one "j" and the next.
+"
+" Not while the lines WRAP. There the walk is in display rows ("gj" and "gk")
+" and the aim is a column of the SCREEN, which Vim keeps on its own; the number
+" put back here is a column of the BUFFER, and the two are not the same thing
+" once a line is folded into three rows. Measured on a window of 60 columns,
+" three movements down and three back: 100, 113, 124, 134 going out and 123,
+" 112, 99 coming home -- one line lost on every step of the way back, because
+" the way back was aiming at a column the cursor was not on.
 func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep) abort
   if (a:direction != "u" && a:direction != "d") || a:columnToKeep <= 0
+    return
+  endif
+  if &wrap
     return
   endif
   let l:positionNow = getcurpos()
@@ -393,8 +408,17 @@ func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType
 
 endfunc
 
-" Note: Adjusts the cursor position when this ends the movement
-" ("GrooVim_GroovyMove()") over a tab char.
+" Note: Takes the cursor out of the MIDDLE of a character at the end of a
+" movement. While a movement runs, "virtualedit" is "all" and the cursor may
+" stop part of the way into a tab; the fourth number of a position is that part,
+" and zeroing it puts the cursor on the character and not inside it.
+"
+" The same for every direction, and that is a FIX: the rightward one used to
+" step one column further whenever it landed on a space, and nothing stepped
+" back. Measured on three movements out and three back: 4, 24, 45, 65 going and
+" 45, 25, 5 coming home -- one column gained and never given back, and a
+" movement that does not undo itself is a movement you cannot trust. A key that
+" goes 20 columns goes 20 columns.
 func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, verticalSmoothnessFactor) range abort
 
   let l:lineNow = getline(".")
@@ -409,14 +433,7 @@ func! GrooVim_GroovyMoveAdjuster(direction, blockSmoothness, disableSmoothness, 
       endif
 
       let l:cursorPosInsert = getpos(".")
-      " ldur
-      if a:direction == "l"
-        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
-      elseif a:direction == "r"
-        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2] + 1, 0])
-      elseif a:direction == "d" || a:direction == "u"
-        call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
-      endif
+      call setpos('.', [l:cursorPosInsert[0], l:cursorPosInsert[1], l:cursorPosInsert[2], 0])
 
       if a:blockSmoothness == 0
         redraw

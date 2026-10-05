@@ -624,7 +624,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n It is asked THERE and not with the encoding because nothing about it is ever written to the disk: the encoding and what ends a line change the bytes in the file, and a language changes how the same bytes are READ. Which is also why choosing one leaves a clean buffer clean.".
 \"\n".
-\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block. ?????? Mais detalhes t".
+\"\n On that screen it comes BELOW the question that keeps, and that is the answer to \"is my language kept too?\": it is not. It belongs to the buffer you are on, and keeping |python| for the next time you open GrooVim would put every file you open into python. The question that keeps closes the block it belongs to, and what follows it is not in that block. ?????? Há necessidade desse detalhe técnico? Eis mais um problema.".
 \"\n".
 \"\n *THE FILE YOU HAVE OPEN*".
 \"\n".
