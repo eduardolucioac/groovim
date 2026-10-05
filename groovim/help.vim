@@ -600,7 +600,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Plugins:".
 \"\n   |-|move-vim;|".
 \"\n        <Ctrl-j>/<Ctrl-k> (normal mode/insert/visual) - Move line or selection up/down;".
-\"\n   ?????? Falta atalho do plugin de \"comment\" entre outros não F".
+\"\n   ?????? Falta atalho do plugin de \"comment\" entre outros não F e para outros plugins".
 \"\n".
 \"\n * Relevant changes in the default Vim behavior!~".
 \"\n".
@@ -616,9 +616,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The indent is|2|columns wide and made of SPACES, and the guides that draw the levels come from|listchars| , native to Vim.".
 \"\n".
-\"\n The width and whether <Tab> puts spaces are asked with F5->c and then |[i]| . It is the \"Tab Settings\" of Notepad++, and like every other screen it ends asking whether to keep what you chose for the next time.".
+\"\n The width and whether <Tab> puts spaces are asked with F5->c and then |[i]| . It is the \"Tab Settings\", and like every other screen it ends asking whether to keep what you chose for the next time.".
 \"\n".
-\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why Notepad++ keeps it in \"View, Show Symbol\" and not in its tab settings.".
+\"\n Whether the guides are DRAWN is asked one screen over, with F5->c and then |[v]| , beside whether a space shows a dot and a tab an arrow. A guide is something painted on the screen and not a rule about what <Tab> does, which is why we keep it in \"View, Show Symbol\" and not in its tab settings.".
 \"\n".
 \"\n That screen also sets the LANGUAGE, which is what Vim calls the |filetype| : what decides the colours, the indenting and the comment character. It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\". GrooVim keeps NO list of its own -- <Tab> completes among the hundreds this Vim ships, which is the only list that can ever be right.".
 \"\n".

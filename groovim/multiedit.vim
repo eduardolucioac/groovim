@@ -235,7 +235,16 @@ func! GrooVim_MultiSeal() abort
 
 endfunc
 
+" Note: And "v:errmsg" is handed back as it was. An unmap of a key that is not
+" mapped is an ERROR, "E31: No such mapping", and these run with nothing to undo
+" far more often than not -- this is called on every "WinLeave" and every
+" "BufLeave", so walking between windows or changing buffer left that message
+" behind. The "silent!" hides it from the screen and does NOT keep it out of
+" "v:errmsg" (measured), and a leftover error message is read later as a real
+" one, by a human and by the battery alike.
 func! GrooVim_MultiKeysOff() abort
+
+  let l:errmsgWas = v:errmsg
 
   for l:key in s:taken
     exec "silent! iunmap " . l:key
@@ -248,6 +257,8 @@ func! GrooVim_MultiKeysOff() abort
   let s:kept = []
 
   silent! nunmap <Esc>
+
+  let v:errmsg = l:errmsgWas
 
 endfunc
 

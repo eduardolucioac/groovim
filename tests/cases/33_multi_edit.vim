@@ -442,7 +442,29 @@ func! GT_Body()
     \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
   setlocal modifiable
 
-  call GT_Done()
+  " ---- and nothing is left behind on the way out
+"
+" An unmap of a key that is not mapped is an error, "E31: No such mapping", and
+" the way out runs with nothing to undo far more often than not -- it is called
+" on every WinLeave and every BufLeave, so walking between windows left that
+" message behind. The "silent!" hides it from the screen and does NOT keep it
+" out of "v:errmsg", which is read later as a real error.
+exec "enew!"
+only!
+let v:errmsg = ""
+call GrooVim_MultiKeysOff()
+call GT_Ok("the way out leaves no error message behind", v:errmsg ==# "",
+  \ "   [" . v:errmsg . "]   (E31 is what an unmap of nothing says)")
+
+let v:errmsg = ""
+split
+wincmd w
+let s:after = v:errmsg
+only!
+call GT_Ok("  and neither does walking between windows", s:after ==# "",
+  \ "   [" . s:after . "]   (the way out runs on every WinLeave)")
+
+call GT_Done()
 endfunc
 
 " The undo, and the first line read back: it is done after every block above.
