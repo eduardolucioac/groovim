@@ -633,6 +633,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n The PATH of the file is on the bar as well, and whole on the TITLE of the terminal -- the line your terminal was writing \"vim\" in. Vim has no bar of two lines, so the bar carries as much of the path as can be read: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . The ends are what answer -- where it is rooted and which file it is.".
 \"\n".
+\"\n Your terminal may be throwing that title AWAY, and most do by default -- it is a setting of the terminal and not of GrooVim. In Konsole: |Settings|->|Configure|Konsole|->|General| , \"Show window title on the titlebar\". To have it on the TAB too, put a |%w| in |Edit|Current|Profile|->|Tabs|->|Tab|title|format| , whose default |%d|:|%n| has no room for what the program sends.".
+\"\n".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
 \"\n     GrooVimIndent 4".
