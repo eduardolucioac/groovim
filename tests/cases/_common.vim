@@ -17,6 +17,23 @@ let g:GT_OUT = $GROOVIM_TEST_OUT != "" ? $GROOVIM_TEST_OUT : g:GT_BASE . "/resul
 let g:GT_NAME = "unnamed"
 let g:GT_LINES = []
 
+" The battery does not read the KEYBOARD of whoever is running it.
+"
+" GrooVim watches the Caps Lock LED and, while it is on, takes the bar for the
+" warning and refuses every other message. That is right in an editor and wrong
+" in a battery: with Caps Lock left on, 24 checks about what GrooVim SAYS failed
+" at once -- and they would pass again by pressing a key that has nothing to do
+" with any of them.
+"
+" Emptied and not merely unread: with no LED, the check turns itself off by
+" itself, which is the same road a headless machine with no keyboard takes.
+let g:GrooVim_CapsLockLeds = []
+let g:GrooVim_CheckCapsLockReturn = 0
+if exists("g:GrooVim_CapsLockTimer") && g:GrooVim_CapsLockTimer != -1
+  call timer_stop(g:GrooVim_CapsLockTimer)
+  let g:GrooVim_CapsLockTimer = -1
+endif
+
 " A terminal as wide as the one GrooVim is used on.
 "
 " Without this a case runs in the 80 columns a pty falls back to with no terminal

@@ -89,4 +89,41 @@ call GT_Ok("  and the line never runs past the terminal",
 tabonly!
 let &columns = g:GT_WIDE
 
+" ---- two tabs with the same file name
+"
+" The name alone is what a tab wants to be, and two of them written the same way
+" is a tab line that cannot answer the one question it exists to answer. It came
+" up for real with the "help.vim" of the project open beside the "help.vim" of
+" the installation: two different files, one name, and no way to tell which tab
+" was which.
+exec "silent! !mkdir -p " . g:GT_OUT . "/um/dentro " . g:GT_OUT . "/dois/dentro"
+call writefile(["um"], g:GT_OUT . "/um/igual.txt")
+call writefile(["dois"], g:GT_OUT . "/dois/igual.txt")
+call writefile(["um"], g:GT_OUT . "/um/dentro/fundo.txt")
+call writefile(["dois"], g:GT_OUT . "/dois/dentro/fundo.txt")
+
+exec "edit! " . g:GT_OUT . "/um/igual.txt"
+exec "tabnew " . g:GT_OUT . "/dois/igual.txt"
+call GT_Ok("two tabs with one name show the directory that differs",
+  \ GrooVim_TabLabel(1) ==# "um/igual.txt" && GrooVim_TabLabel(2) ==# "dois/igual.txt",
+  \ "   [" . GrooVim_TabLabel(1) . "] [" . GrooVim_TabLabel(2) . "]")
+
+exec "tabnew " . g:GT_FIX . "/a.txt"
+call GT_Ok("  and a tab that collides with nobody keeps its plain name",
+  \ GrooVim_TabLabel(3) ==# "a.txt", "   [" . GrooVim_TabLabel(3) . "]")
+
+exec "tabnew " . g:GT_OUT . "/um/dentro/fundo.txt"
+exec "tabnew " . g:GT_OUT . "/dois/dentro/fundo.txt"
+call GT_Ok("  and when the directory is the same too, it goes one deeper",
+  \ GrooVim_TabLabel(4) ==# "um/dentro/fundo.txt" &&
+  \ GrooVim_TabLabel(5) ==# "dois/dentro/fundo.txt",
+  \ "   [" . GrooVim_TabLabel(4) . "] [" . GrooVim_TabLabel(5) . "]")
+
+exec "tabclose 2"
+call GT_Ok("  and closing one gives the other its plain name back",
+  \ GrooVim_TabLabel(1) ==# "igual.txt", "   [" . GrooVim_TabLabel(1) . "]" .
+  \ "   (measured against the other tabs, not kept in a list)")
+
+tabonly!
+
 call GT_Done()

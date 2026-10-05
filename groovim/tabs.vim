@@ -102,7 +102,10 @@ func! GrooVim_FileLabel() abort
   return l:name != "" ? l:name : expand("%")
 endfunc
 
-func! GrooVim_TabLabel(tab) abort
+" Note: Which buffer a tab is NAMED after: the one of the window you are on, and
+" the first document of the tab when that window is an accessory. 0 when the tab
+" holds nothing but accessories.
+func! GrooVim_TabBufferOf(tab) abort
   let l:buffers = tabpagebuflist(a:tab)
   let l:chosen = l:buffers[tabpagewinnr(a:tab) - 1]
 
@@ -118,17 +121,77 @@ func! GrooVim_TabLabel(tab) abort
     endfor
   endif
 
+  return l:chosen
+endfunc
+
+" Note: How many DIRECTORIES have to be shown for two paths to read apart. Zero
+" means the file names already differ; 1 means the directory holding them tells
+" them apart, and so on up the tree.
+func! GrooVim_TabPathApart(mine, other) abort
+  let l:mine = reverse(split(a:mine, "/"))
+  let l:other = reverse(split(a:other, "/"))
+
+  let l:deep = 0
+  while l:deep < len(l:mine) && l:deep < len(l:other)
+   \ && l:mine[l:deep] ==# l:other[l:deep]
+    let l:deep += 1
+  endwhile
+
+  return l:deep
+endfunc
+
+" Note: Two tabs with the SAME file name show enough of the path to be told
+" apart: "groovim/help.vim" beside ".groovim/help.vim".
+"
+" The name alone is what a tab wants to be -- it is what you call the file --
+" and two of them written the same way is a tab line that cannot answer the one
+" question it exists to answer. So the path is given only where it is NEEDED,
+" and only as much of it as it takes: the first directory that differs, which
+" for the two above is one, and deeper only where that is not enough.
+"
+" Measured against the other tabs and not against a list kept somewhere: a tab
+" that stops colliding -- the other one closed -- goes back to its plain name by
+" itself.
+func! GrooVim_TabApartFrom(tab, name, buffer) abort
+  let l:mine = fnamemodify(bufname(a:buffer), ":p")
+
+  let l:deep = 0
+  for l:other in range(1, tabpagenr("$"))
+    if l:other == a:tab
+      continue
+    endif
+    let l:that = GrooVim_TabBufferOf(l:other)
+    if l:that == 0 || fnamemodify(bufname(l:that), ":t") !=# a:name
+      continue
+    endif
+    let l:deep = max([l:deep,
+     \ GrooVim_TabPathApart(l:mine, fnamemodify(bufname(l:that), ":p"))])
+  endfor
+
+  if l:deep < 1
+    return a:name
+  endif
+
+  let l:parts = split(l:mine, "/")
+  let l:take = min([l:deep, len(l:parts) - 1])
+  return join(l:parts[-(l:take + 1):], "/")
+endfunc
+
+func! GrooVim_TabLabel(tab) abort
+  let l:chosen = GrooVim_TabBufferOf(a:tab)
+
   " Note: A tab holding nothing but an accessory is named after the accessory --
   " the help is a tab of its own now, and "[GrooVim]" would tell you nothing
   " about which of your tabs it is.
   if l:chosen == 0
+    let l:buffers = tabpagebuflist(a:tab)
     let l:only = bufname(l:buffers[tabpagewinnr(a:tab) - 1])
     return l:only != "" ? fnamemodify(l:only, ":t") : "[GrooVim]"
   endif
 
   let l:name = fnamemodify(bufname(l:chosen), ":t")
   if l:name != ""
-    return l:name
+    return GrooVim_TabApartFrom(a:tab, l:name, l:chosen)
   endif
 
   let l:new = GrooVim_NewNameOf(l:chosen)
