@@ -194,6 +194,9 @@ call GrooVim_TipClose()
 call GT_Press("\<F2> ")
 call GT_Ok("  and the two keys really do it", GrooVim_TipUp(),
   \ "   (F2 and then the space bar)")
+call GT_Ok("  and from normal mode it is in the middle as well",
+  \ GrooVim_TipWhere() ==# "center",
+  \ "   [" . GrooVim_TipWhere() . "]   (where the file IS has nothing to do with the line you are on)")
 call GrooVim_TipClose()
 
 " From insert mode the balloon goes up on a timer, so the case has to let the
@@ -202,9 +205,8 @@ call GrooVim_TipClose()
 call GT_Press("i\<F2> ")
 sleep 60m
 call GT_Ok("  and from insert mode as well", GrooVim_TipUp(), "")
-call GT_Ok("  and there it stands in the MIDDLE of the screen",
-  \ GrooVim_TipWhere() ==# "center",
-  \ "   [" . GrooVim_TipWhere() . "]   (at the cursor it would sit on the line you are typing)")
+call GT_Ok("  and there too it stands in the middle",
+  \ GrooVim_TipWhere() ==# "center", "   [" . GrooVim_TipWhere() . "]")
 call GrooVim_TipClose()
 exec "normal! \<Esc>"
 

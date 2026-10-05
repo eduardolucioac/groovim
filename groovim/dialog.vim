@@ -420,9 +420,10 @@ endfunc
 " Note: Where a balloon goes: at the CURSOR, which is where your eyes are, or in
 " the MIDDLE of the screen, which is where they are not.
 "
-" The middle is for insert mode. At the cursor it would sit on the very text you
-" are typing, and the one thing you must not lose sight of while typing is the
-" line you are writing.
+" At the cursor is for what is ABOUT that line -- the note of a marked line is
+" read there and nowhere else. The middle is for what is about the file: it has
+" nothing to do with the line you are on, and over that line it would sit on the
+" very text you are reading or writing.
 func! GrooVim_Tip(text, ...) abort
   let l:where = a:0 > 0 ? a:1 : "cursor"
 
@@ -454,12 +455,15 @@ endfunc
 " much of as fits. Said where your eyes already are and not on the bar, because
 " the bar is where the SHORT one already is.
 "
-" From INSERT mode it goes up LATER, on a timer of zero, and in the middle of
-" the screen. Both for the same reason: the key was read inside an "i_CTRL-O",
-" which runs one command and goes back to insert, and going back MOVES the
-" cursor -- measured, the balloon went up and came straight back down, because
-" "moved" is what takes it down. The timer lets the cursor land first, and the
-" middle keeps it off the line you are typing.
+" In the MIDDLE of the screen, in every mode: where the file IS has nothing to
+" do with the line you are on, and over that line it would be in the way of the
+" text.
+"
+" From INSERT mode it also goes up LATER, on a timer of zero: the key was read
+" inside an "i_CTRL-O", which runs one command and goes back to insert, and
+" going back MOVES the cursor -- measured, the balloon went up and came straight
+" back down, because "moved" is what takes it down. The timer lets the cursor
+" land first.
 func! GrooVim_PathTip(...) abort
   let l:mode = a:0 > 0 ? a:1 : "n"
 
@@ -474,5 +478,5 @@ func! GrooVim_PathTip(...) abort
     return
   endif
 
-  call GrooVim_Tip(l:text)
+  call GrooVim_Tip(l:text, "center")
 endfunc

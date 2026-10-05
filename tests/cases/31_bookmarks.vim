@@ -473,7 +473,36 @@ func! GT_DockNewTab()
   call GrooVim_BookmarkList()
   tabonly!
   call delete(g:GT_FILE)
-  call GT_Done()
+  " ---- the note of a marked line is read in NORMAL mode and nowhere else
+"
+" Reading is what normal mode is for; while you are selecting or typing, a
+" balloon over the text is in the way of the very thing you are doing. Insert
+" was already out, "CursorMoved" not firing there.
+exec "edit! " . g:GT_OUT . "/nota.txt"
+call setline(1, ["um", "dois", "tres"])
+call cursor(2, 1)
+call GrooVim_BookmarkToggle()
+
+" The note is written into the mark and not asked for: GrooVim_BookmarkAnnotate()
+" opens a prompt, and a case that answers a prompt is measuring the prompt.
+let s:marks = GrooVim_BookmarksOf(expand("%:p"))
+let s:marks[0].note = "uma nota"
+
+call cursor(1, 1)
+call cursor(2, 1)
+call GrooVim_BookmarkNoteShow()
+call GT_Ok("in normal mode the note comes up", GrooVim_TipUp(),
+  \ "   [" . GrooVim_TipText() . "]")
+call GT_Ok("  and at the CURSOR, which is the line it is about",
+  \ GrooVim_TipWhere() ==# "cursor", "   [" . GrooVim_TipWhere() . "]")
+
+call feedkeys("v", "x")
+call GrooVim_BookmarkNoteShow()
+call GT_Ok("  and a selection takes it down", !GrooVim_TipUp(),
+  \ "   (mode " . mode() . ")")
+exec "normal! \<Esc>"
+
+call GT_Done()
 endfunc
 
 " The lines of the file that carry a mark of the sign group, read from the file

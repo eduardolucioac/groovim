@@ -751,6 +751,11 @@ nnoremap <silent> M :call GrooVim_BookmarkWalk(0)<cr>
 " And only for a file that HAS marks. This runs on every movement of the cursor,
 " in every buffer, so the first thing it asks is the cheapest one there is --
 " and a file nobody has marked is out before anything else happens.
+"
+" NORMAL mode and nothing else. Reading is what normal mode is for; while you
+" are selecting or typing, a balloon over the text is in the way of the very
+" thing you are doing. Insert was already out -- "CursorMoved" does not fire
+" there -- and visual is taken out here.
 let s:noteLine = 0
 
 func! GrooVim_BookmarkNoteHide() abort
@@ -761,6 +766,11 @@ endfunc
 func! GrooVim_BookmarkNoteShow() abort
 
   if !exists("*popup_atcursor")
+    return
+  endif
+
+  if mode() !=# "n"
+    call GrooVim_BookmarkNoteHide()
     return
   endif
 
