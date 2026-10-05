@@ -149,6 +149,8 @@ Script features!
     - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
+    - A file already **open is not opened again**: the new tab gives way and you land on the tab that has it, the way every conventional editor does. It is `g:GrooVim_TabOnePerFile`, and it is caught at the birth of a tab -- walking buffers inside a tab of your own is untouched;
+    - Two tabs with the **same file name** show the piece of the path that tells them apart: `a/help.vim` beside `b/help.vim`, and `b/.../help.vim` when what differs is further up. The name comes back alone as soon as the collision is gone;
     - With more tabs than the line is wide the tab line **scrolls**: the tab you are on is always drawn whole, and a `‹` or a `›` at the end says the line goes on that way. It is `g:GrooVim_TabMoreLeft` and `g:GrooVim_TabMoreRight`;
 
 The smooth one glides instead of jumping, goes over the places where there is no

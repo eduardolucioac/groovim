@@ -48,4 +48,40 @@ quit
 sleep 80m
 call GT_Ok("the list alone did not hold the tab", tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")   " . GT_Layout())
 
+" ---- a file already open is not opened again
+"
+" It is what every conventional editor does, and it is caught at the BIRTH of a
+" tab: a tab made for a file that is already somewhere gives way and you land on
+" the tab that has it. Walking buffers inside a tab of your own is untouched --
+" closing that tab under you would be a surprise of the worst kind.
+tabonly! | exec "edit! " . g:GT_FIX . "/a.txt"
+exec "tabnew " . g:GT_FIX . "/b.txt"
+sleep 80m
+call GT_Ok("two different files, two tabs", tabpagenr("$") == 2,
+  \ "   (tabs " . tabpagenr("$") . ")")
+
+exec "tabnew " . g:GT_FIX . "/a.txt"
+sleep 120m
+call GT_Ok("  and a third tab for a file already open gives way",
+  \ tabpagenr("$") == 2 && expand("%:t") ==# "a.txt",
+  \ "   (tabs " . tabpagenr("$") . ", on " . expand("%:t") . ")")
+call GT_Ok("  and it says why", g:GrooVim_GrooVimBarMsgValue =~ "already open",
+  \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]")
+
+" An EMPTY tab and then the file: the mark is taken off by a document, so this
+" is the same case written in two steps.
+tabnew
+exec "edit " . g:GT_FIX . "/b.txt"
+sleep 120m
+call GT_Ok("  and so does an empty tab that then opens one",
+  \ tabpagenr("$") == 2 && expand("%:t") ==# "b.txt",
+  \ "   (tabs " . tabpagenr("$") . ", on " . expand("%:t") . ")")
+
+exec "tabnew " . g:GT_FIX . "/c.txt"
+sleep 80m
+call GT_Ok("  and a file nobody has opens its tab as always",
+  \ tabpagenr("$") == 3 && expand("%:t") ==# "c.txt",
+  \ "   (tabs " . tabpagenr("$") . ", on " . expand("%:t") . ")")
+tabonly!
+
 call GT_Done()

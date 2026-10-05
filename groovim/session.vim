@@ -58,7 +58,20 @@ func! GrooVim_SessionLoad() abort
   endif
 
   let l:startedIn = getcwd()
-  exec "source " . fnameescape(g:GrooVim_SessionFile)
+
+  " Note: The rule of one tab per file is held while the session is being laid
+  " out. The session is a script that makes the tabs one by one, and a tab
+  " closing itself in the middle of it would leave the rest of the script
+  " writing into the wrong ones. A session written by a GrooVim that has the
+  " rule has no two tabs over one file to begin with.
+  let l:oneWas = g:GrooVim_TabOnePerFile
+  let g:GrooVim_TabOnePerFile = 0
+
+  try
+    exec "source " . fnameescape(g:GrooVim_SessionFile)
+  finally
+    let g:GrooVim_TabOnePerFile = l:oneWas
+  endtry
 
   if getcwd() !=# l:startedIn && isdirectory(l:startedIn)
     exec "cd " . fnameescape(l:startedIn)

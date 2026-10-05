@@ -447,3 +447,72 @@ func! GrooVim_GetFileNameAndPath() range abort
 
 endfunc
 
+
+" Note: A file already open is not opened AGAIN: the new tab gives way and you
+" land on the tab that already has it. It is what every conventional editor
+" does, and what a tab line is for -- two tabs over one file answer the same
+" question twice and leave you guessing which one you edited.
+"
+" Set it to 0 to have the second tab.
+let g:GrooVim_TabOnePerFile = get(g:, "GrooVim_TabOnePerFile", 1)
+
+" Note: Caught at the BIRTH of a tab and nowhere else. A tab is marked while it
+" is new and the mark is taken off by the first DOCUMENT it shows -- so what is
+" ever checked is "a tab was just made for this file", and never a file you
+" walked to inside a tab you already had. Walking buffers in a tab of yours is
+" yours to do, and closing that tab under you would be a surprise of the worst
+" kind.
+"
+" An accessory does not take the mark off: the tree, the lists and the help are
+" MEANT to be in every tab, and a tab opened on one of them is still waiting for
+" its document.
+augroup GrooVim_TabOnce
+  autocmd!
+  autocmd TabNew * let t:GrooVim_TabFresh = 1
+  autocmd BufWinEnter * call GrooVim_TabOnceSeen()
+augroup end
+
+func! GrooVim_TabOnceSeen() abort
+  if !g:GrooVim_TabOnePerFile || !get(t:, "GrooVim_TabFresh", 0)
+    return
+  endif
+
+  let l:name = bufname("%")
+  if l:name ==# "" || &buftype !=# "" || GrooVim_IsHelperBuffer(l:name)
+    return
+  endif
+  unlet! t:GrooVim_TabFresh
+
+  let l:buffer = bufnr("%")
+  for l:tab in range(1, tabpagenr("$"))
+    if l:tab != tabpagenr() && index(tabpagebuflist(l:tab), l:buffer) >= 0
+
+      " Note: Later and not here: this runs while Vim is still opening the
+      " window, and closing a tab in the middle of that is how you get an
+      " editor with no window left to draw in.
+      let s:tabOnceGo = l:tab
+      call timer_start(0, "GrooVim_TabOnceBack")
+      return
+    endif
+  endfor
+endfunc
+
+func! GrooVim_TabOnceBack(timer) abort
+  if tabpagenr("$") < 2 || get(s:, "tabOnceGo", 0) < 1
+    return
+  endif
+
+  let l:to = s:tabOnceGo
+  let s:tabOnceGo = 0
+
+  " Note: The tab that gave way may be BEFORE the one we are going to, and
+  " closing it moves that one up by one.
+  if l:to > tabpagenr()
+    let l:to -= 1
+  endif
+
+  tabclose
+  exec "tabnext " . l:to
+  call GrooVim_TabLineRedraw()
+  call GrooVim_GrooVimBarMsg("That file was already open, so here is its tab!", 4)
+endfunc
