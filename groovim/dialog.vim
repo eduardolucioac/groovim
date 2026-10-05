@@ -478,5 +478,17 @@ func! GrooVim_PathTip(...) abort
     return
   endif
 
+  " Note: And from VISUAL mode the selection is given back BEFORE the balloon
+  " goes up. The F keys of visual mode reach their function through a ":", which
+  " ends the selection -- that is Vim, and the shortcuts that need the area back
+  " ask for it with a "gv". Saying where the file is must not cost you what you
+  " had selected.
+  "
+  " Before and not after: "gv" moves the cursor, and moving is what takes a
+  " balloon down.
+  if l:mode =~# "v"
+    normal! gv
+  endif
+
   call GrooVim_Tip(l:text, "center")
 endfunc

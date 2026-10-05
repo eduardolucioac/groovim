@@ -58,7 +58,8 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Says the WHOLE path of the file you are on, in a balloon",
  \  "notes": [
  \   "The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on |<Esc>| , and nothing it covers is lost -- you go on typing with it up",
- \   "It stands in the MIDDLE of the screen, in every mode: where the file IS has nothing to do with the line you are on, and over that line it would be in the way of the text"
+ \   "It stands in the MIDDLE of the screen, in every mode: where the file IS has nothing to do with the line you are on, and over that line it would be in the way of the text",
+ \   "From VISUAL mode what you had selected is still selected afterwards"
  \  ]},
  \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "menu": "Save a copy as...", "what": "Save to disk and open in a new tab a copy of the current file"},
  \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',

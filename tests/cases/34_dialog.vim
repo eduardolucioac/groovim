@@ -202,6 +202,20 @@ call GrooVim_TipClose()
 " From insert mode the balloon goes up on a timer, so the case has to let the
 " timer run: pressed and asked in the same breath, it was asking before the
 " balloon existed.
+" From VISUAL mode the selection has to survive: the F keys of visual mode reach
+" their function through a ":", which ends it, and what is selected is not
+" something a question about the FILE may cost you.
+call cursor(1, 1)
+call GT_Press("vjl\<F2> ")
+call GT_Ok("  and from a selection, which it gives back",
+  \ mode() =~# "^[vV\<C-v>]" && GrooVim_TipUp(),
+  \ "   (mode " . mode() . ", balloon " . GrooVim_TipUp() . ")")
+call GT_Ok("  and it is the SAME selection",
+  \ line("v") == 1 && line(".") == 2,
+  \ "   (from line " . line("v") . " to line " . line(".") . ")")
+call GrooVim_TipClose()
+exec "normal! \<Esc>"
+
 call GT_Press("i\<F2> ")
 sleep 60m
 call GT_Ok("  and from insert mode as well", GrooVim_TipUp(), "")

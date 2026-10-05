@@ -199,6 +199,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F2->Space` - Says the WHOLE path of the file you are on, in a balloon *(normal mode/insert/visual)*;
         - Note: The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on <Esc> , and nothing it covers is lost -- you go on typing with it up;
         - Note: It stands in the MIDDLE of the screen, in every mode: where the file IS has nothing to do with the line you are on, and over that line it would be in the way of the text;
+        - Note: From VISUAL mode what you had selected is still selected afterwards;
     - `F2->y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
     - `F5->s` - Save to disk *(normal mode/insert/visual)*;
         - Note: In visual mode it writes the SELECTION to a file of its own;
