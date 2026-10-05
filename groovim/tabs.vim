@@ -95,12 +95,87 @@ func! GrooVim_IsADocument(buffer) abort
    \ && buflisted(a:buffer)
 endfunc
 
-" Note: What the bar calls the file of the window being drawn. It is "%f" plus
-" the "new N" above.
+" Note: A path written to be READ in the room there is: your home as "~", and
+" the middle taken out when it does not fit.
+"
+"   ~/Data0/.../_GROOVIM/01_busca_replace.txt
+"
+" The ENDS are what answer: where it is rooted, and which file it is. What lies
+" between them is the part you already know -- and what does not fit cannot be
+" read at all.
+func! GrooVim_PathShort(path, room) abort
+  let l:short = fnamemodify(a:path, ":~")
+  if strdisplaywidth(l:short) <= a:room
+    return l:short
+  endif
+
+  let l:parts = split(l:short, "/")
+  if len(l:parts) < 3
+    return l:short
+  endif
+  let l:head = (l:short[0] ==# "/" ? "/" : "") . l:parts[0]
+
+  " Note: As much of the END as fits, and never less than the file name: a bar
+  " that cannot say WHICH file is open is not worth the line it takes.
+  let l:take = 1
+  while l:take < len(l:parts) - 1
+   \ && strdisplaywidth(l:head . "/.../" . join(l:parts[-(l:take + 1):], "/")) <= a:room
+    let l:take += 1
+  endwhile
+
+  return l:head . "/.../" . join(l:parts[-l:take:], "/")
+endfunc
+
+" Note: What the bar calls the file of the window being drawn: the WHOLE path,
+" never the one relative to wherever GrooVim was started from -- "01.txt" and
+" "../outro/01.txt" are the same file to a reader who cannot see the directory
+" GrooVim is standing in.
+"
+" Half the screen for the path and the other half for everything else on the
+" bar. Vim has no bar of two lines -- measured: a "\n" in "statusline" is drawn
+" as a "^@" in the middle of the one line, and there is no "winbar" in Vim -- so
+" the whole path goes to the TITLE of the terminal, which is a line nobody was
+" using, and the bar carries as much of it as it can read.
 func! GrooVim_FileLabel() abort
   let l:name = GrooVim_NewNameOf(bufnr("%"))
-  return l:name != "" ? l:name : expand("%")
+  if l:name != ""
+    return l:name
+  endif
+  if expand("%") ==# ""
+    return ""
+  endif
+  return GrooVim_PathShort(expand("%:p"), max([24, &columns / 2]))
 endfunc
+
+" Note: The title of the terminal, which is the line this was missing: it costs
+" nothing of the screen, it is already there -- Konsole was writing "groovim :
+" vim" in it -- and it holds the path whole, however long.
+"
+" It travels over SSH like everything else: the title is an escape sequence in
+" the stream of bytes ("ESC ] 2 ; ... BEL", measured), read by the terminal in
+" front of you and not by the machine running GrooVim. On a terminal with no
+" title line -- a bare tty, "TERM=linux" -- Vim sends nothing at all and nothing
+" is lost.
+func! GrooVim_TitleText() abort
+  let l:name = GrooVim_NewNameOf(bufnr("%"))
+  if l:name == "" && expand("%") != ""
+    let l:name = expand("%:p")
+  endif
+  if l:name == ""
+    let l:name = "GrooVim"
+  endif
+  return l:name . (&modified ? " +" : "")
+endfunc
+
+set title
+
+" Note: And the WHOLE of it: by default Vim cuts the title down to 85% of the
+" width of the terminal and marks what it cut with a "<" at the front --
+" measured, on the very path this was written for. The screen has a width; the
+" title bar of a window does not have to pretend it has the same one.
+set titlelen=0
+
+let &titlestring = "%{GrooVim_TitleText()}"
 
 " Note: Which buffer a tab is NAMED after: the one of the window you are on, and
 " the first document of the tab when that window is an accessory. 0 when the tab

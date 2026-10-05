@@ -631,6 +631,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n What the file is on right now is on the bar at the bottom, beside the encoding: |[utf-8,unix]| , with a |,B| when there is a BOM.".
 \"\n".
+\"\n The PATH of the file is on the bar as well, and whole on the TITLE of the terminal -- the line your terminal was writing \"vim\" in. Vim has no bar of two lines, so the bar carries as much of the path as can be read: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . The ends are what answer -- where it is rooted and which file it is.".
+\"\n".
 \"\n".
 \"\n A width is THREE Vim options at once -|tabstop| ,|shiftwidth| and|softtabstop| , and they only mean what you expect while they agree. To change the width of the buffer you are on, use the command that moves the three together: >".
 \"\n     GrooVimIndent 4".

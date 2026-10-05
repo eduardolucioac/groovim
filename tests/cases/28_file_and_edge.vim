@@ -20,6 +20,38 @@ endfunc
 
 func! GT_Body()
 
+" ---- the path of the file: whole in the title, readable on the bar
+"
+" Vim has no bar of two lines -- measured: a "\n" in "statusline" is drawn as a
+" "^@" in the middle of the one line, and there is no "winbar" in Vim. So the
+" whole path goes to the TITLE of the terminal, a line nobody was using, and the
+" bar carries as much of it as can be read.
+call GT_Ok("the title is on", &title == 1, "   (title=" . &title . ")")
+call GT_Ok("  and it is not cut to a percentage of the screen", &titlelen == 0,
+  \ "   (titlelen=" . &titlelen . ", and 85 would put a \"<\" over the start of it)")
+call GT_Ok("  and it is written by GrooVim", &titlestring =~# "GrooVim_TitleText",
+  \ "   [" . &titlestring . "]")
+
+exec "edit! " . g:GT_FIX . "/a.txt"
+call GT_Ok("  and it carries the WHOLE path",
+  \ GrooVim_TitleText() ==# expand("%:p"),
+  \ "   [" . GrooVim_TitleText() . "]")
+
+let s:long = "/home/alguem/Data0/_PROFISSIONAL/_DEV_HOST/_QUEST/_PROJECTS/_GROOVIM/01.txt"
+call GT_Ok("a path that fits is written whole",
+  \ GrooVim_PathShort(s:long, 200) ==# s:long, "   [" . GrooVim_PathShort(s:long, 200) . "]")
+call GT_Ok("  and one that does not loses the MIDDLE, never the ends",
+  \ GrooVim_PathShort(s:long, 40) ==# "/home/.../_PROJECTS/_GROOVIM/01.txt" &&
+  \ GrooVim_PathShort(s:long, 26) ==# "/home/.../_GROOVIM/01.txt",
+  \ "   [" . GrooVim_PathShort(s:long, 40) . "] [" . GrooVim_PathShort(s:long, 26) . "]" .
+  \ "   (as much of the END as the room allows)")
+call GT_Ok("  and the file name survives any width",
+  \ GrooVim_PathShort(s:long, 8) ==# "/home/.../01.txt",
+  \ "   [" . GrooVim_PathShort(s:long, 8) . "]   (a bar that cannot say WHICH file is open is not worth the line)")
+call GT_Ok("  and the home of whoever is running is a \"~\"",
+  \ GrooVim_PathShort(expand("~") . "/um/dois/tres.txt", 200) ==# "~/um/dois/tres.txt",
+  \ "   [" . GrooVim_PathShort(expand("~") . "/um/dois/tres.txt", 200) . "]")
+
 " ---- the vertical edge
 call GT_Ok("the edge is on column 79", g:GrooVim_EdgeColumn == 79,
   \ "   (" . g:GrooVim_EdgeColumn . ")   (a line of 79 fits in 80, so the mark sits on the first column you should not reach)")
