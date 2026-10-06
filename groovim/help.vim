@@ -541,14 +541,11 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * What GrooVim is~".
 \"\n".
-\"\n A Vim remodelled to be used as a simpler, more intuitive, and more productive".
-\"\n editor: keys shortcuts that means".
-\"\n what they mean everywhere else and other super cool shortcuts, the mouse works, there is a menu, and much more. But nothing".
-\"\n of Vim is taken away from you.".
+\"\n A Vim remodelled to be used as a simpler, more intuitive and more productive editor: keyboard shortcuts that MEAN what they mean everywhere else, plus a good many cool ones of its own, the mouse working, a menu, and much more. And nothing of Vim is taken away from you.".
 \"\n".
 \"\n What it is after:".
 \"\n".
-\"\n*o*  Usable rapidily by whoever comes from an editor or an IDE;".
+\"\n*o*  Usable right away by whoever comes from an editor or an IDE;".
 \"\n*o*  A real interface -- a menu, screens that ask, panels, a bar that answers;".
 \"\n*o*  Vim as a general purpose editor, for people who do not live in the terminal;".
 \"\n*o*  Free software (GNU GPL v3.0 or later), open and community-supported;".
@@ -605,7 +602,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n From left to right: the path of the file, the encoding and what ends a line, the file type, the line and column, how much of the file is above you, and how much is selected while you hold a selection.".
 \"\n".
-\"\n*o*  The PATH is written to be read in the room there is - F2->Space says the WHOLE of it".
+\"\n*o*  The PATH is written to fit the room there is, and F2->Space says the WHOLE of it;".
 \"\n*o*  |[utf-8,unix]| is what the file is on right now, with a |,B| when there is a BOM;".
 \"\n*o*  |[46,3]| is the selection: 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines;".
 \"\n*o*  Messages of GrooVim come up there too, after the |Powered|by| , and go away by themselves.".
@@ -665,7 +662,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  A shortcut is the |F| key and then ONE more key, and you have |400ms| to press the second one;".
 \"\n*o*  Press the |F| key and nothing else, and when those 400ms are up it REPEATS the last command that key ran. Each one remembers its own: |F2| repeats what |F2| did, |F3| what |F3| did;".
 \"\n*o*  Press the same |F| key TWICE and it repeats at once, with no waiting. Hold it down and it goes on repeating;".
-\"\n*o*  If a second key of yours keeps arriving too late, give it more time:|let|g:GrooVim_CommandZWait|=|1000| ;".
+\"\n*o*  A second key that arrives LATE is not thrown away. The |F| key has already repeated by then, and the key runs as ITSELF: a late |d| is the |d| of Vim, left waiting for what to delete. If yours keeps arriving late, give it more time:|let|g:GrooVim_CommandZWait|=|1000| ;".
 \"\n*o*  When a shortcut seems not to answer, |:GrooVimKey| tells you what the key really DELIVERED: run it, press the key, and read what it prints. Two keys that look the same on a keyboard can reach Vim as different keys, and this is the only way to tell them apart.".
 \"\n".
 \ GrooVim_ShortcutsHelp() .

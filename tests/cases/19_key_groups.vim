@@ -807,6 +807,33 @@ func! GT_Body()
     \ empty(filter(GT_SourceLines() + l:vimrc, 'v:val =~? "apache"')),
     \ "   (one licence, said the same way in every place that names it)")
 
+  " ---- the second key of a shortcut, and the one that comes too late
+  "
+  " What the help promises, measured: inside the window the two keys are the
+  " shortcut; outside it the F key repeats what it last ran and the late key
+  " runs as ITSELF -- it is not swallowed, and a late "d" is the "d" of Vim,
+  " left waiting for what to delete.
+  call GT_Ok("the window for the second key is 400ms",
+    \ g:GrooVim_CommandZWait == 400, "   (" . g:GrooVim_CommandZWait . ")")
+  call GT_Ok("  and the one that waits is the dispatch itself",
+    \ GT_FunctionText("GrooVim_CommandZRun") =~ "GrooVim_CommandZWait" &&
+    \ GT_FunctionText("GrooVim_CommandZRun") =~ "getchar(0)",
+    \ "   (it polls, so a key that arrives early is not waited out)")
+  exec "enew!"
+  call setline(1, ["um", "dois"])
+  call cursor(1, 1)
+  call GT_Press("\<F3>d")
+  call GT_Ok("  and inside it the two keys are the shortcut", line("$") == 3,
+    \ "   (" . line("$") . " lines)   " . string(getline(1, "$")))
+
+  " Note: What happens OUTSIDE the window is not pressed here. "The F key alone"
+  " cannot be fed: "feedkeys(..., \"x\")" ends with an Esc of its own, the
+  " dispatch reads THAT as the second key, and the case would be measuring the
+  " harness. Measured by hand instead, through a real terminal: F3 alone
+  " repeated what F3 last ran, and the "d" that came 600ms later was not
+  " swallowed -- it ran as the "d" of Vim and left the editor waiting for what
+  " to delete.
+
   call GT_Done()
 endfunc
 
