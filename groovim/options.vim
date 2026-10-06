@@ -562,14 +562,12 @@ endfunc
 " no "abort" field (both of those are Neovim's), and a Ctrl-C coming from a
 " mapping is not an interrupt.
 "
-" What does work is making the Esc ANSWER something nobody can type. The mapping
-" throws the line away and writes a mark in its place, and a mark that came back
-" is somebody giving up:
-"
-"   <C-e><C-u>  the end of the line, then everything before it -- the line is
-"               empty whatever the cursor was in the middle of. "<C-u>" alone
-"               leaves what lies after the cursor, measured: "abcd", two Lefts
-"               and an Esc answered the mark with "cd" stuck to it.
+" What does work is answering the question with NOTHING and saying so on the
+" side. "<C-\>e" replaces the whole command line with the result of an
+" expression: the expression writes down that you gave up and hands back an
+" empty line, which is then sent. The whole line, so it does not matter what the
+" cursor was in the middle of -- and nothing of it is seen, which a mark written
+" INTO the line was: "^AGrooVimGaveUp^A" sitting on the screen for a moment.
 "
 " Giving up is "interrupt()", which raises the very exception Ctrl-C raises --
 " measured, "Vim:Interrupt" from both -- so whatever already survived a Ctrl-C
@@ -578,13 +576,20 @@ endfunc
 " And the line itself is still the line of VIM: the history, the arrows, the
 " Backspace and the completion with <Tab> are untouched, because the only thing
 " taken from it is one key that was answering the question by accident.
-let s:GrooVim_AskGaveUp = "\x01GrooVimGaveUp\x01"
+let s:GrooVim_AskGaveUp = 0
+
+func! GrooVim_AskGiveUp() abort
+  let s:GrooVim_AskGaveUp = 1
+  return ""
+endfunc
 
 func! GrooVim_Ask(prompt, ...) abort
   let l:text = a:0 > 0 ? a:1 : ""
   let l:completion = a:0 > 1 ? a:2 : ""
 
-  exec 'cnoremap <Esc> <C-e><C-u>' . s:GrooVim_AskGaveUp . '<CR>'
+  let s:GrooVim_AskGaveUp = 0
+  cnoremap <Esc> <C-\>eGrooVim_AskGiveUp()<CR><CR>
+
   try
     let l:answer = l:completion ==# ""
      \ ? input(a:prompt, l:text)
@@ -593,7 +598,7 @@ func! GrooVim_Ask(prompt, ...) abort
     silent! cunmap <Esc>
   endtry
 
-  if l:answer ==# s:GrooVim_AskGaveUp
+  if s:GrooVim_AskGaveUp
     call interrupt()
   endif
 

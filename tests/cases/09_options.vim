@@ -228,10 +228,11 @@ call GT_Ok("every question goes through the one door",
 call GT_Ok("  and it gives up with interrupt(), which is what Ctrl-C raises",
   \ GT_FunctionText("GrooVim_Ask") =~ "interrupt()" &&
   \ GT_FunctionText("GrooVim_Ask") =~ "GrooVim_AskGaveUp",
-  \ "   (the mark that comes back when the Esc answered for you)")
-call GT_Ok("  and the line is emptied from its END before the mark is written",
-  \ GT_FunctionText("GrooVim_Ask") =~ "C-e><C-u>",
-  \ "   (a <C-u> alone leaves what lies after the cursor stuck to the mark)")
+  \ "   (the Esc says so on the side, and the answer itself is empty)")
+call GT_Ok("  and nothing of it is SEEN on the way",
+  \ GT_FunctionText("GrooVim_Ask") =~ "eGrooVim_AskGiveUp" &&
+  \ GT_FunctionText("GrooVim_AskGiveUp") =~ 'return ""',
+  \ "   (the whole line is replaced by an empty one, so no mark is written into it)")
 call GT_Ok("  and the mapping is taken off however the question ends",
   \ GT_FunctionText("GrooVim_Ask") =~ "finally" &&
   \ GT_FunctionText("GrooVim_Ask") =~ "cunmap",
