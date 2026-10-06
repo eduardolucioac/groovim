@@ -579,6 +579,14 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round. <Ctrl-w> stays the key of Vim, which every window command begins with;".
 \"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode. The cursor does not move when the mode changes.".
 \"\n".
+\"\n * The questions GrooVim asks~".
+\"\n".
+\"\n Every screen and every question -- the search value, the settings, the name of a file, the note of a mark -- is the command line of Vim: the arrows, the history, |<BS>| and the completion with <Tab> are the ones you already know.".
+\"\n".
+\"\n*o*  <Esc> as the FIRST key gives the question up, and nothing is done;".
+\"\n*o*  After you have typed something, <Esc> is Vim again -- it ENDS the line with what is written. From there the way out is <Ctrl-c> , which gives up at any point, and it is also what stops a long movement;".
+\"\n*o*  An EMPTY answer is not the same as giving up: on most screens it means \"leave this one alone\", and the question says so when it does.".
+\"\n".
 \"\n * Moving and selecting~".
 \"\n".
 \"\n*o*  <Shift-Alt-Arrows> - the smooth movement: it glides a long stretch, goes over the places where there is no text and keeps the column it started in;".
@@ -659,7 +667,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n Every line of the menu shows the keys that do it. Choosing one PRESSES those keys, so the menu can never do something the keyboard would not.".
 \"\n".
-\"\n*o*  A shortcut is the |F| key and then ONE more key. How long you have for the second one is |g:GrooVim_CommandZWait| , and it is ONE setting: |400ms| is only what it comes set to;".
+\"\n*o*  A shortcut is the |F| key and then ONE more key. How long you have for the second one is |g:GrooVim_CommandZWait| (|400ms| by default);".
 \"\n*o*  Press the |F| key and nothing else, and when that time is up it REPEATS the last command that key ran. Each one remembers its own: |F2| repeats what |F2| did, |F3| what |F3| did;".
 \"\n*o*  Press the same |F| key TWICE and it repeats at once, with no waiting. Hold it down and it goes on repeating;".
 \"\n*o*  A second key that arrives after that time is not thrown away. The |F| key has already repeated by then, and the key runs as ITSELF: a late |d| is the |d| of Vim, left waiting for what to delete;".

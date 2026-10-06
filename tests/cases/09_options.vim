@@ -202,11 +202,44 @@ let g:searchReplace_WholeWord = g:GT_KEPT_WW
 " argument of "input()" is the text the answer starts with, and it was not being
 " used: the name had to be typed again, letter for letter.
 call GT_Ok("the copy suggests the name of the file",
-  \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'input(.*expand("%:t")',
+  \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'GrooVim_Ask(.*expand("%:t")',
   \ "   (an unnamed buffer has none to offer, and then it starts empty)")
 call GT_Ok("  and the \"save as\" asks the same question, in the same place",
   \ GT_FunctionText("GrooVim_SaveAs") =~ "GrooVim_AskFileWhere" &&
   \ GT_FunctionText("GrooVim_SaveACopy") =~ "GrooVim_AskFileWhere",
   \ "   (it was forty lines that would have become forty twice)")
+
+" ---- the first key of a question: <Esc> gives it up
+"
+" Vim cannot tell an Esc from an empty answer inside "input()" -- measured, with
+" a real Esc written into a terminal, it comes back as "" , the very same thing
+" Enter on an empty line comes back as. So the first key is read BEFORE the line
+" is opened, where it is still a key, and giving up is "interrupt()": the very
+" exception Ctrl-C raises, so whatever already survived a Ctrl-C survives this.
+"
+" Pressed for real through a terminal, and written down here because a case
+" cannot feed an interrupt: Esc gave Vim:Interrupt, Ctrl-C gave Vim:Interrupt,
+" "abc" and Enter gave "abc", Enter alone gave "", and "a", Left, "b", Enter
+" gave "ba" -- the line editing of Vim is still the line editing of Vim.
+call GT_Ok("every question goes through the one that reads the first key",
+  \ GT_FunctionText("GrooVim_AskUntilValid") =~ "GrooVim_Ask(",
+  \ "   (and not through input() of its own)")
+call GT_Ok("  and it gives up with interrupt(), which is what Ctrl-C raises",
+  \ GT_FunctionText("GrooVim_Ask") =~ "interrupt()" &&
+  \ GT_FunctionText("GrooVim_Ask") =~ "== 27",
+  \ "   (27 is the Esc, read as a key and not as an answer)")
+call GT_Ok("  and what is not an Esc goes into the line of Vim",
+  \ GT_FunctionText("GrooVim_Ask") =~ "feedkeys" &&
+  \ GT_FunctionText("GrooVim_Ask") =~ "input(a:prompt",
+  \ "   (a character is written into it, anything else is handed to Vim)")
+
+let s:perguntam = []
+for s:parte in GT_SourceLines()
+  if s:parte =~ '\s\zs=\s*(\?input(' && s:parte !~ "GrooVim_Ask"
+    call add(s:perguntam, trim(s:parte)[0:50])
+  endif
+endfor
+call GT_Ok("  and nobody asks with input() behind its back", empty(s:perguntam),
+  \ "   " . (empty(s:perguntam) ? "(one door, so Esc works at every question)" : string(s:perguntam)))
 
 call GT_Done()

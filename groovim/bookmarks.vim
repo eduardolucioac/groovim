@@ -206,7 +206,7 @@ func! GrooVim_BookmarkAnnotate() abort
   " does bring is the mark that opens every section of GrooVim, and that is
   " taken from the same place it takes it from. The note that is there comes
   " written in the answer, which is the second argument of "input()".
-  let l:note = input(g:GrooVim_ScreenMark . "Note: ", l:one.note)
+  let l:note = GrooVim_Ask(g:GrooVim_ScreenMark . "Note: ", l:one.note)
 
   echomsg "   "
 

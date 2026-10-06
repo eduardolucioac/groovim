@@ -109,7 +109,7 @@ func! GrooVim_EntertainmentReplace(mod) range abort
         let l:promptToReplace = "Value that will be REPLACED (required): "
       endif
 
-      let l:valueToReplaceTemp = (input(l:promptToReplace))
+      let l:valueToReplaceTemp = (GrooVim_Ask(l:promptToReplace))
       if ("" . l:valueToReplaceTemp . "") != "" || ("" . l:valueToReplace . "") != ""
         let l:stopWhile = 1
         if l:valueToReplaceTemp != ""
@@ -119,7 +119,7 @@ func! GrooVim_EntertainmentReplace(mod) range abort
     endwhile
   endif
 
-  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(input("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
+  let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_Ask("Value that will REPLACE \"" . GrooVim_SubstringToPrompt(l:valueToReplace) . "\" (empty to use transfer area value \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\"): "))
 
   if l:valueThatWillReplace == ""
     let l:valueThatWillReplace = GrooVim_EscapeSubstituteReplacement(GrooVim_ClipGet())

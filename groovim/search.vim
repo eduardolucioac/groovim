@@ -328,11 +328,11 @@ func! GrooVim_EasySearch(mod) range abort
     " true: searching for nothing would do nothing useful anyway. Ctrl-C gets
     " you out, and it no longer leaves CommandZ blocked.
     if ("" . l:valueToSearch . "") != ""
-      let l:valueToSearchTemp = input("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
+      let l:valueToSearchTemp = GrooVim_Ask("You want to use this value (leave empty for yes)? \"" . GrooVim_SubstringToPrompt(l:valueToSearch) . "\": ")
     else
       let l:valueToSearchTemp = ""
       while ("" . l:valueToSearchTemp . "") == ""
-        let l:valueToSearchTemp = input("Type a value (required): ")
+        let l:valueToSearchTemp = GrooVim_Ask("Type a value (required): ")
       endwhile
     endif
 

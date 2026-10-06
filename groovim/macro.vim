@@ -290,7 +290,7 @@ func! GrooVim_AskFileWhere(what) abort
   let l:valueToPath = ""
   let l:stopWhile = 0
   while l:stopWhile == 0
-    let l:valueToPath = input("PATH to save your " . a:what . " (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
+    let l:valueToPath = GrooVim_Ask("PATH to save your " . a:what . " (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
     if l:valueToPath == "0"
       if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
         let l:stopWhile = 1
@@ -328,11 +328,11 @@ func! GrooVim_AskFileWhere(what) abort
 
     " Note: The name of the file you are on comes WRITTEN in the answer, ready
     " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
-    " does. The second argument of "input()" is the text it starts with.
+    " does. The second argument of the question is the text it starts with.
     "
     " An unnamed buffer has no name to offer, and then it starts empty as it
     " always did.
-    let l:valueToName = input("NAME of the " . a:what . " to be saved" .
+    let l:valueToName = GrooVim_Ask("NAME of the " . a:what . " to be saved" .
      \ l:definePathWarning . ": ", expand("%:t"))
 
     if ("" . l:valueToName . "") != ""

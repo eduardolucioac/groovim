@@ -551,6 +551,53 @@ func! GrooVim_ScreenAsk(prompt, IsValid, ...) abort
    \ [g:GrooVim_ScreenMark . a:prompt, a:IsValid] + a:000)
 endfunc
 
+" Note: Every question of GrooVim is asked through here, and the reason is the
+" FIRST key: <Esc> gives the question up.
+"
+" Only the first, and that is the whole of what can be promised: once the line
+" of Vim is open, what happens inside it is Vim. An Esc typed after a letter
+" ends the line with what was typed, and the way out from there is Ctrl-C.
+"
+" Vim cannot tell an <Esc> from an empty answer inside "input()" -- measured,
+" with a real Esc written into a terminal: it comes back as "" , the very same
+" thing <Enter> on an empty line comes back as. So the first key is read BEFORE
+" the line is opened, where it is still a key.
+"
+" What is not an Esc goes straight into the line: a character is written into
+" it, and anything else -- an arrow, a <BS>, a click -- is handed to Vim, so the
+" history, the editing and the completion of the command line are all still
+" there. The line from the second key onwards IS the line of Vim.
+"
+" Giving up is "interrupt()", which raises the very exception Ctrl-C raises --
+" measured, "Vim:Interrupt" from both. So whatever already survived a Ctrl-C at
+" a question survives an Esc, with nothing to change at the places that ask.
+func! GrooVim_Ask(prompt, ...) abort
+  let l:text = a:0 > 0 ? a:1 : ""
+  let l:completion = a:0 > 1 ? a:2 : ""
+
+  echo a:prompt . l:text
+  let l:key = getchar()
+  redraw
+
+  if type(l:key) == type(0) && l:key == 27
+    call interrupt()
+  endif
+
+  if type(l:key) == type(0) && l:key >= 32 && l:key != 127
+    let l:text = l:text . nr2char(l:key)
+  else
+    " Note: "i" puts it at the START of what is waiting to be read. Without it
+    " the key goes to the END of the queue, behind everything typed after it,
+    " and the answer comes out scrambled -- measured on the battery, where the
+    " screens are answered with several keys at once.
+    call feedkeys(type(l:key) == type(0) ? nr2char(l:key) : l:key, "ni")
+  endif
+
+  return l:completion ==# ""
+   \ ? input(a:prompt, l:text)
+   \ : input(a:prompt, l:text, l:completion)
+endfunc
+
 " Note: Asks until the answer passes the test, ALWAYS with the same question.
 " Repeating the very same line is what tells you the answer did not take, and it
 " is how every question of GrooVim behaves.
@@ -564,8 +611,8 @@ func! GrooVim_AskUntilValid(prompt, IsValid, ...) abort
   let l:completion = a:0 > 0 ? a:1 : ""
   while 1
     let l:answer = l:completion ==# ""
-     \ ? input(a:prompt)
-     \ : input(a:prompt, "", l:completion)
+     \ ? GrooVim_Ask(a:prompt)
+     \ : GrooVim_Ask(a:prompt, "", l:completion)
     if call(a:IsValid, [l:answer])
       return l:answer
     endif
