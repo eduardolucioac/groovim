@@ -599,6 +599,13 @@ func! GrooVim_Ask(prompt, ...) abort
   endtry
 
   if s:GrooVim_AskGaveUp
+
+    " Note: And the line the question was on is wiped, or it sits there asking
+    " something nobody is going to answer until the screen next moves.
+    " "echo """ is what does it: measured, a "redraw" leaves the line exactly
+    " where it was. A Ctrl-C needs none of this -- Vim clears the line itself on
+    " a real interrupt, also measured.
+    echo ""
     call interrupt()
   endif
 
