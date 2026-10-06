@@ -189,7 +189,8 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
  
   - Every F key remembers the last command IT ran, and runs it again when you press it with no key after it. F2 repeats what F2 did and F3 what F3 did -- one memory each, so a command of another group can never come out of this one;
   - Pressing the same F key twice repeats at once, without waiting for a second key that is not coming. And if you hold it down the command is replicated several times;
-  - You have 400ms to press the second key, and it is the same 400ms after which the F key repeats: the moment the window closes is the moment it repeats, there is no second wait. Raise it with `let g:GrooVim_CommandZWait = 1000` if a second key of yours arrives too late -- an F key at one corner of the keyboard and an arrow at the other is a long trip, and a key that misses the window runs the repetition instead;
+  - How long you have for the second key is `g:GrooVim_CommandZWait`, **one** setting, and 400ms is only what it comes set to. The moment that window closes is the moment the F key repeats -- there is no second wait;
+  - A second key that arrives after the window is not thrown away: the F key has already repeated, and the key then runs as itself (a late `d` is the `d` of Vim, left waiting for what to delete). If yours keeps arriving late -- an F key at one corner of the keyboard and an arrow at the other is a long trip -- make the window longer with `let g:GrooVim_CommandZWait = 1000`;
 
 <!-- shortcuts: written by tools/sync-readme.sh, do not edit by hand -->
 

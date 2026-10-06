@@ -659,10 +659,11 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n Every line of the menu shows the keys that do it. Choosing one PRESSES those keys, so the menu can never do something the keyboard would not.".
 \"\n".
-\"\n*o*  A shortcut is the |F| key and then ONE more key, and you have |400ms| to press the second one;".
-\"\n*o*  Press the |F| key and nothing else, and when those 400ms are up it REPEATS the last command that key ran. Each one remembers its own: |F2| repeats what |F2| did, |F3| what |F3| did;".
+\"\n*o*  A shortcut is the |F| key and then ONE more key. How long you have for the second one is |g:GrooVim_CommandZWait| , and it is ONE setting: |400ms| is only what it comes set to;".
+\"\n*o*  Press the |F| key and nothing else, and when that time is up it REPEATS the last command that key ran. Each one remembers its own: |F2| repeats what |F2| did, |F3| what |F3| did;".
 \"\n*o*  Press the same |F| key TWICE and it repeats at once, with no waiting. Hold it down and it goes on repeating;".
-\"\n*o*  A second key that arrives LATE is not thrown away. The |F| key has already repeated by then, and the key runs as ITSELF: a late |d| is the |d| of Vim, left waiting for what to delete. If yours keeps arriving late, give it more time:|let|g:GrooVim_CommandZWait|=|1000| ;".
+\"\n*o*  A second key that arrives after that time is not thrown away. The |F| key has already repeated by then, and the key runs as ITSELF: a late |d| is the |d| of Vim, left waiting for what to delete;".
+\"\n*o*  So if your second key keeps arriving late, make the window LONGER -- |let|g:GrooVim_CommandZWait|=|1000| , say. The longer you make it, the longer the |F| key alone takes to repeat, which is the price of the same one number;".
 \"\n*o*  When a shortcut seems not to answer, |:GrooVimKey| tells you what the key really DELIVERED: run it, press the key, and read what it prints. Two keys that look the same on a keyboard can reach Vim as different keys, and this is the only way to tell them apart.".
 \"\n".
 \ GrooVim_ShortcutsHelp() .
