@@ -583,8 +583,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n Every screen and every question -- the search value, the settings, the name of a file, the note of a mark -- is the command line of Vim: the arrows, the history, |<BS>| and the completion with <Tab> are the ones you already know.".
 \"\n".
-\"\n*o*  <Esc> as the FIRST key gives the question up, and nothing is done;".
-\"\n*o*  After you have typed something, <Esc> is Vim again -- it ENDS the line with what is written. From there the way out is <Ctrl-c> , which gives up at any point, and it is also what stops a long movement;".
+\"\n*o*  <Esc> gives the question up, at any point, and nothing is done. <Ctrl-c> does the same, and it is also what stops a long movement;".
 \"\n*o*  An EMPTY answer is not the same as giving up: on most screens it means \"leave this one alone\", and the question says so when it does.".
 \"\n".
 \"\n * Moving and selecting~".

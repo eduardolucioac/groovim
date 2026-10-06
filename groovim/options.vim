@@ -551,51 +551,53 @@ func! GrooVim_ScreenAsk(prompt, IsValid, ...) abort
    \ [g:GrooVim_ScreenMark . a:prompt, a:IsValid] + a:000)
 endfunc
 
-" Note: Every question of GrooVim is asked through here, and the reason is the
-" FIRST key: <Esc> gives the question up.
+" Note: Every question of GrooVim is asked through here, and the reason is
+" <Esc>: it gives the question up, at any point, and nothing is done.
 "
-" Only the first, and that is the whole of what can be promised: once the line
-" of Vim is open, what happens inside it is Vim. An Esc typed after a letter
-" ends the line with what was typed, and the way out from there is Ctrl-C.
+" Vim will not tell you that by itself. Inside "input()" an Esc comes back as
+" "" -- the very same thing <Enter> on an empty line comes back as, which on a
+" question like "leave empty for yes" means YES. Measured, with a real Esc
+" written into a terminal, and so are the three ways that do NOT work around it:
+" the dictionary form of "input()" does not exist here, "CmdlineLeave" carries
+" no "abort" field (both of those are Neovim's), and a Ctrl-C coming from a
+" mapping is not an interrupt.
 "
-" Vim cannot tell an <Esc> from an empty answer inside "input()" -- measured,
-" with a real Esc written into a terminal: it comes back as "" , the very same
-" thing <Enter> on an empty line comes back as. So the first key is read BEFORE
-" the line is opened, where it is still a key.
+" What does work is making the Esc ANSWER something nobody can type. The mapping
+" throws the line away and writes a mark in its place, and a mark that came back
+" is somebody giving up:
 "
-" What is not an Esc goes straight into the line: a character is written into
-" it, and anything else -- an arrow, a <BS>, a click -- is handed to Vim, so the
-" history, the editing and the completion of the command line are all still
-" there. The line from the second key onwards IS the line of Vim.
+"   <C-e><C-u>  the end of the line, then everything before it -- the line is
+"               empty whatever the cursor was in the middle of. "<C-u>" alone
+"               leaves what lies after the cursor, measured: "abcd", two Lefts
+"               and an Esc answered the mark with "cd" stuck to it.
 "
 " Giving up is "interrupt()", which raises the very exception Ctrl-C raises --
-" measured, "Vim:Interrupt" from both. So whatever already survived a Ctrl-C at
-" a question survives an Esc, with nothing to change at the places that ask.
+" measured, "Vim:Interrupt" from both -- so whatever already survived a Ctrl-C
+" at a question survives an Esc, with nothing to change at the places that ask.
+"
+" And the line itself is still the line of VIM: the history, the arrows, the
+" Backspace and the completion with <Tab> are untouched, because the only thing
+" taken from it is one key that was answering the question by accident.
+let s:GrooVim_AskGaveUp = "\x01GrooVimGaveUp\x01"
+
 func! GrooVim_Ask(prompt, ...) abort
   let l:text = a:0 > 0 ? a:1 : ""
   let l:completion = a:0 > 1 ? a:2 : ""
 
-  echo a:prompt . l:text
-  let l:key = getchar()
-  redraw
+  exec 'cnoremap <Esc> <C-e><C-u>' . s:GrooVim_AskGaveUp . '<CR>'
+  try
+    let l:answer = l:completion ==# ""
+     \ ? input(a:prompt, l:text)
+     \ : input(a:prompt, l:text, l:completion)
+  finally
+    silent! cunmap <Esc>
+  endtry
 
-  if type(l:key) == type(0) && l:key == 27
+  if l:answer ==# s:GrooVim_AskGaveUp
     call interrupt()
   endif
 
-  if type(l:key) == type(0) && l:key >= 32 && l:key != 127
-    let l:text = l:text . nr2char(l:key)
-  else
-    " Note: "i" puts it at the START of what is waiting to be read. Without it
-    " the key goes to the END of the queue, behind everything typed after it,
-    " and the answer comes out scrambled -- measured on the battery, where the
-    " screens are answered with several keys at once.
-    call feedkeys(type(l:key) == type(0) ? nr2char(l:key) : l:key, "ni")
-  endif
-
-  return l:completion ==# ""
-   \ ? input(a:prompt, l:text)
-   \ : input(a:prompt, l:text, l:completion)
+  return l:answer
 endfunc
 
 " Note: Asks until the answer passes the test, ALWAYS with the same question.

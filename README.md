@@ -98,10 +98,8 @@ Every screen and every question -- the search value, the settings, the name of a
 file, the note of a mark -- is the command line of Vim: the arrows, the history,
 Backspace and the completion with Tab are the ones you already know.
 
- * **Esc** as the **first** key gives the question up, and nothing is done;
- * After you have typed something, Esc is Vim again -- it **ends** the line with
-   what is written. From there the way out is **Ctrl-c**, which gives up at any
-   point, and it is also what stops a long movement;
+ * **Esc** gives the question up, at any point, and nothing is done. **Ctrl-c**
+   does the same, and it is also what stops a long movement;
  * An empty answer is not the same as giving up: on most screens it means "leave
    this one alone", and the question says so when it does.
 
