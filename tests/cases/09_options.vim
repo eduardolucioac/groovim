@@ -234,8 +234,8 @@ call GT_Ok("  and nothing of it is SEEN on the way",
   \ GT_FunctionText("GrooVim_AskGiveUp") =~ 'return ""',
   \ "   (the whole line is replaced by an empty one, so no mark is written into it)")
 call GT_Ok("  and the line the question was on is wiped on the way out",
-  \ GT_FunctionText("GrooVim_Ask") =~ 'echo ""',
-  \ "   (a redraw leaves it where it was, measured: it would sit there asking)")
+  \ GT_FunctionText("GrooVim_Ask") =~ "redraw!",
+  \ "   (an echo of nothing is painted over again on the way out of the shortcut)")
 call GT_Ok("  and the mapping is taken off however the question ends",
   \ GT_FunctionText("GrooVim_Ask") =~ "finally" &&
   \ GT_FunctionText("GrooVim_Ask") =~ "cunmap",

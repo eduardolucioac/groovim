@@ -602,10 +602,14 @@ func! GrooVim_Ask(prompt, ...) abort
 
     " Note: And the line the question was on is wiped, or it sits there asking
     " something nobody is going to answer until the screen next moves.
-    " "echo """ is what does it: measured, a "redraw" leaves the line exactly
-    " where it was. A Ctrl-C needs none of this -- Vim clears the line itself on
-    " a real interrupt, also measured.
-    echo ""
+    "
+    " "redraw!" and nothing less. Measured on the search, giving up with the
+    " real keys: with "echo """ the question was still on the line afterwards,
+    " and so it was with "echo "" | redraw" -- the screen is painted again on
+    " the way out of the shortcut, and what it paints back is the message Vim
+    " still has. Only the full repaint ends it. A Ctrl-C needs none of this,
+    " because Vim clears the line itself on a real interrupt.
+    redraw!
     call interrupt()
   endif
 
