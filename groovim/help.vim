@@ -76,14 +76,14 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "File", "group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "menu": "New tab", "what": "Open a new tab",
  \  "notes": [
- \   "A document you have not saved yet is called |new|1| , |new|2| ... the way Notepad++ names them. It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
+ \   "A document you have not saved yet is called |new|1| , |new|2| ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",
  \   "The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close |new|2| of |new|1|,|new|2|,|new|3| and the next one is |new|2| again"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "q", "break": 1, "modes": "niv", "run": 'call GrooVim_CloseAsking("q")', "menu": "Close window", "what": "Close the window"},
  \ {"where": "File", "group": "F5", "key": "w", "modes": "niv", "run": 'call GrooVim_TabClose()',
  \  "menu": "Close", "what": "Close the tab you are in",
  \  "notes": [
- \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving the empty one Notepad++ calls |new|1|"
+ \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving an empty |new|1| behind"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "o", "modes": "niv", "run": 'call GrooVim_CloseAsking("tabonly")', "menu": "Close all but this one", "what": "Close all other tabs"},
  \ {"where": "File", "group": "F5", "key": ".", "modes": "niv", "run": 'call GrooVim_TabCloseSide(1)', "menu": "Close all to the right", "what": "Close every tab to the RIGHT of this one"},
@@ -101,7 +101,7 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "File", "group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
  \  "menu": "Load session", "what": "Brings the last saved session back",
  \  "notes": [
- \   "The session saves itself when you leave and comes back when you open GrooVim with NO file, the way Notepad++ does. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
+ \   "The session saves itself when you leave and comes back when you open GrooVim with NO file. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
  \  ]},
  \
 "\ ---- Edit
@@ -204,13 +204,13 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Mark all occurrences", "what": "Mark every occurrence of the word under the cursor",
  \  "notes": [
  \   "In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
- \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else. It is the \"Style all occurrences of token\" of Notepad++"
+ \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else"
  \  ]},
  \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "menu": "Find...", "what": "Opens for search"},
  \ {"where": "Search", "group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
  \  "menu": "Replace...", "what": "Opens to replace",
  \  "notes": [
- \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so, the way Notepad++ does. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
+ \   "The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then |[r]|"
  \  ]},
  \
  \ {"where": "Search", "keys": "n", "break": 1, "modes": "n",
@@ -314,7 +314,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Settings...", "what": "Opens the settings -- ALL of them",
  \  "notes": [
  \   "It asks which of them first: |[i]ndent| , the width and what <Tab> puts; |[v]iew| , what is DRAWN and is not in the file, the language among it; |[f]ile| , the encoding and what ends a line IN the file you have open; |[s]earch| ; |[r]eplace| ; |[g]eneral| . Then it opens that screen",
- \   "The indent one is the \"Tab Settings\" of Notepad++, and the view one is its \"View, Show Symbol\"",
+ \   "|[i]| asks the width of the indent and whether <Tab> puts spaces; |[v]| asks what the screen SHOWS -- the guides, the symbols, the long-line mark, the word wrap",
  \   "On every screen, leaving an answer EMPTY keeps the value shown as \"in use\". At the end a summary of what you chose is held on screen until you press <Enter>",
  \   "|[f]ile| is the only one with nothing to save: an encoding belongs to the DOCUMENT and not to GrooVim, so it applies to what is open and stops there",
  \   "There is one door and only one. Each screen used to have a key of its own, so the letters |f| , |h| and |i| of this group are free again"
@@ -396,7 +396,7 @@ func! GrooVim_ShortcutsMarkdown() abort
        \ GrooVim_ShortcutPlain(l:one.what) . " *" .
        \ GrooVim_ShortcutModes(l:one.modes) . "*;")
       for l:note in get(l:one, "notes", [])
-        call add(l:out, "        - Note: " . GrooVim_ShortcutPlain(l:note) . ";")
+        call add(l:out, "        - " . GrooVim_ShortcutPlain(l:note) . ";")
       endfor
     endfor
   endfor
@@ -418,7 +418,7 @@ func! GrooVim_ShortcutsHelp() abort
   for l:group in GrooVim_MenuSectionsHere()
     call add(l:out, "")
     call add(l:out, "    *" . l:group[0] . "*")
-    call add(l:out, "      Note: " . l:group[1] . ";")
+    call add(l:out, "      " . l:group[1] . ";")
 
     for l:one in g:GrooVim_Shortcuts
       if l:one.where !=# l:group[0] || !GrooVim_ShortcutAvailable(l:one)
@@ -426,8 +426,11 @@ func! GrooVim_ShortcutsHelp() abort
       endif
       call add(l:out, GrooVim_ShortcutKeyShown(l:one) . l:one.what .
        \ " " . GrooVim_ShortcutModes(l:one.modes) . ";")
+      " Note: What hangs under a shortcut is a line ABOUT it and not a note in
+      " the sense the source uses the word. Written as the sub-items they are,
+      " with the dash the rest of this text uses.
       for l:note in get(l:one, "notes", [])
-        call add(l:out, "            Note: " . l:note . ";")
+        call add(l:out, "            |-|" . l:note . ";")
       endfor
     endfor
   endfor
@@ -531,17 +534,21 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n      {+++++}               {+++++}".
 \"\n     {++}                       {++}".
 \"\n".
+\"\n\"This work is about freedom.".
+\"\n - End of message\"".
+\"\n".
 \"\n|BETA|VERSION!|".
 \"\n".
 \"\n * What GrooVim is~".
 \"\n".
-\"\n A Vim remodelled to be used the way you already use an editor: the keys mean".
-\"\n what they mean everywhere else, the mouse works, there is a menu, and nothing".
+\"\n A Vim remodelled to be used as a simpler, more intuitive, and more productive".
+\"\n editor: keys shortcuts that means".
+\"\n what they mean everywhere else and other super cool shortcuts, the mouse works, there is a menu, and much more. But nothing".
 \"\n of Vim is taken away from you.".
 \"\n".
 \"\n What it is after:".
 \"\n".
-\"\n*o*  Usable from the first minute by whoever comes from an editor or an IDE;".
+\"\n*o*  Usable rapidily by whoever comes from an editor or an IDE;".
 \"\n*o*  A real interface -- a menu, screens that ask, panels, a bar that answers;".
 \"\n*o*  Vim as a general purpose editor, for people who do not live in the terminal;".
 \"\n*o*  Free software (GNU GPL v3.0 or later), open and community-supported;".
@@ -555,7 +562,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n--------".
 \"\n".
 \"\n*o*  The shortcuts may clash with the ones of YOUR system. A terminal cannot carry every combination, so when there is a clash it is easier to move the one of the system;".
-\"\n*o*  Three plugins are used when they are installed, and GrooVim works without any of them: *NERDTree* , the file tree; *tcomment* , which comments lines; *move* , which moves a line or a selection:".
+\"\n*o*  Three plugins are used when they are installed, and GrooVim works without any of them:".
 \"\n   |-||[https://github.com/preservim/nerdtree]|".
 \"\n   |-||[https://github.com/tomtom/tcomment_vim]|".
 \"\n   |-||[https://github.com/matze/vim-move]|".
@@ -598,7 +605,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n From left to right: the path of the file, the encoding and what ends a line, the file type, the line and column, how much of the file is above you, and how much is selected while you hold a selection.".
 \"\n".
-\"\n*o*  The PATH is written to be read in the room there is: your home as a |~| , and the middle taken out when it does not fit, |~/Data0/.../_GROOVIM/01.txt| . F2->Space says the WHOLE of it, in a balloon that goes away when the cursor moves or on <Esc> ;".
+\"\n*o*  The PATH is written to be read in the room there is - F2->Space says the WHOLE of it".
 \"\n*o*  |[utf-8,unix]| is what the file is on right now, with a |,B| when there is a BOM;".
 \"\n*o*  |[46,3]| is the selection: 46 CHARACTERS -- not bytes, so an accented letter counts as one -- lying on 3 lines;".
 \"\n*o*  Messages of GrooVim come up there too, after the |Powered|by| , and go away by themselves.".
@@ -612,7 +619,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  An EMPTY answer leaves THAT question alone and goes on to the next, so pressing <Enter> through the screen leaves the file as it found it. What was done and what was not is said on the bar afterwards;".
 \"\n*o*  Reading again throws away what you have not written yet, so it is refused while there is something to lose.".
 \"\n".
-\"\n The LANGUAGE -- what Vim calls the |filetype| , and what decides the colours, the indenting and the comment character -- is asked one screen over, with F5->c and then |[v]| . It is the Language menu of Notepad++, and |none| is its \"None (Normal Text)\"; <Tab> completes among the hundreds Vim ships.".
+\"\n The LANGUAGE -- what Vim calls the |filetype| , and what decides the colours, the indenting and the comment character -- is asked one screen over, with F5->c and then |[v]| . |none| leaves the file as plain text, and <Tab> completes among the hundreds Vim ships.".
 \"\n".
 \"\n * Indentation~".
 \"\n".
@@ -655,15 +662,16 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n Every line of the menu shows the keys that do it. Choosing one PRESSES those keys, so the menu can never do something the keyboard would not.".
 \"\n".
-\"\n*o*  Every |F| key remembers the last command IT ran, and runs it again when you press it with no key after it -- one memory each;".
-\"\n*o*  Pressing the same |F| key TWICE repeats at once, and holding it down repeats it again and again;".
-\"\n*o*  You have |400ms| to press the second key. Raise it with|let|g:GrooVim_CommandZWait|=|1000| if a key of yours arrives too late;".
-\"\n*o*  When a shortcut does not fire, |:GrooVimKey| says what the key really delivered: run it and press the key. Two keys that look the same can arrive as different keys, and that is the only way to settle it.".
+\"\n*o*  A shortcut is the |F| key and then ONE more key, and you have |400ms| to press the second one;".
+\"\n*o*  Press the |F| key and nothing else, and when those 400ms are up it REPEATS the last command that key ran. Each one remembers its own: |F2| repeats what |F2| did, |F3| what |F3| did;".
+\"\n*o*  Press the same |F| key TWICE and it repeats at once, with no waiting. Hold it down and it goes on repeating;".
+\"\n*o*  If a second key of yours keeps arriving too late, give it more time:|let|g:GrooVim_CommandZWait|=|1000| ;".
+\"\n*o*  When a shortcut seems not to answer, |:GrooVimKey| tells you what the key really DELIVERED: run it, press the key, and read what it prints. Two keys that look the same on a keyboard can reach Vim as different keys, and this is the only way to tell them apart.".
 \"\n".
 \ GrooVim_ShortcutsHelp() .
 \"\n".
 \"\n * What is missing, and what is being worked on~".
 \"\n".
-\"\n The list lives in the|README.md|of the project, beside the code. It moves too often to be worth keeping in two places, and a list of bugs that is out of date is worse than none.".
+\"\n The list lives in the|README.md|of the project, beside the code.".
 \"\n".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*"
