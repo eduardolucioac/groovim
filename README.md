@@ -42,25 +42,20 @@ IMPORTANT_II! Everything here was possible because of the Vim API. The editor yo
 The GrooVim solves the following "problems"!
 -----
 
- * Ctrl-Left/Ctrl-Right (normal mode/insert/visual) - Navigate by words in a conventional and practical way;
- * Tab (normal mode/visual)- Indent in a conventional and practical way;
- * Enter (normal mode/visual) - Use in a conventional and practical way;
- * Backspace (normal mode/visual) - Use in a conventional and practical way;
- * Del (normal mode/visual) - Use in a conventional and practical way;
- * Space (normal mode/visual) - Use in a conventional and practical way;
- * In the alternation between modes the cursor stays correctly positioned;
- * Use default clipboard in a correct and conventional way (copy, cut and paste);
- * Replace , x (remove) and d (delete) preserving the clipboard;
- * PageDown/PageUp - With navigation across the screen (invalid areas);
- * MouseScrollDown/MouseScrollUp - With navigation across the screen (invalid areas);
- * MouseClick (normal mode) - Across the screen (invalid areas);
- * Alt-./Alt-, - One key walks to the next/previous window, going round -- and Ctrl-w stays the key of Vim, which every window command begins with;
- * And much more!
+These do in GrooVim what they do in any editor:
+
+ * **Ctrl-Left**/**Ctrl-Right** - a word at a time *(normal mode/insert/visual)*;
+ * **Tab** - indents, and over a selection it indents every line of it *(normal mode/visual)*;
+ * **Enter**, **Backspace**, **Del** and **Space** - in normal mode and over a selection, where Vim gave them another meaning;
+ * **Ctrl-c**, **Ctrl-v**, **Ctrl-x** - copy, paste and cut, through the system clipboard. And a Del, an `x` or a replacement does **not** touch it: what you copied is still there after you delete something;
+ * **Ctrl-u** and **Ctrl-r** - undo and redo, in every mode;
+ * **PageDown**/**PageUp**, the mouse wheel and a click - and they reach the places with no text on them: a short line, the gap after the end of one;
+ * **Alt-.**/**Alt-,** - one key walks to the next/previous window, going round. Ctrl-w stays the key of Vim, which every window command begins with.
 
 Some editor features!
 -----
 
- * Switching between modes:
+ * Switching between modes, with the cursor staying where it is:
     - Shift-Up (normal mode/insert/visual) - Enter or exit the insert mode;
     - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
 
