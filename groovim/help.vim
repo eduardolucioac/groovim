@@ -570,14 +570,14 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n These do in GrooVim what they do in any editor:".
 \"\n".
-\"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time;".
-\"\n*o*  <Tab> - indents, in normal mode and over a selection;".
-\"\n*o*  <Enter> , <Backspace> , <Del> and <Space> - in normal mode and over a selection;".
-\"\n*o*  <Ctrl-c> , <Ctrl-v> , <Ctrl-x> - copy, paste and cut, through the system clipboard. And a <Del> , an <x> or a replacement does NOT touch it: what you copied is still there after you delete something;".
-\"\n*o*  <Ctrl-u> and <Ctrl-r> - undo and redo, in every mode;".
-\"\n*o*  <PageDown>/<PageUp> , the mouse wheel and a click - and they reach the places with no text on them;".
-\"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round. <Ctrl-w> stays the key of Vim, which every window command begins with;".
-\"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode. The cursor does not move when the mode changes;".
+\"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time (normal mode/insert/visual);".
+\"\n*o*  <Tab> - indents, and over a selection every line of it (normal mode/visual);".
+\"\n*o*  <Enter> , <Backspace> , <Del> and <Space> - where Vim gave them another meaning (normal mode/visual);".
+\"\n*o*  <Ctrl-c> and <Ctrl-x> - copy and cut, through the system clipboard (visual), and <Ctrl-v> pastes (normal mode/insert/visual). A <Del> , an <x> or a replacement does NOT touch it: what you copied is still there after you delete something;".
+\"\n*o*  <Ctrl-u> and <Ctrl-r> - undo and redo (normal mode/insert/visual);".
+\"\n*o*  <PageDown>/<PageUp> , the mouse wheel and a click - and they reach the places with no text on them (normal mode/insert/visual);".
+\"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round (normal mode/insert/visual). <Ctrl-w> stays the key of Vim, which every window command begins with;".
+\"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode (normal mode/insert/visual). The cursor does not move when the mode changes;".
 \"\n*o*  Extensions Vim does not know are given a type: an |.inc| opens as HTML and a |.gds| as Visual Basic. The list is |g:GrooVim_SyntaxPerExtension| , and one line adds your own.".
 \"\n".
 \"\n * The questions GrooVim asks~".
@@ -592,18 +592,18 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * Moving and selecting~".
 \"\n".
-\"\n*o*  <Shift-Alt-Arrows> - the smooth movement: it glides a long stretch, goes over the places where there is no text and keeps the column it started in;".
-\"\n*o*  <Ctrl-Alt-Arrows> - the same, one short step at a time;".
-\"\n*o*  <Alt-Right>/<Alt-Left> - take the word to the right/left;".
-\"\n*o*  <Alt-End>/<Alt-Home> - take the rest of the line, from where you are;".
-\"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again: a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
-\"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it;".
-\"\n*o*  |m| and |M| - to the next marked line and to the one before.".
+\"\n*o*  <Shift-Alt-Arrows> - the smooth movement: it glides a long stretch, goes over the places where there is no text and keeps the column it started in (normal mode/insert/visual);".
+\"\n*o*  <Ctrl-Alt-Arrows> - the same, one short step at a time (normal mode/insert/visual);".
+\"\n*o*  <Alt-Right>/<Alt-Left> - take the word to the right/left (normal mode/insert/visual);".
+\"\n*o*  <Alt-End>/<Alt-Home> - take the rest of the line, from where you are (normal mode/insert);".
+\"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again (normal mode/insert/visual): a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
+\"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it (normal mode/insert/visual);".
+\"\n*o*  |m| and |M| - to the next marked line and to the one before (normal mode).".
 \"\n".
 \"\n * Your tabs~".
 \"\n".
-\"\n*o*  <Ctrl-Up>/<Ctrl-Down> - the next tab, the one before;".
-\"\n*o*  <Ctrl-Shift-Up>/<Ctrl-Shift-Down> - carry the tab you are on to the next place in the line. At either end it stays put;".
+\"\n*o*  <Ctrl-Up>/<Ctrl-Down> - the next tab, the one before (normal mode/insert/visual);".
+\"\n*o*  <Ctrl-Shift-Up>/<Ctrl-Shift-Down> - carry the tab you are on to the next place in the line (normal mode/insert/visual). At either end it stays put;".
 \"\n*o*  F5->t pins a tab and marks it on the line; <Alt-Down> goes back to it from wherever you are, and pressing it there goes back to where you called it from;".
 \"\n*o*  With more tabs than the line is wide it SCROLLS: the tab you are on is drawn whole, and a |‹| or a |›| at the end says the line goes on that way;".
 \"\n*o*  Two tabs with the same file NAME show enough of the path to be told apart, |a/help.vim| beside |b/help.vim| ;".

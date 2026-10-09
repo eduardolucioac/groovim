@@ -46,11 +46,11 @@ These do in GrooVim what they do in any editor:
 
  * **Ctrl-Left**/**Ctrl-Right** - a word at a time *(normal mode/insert/visual)*;
  * **Tab** - indents, and over a selection it indents every line of it *(normal mode/visual)*;
- * **Enter**, **Backspace**, **Del** and **Space** - in normal mode and over a selection, where Vim gave them another meaning;
- * **Ctrl-c**, **Ctrl-v**, **Ctrl-x** - copy, paste and cut, through the system clipboard. And a Del, an `x` or a replacement does **not** touch it: what you copied is still there after you delete something;
- * **Ctrl-u** and **Ctrl-r** - undo and redo, in every mode;
- * **PageDown**/**PageUp**, the mouse wheel and a click - and they reach the places with no text on them: a short line, the gap after the end of one;
- * **Alt-.**/**Alt-,** - one key walks to the next/previous window, going round. Ctrl-w stays the key of Vim, which every window command begins with.
+ * **Enter**, **Backspace**, **Del** and **Space** - where Vim gave them another meaning *(normal mode/visual)*;
+ * **Ctrl-c** and **Ctrl-x** - copy and cut, through the system clipboard *(visual)*, and **Ctrl-v** pastes *(normal mode/insert/visual)*. A Del, an `x` or a replacement does **not** touch it: what you copied is still there after you delete something;
+ * **Ctrl-u** and **Ctrl-r** - undo and redo *(normal mode/insert/visual)*;
+ * **PageDown**/**PageUp**, the mouse wheel and a click - and they reach the places with no text on them: a short line, the gap after the end of one *(normal mode/insert/visual)*;
+ * **Alt-.**/**Alt-,** - one key walks to the next/previous window, going round *(normal mode/insert/visual)*. Ctrl-w stays the key of Vim, which every window command begins with.
 
 Some editor features!
 -----
@@ -189,9 +189,9 @@ Script features!
     - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen (including invalid areas) with long movements;
     - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (including invalid areas) using short movements;
     - Alt-i/Alt-o (normal mode/insert/visual) - Back to where you came FROM, and forward again: a search, a `G`, a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;
-    - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
+    - F5 t pins a tab and marks it on the line, and **Alt-Down** goes back to it from wherever you are *(normal mode/insert/visual)*;
     - The **path** of the file is on the bar, with your home as `~` and the middle taken out when it does not fit (`~/Data0/.../_GROOVIM/01.txt`). Vim has no status bar of two lines, so what does not fit is not written -- **F2 Space** says the whole of it, in a balloon;
     - A file already **open is not opened again**: the new tab gives way and you land on the tab that has it, the way every conventional editor does. It is `g:GrooVim_TabOnePerFile`, and it is caught at the birth of a tab -- walking buffers inside a tab of your own is untouched;
     - Two tabs with the **same file name** show the piece of the path that tells them apart: `a/help.vim` beside `b/help.vim`, and `b/.../help.vim` when what differs is further up. The name comes back alone as soon as the collision is gone;
@@ -212,11 +212,11 @@ started in:
 
  * Comment lines
 
-    - Alt-Up (normal mode/insert/visual) - Comment lines using tcomment.vim;
+    - Alt-Up *(normal mode/insert/visual)* - Comment the line or the selection, and uncomment it (*tcomment*);
 
  * Marked lines
 
-    - m and M (normal mode) - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
+    - m and M *(normal mode)* - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line;
 
 **F4 b** marks the line and the mark shows in the margin, **F4 i** writes a note
 on it, and **F4 l** lists every one of them:
