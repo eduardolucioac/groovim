@@ -560,11 +560,11 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n*o*  The shortcuts may clash with the ones of YOUR system. A terminal cannot carry every combination, so when there is a clash it is easier to move the one of the system;".
 \"\n*o*  Three plugins are used when they are installed, and GrooVim works without any of them:".
-\"\n   |-||[https://github.com/preservim/nerdtree]|".
-\"\n   |-||[https://github.com/tomtom/tcomment_vim]|".
-\"\n   |-||[https://github.com/matze/vim-move]|".
+\"\n   |-||NERDTree| , the file tree:|[https://github.com/preservim/nerdtree]|".
+\"\n   |-||tcomment| , which comments lines:|[https://github.com/tomtom/tcomment_vim]|".
+\"\n   |-||move| , which moves a line or a selection:|[https://github.com/matze/vim-move]|".
 \"\n*o*  No plugin manager is needed: Vim loads whatever is under|~/.groovim/pack/*/start| by itself. Each one is DETECTED, so what is missing simply stays quiet, and a shortcut that needs it says so instead of failing;".
-\"\n*o*  To force or to ignore one:|let|g:enable_tcomment_vim|=|0/1| , or all of them at once with|let|g:enable_all_plugins|=|0| .".
+\"\n*o*  To force or to ignore one:|let|g:enable_tcomment_vim|=|0/1| , or all of them at once with|let|g:enable_all_plugins|=|0/1| .".
 \"\n".
 \"\n * The keys you already know~".
 \"\n".
@@ -573,18 +573,22 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time;".
 \"\n*o*  <Tab> - indents, in normal mode and over a selection;".
 \"\n*o*  <Enter> , <Backspace> , <Del> and <Space> - in normal mode and over a selection;".
-\"\n*o*  <Ctrl-c> , <Ctrl-v> , <Ctrl-x> - copy, paste and cut, through the system clipboard;".
+\"\n*o*  <Ctrl-c> , <Ctrl-v> , <Ctrl-x> - copy, paste and cut, through the system clipboard. And a <Del> , an <x> or a replacement does NOT touch it: what you copied is still there after you delete something;".
 \"\n*o*  <Ctrl-u> and <Ctrl-r> - undo and redo, in every mode;".
 \"\n*o*  <PageDown>/<PageUp> , the mouse wheel and a click - and they reach the places with no text on them;".
 \"\n*o*  <Alt-.>/<Alt-,> - ONE key walks to the next/previous window, going round. <Ctrl-w> stays the key of Vim, which every window command begins with;".
-\"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode. The cursor does not move when the mode changes.".
+\"\n*o*  <Shift-Up>/<Shift-Down> - in and out of insert mode, in and out of visual mode. The cursor does not move when the mode changes;".
+\"\n*o*  Extensions Vim does not know are given a type: an |.inc| opens as HTML and a |.gds| as Visual Basic. The list is |g:GrooVim_SyntaxPerExtension| , and one line adds your own.".
 \"\n".
 \"\n * The questions GrooVim asks~".
 \"\n".
 \"\n Every screen and every question -- the search value, the settings, the name of a file, the note of a mark -- is the command line of Vim: the arrows, the history, |<BS>| and the completion with <Tab> are the ones you already know.".
 \"\n".
 \"\n*o*  <Esc> gives the question up, at any point, and nothing is done. <Ctrl-c> does the same, and it is also what stops a long movement;".
-\"\n*o*  An EMPTY answer is not the same as giving up: on most screens it means \"leave this one alone\", and the question says so when it does.".
+\"\n*o*  An EMPTY answer is not the same as giving up: on most screens it means \"leave this one alone\", and the question says so when it does;".
+\"\n*o*  Every screen ends asking whether to KEEP what you chose for the next time. Saying no changes this session and nothing on the disk.".
+\"\n".
+\"\n F5->c opens the settings, and one letter picks the screen: |[i]|ndent , |[v]|iew , |[f]|ile , |[s]|earch , |[r]|eplace , |[g]|eneral .".
 \"\n".
 \"\n * Moving and selecting~".
 \"\n".

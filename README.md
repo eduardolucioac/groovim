@@ -17,35 +17,27 @@ What is GrooVim?
 
 **Note:** If you want to start using GrooVim immediately go to section: <a href="#installGrooVim">**"I do not want to know anything about GrooVim and want to start using it now and with all the features!"**</a>.
 
-The GrooVim is an extensive script -- a `.vimrc` and the parts it loads -- that modifies the behavior of Vim to facilitate your work and increase your productivity aim the following objectives:
- * Allow use with just a few instructions by a public accustomed to editors/IDEs default;
- * Facilitate and accelerate widely the use, being also a integrated "UI";
- * Preserving always that possible the default behavior of Vim;
- * Enhancing Vim project as a general purpose IDE;
- * Approach Vim of "standard" text editors in what is convenient and positive and modify Vim in its negative aspects;
- * Promote Vim as a better and faster alternative to market text editors and IDEs as well as a general-purpose editor;
- * Enhancing Vim project as a free alternative (__GNU General Public License v3.0 or later__), independent and community-supported initiative;
- * Encourage the use of shell Vim;
- * Working on its own, with no plugin needed for anything it does. Plugins are welcome and each one is found by itself, but nothing GrooVim promises rests on one;
- * Being a script for all types of terminals;
+GrooVim is an extensive script -- a `.vimrc` and the parts it loads -- that
+remodels Vim into a simpler, more intuitive and more productive editor. What it
+is after:
+
+ * Usable right away by whoever comes from an editor or an IDE;
+ * A real interface -- a menu, screens that ask, panels, a bar that answers;
+ * Vim as a general purpose editor, for people who do not live in the terminal;
+ * Free software (GNU GPL v3.0 or later), open and community-supported;
+ * At home where only a terminal exists: a server, an SSH, a machine with no desktop.
 
 Before you start with the GrooVim!
 -----
 
-IMPORTANT_I! If you do not know how Vim works, please open a terminal, run __vimtutor__ and do the exercises (takes 25 to 30 minutes). IT IS VERY IMPORTANT TO KNOW THE DEFAULT VIM IN ITS BASIC, SO YOU CAN USE IT BETTER AND CONTRIBUTE WITH NEW FEATURES!
+IMPORTANT_I! If you do not know how Vim works, open a terminal, run __vimtutor__ and do the exercises -- 25 to 30 minutes. GrooVim does not replace the Vim underneath it, it sits on top, so knowing the Vim in its basics is what lets you use this one well -- and contribute to it.
 
-IMPORTANT_II! The Vim is a powerful general purpose text editor/IDE. Keep in mind that the GrooVim was made possible through its great API (script) and wide versatility!
+IMPORTANT_II! Everything here was possible because of the Vim API. The editor you are using is Vim; what GrooVim adds is how it answers you.
 
-IMPORTANT_III! Certain terminal emulators limits the possibility of Vim and GrooVim. Therefore, we recommend that for your "all day" Vim use a terminal that allows more possibilities and features!
-
- * The GrooVim was designed to work with a wide range of keyboard shortcuts. Eventually, such shortcuts may present conflicts with shortcuts from your OS. This is normal and if conflicts occurs we recommend that you modify the shortcuts of your OS, because the terminal environment does not allow a large number of combinations to form shortcuts;
- * To further facilitate your life and increase productivity we recommend you make a mapping in your terminal to navigate between tabs using Shift-Left/Shift-Right. These two keyboard shortcuts (Shift-Left/Shift-Right) are not mapped in GrooVim to that you use in the way mentioned;
-    - Note: KDE desktop environment already works in that way with its terminal;
- * The GrooVim was designed to work with tabs;
- * The GrooVim was designed to work without constant use of 'virtualedit' ("set virtualedit=all") to facilitate cursor navigation "despising invalid areas" (or without character) when convenient;
- * The GrooVim was designed to work with the best plugins;
- * GrooVim needs NO plugin manager: Vim 8 and later load plugins placed under `pack/*/start` by themselves. GrooVim looks in `~/.groovim`, a directory of its own, so its plugins are not the plugins of the Vim of your system;
- * GrooVim detects which plugins are installed and enables the mapping of each one by itself. Nothing that is missing causes an error, so the script works alone. You can still force any of them with "let g:enable_tcomment_vim = 0/1", or ignore all at once with "let g:enable_all_plugins = 0". Note that "enabled"/"disabled" refers for the plugin functionality mapped to it;
+ * The shortcuts may clash with the ones of YOUR system. A terminal cannot carry every combination, so when there is a clash it is easier to move the one of the system;
+ * Three plugins are used when they are installed, and GrooVim works without any of them -- [NERDTree](https://github.com/preservim/nerdtree), the file tree; [tcomment](https://github.com/tomtom/tcomment_vim), which comments lines; [move](https://github.com/matze/vim-move), which moves a line or a selection;
+ * No plugin manager is needed: Vim loads whatever is under `~/.groovim/pack/*/start` by itself. Each one is DETECTED, so what is missing simply stays quiet, and a shortcut that needs it says so instead of failing;
+ * To force or to ignore one: `let g:enable_tcomment_vim = 0/1`, or all of them at once with `let g:enable_all_plugins = 0`.
 
 The GrooVim solves the following "problems"!
 -----
@@ -87,9 +79,10 @@ Some editor features!
     - Ctrl-u (normal mode/insert/visual) - Undo;
     - Ctrl-r (normal mode/insert/visual) - Redo;
 
- * Plugins:
-    - move-vim; 
-        - Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move line or selection up/down;
+ * Plugins (when they are installed):
+    - Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move the line or the selection up/down (*move*);
+    - Alt-Up (normal mode/insert/visual) - Comment the line or the selection, and uncomment it (*tcomment*);
+    - F4 n - Open the file tree, the same one in every tab (*NERDTree*);
 
 The questions GrooVim asks!
 -----
@@ -101,7 +94,36 @@ Backspace and the completion with Tab are the ones you already know.
  * **Esc** gives the question up, at any point, and nothing is done. **Ctrl-c**
    does the same, and it is also what stops a long movement;
  * An empty answer is not the same as giving up: on most screens it means "leave
-   this one alone", and the question says so when it does.
+   this one alone", and the question says so when it does;
+ * Every screen ends asking whether to KEEP what you chose for the next time.
+   Saying no changes this session and nothing on disk.
+
+**F5 c** opens the settings, and then one letter picks the screen: `[i]`ndent,
+`[v]`iew, `[f]`ile, `[s]`earch, `[r]`eplace, `[g]`eneral.
+
+The file you have open!
+-----
+
+The encoding and what ends a line belong to the **document**, not to the editor,
+and both are asked on one screen -- **F5 c** and then `[f]`:
+
+ * The encoding and what to do with it, in one answer of two letters. The
+   encoding is `[a]nsi`, `[u]tf-8`, utf-8 with `[b]om`, utf-16 `[l]e` or utf-16
+   b`[e]`; what to do with it is `[r]`, which **reads** the file again with that
+   encoding -- the bytes do not move and their meaning changes -- or `[c]`,
+   which **converts** it -- the text does not move and the bytes do. So `uc` is
+   "utf-8, by converting";
+ * What ends a line: `[u]nix` LF, `[w]indows` CRLF, `[m]acintosh` CR;
+ * Reading again throws away what you have not written yet, so it is refused
+   while there is something to lose.
+
+What the file is on right now is on the bar at the bottom: `[utf-8,unix]`, with
+a `,B` when there is a BOM.
+
+The **language** -- what Vim calls the `filetype`, and what decides the colours,
+the indenting and the comment character -- is asked one screen over, with
+**F5 c** and then `[v]`. `none` leaves the file as plain text, and Tab completes
+among the hundreds Vim ships.
 
 Indentation!
 -----
@@ -118,14 +140,27 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
 
  * `g:GrooVim_IndentGuideChar` - the char of the guide, or `""` to turn the guides off;
  * `g:GrooVim_IndentExpandTab` - 1 for spaces, 0 for a real tab;
+ * `g:GrooVim_ShowSpaceAndTab` - 1 draws a dot on every space and an arrow on
+   every tab. On by default: a space and a tab look the same and are not, and
+   that is the kind of thing you want to see;
+ * `g:GrooVim_EdgeColumn` - the column the vertical line is drawn on, `79` by
+   default, or 0 for no line. It is drawn on every row, so a short line gets it
+   too;
  * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
    it off the screen, breaking at a space and not inside a word. It is the "Word
-   wrap" of Notepad++, off by default, and it is asked on **F5 c** and then **[v]**;
-   With it on, **Up** and **Down** walk the rows you see and not the lines of the
-   file -- the same arrows of Notepad++;
+   wrap" of Notepad++, off by default. With it on, **Up** and **Down** walk the
+   rows you see and not the lines of the file;
 
-The width, whether Tab puts spaces, and whether the guides are drawn are asked on
-a screen of their own, with **F5 i**. It is the "Tab Settings" of Notepad++.
+The width and whether Tab puts spaces are asked with **F5 c** and then `[i]`, the
+"Tab Settings" of Notepad++; what the screen SHOWS -- the guides, the symbols,
+the vertical line, the word wrap -- is one screen over, with **F5 c** and then
+`[v]`. To change only the buffer you are on, without leaving the keyboard:
+
+```
+GrooVimIndent 4
+```
+
+With no argument it tells you the width in force.
 
 Only the file types you list are touched. Vim already ships file type plugins that
 know what they are doing, and some of them are not a matter of taste: **make** needs
@@ -158,6 +193,7 @@ Script features!
 
     - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen (including invalid areas) with long movements;
     - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (including invalid areas) using short movements;
+    - Alt-i/Alt-o (normal mode/insert/visual) - Back to where you came FROM, and forward again: a search, a `G`, a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;
     - Alt-Down (normal mode/insert/visual) - Returns to the tab marked with F5 t;
     - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
@@ -195,7 +231,7 @@ on it, and **F4 l** lists every one of them:
 F'S Shortcuts (CommandZ)!
 -----
 
-The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing **F2**, **F3**, **F4** or **F5** and then another key.
+The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing **F2**, **F3**, **F4** or **F5** and then another key. It is what gives GrooVim room for many shortcuts in a terminal, where the combinations a keyboard can send run out fast.
 
  * Features
  
