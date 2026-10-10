@@ -199,16 +199,18 @@ func! GrooVim_BookmarkAnnotate() abort
     call add(g:GrooVim_Bookmarks[l:file], l:one)
   endif
 
-  call GrooVim_ScreenSay("Note on line " . line(".") . ": empty takes it off and leaves the mark")
-
   " Note: Not through "GrooVim_ScreenAsk": that one keeps asking until the
   " answer is one of a few, and a note is whatever you want to write. What it
   " does bring is the mark that opens every section of GrooVim, and that is
   " taken from the same place it takes it from. The note that is there comes
-  " written in the answer, which is the second argument of "input()".
-  let l:note = GrooVim_Ask(g:GrooVim_ScreenMark . "Note: ", l:one.note)
-
-  echomsg "   "
+  " written in the answer, which is the second argument of the question.
+  "
+  " ONE line, question and explanation together. A line said before the question
+  " and a line said after it are three lines of message for a command area one
+  " line high, and Vim answers that with "Press ENTER to continue" -- so writing
+  " a note cost two <Enter>, one for the note and one for the editor.
+  let l:note = GrooVim_Ask(g:GrooVim_ScreenMark . "Note on line " . line(".") .
+   \ " (empty takes it off): ", l:one.note)
 
   let l:one.note = l:note
   call GrooVim_BookmarkSignSet(l:file, l:one)

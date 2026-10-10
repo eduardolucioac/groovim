@@ -512,9 +512,27 @@ let g:GrooVim_TabOnePerFile = get(g:, "GrooVim_TabOnePerFile", 1)
 " An accessory does not take the mark off: the tree, the lists and the help are
 " MEANT to be in every tab, and a tab opened on one of them is still waiting for
 " its document.
+"
+" And a new tab is born at the END of the line, wherever you were when you
+" asked for it. That is where a conventional editor puts one, and it is what
+" makes the line a HISTORY: the order of the tabs is the order you opened them
+" in, and the one you just opened is the one at the end.
+"
+" Vim puts it after the tab you are on, which is where the one that made it was
+" -- and a tab opened from the middle pushed everything to its right along.
+"
+" The ones GrooVim opens itself already said "$tabnew"; this is for every other
+" way in -- the tree, the occurrence list, a ":tabnew" typed by hand.
+func! GrooVim_TabToTheEnd() abort
+  if !g:GrooVim_TabOnePerFile || tabpagenr() == tabpagenr("$")
+    return
+  endif
+  tabmove $
+endfunc
+
 augroup GrooVim_TabOnce
   autocmd!
-  autocmd TabNew * let t:GrooVim_TabFresh = 1
+  autocmd TabNew * let t:GrooVim_TabFresh = 1 | call GrooVim_TabToTheEnd()
   autocmd BufWinEnter * call GrooVim_TabOnceSeen()
 augroup end
 

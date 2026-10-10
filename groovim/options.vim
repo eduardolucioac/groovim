@@ -590,12 +590,21 @@ func! GrooVim_Ask(prompt, ...) abort
   let s:GrooVim_AskGaveUp = 0
   cnoremap <Esc> <C-\>eGrooVim_AskGiveUp()<CR><CR>
 
+  " Note: Nothing repaints the bar while a question is open. The clock that
+  " watches the CapsLock runs every 300ms and draws, and drawing over a line
+  " somebody is typing into leaves it half written -- measured on the note of a
+  " mark, which is asked straight and not through an operation, so nothing had
+  " said "busy" for it. Said here, the one door every question goes through.
+  let l:busyWas = g:GrooVim_Busy
+  let g:GrooVim_Busy = 1
+
   try
     let l:answer = l:completion ==# ""
      \ ? input(a:prompt, l:text)
      \ : input(a:prompt, l:text, l:completion)
   finally
     silent! cunmap <Esc>
+    let g:GrooVim_Busy = l:busyWas
   endtry
 
   if s:GrooVim_AskGaveUp

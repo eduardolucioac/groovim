@@ -82,6 +82,25 @@ sleep 80m
 call GT_Ok("  and a file nobody has opens its tab as always",
   \ tabpagenr("$") == 3 && expand("%:t") ==# "c.txt",
   \ "   (tabs " . tabpagenr("$") . ", on " . expand("%:t") . ")")
+
+" ---- and a new tab is born at the END of the line
+"
+" Vim puts it after the tab you are on. The line of tabs is a history -- the
+" order you opened them in -- and a tab opened from the middle pushed everything
+" to its right along.
+tabfirst
+exec "tabnew " . g:GT_OUT . "/fim.txt"
+sleep 80m
+call GT_Ok("a tab opened from the FIRST one lands at the end",
+  \ tabpagenr() == tabpagenr("$") && expand("%:t") ==# "fim.txt",
+  \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+
+exec "tabnext 2"
+tabnew
+sleep 80m
+call GT_Ok("  and so does an empty one, opened from the middle",
+  \ tabpagenr() == tabpagenr("$"),
+  \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
 tabonly!
 
 call GT_Done()

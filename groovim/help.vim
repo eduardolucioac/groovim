@@ -607,6 +607,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  F5->t pins a tab and marks it on the line; <Alt-Down> goes back to it from wherever you are, and pressing it there goes back to where you called it from;".
 \"\n*o*  With more tabs than the line is wide it SCROLLS: the tab you are on is drawn whole, and a |‹| or a |›| at the end says the line goes on that way;".
 \"\n*o*  Two tabs with the same file NAME show enough of the path to be told apart, |a/help.vim| beside |b/help.vim| ;".
+\"\n*o*  A new tab is born at the END of the line, wherever you were when you asked for it: the order of the tabs is the order you opened them in;".
 \"\n*o*  A file already open is not opened again: you land on the tab that has it.".
 \"\n".
 \"\n * The bar at the bottom~".

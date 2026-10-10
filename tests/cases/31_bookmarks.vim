@@ -518,6 +518,18 @@ call GT_Ok("  and a selection takes it down", !GrooVim_TipUp(),
   \ "   (mode " . mode() . ")")
 exec "normal! \<Esc>"
 
+" ---- the note is ONE line, question and explanation together
+"
+" A line said before the question and a line said after it are three lines of
+" message for a command area one line high, and Vim answers that with "Press
+" ENTER to continue" -- so writing a note cost two <Enter>, one for the note and
+" one for the editor.
+call GT_Ok("the note asks in one line",
+  \ GT_FunctionText("GrooVim_BookmarkAnnotate") =~ "empty takes it off" &&
+  \ GT_FunctionText("GrooVim_BookmarkAnnotate") !~ "GrooVim_ScreenSay" &&
+  \ GT_FunctionText("GrooVim_BookmarkAnnotate") !~ 'echomsg "   "',
+  \ "   (the explanation is in the question, and nothing is said after it)")
+
 call GT_Done()
 endfunc
 

@@ -236,6 +236,9 @@ call GT_Ok("  and nothing of it is SEEN on the way",
 call GT_Ok("  and the line the question was on is wiped on the way out",
   \ GT_FunctionText("GrooVim_Ask") =~ "redraw!",
   \ "   (an echo of nothing is painted over again on the way out of the shortcut)")
+call GT_Ok("  and nothing repaints the bar while it is open",
+  \ GT_FunctionText("GrooVim_Ask") =~ "GrooVim_Busy",
+  \ "   (the clock that watches the CapsLock draws every 300ms, over the line you are typing into)")
 call GT_Ok("  and the mapping is taken off however the question ends",
   \ GT_FunctionText("GrooVim_Ask") =~ "finally" &&
   \ GT_FunctionText("GrooVim_Ask") =~ "cunmap",

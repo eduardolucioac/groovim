@@ -9,8 +9,9 @@ places of their own:
 ![Writing in several places at once](demos/01_multi_caret.gif)
 
 There are more of them below and all of them in [`demos/`](demos/README.md).
-They are made by a script and not recorded by hand -- change the editor, run
-`./tools/make-demos.sh`, and they say what it says now.
+
+**NOTE:** They are made by a script and not recorded by hand -- change the editor, run
+`./tools/make-demos.sh`, and they say what it says now. ☺️
 
 What is GrooVim?
 -----
@@ -55,7 +56,7 @@ These do in GrooVim what they do in any editor:
 Some editor features!
 -----
 
- * Switching between modes, with the cursor staying where it is:
+ * Switching between modes, with the cursor staying where and more...
     - Shift-Up (normal mode/insert/visual) - Enter or exit the insert mode;
     - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
 
@@ -64,7 +65,7 @@ Some editor features!
  * Text selection:
     - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
     - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
-    - How much is selected is on the bar at the bottom while you hold it, the "Sel" of Notepad++, after the percentage: `[46,3]` is 46 **characters** -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over `g:GrooVim_SelectionCountLimit` lines (2000) a `-` stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it;
+    - How much is selected is on the bar at the bottom while you hold it, the "Sel" of Notepad++, after the percentage: `[46,3]` is 46 **characters** -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over `g:GrooVim_SelectionCountLimit` lines (2000) a `-` stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it; ?????? Para quê tantos detalhes técnicos. Focalize na funcionalidade. Não há necessidade de ficar citando o Notepad++.
 
  * Conventional text editors commands:
     - Ctrl-c (visual mode) - Copy to clipboard;
@@ -84,7 +85,7 @@ The questions GrooVim asks!
 
 Every screen and every question -- the search value, the settings, the name of a
 file, the note of a mark -- is the command line of Vim: the arrows, the history,
-Backspace and the completion with Tab are the ones you already know.
+Backspace and the completion with Tab are the ones you already know. ?????? Para quê esta quantidadede informação? A ideia é apresentar a funcionalidade como um dos diferenciais e não detalhes "tecnicos".
 
  * **Esc** gives the question up, at any point, and nothing is done. **Ctrl-c**
    does the same, and it is also what stops a long movement;
@@ -144,7 +145,7 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
  * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
    it off the screen, breaking at a space and not inside a word. It is the "Word
    wrap" of Notepad++, off by default. With it on, **Up** and **Down** walk the
-   rows you see and not the lines of the file;
+   rows you see and not the lines of the file; ?????? Detalhes mais técnicos como configurações de variáveis devem ficar no HELP. A ideia principal do README e demonstrar as qualidades do GrooVim e dar uma idéia mais geral sobre o seu funcionamento.
 
 The width and whether Tab puts spaces are asked with **F5 c** and then `[i]`, the
 "Tab Settings" of Notepad++; what the screen SHOWS -- the guides, the symbols,
@@ -193,6 +194,7 @@ Script features!
     - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
     - F5 t pins a tab and marks it on the line, and **Alt-Down** goes back to it from wherever you are *(normal mode/insert/visual)*;
     - The **path** of the file is on the bar, with your home as `~` and the middle taken out when it does not fit (`~/Data0/.../_GROOVIM/01.txt`). Vim has no status bar of two lines, so what does not fit is not written -- **F2 Space** says the whole of it, in a balloon;
+    - A new tab is born at the **end** of the line, wherever you were when you asked for it: the order of the tabs is the order you opened them in. Vim puts it after the tab you are on;
     - A file already **open is not opened again**: the new tab gives way and you land on the tab that has it, the way every conventional editor does. It is `g:GrooVim_TabOnePerFile`, and it is caught at the birth of a tab -- walking buffers inside a tab of your own is untouched;
     - Two tabs with the **same file name** show the piece of the path that tells them apart: `a/help.vim` beside `b/help.vim`, and `b/.../help.vim` when what differs is further up. The name comes back alone as soon as the collision is gone;
     - With more tabs than the line is wide the tab line **scrolls**: the tab you are on is always drawn whole, and a `‹` or a `›` at the end says the line goes on that way. It is `g:GrooVim_TabMoreLeft` and `g:GrooVim_TabMoreRight`;
