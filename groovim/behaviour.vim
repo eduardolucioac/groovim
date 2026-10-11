@@ -457,7 +457,20 @@ func! GrooVim_ClipPaste(mode) abort
   let l:keptType = getregtype("z")
 
   try
-    call setreg("z", l:text)
+
+    " Note: CHARACTERWISE, said out loud and not left to be guessed. A text that
+    " ends in a line break makes "setreg()" call the register LINEWISE, and a
+    " linewise paste does not land where the cursor is: it opens a line of its
+    " own above it. Measured, pasting "XY\n" in the middle of a line -- the "XY"
+    " came out alone on the line BEFORE, and what was under the cursor never
+    " moved.
+    "
+    " What a paste of a conventional editor does is put the text where the
+    " cursor is, line break and all, which is also what the paste of the
+    " terminal does: it types the characters in. Said "v", that is what this
+    " does too.
+    call setreg("z", l:text, "v")
+
     if a:mode ==# "v"
 
       " Note: "gv" because getting here left visual mode, and "_d so that what
@@ -468,9 +481,13 @@ func! GrooVim_ClipPaste(mode) abort
       silent! exec "normal! \"zP`]"
     endif
 
-    " Note: The same "<Right>" the mappings used to end with, and guarded: past
-    " the last column there is nowhere to go.
-    if col(".") < col("$")
+    " Note: The cursor ends where typing the same text would have left it: after
+    " it. "`]" is the LAST character of what was pasted, so one step right is
+    " "after" -- except when what was pasted ends in a line break, where "`]"
+    " has already landed on the line below and one step right would be one
+    " column too far. Measured against typing the same thing, which is the
+    " yardstick for all of this.
+    if l:text !~# "\n$" && col(".") < col("$")
       normal! l
     endif
 

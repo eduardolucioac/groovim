@@ -273,4 +273,37 @@ call GT_Ok("  and the message fits on one line",
 call GT_Ok("  and the document was not touched", getline(1) ==# "",
   \ "   [" . getline(1) . "]")
 
+" ---- a paste lands where TYPING the same thing would land
+"
+" The yardstick is the paste of the terminal -- the Ctrl+Shift+V you are left
+" with over an SSH -- which types the characters in. Measured through a real
+" terminal, with bracketed paste against this: the same line and the same
+" column, with and without a line break in what was pasted.
+func! GT_Colou(valor, teclas)
+  exec "enew!"
+  call setline(1, "abc`def`,gh")
+  call cursor(1, 5)
+  call GrooVim_ClipSet(a:valor)
+  call feedkeys(a:teclas, "x")
+  return join(getline(1, "$"), " / ") . "  col=" . col(".") . " linha=" . line(".")
+endfunc
+
+let s:digitado = GT_Colou("XY", "iXY")
+call GT_Ok("pasting lands where typing lands",
+  \ GT_Colou("XY", "i\<C-v>") ==# s:digitado,
+  \ "   [" . GT_Colou("XY", "i\<C-v>") . "] against [" . s:digitado . "]")
+
+" A text that ends in a line break makes "setreg()" call the register LINEWISE,
+" and a linewise paste opens a line of its OWN above the cursor instead of
+" landing on it. Measured before it was said "v": "XY" came out alone on the line
+" before, and what was under the cursor never moved.
+let s:digitado = GT_Colou("XY\n", "iXY\<CR>")
+call GT_Ok("  and so does one that ends in a line break",
+  \ GT_Colou("XY\n", "i\<C-v>") ==# s:digitado,
+  \ "   [" . GT_Colou("XY\n", "i\<C-v>") . "] against [" . s:digitado . "]")
+
+call GT_Ok("  and the register is said CHARACTERWISE, not guessed",
+  \ GT_FunctionText("GrooVim_ClipPaste") =~ 'setreg("z", l:text, "v")',
+  \ "   (what ends in a line break would be guessed linewise)")
+
 call GT_Done()
