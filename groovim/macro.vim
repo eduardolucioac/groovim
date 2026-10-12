@@ -484,6 +484,96 @@ func! GrooVim_ToTitleCase(modType) range abort
 
 endfunc
 
+" Note: Putting the selected lines IN ORDER, which is the sort of the TextFX of
+" Notepad++ (inspiration) and the three answers that go with it: whether the
+" case counts, whether it climbs or falls, and whether a line that repeats is
+" kept. They are asked on F5->c and then |[t]| , and they are what F2->o reads.
+let g:GrooVim_SortCaseSensitive = get(g:, "GrooVim_SortCaseSensitive", 1)
+let g:GrooVim_SortAscending = get(g:, "GrooVim_SortAscending", 1)
+let g:GrooVim_SortUnique = get(g:, "GrooVim_SortUnique", 0)
+
+" Note: What a line is compared BY. From a column when a BLOCK says where to
+" start looking -- which is what the "(at column)" of Notepad++ means -- and
+" from the beginning when the selection is a plain one.
+"
+" Lowered when the case does not count, so the comparison itself is always the
+" same one: "<#" and ">#", which answer the same whatever "ignorecase" is set
+" to. A comparison that changes with a setting of the editor is a sort that
+" changes with it.
+func! GrooVim_SortKeyOf(line, column) abort
+  let l:key = a:column > 1 ? strpart(a:line, a:column - 1) : a:line
+  return g:GrooVim_SortCaseSensitive ? l:key : tolower(l:key)
+endfunc
+
+" Note: The lines you have SELECTED, and only those: a sort that reaches past
+" what you marked is a sort you cannot undo in your head.
+"
+" The order of two lines that compare the SAME is the order they were in --
+" Vim sorts stably, which is what makes a sort by column leave the rest of the
+" line as it found it.
+func! GrooVim_SortLines() abort
+
+  if !GrooVim_CanChange()
+    return
+  endif
+
+  let l:from = line("'<")
+  let l:to = line("'>")
+  if l:from < 1 || l:to < l:from
+    call GrooVim_GrooVimBarMsg("Select the lines you want in order first!", 5)
+    return
+  endif
+
+  " Note: A BLOCK says WHERE the comparison starts; a plain selection compares
+  " the whole line. Either end of the block may be the left one.
+  let l:column = 1
+  if visualmode() ==# "\<C-v>"
+    let l:column = min([col("'<"), col("'>")])
+  endif
+
+  let l:lines = getline(l:from, l:to)
+  let l:keyed = []
+  for l:line in l:lines
+    call add(l:keyed, [GrooVim_SortKeyOf(l:line, l:column), l:line])
+  endfor
+
+  call sort(l:keyed, {one, other -> one[0] <# other[0] ? -1 : (one[0] ># other[0] ? 1 : 0)})
+  if !g:GrooVim_SortAscending
+    call reverse(l:keyed)
+  endif
+
+  " Note: The FIRST of the repeated ones stays, which after the sort is the one
+  " that was highest up in the file. What repeats is decided by the key, so a
+  " sort by column takes out the lines that read the same FROM that column.
+  if g:GrooVim_SortUnique
+    let l:seen = {}
+    let l:only = []
+    for l:pair in l:keyed
+      if !has_key(l:seen, l:pair[0])
+        let l:seen[l:pair[0]] = 1
+        call add(l:only, l:pair)
+      endif
+    endfor
+    let l:keyed = l:only
+  endif
+
+  let l:sorted = map(copy(l:keyed), "v:val[1]")
+  call setline(l:from, l:sorted)
+
+  " Note: And the lines that the unique left over are taken away. Written over
+  " first and deleted afterwards, so the text never passes through a state with
+  " a hole in it.
+  let l:gone = len(l:lines) - len(l:sorted)
+  if l:gone > 0
+    silent exec (l:from + len(l:sorted)) . "," . l:to . "delete _"
+  endif
+
+  call cursor(l:from, 1)
+  call GrooVim_GrooVimBarMsg(len(l:sorted) . " line(s) in order" .
+   \ (l:gone > 0 ? ", and " . l:gone . " repeated one(s) taken off" : "") . "!", 4)
+
+endfunc
+
 " Note: Changes to uppercase/lowercase.
 func! GrooVim_ToUpperLower(modType) range abort
 

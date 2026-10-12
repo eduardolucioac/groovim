@@ -139,8 +139,8 @@ func! GrooVim_Configure() range abort
   " next redraws, and a message does not survive that -- the text of a prompt
   " does, because Vim leaves it on the line it was answered on.
   let l:which = GrooVim_GetOptions(
-   \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [g]eneral",
-   \ ["i", "v", "f", "s", "r", "g"], "", "")
+   \ "Configure: [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace, [t]ools, [g]eneral",
+   \ ["i", "v", "f", "s", "r", "t", "g"], "", "")
 
   if l:which ==# "i"
     call GrooVim_Operation("[configuration] [indent]", "GrooVim_ConfigureIndent", [])
@@ -152,9 +152,37 @@ func! GrooVim_Configure() range abort
     call GrooVim_Operation("[configuration] [search]", "GrooVim_ConfigureSearchReplace", ["search"])
   elseif l:which ==# "r"
     call GrooVim_Operation("[configuration] [replace]", "GrooVim_ConfigureSearchReplace", ["replace"])
+  elseif l:which ==# "t"
+    call GrooVim_Operation("[configuration] [tools]", "GrooVim_ConfigureTools", [])
   elseif l:which ==# "g"
     call GrooVim_Operation("[configuration] [general]", "GrooVim_ConfigureGeneral", [])
   endif
+
+endfunc
+
+" Note: The tools: what the sort of F2->o does with the lines you selected. The
+" three questions of the TextFX of Notepad++ (inspiration), in the shape every
+" other screen of GrooVim has.
+func! GrooVim_ConfigureTools() range abort
+
+  call GrooVim_OptsBegin()
+
+  let g:GrooVim_SortCaseSensitive = GrooVim_GetOptions("Sort: the case counts",
+   \ [0, 1], 1, g:GrooVim_SortCaseSensitive)
+  call GrooVim_OptsUpdate("let g:GrooVim_SortCaseSensitive =",
+   \ "let g:GrooVim_SortCaseSensitive = " . g:GrooVim_SortCaseSensitive, 0)
+
+  let g:GrooVim_SortAscending = GrooVim_GetOptions("Sort: climbing (0 to fall)",
+   \ [0, 1], 1, g:GrooVim_SortAscending)
+  call GrooVim_OptsUpdate("let g:GrooVim_SortAscending =",
+   \ "let g:GrooVim_SortAscending = " . g:GrooVim_SortAscending, 0)
+
+  let g:GrooVim_SortUnique = GrooVim_GetOptions("Sort: keep only one of the lines that repeat",
+   \ [0, 1], 0, g:GrooVim_SortUnique)
+  call GrooVim_OptsUpdate("let g:GrooVim_SortUnique =",
+   \ "let g:GrooVim_SortUnique = " . g:GrooVim_SortUnique, 0)
+
+  call GrooVim_OptsEnd()
 
 endfunc
 

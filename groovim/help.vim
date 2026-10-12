@@ -105,6 +105,15 @@ let g:GrooVim_Shortcuts = [
  \  ]},
  \
 "\ ---- Edit
+ \ {"where": "Edit", "group": "F2", "key": "o", "break": 1, "modes": "niv",
+ \  "run": {"v": 'call GrooVim_SortLines()',
+ \          "ni": 'call GrooVim_GrooVimBarMsg("Select the lines you want in order first!", 5)'},
+ \  "menu": "Put the lines in order",
+ \  "what": "Sorts the lines you have selected",
+ \  "notes": [
+ \   "What it does with them is asked on F5->c and then |[t]| : whether the case counts, whether it climbs or falls, and whether a line that repeats is kept",
+ \   "Over a BLOCK (F2->b) the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is"
+ \  ]},
  \ {"where": "Edit", "group": "F2", "key": "h", "modes": "niv", "run": ':left', "menu": "Align left", "what": "Aligns to left"},
  \ {"where": "Edit", "group": "F2", "key": "k", "modes": "niv", "run": ':right', "menu": "Align right", "what": "Aligns to right"},
  \ {"where": "Edit", "group": "F2", "key": "j", "modes": "niv", "run": ':center', "menu": "Align centre", "what": "Aligns to center"},
@@ -588,7 +597,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  An EMPTY answer is not the same as giving up: on most screens it means \"leave this one alone\", and the question says so when it does;".
 \"\n*o*  Every screen ends asking whether to KEEP what you chose for the next time. Saying no changes this session and nothing on the disk.".
 \"\n".
-\"\n F5->c opens the settings, and one letter picks the screen: |[i]|ndent , |[v]|iew , |[f]|ile , |[s]|earch , |[r]|eplace , |[g]|eneral .".
+\"\n F5->c opens the settings, and one letter picks the screen: |[i]|ndent , |[v]|iew , |[f]|ile , |[s]|earch , |[r]|eplace , |[t]|ools , |[g]|eneral .".
 \"\n".
 \"\n * Moving and selecting~".
 \"\n".
@@ -598,7 +607,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  <Alt-End>/<Alt-Home> - take the rest of the line, from where you are (normal mode/insert);".
 \"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again (normal mode/insert/visual): a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
 \"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it (normal mode/insert/visual);".
-\"\n*o*  |m| and |M| - to the next marked line and to the one before (normal mode).".
+\"\n*o*  |m| and |M| - to the next marked line and to the one before (normal mode);".
+\"\n*o*  F2->o - puts the SELECTED lines in order (normal mode/insert/visual). Whether the case counts, whether the order climbs or falls and whether a line that repeats is kept are asked on F5->c and then |[t]| ; and over a BLOCK the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is.".
 \"\n".
 \"\n * Your tabs~".
 \"\n".

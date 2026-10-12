@@ -95,7 +95,7 @@ Backspace and the completion with Tab are the ones you already know. ?????? Para
    Saying no changes this session and nothing on disk.
 
 **F5 c** opens the settings, and then one letter picks the screen: `[i]`ndent,
-`[v]`iew, `[f]`ile, `[s]`earch, `[r]`eplace, `[g]`eneral.
+`[v]`iew, `[f]`ile, `[s]`earch, `[r]`eplace, `[t]`ools, `[g]`eneral.
 
 The file you have open!
 -----
@@ -220,6 +220,7 @@ started in:
 
  * Marked lines
 
+    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order. Whether the case counts, whether the order climbs or falls and whether a line that repeats is kept are asked on **F5 c** and then `[t]`; over a **block** (F2 b) the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is;
     - m and M *(normal mode)* - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line; ?????? Lega cirtar a negação por n e N, caso não esteja citado em seção específica sobre busca.
 
 **F4 b** marks the line and the mark shows in the margin, **F4 i** writes a note
@@ -272,6 +273,9 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 
  * **Edit** *(Changing the text: the transfer area, undo, the indent, the case)*
 
+    - `F2->o` - Sorts the lines you have selected *(normal mode/insert/visual)*;
+        - What it does with them is asked on F5->c and then [t] : whether the case counts, whether it climbs or falls, and whether a line that repeats is kept;
+        - Over a BLOCK (F2->b) the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is;
     - `F2->h` - Aligns to left *(normal mode/insert/visual)*;
     - `F2->k` - Aligns to right *(normal mode/insert/visual)*;
     - `F2->j` - Aligns to center *(normal mode/insert/visual)*;
