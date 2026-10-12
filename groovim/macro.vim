@@ -488,9 +488,9 @@ endfunc
 " Notepad++ (inspiration) and the three answers that go with it: whether the
 " case counts, whether it climbs or falls, and whether a line that repeats is
 " kept. They are asked on F5->c and then |[t]| , and they are what F2->o reads.
-let g:GrooVim_SortCaseSensitive = get(g:, "GrooVim_SortCaseSensitive", 1)
+let g:GrooVim_SortCase = get(g:, "GrooVim_SortCase", "s")
 let g:GrooVim_SortOrder = get(g:, "GrooVim_SortOrder", "a")
-let g:GrooVim_SortUnique = get(g:, "GrooVim_SortUnique", 0)
+let g:GrooVim_SortUnique = get(g:, "GrooVim_SortUnique", 1)
 
 " Note: What a line is compared BY. From a column when a BLOCK says where to
 " start looking -- which is what the "(at column)" of Notepad++ means -- and
@@ -502,7 +502,7 @@ let g:GrooVim_SortUnique = get(g:, "GrooVim_SortUnique", 0)
 " changes with it.
 func! GrooVim_SortKeyOf(line, column) abort
   let l:key = a:column > 1 ? strpart(a:line, a:column - 1) : a:line
-  return g:GrooVim_SortCaseSensitive ? l:key : tolower(l:key)
+  return g:GrooVim_SortCase ==# "s" ? l:key : tolower(l:key)
 endfunc
 
 " Note: The lines you have SELECTED, and only those: a sort that reaches past

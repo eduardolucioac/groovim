@@ -20,14 +20,14 @@ func! GT_Body()
 
 let s:fruit = ["banana", "Abacaxi", "cereja", "banana", "abacate"]
 
-let g:GrooVim_SortCaseSensitive = 1
+let g:GrooVim_SortCase = "s"
 let g:GrooVim_SortOrder = "a"
 let g:GrooVim_SortUnique = 0
 call GT_Ok("climbing, and the case counts",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["Abacaxi", "abacate", "banana", "banana", "cereja"],
   \ "   " . string(GT_Sorted(s:fruit, "VG\<F2>o")) . "   (a capital comes before a small letter)")
 
-let g:GrooVim_SortCaseSensitive = 0
+let g:GrooVim_SortCase = "i"
 call GT_Ok("  and with the case NOT counting it reads as a word does",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["abacate", "Abacaxi", "banana", "banana", "cereja"],
   \ "   " . string(GT_Sorted(s:fruit, "VG\<F2>o")))
@@ -53,7 +53,7 @@ call GT_Ok("nothing outside the selection moves",
 "
 " Which is the "(at column)" of Notepad++: you order by a field and the rest of
 " the line comes along with it.
-let g:GrooVim_SortCaseSensitive = 1
+let g:GrooVim_SortCase = "s"
 let s:fields = ["xx-3", "yy-1", "zz-2"]
 call GT_Ok("a block orders by the column it starts at",
   \ GT_Sorted(s:fields, "3l\<F2>b2j\<F2>o") ==# ["yy-1", "zz-2", "xx-3"],
@@ -110,20 +110,20 @@ call GT_Ok("  and the file was not touched", getline(1, "$") ==# ["um", "dois"],
   \ "   " . string(getline(1, "$")) . "   (a whole file sorted by accident is not undone by one undo in your head)")
 
 " ---- the screen that asks the three
-let s:was = [g:GrooVim_SortCaseSensitive, g:GrooVim_SortOrder, g:GrooVim_SortUnique]
-call feedkeys("0\<CR>d\<CR>1\<CR>\<CR>", "t")
+let s:was = [g:GrooVim_SortCase, g:GrooVim_SortOrder, g:GrooVim_SortUnique]
+call feedkeys("i\<CR>d\<CR>0\<CR>\<CR>", "t")
 call GrooVim_ConfigureTools()
 call feedkeys("", "x")
 call GT_Ok("F5->c and then [t] asks the three and takes the answers",
-  \ g:GrooVim_SortCaseSensitive == 0 && g:GrooVim_SortOrder ==# "d" &&
-  \ g:GrooVim_SortUnique == 1,
-  \ "   (case " . g:GrooVim_SortCaseSensitive . ", order " . g:GrooVim_SortOrder .
+  \ g:GrooVim_SortCase ==# "i" && g:GrooVim_SortOrder ==# "d" &&
+  \ g:GrooVim_SortUnique == 0,
+  \ "   (case " . g:GrooVim_SortCase . ", order " . g:GrooVim_SortOrder .
   \ ", unique " . g:GrooVim_SortUnique . ")")
 call GT_Ok("  and the settings screen offers it",
   \ GT_FunctionText("GrooVim_Configure") =~ "\\[t\\]ools" &&
   \ GT_FunctionText("GrooVim_Configure") =~ "GrooVim_ConfigureTools",
   \ "   (beside [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace and [g]eneral)")
-let [g:GrooVim_SortCaseSensitive, g:GrooVim_SortOrder, g:GrooVim_SortUnique] = s:was
+let [g:GrooVim_SortCase, g:GrooVim_SortOrder, g:GrooVim_SortUnique] = s:was
 
 call GT_Done()
 endfunc

@@ -220,7 +220,14 @@ started in:
 
  * Marked lines
 
-    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order, and leave them selected. What it does with them is asked on **F5 c** and then `[t]`: whether a capital counts as a small letter, `[a]`-z or `[d]`-a, and whether a line that repeats is kept. To order by a **field** instead of by the whole line, select a block with F2 b over the column the field begins at and then press it -- `xx-3`, `yy-1`, `zz-2` ordered from the fourth column gives `yy-1`, `zz-2`, `xx-3`;
+    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order, and leave them selected. Asked on **F5 c** and then `[t]`: case `[s]`ensitive or `[i]`nsensitive, `[a]`scending or `[d]`escending, and whether only the **unique** lines come out -- which they do unless you say otherwise, so a line that repeats is dropped. To order by a **field** instead of by the whole line, select a block over the column the field begins at:
+
+```
+2026-03-11  Maria        V G    then F2 o  ->  in order of DATE
+2024-07-02  Joao         12l F2 b 2j then F2 o  ->  in order of NAME,
+2025-12-30  Ana          a block on the 13th column, where the names begin
+```
+
     - m and M *(normal mode)* - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line; ?????? Lega cirtar a negação por n e N, caso não esteja citado em seção específica sobre busca.
 
 **F4 b** marks the line and the mark shows in the margin, **F4 i** writes a note
@@ -274,7 +281,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
  * **Edit** *(Changing the text: the transfer area, undo, the indent, the case)*
 
     - `F2->o` - Sorts the lines you have selected *(normal mode/insert/visual)*;
-        - What it does with them is asked on F5->c and then [t] : whether the case counts, whether it climbs or falls, and whether a line that repeats is kept;
+        - Asked on F5->c and then [t] : case [s] ensitive or [i] nsensitive, [a] scending or [d] escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise;
         - By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering xx-3 , yy-1 , zz-2 from the fourth column gives yy-1 , zz-2 , xx-3;
         - The lines are still selected afterwards, so a second thing can be done to them;
     - `F2->h` - Aligns to left *(normal mode/insert/visual)*;

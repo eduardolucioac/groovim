@@ -111,7 +111,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Put the lines in order",
  \  "what": "Sorts the lines you have selected",
  \  "notes": [
- \   "What it does with them is asked on F5->c and then |[t]| : whether the case counts, whether it climbs or falls, and whether a line that repeats is kept",
+ \   "Asked on F5->c and then |[t]| : case |[s]|ensitive or |[i]|nsensitive, |[a]|scending or |[d]|escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise",
  \   "By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering |xx-3| , |yy-1| , |zz-2| from the fourth column gives |yy-1| , |zz-2| , |xx-3|",
  \   "The lines are still selected afterwards, so a second thing can be done to them"
  \  ]},
@@ -609,8 +609,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again (normal mode/insert/visual): a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
 \"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it (normal mode/insert/visual);".
 \"\n*o*  |m| and |M| - to the next marked line and to the one before (normal mode);".
-\"\n*o*  F2->o - puts the SELECTED lines in order (normal mode/insert/visual), and leaves them selected. What it does with them is asked on F5->c and then |[t]| : whether a capital counts as a small letter, |[a]|-z or |[d]|-a, and whether a line that repeats is kept;".
-\"\n   |-|By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then F2->o . Ordering |xx-3| , |yy-1| , |zz-2| from the fourth column gives |yy-1| , |zz-2| , |xx-3| -- the rest of each line comes along with it. A plain selection compares the whole line.".
+\"\n*o*  F2->o - puts the SELECTED lines in order (normal mode/insert/visual), and leaves them selected. Asked on F5->c and then |[t]| : case |[s]|ensitive or |[i]|nsensitive, |[a]|scending or |[d]|escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise, so a line that repeats is dropped;".
+\"\n   |-|By a FIELD and not by the whole line, select a BLOCK over the column the field begins at. With |2026-03-11  Maria| , |2024-07-02  Joao| and |2025-12-30  Ana| : |V| |G| and F2->o puts them in order of DATE, and <12l> F2->b <2j> and F2->o -- a block on the thirteenth column, where the names begin -- puts them in order of NAME, each date coming along with its own.".
 \"\n".
 \"\n * Your tabs~".
 \"\n".

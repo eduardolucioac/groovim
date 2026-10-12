@@ -167,18 +167,18 @@ func! GrooVim_ConfigureTools() range abort
 
   call GrooVim_OptsBegin()
 
-  let g:GrooVim_SortCaseSensitive = GrooVim_GetOptions("Sort: a capital is not a small letter",
-   \ [0, 1], 1, g:GrooVim_SortCaseSensitive)
-  call GrooVim_OptsUpdate("let g:GrooVim_SortCaseSensitive =",
-   \ "let g:GrooVim_SortCaseSensitive = " . g:GrooVim_SortCaseSensitive, 0)
+  let g:GrooVim_SortCase = GrooVim_GetOptions("Sort: Case [s]ensitive or [i]nsensitive",
+   \ ["s", "i"], "s", g:GrooVim_SortCase)
+  call GrooVim_OptsUpdate("let g:GrooVim_SortCase =",
+   \ "let g:GrooVim_SortCase = \"" . g:GrooVim_SortCase . "\"", 0)
 
-  let g:GrooVim_SortOrder = GrooVim_GetOptions("Sort: [a]-z or [d]-a (the order)",
+  let g:GrooVim_SortOrder = GrooVim_GetOptions("Sort: [a]scending or [d]escending",
    \ ["a", "d"], "a", g:GrooVim_SortOrder)
   call GrooVim_OptsUpdate("let g:GrooVim_SortOrder =",
    \ "let g:GrooVim_SortOrder = \"" . g:GrooVim_SortOrder . "\"", 0)
 
-  let g:GrooVim_SortUnique = GrooVim_GetOptions("Sort: keep only one of the lines that repeat",
-   \ [0, 1], 0, g:GrooVim_SortUnique)
+  let g:GrooVim_SortUnique = GrooVim_GetOptions("Sort: Outputs only unique lines",
+   \ [1, 0], 1, g:GrooVim_SortUnique)
   call GrooVim_OptsUpdate("let g:GrooVim_SortUnique =",
    \ "let g:GrooVim_SortUnique = " . g:GrooVim_SortUnique, 0)
 
