@@ -62,10 +62,10 @@ let g:GrooVim_Shortcuts = [
  \   "From VISUAL mode what you had selected is still selected afterwards"
  \  ]},
  \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "menu": "Save a copy as...", "what": "Save to disk and open in a new tab a copy of the current file"},
- \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "run": 'call GrooVim_Save(l:mode)',
+ \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "keepsel": 1, "run": 'call GrooVim_Save()',
  \  "menu": "Save", "what": "Save to disk",
  \  "notes": [
- \   "In visual mode it writes the SELECTION to a file of its own"
+ \   "A document with no name yet is asked where to go, the way |F5->a| asks"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "e", "modes": "niv", "run": ':wa', "menu": "Save all", "what": "Save every changed file"},
  \ {"where": "File", "group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
@@ -209,11 +209,11 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Select to end of line", "what": "Selects on to the end of the line"},
  \
 "\ ---- Search
- \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "menu": "Clear search highlights", "what": "Removes search highlights"},
- \ {"where": "Search", "group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord(l:mode)',
+ \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "keepsel": 1, "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "menu": "Clear search highlights", "what": "Removes search highlights"},
+ \ {"where": "Search", "group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord()',
  \  "menu": "Mark all occurrences", "what": "Mark every occurrence of the word under the cursor",
  \  "notes": [
- \   "In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
+ \   "It is the WORD under the cursor, and a selection changes nothing. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
  \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else"
  \  ]},
  \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "menu": "Find...", "what": "Opens for search"},

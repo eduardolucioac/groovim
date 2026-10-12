@@ -112,7 +112,21 @@ func! GT_AfterSaveAs()
 
   call delete(g:GT_FILE)
   call delete(g:GT_OTHER)
-  call GT_Done()
+  " ---- saving a document that has no name yet asks where to put it
+"
+" It answered "E32: No file name" over an error of Vim, which is not an answer
+" to give anybody. What every editor does with a first save is ask, which is
+" what "save as" already did.
+call GT_Ok("the save asks when there is no name",
+  \ GT_FunctionText("GrooVim_Save") =~ "GrooVim_SaveAs" &&
+  \ GT_FunctionText("GrooVim_Save") =~ 'expand("%") ==# ""',
+  \ "   (and writes the file, whole, when there is one)")
+call GT_Ok("  and it writes the file and not a selection",
+  \ GT_FunctionText("GrooVim_Save") !~ "VisualWrite" &&
+  \ GT_FunctionText("GrooVim_Save") =~ "write",
+  \ "   (the branch for visual mode did the very same \"w\")")
+
+call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

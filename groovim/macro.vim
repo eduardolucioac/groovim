@@ -388,23 +388,19 @@ func! GrooVim_SaveAs() range abort
 
 endfunc
 
-" Note: Saves to disk.
+" Note: Writes the file, whole, whatever mode you are in -- a selection changes
+" nothing about saving, and the branch that used to be here for visual mode did
+" the very same "w" as the other one.
 "
-" Saving. In visual mode what is written is the SELECTION, to a file of its own;
-" anywhere else it is the file you are in.
-func! GrooVim_Save(mode) abort
-  if a:mode ==# "v"
-    call GrooVim_VisualWrite()
-  else
-    write
+" A document with NO NAME is asked where to go, which is what "save as" does and
+" what every editor does with its first save. Before this it answered "E32: No
+" file name" over an error of Vim, which is not an answer to give anybody.
+func! GrooVim_Save() abort
+  if expand("%") ==# ""
+    call GrooVim_SaveAs()
+    return
   endif
-endfunc
-
-func! GrooVim_VisualWrite() range abort
-  " Note: Write.
-  exec "w"
-  " Note: Reselect area.
-  exec "norm gv"
+  write
 endfunc
 
 " Note: Puts the cursor ON the text of the line when it is sitting PAST it.

@@ -165,7 +165,28 @@ func! GT_Body()
     \ empty(filter(readfile(g:GT_OPTIONS), 'v:val =~ "GrooVim_HLNext"')),
     \ "   (they call GrooVim_HLNext, which is in search.vim)")
 
-  call GT_Done()
+  " ---- the mark is the WORD, and a selection changes nothing
+"
+" It used to take what was SELECTED when there was a selection, which is another
+" feature wearing this key: marking "my selected text" lit up every place those
+" three words happen to appear in a row, which is a search and not a mark.
+exec "enew!"
+call setline(1, ["alpha beta gamma", "beta alpha beta"])
+call cursor(1, 1)
+call GT_Press("vj$\<F2>b")
+exec "normal! \<Esc>"
+call cursor(1, 7)
+call GT_Press("\<F3>m")
+call GT_Ok("over a selection it still marks the WORD under the cursor",
+  \ g:GrooVim_MarkedWord ==# "beta", "   [" . g:GrooVim_MarkedWord . "]")
+call GrooVim_MarkClear()
+
+call GT_Ok("  and what it asks for takes no mode at all",
+  \ GT_FunctionText("GrooVim_MarkWhat") !~ "a:mode" &&
+  \ GT_FunctionText("GrooVim_MarkWhat") =~ "cword",
+  \ "   (the word under the cursor, and nothing else)")
+
+call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

@@ -258,7 +258,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
         - From VISUAL mode what you had selected is still selected afterwards;
     - `F2->y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
     - `F5->s` - Save to disk *(normal mode/insert/visual)*;
-        - In visual mode it writes the SELECTION to a file of its own;
+        - A document with no name yet is asked where to go, the way F5->a asks;
     - `F5->e` - Save every changed file *(normal mode/insert/visual)*;
     - `F5->a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
         - Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
@@ -336,7 +336,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 
     - `F3->/` - Removes search highlights *(normal mode/insert/visual)*;
     - `F3->m` - Mark every occurrence of the word under the cursor *(normal mode/insert/visual)*;
-        - In visual mode it marks what is SELECTED. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
+        - It is the WORD under the cursor, and a selection changes nothing. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
         - It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else;
     - `F3->f` - Opens for search *(normal mode/insert/visual)*;
     - `F3->h` - Opens to replace *(normal mode/insert/visual)*;

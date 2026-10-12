@@ -569,16 +569,15 @@ if &t_Co < 256 && !has("gui_running")
   highlight GrooVimMark ctermbg=green ctermfg=black
 endif
 
-" Note: What to mark: the selection if there is one, the word under the cursor
-" otherwise -- the same two things every other command of GrooVim works on.
-func! GrooVim_MarkWhat(mode) abort
-  if a:mode ==# "v"
-    let l:saved = GrooVim_ClipGet()
-    exec "norm! gvy"
-    let l:what = @"
-    call GrooVim_ClipSet(l:saved)
-    return l:what
-  endif
+" Note: What to mark: the WORD under the cursor, and that is the whole of it --
+" a selection is not asked about and does not change the answer.
+"
+" It used to take what was SELECTED when there was a selection, and that is
+" another feature wearing this one's key: marking "my selected text" lit up
+" every place those three words happen to appear in a row, which is a search and
+" not a mark. What this is for is the word you are standing on, everywhere it is
+" -- the same thing the "Style all occurrences of token" of Notepad++ does.
+func! GrooVim_MarkWhat() abort
   call GrooVim_StepOntoTheText()
   return expand("<cword>")
 endfunc
@@ -614,9 +613,9 @@ func! GrooVim_MarkHere() abort
   endtry
 endfunc
 
-func! GrooVim_MarkWord(mode) abort
+func! GrooVim_MarkWord() abort
 
-  let l:what = GrooVim_MarkWhat(a:mode)
+  let l:what = GrooVim_MarkWhat()
 
   if l:what ==# "" || l:what =~ "\n"
     call GrooVim_GrooVimBarMsg("There is no word here to mark!", 5)
