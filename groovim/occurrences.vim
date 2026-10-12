@@ -254,6 +254,19 @@ func! GrooVim_PanelSetup(name, hue) abort
   setlocal noswapfile
   setlocal nobuflisted
 
+  " Note: A panel always WRAPS, whatever the word wrap of the editor is set to.
+  "
+  " The two are not the same question. Word wrap is about your documents: some
+  " people want a long line to run off the screen so that the shape of the code
+  " is the shape of the file. A panel is a LIST, and a line of it that runs off
+  " the screen is an answer you cannot read -- the path, the line number and the
+  " text of an occurrence, cut where the window happens to end.
+  "
+  " "setlocal", so it belongs to this window and the setting of the editor does
+  " not reach it; "linebreak", so it folds at a space and not in the middle of a
+  " path.
+  setlocal wrap linebreak
+
   " Note: And no vertical edge. It marks where a line of text gets too long,
   " which means nothing in a list whose lines are as long as they need to be.
   "

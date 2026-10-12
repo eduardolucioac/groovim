@@ -635,7 +635,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n The indent is |2| columns wide and made of SPACES, and the guides that draw the levels are native to Vim.".
 \"\n".
 \"\n*o*  F5->c and then |[i]| asks the width and whether <Tab> puts spaces. It is the \"Tab Settings\", and like every screen it ends asking whether to keep what you chose for the next time;".
-\"\n*o*  F5->c and then |[v]| asks what the screen SHOWS: the guides, a dot on every space, an arrow on every tab, the vertical line that marks a long line, and the word wrap;".
+\"\n*o*  F5->c and then |[v]| asks what the screen SHOWS: the guides, a dot on every space, an arrow on every tab, the vertical line that marks a long line, and the word wrap. The word wrap is about your DOCUMENTS -- the panels and the help always wrap, because a line of a list running off the screen is an answer you cannot read;".
 \"\n*o*  To change only the buffer you are on, without leaving the keyboard: >".
 \"\n     GrooVimIndent 4".
 \"\n<  With no argument it tells you the width in force;".

@@ -21,17 +21,28 @@ set showmode
 " an older Vim -- GrooVim asks for 9.2, where the two work together, and "list"
 " here is always on because the guides need it.
 "
-" A plain ":set" and no autocmd to spread it. It reaches the window you are on
-" and becomes the default of every window opened afterwards, which is what a
-" preference should do -- and it leaves the help window alone, which asks for
-" "wrap" of its own and would lose it to anything that reimposed this on every
-" "WinEnter".
+" No autocmd to spread it: it reaches the window you are on and becomes the
+" default of every window opened afterwards, which is what a preference should
+" do. Anything that reimposed it on every "WinEnter" would take the "wrap" away
+" from the help and from the panels, which ask for it themselves.
 let g:GrooVim_WordWrap = get(g:, "GrooVim_WordWrap", 0)
+" Note: The default of every window from now on, and the window you are on --
+" unless the window you are on is an ACCESSORY. A panel always wraps and the
+" help always wraps, whatever your documents are set to: they are lists and
+" text, and a line of them running off the screen is an answer you cannot read.
+"
+" A plain ":set" would have reached them, because ":set" on a window option
+" writes the global value AND the local one of the window you happen to be
+" standing in -- and you may well be standing in the list when you turn the word
+" wrap off. Measured: it came back "nowrap" and the list had to be closed and
+" opened again to read it.
 func! GrooVim_WordWrapSet() abort
-  if g:GrooVim_WordWrap
-    set wrap linebreak
-  else
-    set nowrap nolinebreak
+  let &g:wrap = g:GrooVim_WordWrap
+  let &g:linebreak = g:GrooVim_WordWrap
+
+  if !GrooVim_IsHelperBuffer(bufname("%"))
+    let &l:wrap = g:GrooVim_WordWrap
+    let &l:linebreak = g:GrooVim_WordWrap
   endif
 endfunc
 call GrooVim_WordWrapSet()

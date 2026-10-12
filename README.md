@@ -145,7 +145,9 @@ let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
  * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
    it off the screen, breaking at a space and not inside a word. It is the "Word
    wrap" of Notepad++, off by default. With it on, **Up** and **Down** walk the
-   rows you see and not the lines of the file; ?????? Detalhes mais técnicos como configurações de variáveis devem ficar no HELP. A ideia principal do README e demonstrar as qualidades do GrooVim e dar uma idéia mais geral sobre o seu funcionamento.
+   rows you see and not the lines of the file. It is about your DOCUMENTS: the
+   panels and the help always wrap, whatever you set here, because a line of a
+   list running off the screen is an answer you cannot read; ?????? Detalhes mais técnicos como configurações de variáveis devem ficar no HELP. A ideia principal do README e demonstrar as qualidades do GrooVim e dar uma idéia mais geral sobre o seu funcionamento.
 
 The width and whether Tab puts spaces are asked with **F5 c** and then `[i]`, the
 "Tab Settings" of Notepad++; what the screen SHOWS -- the guides, the symbols,

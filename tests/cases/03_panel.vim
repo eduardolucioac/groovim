@@ -8,6 +8,24 @@ call GT_BuildSearch("TARGET", 2, ["0", "0", "0", "1," . g:GT_FIX . "/a.txt,2,21"
 call GrooVim_SearchGuySync()
 call GT_Ok("the list opened", GT_GoToList(), "   " . GT_Layout())
 
+" ---- a panel always wraps, whatever the editor is set to
+"
+" The two are not the same question. Word wrap is about your documents; a panel
+" is a LIST, and a line of it that runs off the screen is an answer you cannot
+" read -- the path, the line and the text of an occurrence, cut where the window
+" happens to end.
+call GT_Ok("the list wraps", &wrap == 1, "   (and the editor is on " .
+  \ (g:GrooVim_WordWrap ? "wrap" : "nowrap") . ")")
+call GT_Ok("  and it folds at a space, not inside a path", &linebreak == 1, "")
+
+let s:was = g:GrooVim_WordWrap
+let g:GrooVim_WordWrap = 0
+call GrooVim_WordWrapSet()
+call GT_Ok("  and turning the word wrap of the editor OFF does not reach it",
+  \ &wrap == 1, "   (it is \"setlocal\", so it belongs to this window)")
+let g:GrooVim_WordWrap = s:was
+call GrooVim_WordWrapSet()
+
 " ---- the buffer must not behave like a file you forgot to save
 call GT_Ok("buftype = nofile", &buftype ==# "nofile", "   [" . &buftype . "]")
 call GT_Ok("does not show up in :ls", &buflisted == 0, "")
