@@ -220,7 +220,7 @@ started in:
 
  * Marked lines
 
-    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order, and leave them selected. Asked on **F5 c** and then `[t]`: case `[s]`ensitive or `[i]`nsensitive, `[a]`scending or `[d]`escending, and whether only the **unique** lines come out -- which they do unless you say otherwise, so a line that repeats is dropped. To order by a **field** instead of by the whole line, select a block over the column the field begins at:
+    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order. Asked on **F5 c** and then `[t]`: case `[s]`ensitive or `[i]`nsensitive, `[a]`scending or `[d]`escending, and whether only the **unique** lines come out -- which they do unless you say otherwise, so a line that repeats is dropped. To order by a **field** instead of by the whole line, select a block over the column the field begins at:
 
 ```
 2026-03-11  Maria        V G    then F2 o  ->  in order of DATE
@@ -283,7 +283,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F2->o` - Sorts the lines you have selected *(normal mode/insert/visual)*;
         - Asked on F5->c and then [t] : case [s] ensitive or [i] nsensitive, [a] scending or [d] escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise;
         - By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering xx-3 , yy-1 , zz-2 from the fourth column gives yy-1 , zz-2 , xx-3;
-        - The lines are still selected afterwards, so a second thing can be done to them;
+        - The selection is let go of afterwards: the lines moved, so the stretch you had marked no longer holds what you marked;
     - `F2->h` - Aligns to left *(normal mode/insert/visual)*;
     - `F2->k` - Aligns to right *(normal mode/insert/visual)*;
     - `F2->j` - Aligns to center *(normal mode/insert/visual)*;

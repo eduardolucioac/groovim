@@ -62,31 +62,20 @@ call GT_Ok("  and a plain selection orders by the whole line",
   \ GT_Sorted(s:fields, "VG\<F2>o") ==# ["xx-3", "yy-1", "zz-2"],
   \ "   " . string(GT_Sorted(s:fields, "VG\<F2>o")))
 
-" ---- and the lines stay SELECTED, so a second thing can be done to them
+" ---- and the selection is NOT given back
 "
-" Reaching the function costs the selection: an F key of visual mode goes
-" through a ":", and that is what ends it. Every editor leaves the lines marked
-" after acting on them.
+" The line between the two: a shortcut that leaves every line WHERE it was gives
+" the selection back, because what was marked is still the same thing. One that
+" MOVES the lines about does not -- after a sort the marked stretch holds other
+" lines in another order, and the unique may have left fewer of them.
 exec "enew!"
 call setline(1, ["banana", "Abacaxi", "banana", "cereja"])
 call cursor(1, 1)
 let g:GrooVim_SortUnique = 0
 call GT_Press("VG\<F2>o")
-call GT_Ok("the lines are still selected afterwards",
-  \ mode(1) =~# "^[vV]" && line("v") == 1 && line(".") == 4,
-  \ "   (mode " . mode(1) . ", from line " . line("v") . " to " . line(".") . ")")
-exec "normal! \<Esc>"
-
-exec "enew!"
-call setline(1, ["banana", "Abacaxi", "banana", "cereja"])
-call cursor(1, 1)
-let g:GrooVim_SortUnique = 1
-call GT_Press("VG\<F2>o")
-call GT_Ok("  and when the unique took one away, what is LEFT is selected",
-  \ mode(1) =~# "^[vV]" && line("v") == 1 && line(".") == 3,
-  \ "   (from line " . line("v") . " to " . line(".") . ", of " . line("$") . ")")
-exec "normal! \<Esc>"
-let g:GrooVim_SortUnique = 0
+call GT_Ok("the selection is let go of, and the cursor is on the first line",
+  \ mode(1) ==# "n" && line(".") == 1,
+  \ "   (mode " . mode(1) . ", line " . line(".") . ")")
 
 " ---- the ones that change the selection in place leave it marked too
 exec "enew!"

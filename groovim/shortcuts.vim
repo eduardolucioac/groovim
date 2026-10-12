@@ -184,10 +184,18 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
         " it -- so after a Title Case the lines were no longer marked and you
         " could not do a second thing to them. Every editor leaves them marked.
         "
-        " Asked for one by one, with "keepsel", and not given to all: a shortcut
-        " that OPENS a selection (the block of F2->b, the select all of F3->a)
-        " would have the old one put back over the new, and one that opens
-        " another tab has nothing to put it back on.
+        " Asked for one by one, with "keepsel", and not given to all. The line
+        " between the two is whether the lines STAYED WHERE THEY WERE: the case
+        " of their letters changed, their text pushed left or right -- what was
+        " marked is still the same thing, and you may well want to do one more
+        " thing to it. A shortcut that MOVES the lines about does not ask for
+        " it: after a sort the marked stretch holds other lines in another
+        " order, and what would be handed back is an area that no longer means
+        " what you drew it to mean.
+        "
+        " And a shortcut that OPENS a selection (the block of F2->b, the select
+        " all of F3->a) would have the old one put back over the new, and one
+        " that opens another tab has nothing to put it back on.
         if a:modType ==# "v" && get(l:one, "keepsel", 0)
           silent! normal! gv
         endif

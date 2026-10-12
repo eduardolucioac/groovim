@@ -568,21 +568,20 @@ func! GrooVim_SortLines() abort
     silent exec (l:from + len(l:sorted)) . "," . l:to . "delete _"
   endif
 
-  " Note: And the lines stay SELECTED, so a second thing can be done to them.
-  " "gv" when they are the same lines, which puts back exactly what was marked,
-  " the corners of a block included; and the new, shorter stretch when the
-  " unique took lines away, because the old marks would reach past the end of
-  " what is left.
+  " Note: And the selection is NOT given back, which is why this one does not
+  " ask for the "keepsel" the Title Case and the aligns ask for.
   "
-  " Not through the "keepsel" the other shortcuts ask for: that one gives back
-  " what WAS selected, and this is the one operation that can change how much
-  " there is to select.
-  if l:gone > 0
-    call cursor(l:from, 1)
-    exec "normal! V" . (len(l:sorted) > 1 ? (len(l:sorted) - 1) . "j" : "")
-  else
-    silent! normal! gv
-  endif
+  " The line between the two: a shortcut that leaves every line WHERE it was --
+  " the case of its letters changed, its text pushed left or right -- gives the
+  " selection back, because what was marked is still the same thing and you may
+  " well want to do one more thing to it. A shortcut that MOVES the lines about
+  " does not: after a sort the marked stretch holds other lines in another
+  " order, and the unique may have left fewer of them, so what would be handed
+  " back is an area that no longer means what you drew it to mean.
+  "
+  " The cursor stays on the first line of what was put in order, which is where
+  " you look to see that it was.
+  call cursor(l:from, 1)
 
   call GrooVim_GrooVimBarMsg(len(l:sorted) . " line(s) in order" .
    \ (l:gone > 0 ? ", and " . l:gone . " repeated one(s) taken off" : "") . "!", 4)
