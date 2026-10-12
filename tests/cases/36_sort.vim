@@ -21,7 +21,7 @@ func! GT_Body()
 let s:fruit = ["banana", "Abacaxi", "cereja", "banana", "abacate"]
 
 let g:GrooVim_SortCaseSensitive = 1
-let g:GrooVim_SortAscending = 1
+let g:GrooVim_SortOrder = "a"
 let g:GrooVim_SortUnique = 0
 call GT_Ok("climbing, and the case counts",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["Abacaxi", "abacate", "banana", "banana", "cereja"],
@@ -32,12 +32,12 @@ call GT_Ok("  and with the case NOT counting it reads as a word does",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["abacate", "Abacaxi", "banana", "banana", "cereja"],
   \ "   " . string(GT_Sorted(s:fruit, "VG\<F2>o")))
 
-let g:GrooVim_SortAscending = 0
+let g:GrooVim_SortOrder = "d"
 call GT_Ok("  and it falls when asked to",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["cereja", "banana", "banana", "Abacaxi", "abacate"],
   \ "   " . string(GT_Sorted(s:fruit, "VG\<F2>o")))
 
-let g:GrooVim_SortAscending = 1
+let g:GrooVim_SortOrder = "a"
 let g:GrooVim_SortUnique = 1
 call GT_Ok("  and only one of the lines that repeat is kept",
   \ GT_Sorted(s:fruit, "VG\<F2>o") ==# ["abacate", "Abacaxi", "banana", "cereja"],
@@ -62,6 +62,42 @@ call GT_Ok("  and a plain selection orders by the whole line",
   \ GT_Sorted(s:fields, "VG\<F2>o") ==# ["xx-3", "yy-1", "zz-2"],
   \ "   " . string(GT_Sorted(s:fields, "VG\<F2>o")))
 
+" ---- and the lines stay SELECTED, so a second thing can be done to them
+"
+" Reaching the function costs the selection: an F key of visual mode goes
+" through a ":", and that is what ends it. Every editor leaves the lines marked
+" after acting on them.
+exec "enew!"
+call setline(1, ["banana", "Abacaxi", "banana", "cereja"])
+call cursor(1, 1)
+let g:GrooVim_SortUnique = 0
+call GT_Press("VG\<F2>o")
+call GT_Ok("the lines are still selected afterwards",
+  \ mode(1) =~# "^[vV]" && line("v") == 1 && line(".") == 4,
+  \ "   (mode " . mode(1) . ", from line " . line("v") . " to " . line(".") . ")")
+exec "normal! \<Esc>"
+
+exec "enew!"
+call setline(1, ["banana", "Abacaxi", "banana", "cereja"])
+call cursor(1, 1)
+let g:GrooVim_SortUnique = 1
+call GT_Press("VG\<F2>o")
+call GT_Ok("  and when the unique took one away, what is LEFT is selected",
+  \ mode(1) =~# "^[vV]" && line("v") == 1 && line(".") == 3,
+  \ "   (from line " . line("v") . " to " . line(".") . ", of " . line("$") . ")")
+exec "normal! \<Esc>"
+let g:GrooVim_SortUnique = 0
+
+" ---- the ones that change the selection in place leave it marked too
+exec "enew!"
+call setline(1, ["um dois", "tres quatro"])
+call cursor(1, 1)
+call GT_Press("Vj\<F2>t")
+call GT_Ok("  and so does the Title Case, and the aligns, and the case keys",
+  \ mode(1) =~# "^[vV]" && getline(1) ==# "Um Dois",
+  \ "   (mode " . mode(1) . ", [" . getline(1) . "])   (they ask for it with \"keepsel\")")
+exec "normal! \<Esc>"
+
 " ---- with nothing selected it says so instead of sorting the file
 exec "enew!"
 call setline(1, ["um", "dois"])
@@ -74,20 +110,20 @@ call GT_Ok("  and the file was not touched", getline(1, "$") ==# ["um", "dois"],
   \ "   " . string(getline(1, "$")) . "   (a whole file sorted by accident is not undone by one undo in your head)")
 
 " ---- the screen that asks the three
-let s:was = [g:GrooVim_SortCaseSensitive, g:GrooVim_SortAscending, g:GrooVim_SortUnique]
-call feedkeys("0\<CR>0\<CR>1\<CR>\<CR>", "t")
+let s:was = [g:GrooVim_SortCaseSensitive, g:GrooVim_SortOrder, g:GrooVim_SortUnique]
+call feedkeys("0\<CR>d\<CR>1\<CR>\<CR>", "t")
 call GrooVim_ConfigureTools()
 call feedkeys("", "x")
 call GT_Ok("F5->c and then [t] asks the three and takes the answers",
-  \ g:GrooVim_SortCaseSensitive == 0 && g:GrooVim_SortAscending == 0 &&
+  \ g:GrooVim_SortCaseSensitive == 0 && g:GrooVim_SortOrder ==# "d" &&
   \ g:GrooVim_SortUnique == 1,
-  \ "   (case " . g:GrooVim_SortCaseSensitive . ", climbing " . g:GrooVim_SortAscending .
+  \ "   (case " . g:GrooVim_SortCaseSensitive . ", order " . g:GrooVim_SortOrder .
   \ ", unique " . g:GrooVim_SortUnique . ")")
 call GT_Ok("  and the settings screen offers it",
   \ GT_FunctionText("GrooVim_Configure") =~ "\\[t\\]ools" &&
   \ GT_FunctionText("GrooVim_Configure") =~ "GrooVim_ConfigureTools",
   \ "   (beside [i]ndent, [v]iew, [f]ile, [s]earch, [r]eplace and [g]eneral)")
-let [g:GrooVim_SortCaseSensitive, g:GrooVim_SortAscending, g:GrooVim_SortUnique] = s:was
+let [g:GrooVim_SortCaseSensitive, g:GrooVim_SortOrder, g:GrooVim_SortUnique] = s:was
 
 call GT_Done()
 endfunc

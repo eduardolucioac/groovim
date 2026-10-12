@@ -177,6 +177,20 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
       " that is read only.
       try
         call GrooVim_ShortcutRun(l:one, a:modType)
+
+        " Note: And the selection comes BACK, for the shortcuts that work on it
+        " and leave it where it was. Reaching the function costs the selection
+        " -- an F key of visual mode goes through a ":", and that is what ends
+        " it -- so after a Title Case the lines were no longer marked and you
+        " could not do a second thing to them. Every editor leaves them marked.
+        "
+        " Asked for one by one, with "keepsel", and not given to all: a shortcut
+        " that OPENS a selection (the block of F2->b, the select all of F3->a)
+        " would have the old one put back over the new, and one that opens
+        " another tab has nothing to put it back on.
+        if a:modType ==# "v" && get(l:one, "keepsel", 0)
+          silent! normal! gv
+        endif
       catch /E21:\|E45:/
         call GrooVim_CannotChangeSay()
       endtry

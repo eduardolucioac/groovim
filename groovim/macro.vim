@@ -489,7 +489,7 @@ endfunc
 " case counts, whether it climbs or falls, and whether a line that repeats is
 " kept. They are asked on F5->c and then |[t]| , and they are what F2->o reads.
 let g:GrooVim_SortCaseSensitive = get(g:, "GrooVim_SortCaseSensitive", 1)
-let g:GrooVim_SortAscending = get(g:, "GrooVim_SortAscending", 1)
+let g:GrooVim_SortOrder = get(g:, "GrooVim_SortOrder", "a")
 let g:GrooVim_SortUnique = get(g:, "GrooVim_SortUnique", 0)
 
 " Note: What a line is compared BY. From a column when a BLOCK says where to
@@ -538,7 +538,7 @@ func! GrooVim_SortLines() abort
   endfor
 
   call sort(l:keyed, {one, other -> one[0] <# other[0] ? -1 : (one[0] ># other[0] ? 1 : 0)})
-  if !g:GrooVim_SortAscending
+  if g:GrooVim_SortOrder ==# "d"
     call reverse(l:keyed)
   endif
 
@@ -568,7 +568,22 @@ func! GrooVim_SortLines() abort
     silent exec (l:from + len(l:sorted)) . "," . l:to . "delete _"
   endif
 
-  call cursor(l:from, 1)
+  " Note: And the lines stay SELECTED, so a second thing can be done to them.
+  " "gv" when they are the same lines, which puts back exactly what was marked,
+  " the corners of a block included; and the new, shorter stretch when the
+  " unique took lines away, because the old marks would reach past the end of
+  " what is left.
+  "
+  " Not through the "keepsel" the other shortcuts ask for: that one gives back
+  " what WAS selected, and this is the one operation that can change how much
+  " there is to select.
+  if l:gone > 0
+    call cursor(l:from, 1)
+    exec "normal! V" . (len(l:sorted) > 1 ? (len(l:sorted) - 1) . "j" : "")
+  else
+    silent! normal! gv
+  endif
+
   call GrooVim_GrooVimBarMsg(len(l:sorted) . " line(s) in order" .
    \ (l:gone > 0 ? ", and " . l:gone . " repeated one(s) taken off" : "") . "!", 4)
 

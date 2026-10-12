@@ -112,14 +112,15 @@ let g:GrooVim_Shortcuts = [
  \  "what": "Sorts the lines you have selected",
  \  "notes": [
  \   "What it does with them is asked on F5->c and then |[t]| : whether the case counts, whether it climbs or falls, and whether a line that repeats is kept",
- \   "Over a BLOCK (F2->b) the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is"
+ \   "By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering |xx-3| , |yy-1| , |zz-2| from the fourth column gives |yy-1| , |zz-2| , |xx-3|",
+ \   "The lines are still selected afterwards, so a second thing can be done to them"
  \  ]},
- \ {"where": "Edit", "group": "F2", "key": "h", "modes": "niv", "run": ':left', "menu": "Align left", "what": "Aligns to left"},
- \ {"where": "Edit", "group": "F2", "key": "k", "modes": "niv", "run": ':right', "menu": "Align right", "what": "Aligns to right"},
- \ {"where": "Edit", "group": "F2", "key": "j", "modes": "niv", "run": ':center', "menu": "Align centre", "what": "Aligns to center"},
- \ {"where": "Edit", "group": "F2", "key": "up", "break": 1, "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("U")', "v": 'call GrooVim_ToUpperLower("Upper")'}, "menu": "UPPERCASE", "what": "Changes to uppercase"},
- \ {"where": "Edit", "group": "F2", "key": "down", "modes": "niv", "run": {"ni": 'call GrooVim_CaseOfTheWord("u")', "v": 'call GrooVim_ToUpperLower("Lower")'}, "menu": "lowercase", "what": "Changes to lowercase"},
- \ {"where": "Edit", "group": "F2", "key": "t", "modes": "niv", "run": 'call GrooVim_ToTitleCase(l:mode)',
+ \ {"where": "Edit", "group": "F2", "key": "h", "modes": "niv", "keepsel": 1, "run": ':left', "menu": "Align left", "what": "Aligns to left"},
+ \ {"where": "Edit", "group": "F2", "key": "k", "modes": "niv", "keepsel": 1, "run": ':right', "menu": "Align right", "what": "Aligns to right"},
+ \ {"where": "Edit", "group": "F2", "key": "j", "modes": "niv", "keepsel": 1, "run": ':center', "menu": "Align centre", "what": "Aligns to center"},
+ \ {"where": "Edit", "group": "F2", "key": "up", "break": 1, "modes": "niv", "keepsel": 1, "run": {"ni": 'call GrooVim_CaseOfTheWord("U")', "v": 'call GrooVim_ToUpperLower("Upper")'}, "menu": "UPPERCASE", "what": "Changes to uppercase"},
+ \ {"where": "Edit", "group": "F2", "key": "down", "modes": "niv", "keepsel": 1, "run": {"ni": 'call GrooVim_CaseOfTheWord("u")', "v": 'call GrooVim_ToUpperLower("Lower")'}, "menu": "lowercase", "what": "Changes to lowercase"},
+ \ {"where": "Edit", "group": "F2", "key": "t", "modes": "niv", "keepsel": 1, "run": 'call GrooVim_ToTitleCase(l:mode)',
  \  "menu": "Title Case", "what": "Title Case: the first letter of every word up, the rest down",
  \  "notes": [
  \   "In normal and insert mode it is the word under the cursor; in visual mode, every word of the selection and nothing outside it. An apostrophe ENDS a word, so \"don't\" becomes \"Don'T\"",
@@ -608,7 +609,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  <Alt-i>/<Alt-o> - BACK to where you came from, and forward again (normal mode/insert/visual): a search, a |G| , a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want;".
 \"\n*o*  <Ctrl-b> - from one bracket to the one that closes it, and it takes the selection with it (normal mode/insert/visual);".
 \"\n*o*  |m| and |M| - to the next marked line and to the one before (normal mode);".
-\"\n*o*  F2->o - puts the SELECTED lines in order (normal mode/insert/visual). Whether the case counts, whether the order climbs or falls and whether a line that repeats is kept are asked on F5->c and then |[t]| ; and over a BLOCK the comparison starts at the column of the block, so you can order by a field and leave the rest of the line where it is.".
+\"\n*o*  F2->o - puts the SELECTED lines in order (normal mode/insert/visual), and leaves them selected. What it does with them is asked on F5->c and then |[t]| : whether a capital counts as a small letter, |[a]|-z or |[d]|-a, and whether a line that repeats is kept;".
+\"\n   |-|By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then F2->o . Ordering |xx-3| , |yy-1| , |zz-2| from the fourth column gives |yy-1| , |zz-2| , |xx-3| -- the rest of each line comes along with it. A plain selection compares the whole line.".
 \"\n".
 \"\n * Your tabs~".
 \"\n".

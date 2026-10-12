@@ -31,6 +31,7 @@ func! GT_Body()
   call setline(1, "keep this and TITLE these WORDS and keep this too")
   call cursor(1, 15)
   call feedkeys("v15l\<F2>t", "x")
+  exec "normal! \<Esc>"
   call GT_Ok("visual: every word of the selection changed",
     \ getline(1) ==# "keep this and Title These Words and keep this too",
     \ "   [" . getline(1) . "]   (only the first one, with gdefault inverting the /g)")
@@ -43,6 +44,7 @@ func! GT_Body()
   call setline(1, "abc")
   call cursor(1, 1)
   call feedkeys("v2l\<F2>t", "x")
+  exec "normal! \<Esc>"
   call GT_Ok("visual: a whole short word", getline(1) ==# "Abc", "   [" . getline(1) . "]")
 
   " ---- where the word boundaries fall
@@ -52,6 +54,9 @@ func! GT_Body()
   call setline(1, "o'brien don't x2 a_b end")
   call cursor(1, 1)
   call feedkeys("v$\<F2>t", "x")
+  call GT_Ok("  and the selection is still there afterwards", mode(1) =~# "^[vV]",
+    \ "   (mode " . mode(1) . ")   (the shortcut asks for it with \"keepsel\")")
+  exec "normal! \<Esc>"
   call GT_Ok("every word of the line starts with a capital",
     \ getline(1) ==# "O'Brien Don'T X2 A_b End",
     \ "   [" . getline(1) . "]   (an apostrophe ENDS a word, so \"don't\" is \"Don'T\")")
