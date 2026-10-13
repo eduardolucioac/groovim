@@ -277,6 +277,97 @@ func! GrooVim_CheckCapsLockTimer() abort
   checktime
 endfunc
 
+" Note: The file went away from under the document, and what Vim has to say
+" about it is "E211: File "teste.txt" no longer available" -- a line in red that
+" tells you what happened and gives you nothing to do about it. Your text is
+" still on the screen, the document still looks saved, and the next thing you
+" press writes it nowhere.
+"
+" So it is a question, the one Notepad++ asks: keep it here, and it comes back
+" to the screen as a document with changes in it -- one save and the file is on
+" disk again -- or let it go with the file, and the tab closes.
+"
+" Nothing of that can be done from INSIDE the event: an autocommand of this kind
+" is not allowed to change buffers or windows, and a question asked there is
+" asked in the middle of whatever Vim was doing. The buffer is written down and
+" the asking happens a moment later, out of a timer.
+"
+" Every OTHER reason for this event stays Vim's own. A file CHANGED under you is
+" a different matter and already has a good answer -- "ask" is the choice that
+" leaves the warning and the question about reloading exactly as they were.
+autocmd! FileChangedShell * call GrooVim_FileGoneNoticed()
+
+" Note: And the disk is looked at when you come BACK to the window, which is
+" when a file is most likely to have moved under you -- the clock above only
+" ticks while you are here, so a file deleted in another window went unnoticed
+" until the next key.
+autocmd! FocusGained * checktime
+
+let s:gone = []
+
+func! GrooVim_FileGoneNoticed() abort
+
+  if v:fcs_reason !=# "deleted"
+    let v:fcs_choice = "ask"
+    return
+  endif
+
+  let v:fcs_choice = ""
+
+  let l:buffer = str2nr(expand("<abuf>"))
+  if getbufvar(l:buffer, "GrooVim_FileGone", 0) || index(s:gone, l:buffer) >= 0
+    return
+  endif
+
+  call add(s:gone, l:buffer)
+  call timer_start(10, {t -> GrooVim_FileGoneAsk()})
+
+endfunc
+
+" Note: The question itself, one document at a time -- "rm *.txt" takes several
+" at once and each one of them is yours to decide about.
+"
+" Asked ONCE per document: the clock checks the disk every time it ticks, and a
+" question that comes back every second over a file that is not coming back is
+" not a question. It is asked again if the document is saved, which puts the
+" file on disk and leaves something to lose again.
+func! GrooVim_FileGoneAsk() abort
+
+  while !empty(s:gone)
+    let l:buffer = remove(s:gone, 0)
+    if !bufexists(l:buffer) || filereadable(bufname(l:buffer))
+      continue
+    endif
+    call setbufvar(l:buffer, "GrooVim_FileGone", 1)
+    let l:name = fnamemodify(bufname(l:buffer), ":t")
+
+    let l:answer = GrooVim_ScreenAsk("\"" . l:name . "\" is gone from the disk. Keep it here " .
+     \ GrooVim_OptionsToPrompt(["y", "n"], "y", ""),
+     \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
+    echomsg "   "
+
+    if l:answer ==# "y"
+      call setbufvar(l:buffer, "&modified", 1)
+      call GrooVim_GrooVimBarMsg("\"" . l:name .
+       \ "\" is only here now! Save it to put it back on the disk.", 6)
+      continue
+    endif
+
+    let l:windows = win_findbuf(l:buffer)
+    if empty(l:windows)
+      exec "silent! bwipeout! " . l:buffer
+      continue
+    endif
+    call win_gotoid(l:windows[0])
+    call GrooVim_TabClose()
+  endwhile
+
+endfunc
+
+" Note: Saved again, so the file is on disk once more and there is something to
+" lose the next time it goes.
+autocmd! BufWritePost * call setbufvar(str2nr(expand("<abuf>")), "GrooVim_FileGone", 0)
+
 " Note: And the same thing for visual mode, where "CursorHold" never happens.
 "
 " A movement puts itself out of reach while it runs -- hold the key down and

@@ -111,7 +111,10 @@ and both are asked on one screen -- **F5 c** and then `[f]`:
    "utf-8, by converting";
  * What ends a line: `[u]nix` LF, `[w]indows` CRLF, `[m]acintosh` CR;
  * Reading again throws away what you have not written yet, so it is refused
-   while there is something to lose.
+   while there is something to lose;
+ * A file **deleted** from the disk while it is open asks whether to keep it
+   here. Yes brings the document back as one with changes in it, so one save
+   puts the file on disk again; no lets it go with the file, and the tab closes.
 
 What the file is on right now is on the bar at the bottom: `[utf-8,unix]`, with
 a `,B` when there is a BOM.

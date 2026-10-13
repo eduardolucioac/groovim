@@ -644,7 +644,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  The encoding and what to do with it, in ONE answer of two letters. The encoding is |[a]nsi| , |[u]tf-8| , utf-8 with |[b]om| , utf-16 |[l]e| or utf-16 b|[e]| ; what to do with it is |[r]| , which READS the file again with that encoding -- the bytes do not move and their meaning changes -- or |[c]| , which CONVERTS the file -- the text does not move and the bytes do. So |uc| is \"utf-8, by converting\";".
 \"\n*o*  What ends a line: |[u]nix| LF, |[w]indows| CRLF, |[m]acintosh| CR;".
 \"\n*o*  An EMPTY answer leaves THAT question alone and goes on to the next, so pressing <Enter> through the screen leaves the file as it found it. What was done and what was not is said on the bar afterwards;".
-\"\n*o*  Reading again throws away what you have not written yet, so it is refused while there is something to lose.".
+\"\n*o*  Reading again throws away what you have not written yet, so it is refused while there is something to lose;".
+\"\n*o*  A file DELETED from the disk while it is open asks whether to keep it here. Yes brings the document back as one with changes in it, so one save puts the file on disk again; no lets it go with the file, and the tab closes.".
 \"\n".
 \"\n The LANGUAGE -- what Vim calls the |filetype| , and what decides the colours, the indenting and the comment character -- is asked one screen over, with F5->c and then |[v]| . |none| leaves the file as plain text, and <Tab> completes among the hundreds Vim ships.".
 \"\n".

@@ -294,10 +294,51 @@ call GT_Ok("a tab opened afterwards starts clean",
   \ "   [bomb=" . &bomb . " " . &fileformat . "]")
 tabonly!
 
-call delete(g:GT_OUT . "/tab_one.txt")
-call delete(g:GT_OUT . "/tab_two.txt")
-call delete(g:GT_FILE)
-call GT_Done()
+  call delete(g:GT_OUT . "/tab_one.txt")
+  call delete(g:GT_OUT . "/tab_two.txt")
+  call delete(g:GT_FILE)
+
+  " ---- the file goes away from under the document
+  "
+  " What Vim has to say about it is "E211: File "teste.txt" no longer available"
+  " -- a line in red that tells you what happened and gives you nothing to do
+  " about it: the text is still on the screen, the document still looks saved,
+  " and the next thing you press writes it nowhere.
+  let g:GT_GONE = g:GT_OUT . "/sumiu.txt"
+  call writefile(["uma linha", "outra linha"], g:GT_GONE)
+  exec "edit! " . g:GT_GONE
+  call delete(g:GT_GONE)
+  checktime
+  call timer_start(300, {t -> feedkeys("y\<CR>", "t")})
+  call GT_When("&modified", "GT_AfterFileGone")
+endfunc
+
+func! GT_AfterFileGone()
+  call GT_Ok("a file deleted under the document is kept when you say so",
+    \ &modified && getline(1, "$") ==# ["uma linha", "outra linha"],
+    \ "   (modified=" . &modified . ")   " . string(getline(1, "$")))
+  call GT_Ok("  and it is marked as changed, so one save puts it back",
+    \ &modified == 1, "   (nothing was lost, and nothing is on disk)")
+  write
+  call GT_Ok("  which it does",
+    \ filereadable(g:GT_GONE) && readfile(g:GT_GONE) ==# ["uma linha", "outra linha"],
+    \ "   " . string(filereadable(g:GT_GONE) ? readfile(g:GT_GONE) : []))
+
+  call GT_Ok("and no is the other answer, which lets it go with the file",
+    \ GT_FunctionText("GrooVim_FileGoneAsk") =~ "GrooVim_TabClose" &&
+    \ GT_FunctionText("GrooVim_FileGoneAsk") =~ "bwipeout",
+    \ "   (the tab closes, as it does in Notepad++)")
+  call GT_Ok("  and the question is asked ONCE for each document",
+    \ GT_FunctionText("GrooVim_FileGoneNoticed") =~ "GrooVim_FileGone" &&
+    \ GT_FunctionText("GrooVim_FileGoneAsk") =~ 'setbufvar(l:buffer, "GrooVim_FileGone", 1)',
+    \ "   (the clock looks at the disk every time it ticks)")
+  call GT_Ok("  and a file that CHANGED is still Vim's own question",
+    \ GT_FunctionText("GrooVim_FileGoneNoticed") =~ 'v:fcs_reason !=# "deleted"' &&
+    \ GT_FunctionText("GrooVim_FileGoneNoticed") =~ 'v:fcs_choice = "ask"',
+    \ "   (another matter, and it already has a good answer)")
+
+  call delete(g:GT_GONE)
+  call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")
