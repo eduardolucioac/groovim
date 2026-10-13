@@ -279,7 +279,8 @@ nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 " It was written inside the copy, and the "save as" would have been the same
 " forty lines a second time -- with the second one drifting from the first the
 " day one of them was touched. What differs between them is one word in the
-" question and what is DONE with the answer; the asking is the same.
+" question -- the "what", which names the copy and is left out of a plain save
+" -- and what is DONE with the answer; the asking is the same.
 "
 " ONE question, the way every editor asks it: a name lands in the folder you
 " are in, and a name with a path in front of it lands where the path says. It
@@ -302,10 +303,11 @@ func! GrooVim_AskFileWhere(what, ...) abort
   let l:suggestion = a:0 > 0 ? a:1 : expand("%:t")
 
   while 1
-    let l:room = &columns - strdisplaywidth("NAME of the " . a:what .
-     \ " to save in \"\" (or a path and a name): ") - 20
-    let l:answer = GrooVim_Ask("NAME of the " . a:what . " to save in \"" .
-     \ GrooVim_PathShort(getcwd(), l:room) . "\" (or a path and a name): ",
+    let l:head = "Filename" . (a:what ==# "" ? "" : " of the " . a:what)
+    let l:room = &columns - strdisplaywidth(l:head .
+     \ " (\"\") or path and filename: ") - 20
+    let l:answer = GrooVim_Ask(l:head . " (\"" .
+     \ GrooVim_PathShort(getcwd(), l:room) . "\") or path and filename: ",
      \ l:suggestion, "file")
     let l:answer = substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
 
@@ -339,7 +341,7 @@ endfunc
 " Note: Save to disk and open in a new tab a copy of the current file.
 func! GrooVim_SaveACopy() range abort
 
-  let l:where = GrooVim_AskFileWhere("file copy")
+  let l:where = GrooVim_AskFileWhere("copy")
 
   try
     exec "w " . fnameescape(l:where)
@@ -362,7 +364,7 @@ endfunc
 " are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
-  let l:where = GrooVim_AskFileWhere("file")
+  let l:where = GrooVim_AskFileWhere("")
 
   try
     exec "saveas " . fnameescape(l:where)

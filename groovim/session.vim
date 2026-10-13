@@ -188,7 +188,7 @@ func! GrooVim_CloseNamelessSettle(buffer) abort
 
   " Note: No name to suggest: the one written in the question is the name of the
   " file you are ON, and this document is another one.
-  let l:where = GrooVim_AskFileWhere("file", "")
+  let l:where = GrooVim_AskFileWhere("", "")
 
   try
     call win_execute(l:windows[0], "saveas " . fnameescape(l:where))
