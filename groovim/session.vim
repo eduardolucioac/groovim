@@ -189,14 +189,24 @@ func! GrooVim_CloseSettle(buffer, tabs) abort
     endif
   endfor
 
+  " Note: WHICH document, said the way the bar at the bottom says it: the whole
+  " path, shortened to what is left of the line. Two files called "teste.txt" in
+  " two folders are two files, and the one you are about to lose is worth
+  " naming. The name of a document that was never saved is all there is of it.
   let l:nameless = bufname(a:buffer) ==# ""
+  let l:tail = " " . GrooVim_OptionsToPrompt(["y", "n"], "y", "")
   let l:name = l:nameless ? GrooVim_NewNameOf(a:buffer)
-   \ : fnamemodify(bufname(a:buffer), ":t")
+   \ : GrooVim_PathShort(fnamemodify(bufname(a:buffer), ":p"),
+   \   &columns - strdisplaywidth(g:GrooVim_ScreenMark . "Save \"\"" . l:tail) - 2)
 
-  let l:answer = GrooVim_ScreenAsk("Save \"" . l:name . "\" " .
-   \ GrooVim_OptionsToPrompt(["y", "n"], "y", ""),
+  let l:answer = GrooVim_ScreenAsk("Save \"" . l:name . "\"" . l:tail,
    \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
-  echomsg "   "
+
+  " Note: And the question is taken off the screen. It is asked on the way OUT
+  " of a document -- what comes after it is a tab closing, which draws the text
+  " and the tab line again and leaves the command line alone: the question sat
+  " there, answered, over whatever you went to next.
+  redraw!
 
   if l:answer ==# "n"
     call setbufvar(a:buffer, "&modified", 0)
@@ -222,6 +232,7 @@ func! GrooVim_CloseSettle(buffer, tabs) abort
     return 0
   endtry
 
+  redraw!
   return 1
 
 endfunc

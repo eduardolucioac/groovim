@@ -208,10 +208,13 @@ func! GT_AfterCloseNamed()
     \ GT_FunctionText("GrooVim_CloseSettle") =~ 'l:write = "write"' &&
     \ GT_FunctionText("GrooVim_CloseSettle") =~ "saveas",
     \ "   (a document that was never saved is asked WHERE first)")
-  call GT_Ok("  and the name in the question is the name of the file",
-    \ GT_FunctionText("GrooVim_CloseSettle") =~
-    \   'fnamemodify(bufname(a:buffer), ":t")',
-    \ "   (and not the line and a half of path Vim writes out)")
+  call GT_Ok("  and it says WHICH file, the way the bar at the bottom does",
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "GrooVim_PathShort" &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "&columns",
+    \ "   (the whole path, shortened to what is left of the line)")
+  call GT_Ok("  and it is taken off the screen once answered",
+    \ len(split(GT_FunctionText("GrooVim_CloseSettle"), "redraw!")) >= 3,
+    \ "   (a tab closing draws the text again and leaves the command line be)")
   call GT_Ok("  and a document still open somewhere else is not asked about",
     \ GT_FunctionText("GrooVim_CloseSettle") =~ "win_id2tabwin" &&
     \ GT_FunctionText("GrooVim_CloseSettle") =~ "index(a:tabs",
