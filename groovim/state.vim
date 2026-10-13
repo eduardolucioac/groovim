@@ -346,7 +346,10 @@ func! GrooVim_FileGoneAsk() abort
      \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
     echomsg "   "
 
-    if l:answer ==# "y"
+    " Note: Anything but a NO keeps it -- the question says "[y[default]]", and
+    " an <Enter> on its own is that default. It read the empty answer as a no
+    " and closed the document over it.
+    if l:answer !=# "n"
       call setbufvar(l:buffer, "&modified", 1)
       call GrooVim_GrooVimBarMsg("\"" . l:name .
        \ "\" is only here now! Save it to put it back on the disk.", 6)

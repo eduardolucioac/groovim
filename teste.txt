@@ -1,6 +1,0 @@
-* Text selection:
-    - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
-    - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
-    - How much is selected is on the bar at the bottom while you hold it, the "Sel" of Notepad++, after the percentage: `[46,3]` is 46 **characters** -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over `g:GrooVim_SelectionCountLimit` lines (2000) a `-` stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it; ?????? Para quê tantos detalhes técnicos. Focalize na funcionalidade. Não há necessidade de ficar citando o Notepad++.
-
-

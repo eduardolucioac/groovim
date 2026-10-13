@@ -72,7 +72,8 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Save as...", "what": "Saves under another name and goes on editing THAT one",
  \  "notes": [
  \   "Beside |F5->s| , which saves, and |F5->e| , which saves every changed file. The COPY is |F2->y| : that one writes the file and leaves you where you were",
- \   "One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths"
+ \   "One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths",
+ \   "A file that is already there is asked about before it is written over, and a no asks for the name again"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "menu": "New tab", "what": "Open a new tab",

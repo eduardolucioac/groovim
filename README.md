@@ -266,6 +266,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F5->a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
         - Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
         - One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
+        - A file that is already there is asked about before it is written over, and a no asks for the name again;
     - `F5->n` - Open a new tab *(normal mode/insert/visual)*;
         - A document you have not saved yet is called new 1 , new 2 ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;

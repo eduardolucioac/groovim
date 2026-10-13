@@ -225,6 +225,43 @@ func! GT_AfterCloseNamed()
     \ "   (F5->x, which takes them all with it)")
   call delete(g:GT_CLOSED)
 
+  " ---- and a file that is already there is asked about before it is written over
+  "
+  " Vim refuses with "E13: File exists (add ! to override)", an error about a
+  " flag of a command nobody typed, and the name you spent a minute choosing is
+  " gone with it.
+  let g:GT_THERE = g:GT_OUT . "/ja_existe.txt"
+  call writefile(["ja estava aqui"], g:GT_THERE)
+  tabnew
+  call setline(1, ["algo novo"])
+  call timer_start(100, {t -> GrooVim_SaveAs()})
+  call timer_start(400, {t -> feedkeys("\<C-u>" . g:GT_THERE . "\<CR>", "t")})
+  call timer_start(700, {t -> feedkeys("y\<CR>", "t")})
+  call GT_When('expand("%:p") ==# g:GT_THERE', "GT_AfterReplace")
+endfunc
+
+func! GT_AfterReplace()
+  call GT_Ok("a file already there is replaced when you say so",
+    \ readfile(g:GT_THERE) ==# ["algo novo"],
+    \ "   " . string(readfile(g:GT_THERE)) . "   (and not an E13 about a flag)")
+  call GT_Ok("  and the question is asked where the name is asked",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "filereadable(l:where)" &&
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "is already there. Replace it",
+    \ "   (one question about one answer, in the place it was given)")
+  call GT_Ok("  and a no asks for the name again, instead of walking out",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'l:replace !=# "y"',
+    \ "   (you came here to save something, and it is not saved yet)")
+  call GT_Ok("  and the default is the answer that destroys nothing",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~
+    \   'OptionsToPrompt(\["y", "n"\], "n"',
+    \ "   (nothing is written over by an <Enter> you did not read)")
+  call GT_Ok("  and whoever asked writes with the form that overrides",
+    \ GT_FunctionText("GrooVim_SaveAs") =~ "saveas! " &&
+    \ GT_FunctionText("GrooVim_SaveACopy") =~ 'exec "w! ' &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "saveas! ",
+    \ "   (which is what the question was asked for)")
+  call delete(g:GT_THERE)
+
   call GT_Done()
 endfunc
 

@@ -333,6 +333,27 @@ func! GrooVim_AskFileWhere(what, ...) abort
       continue
     endif
 
+    " Note: A file that is already THERE is asked about before it is written
+    " over -- "File already exists. Do you want to replace it?" , which is how
+    " every editor asks. Vim refuses with "E13: File exists (add ! to
+    " override)", an error about a flag of a command nobody typed, and the name
+    " you spent a minute choosing is gone with it.
+    "
+    " A no asks for the name again instead of walking out: you came here to save
+    " something, and it is not saved yet. The default is no -- the answer that
+    " destroys nothing -- and whoever asked us writes with the "!" form, which
+    " is what this question was asked for.
+    if filereadable(l:where)
+      let l:replace = GrooVim_ScreenAsk("\"" . GrooVim_PathShort(l:where, l:room) .
+       \ "\" is already there. Replace it " .
+       \ GrooVim_OptionsToPrompt(["y", "n"], "n", ""),
+       \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
+      redraw!
+      if l:replace !=# "y"
+        continue
+      endif
+    endif
+
     return l:where
   endwhile
 
@@ -344,7 +365,7 @@ func! GrooVim_SaveACopy() range abort
   let l:where = GrooVim_AskFileWhere("copy")
 
   try
-    exec "w " . fnameescape(l:where)
+    exec "w! " . fnameescape(l:where)
     exec "tabnew " . fnameescape(l:where)
     call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
     redraw!
@@ -367,7 +388,7 @@ func! GrooVim_SaveAs() range abort
   let l:where = GrooVim_AskFileWhere("")
 
   try
-    exec "saveas " . fnameescape(l:where)
+    exec "saveas! " . fnameescape(l:where)
     call GrooVim_GrooVimBarMsg("Saved as \"" . fnamemodify(l:where, ":t") .
      \ "\"! You are editing it now.", 4)
     redraw!

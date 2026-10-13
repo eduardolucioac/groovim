@@ -220,7 +220,7 @@ func! GrooVim_CloseSettle(buffer, tabs) abort
   if l:nameless
     let l:where = GrooVim_AskFileWhere("", "")
     let l:name = fnamemodify(l:where, ":t")
-    let l:write = "saveas " . fnameescape(l:where)
+    let l:write = "saveas! " . fnameescape(l:where)
   endif
 
   try

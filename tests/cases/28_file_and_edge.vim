@@ -309,12 +309,14 @@ tabonly!
   exec "edit! " . g:GT_GONE
   call delete(g:GT_GONE)
   checktime
-  call timer_start(300, {t -> feedkeys("y\<CR>", "t")})
+  " Note: An <Enter> on its own, which is the default the question writes down
+  " -- it read the empty answer as a NO and closed the document over it.
+  call timer_start(300, {t -> feedkeys("\<CR>", "t")})
   call GT_When("&modified", "GT_AfterFileGone")
 endfunc
 
 func! GT_AfterFileGone()
-  call GT_Ok("a file deleted under the document is kept when you say so",
+  call GT_Ok("a file deleted under the document is kept on the default answer",
     \ &modified && getline(1, "$") ==# ["uma linha", "outra linha"],
     \ "   (modified=" . &modified . ")   " . string(getline(1, "$")))
   call GT_Ok("  and it is marked as changed, so one save puts it back",
@@ -324,6 +326,9 @@ func! GT_AfterFileGone()
     \ filereadable(g:GT_GONE) && readfile(g:GT_GONE) ==# ["uma linha", "outra linha"],
     \ "   " . string(filereadable(g:GT_GONE) ? readfile(g:GT_GONE) : []))
 
+  call GT_Ok("  and anything but a no keeps it",
+    \ GT_FunctionText("GrooVim_FileGoneAsk") =~ 'l:answer !=# "n"',
+    \ "   (the question says [y[default]], and <Enter> is that default)")
   call GT_Ok("and no is the other answer, which lets it go with the file",
     \ GT_FunctionText("GrooVim_FileGoneAsk") =~ "GrooVim_TabClose" &&
     \ GT_FunctionText("GrooVim_FileGoneAsk") =~ "bwipeout",
