@@ -661,7 +661,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n<  With no argument it tells you the width in force;".
 \"\n*o*  Only the file types you choose are touched. Vim already ships file type plugins that know what they are doing, and some of them are not a matter of taste -- *make* needs a REAL tab on its recipe lines.".
 \"\n".
-\"\n Every setting of this has a name of its own you can write in your own configuration, and they are listed in the|README.md|of the project.".
+\"\n Every setting of this has a name of its own -- see |The|settings|with|a|name|of|their|own| , further down.".
 \"\n".
 \"\n * The clipboard~".
 \"\n".
@@ -683,6 +683,25 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is built for one architecture and linked against one libc; what works on the machine it was built on is exactly what cannot be promised anywhere else. GrooVim looks for the tool in|~/.groovim/bin| first and then in your|$PATH| , so you can drop one there by hand where a package manager is not an option.".
 \"\n".
+\"\n * The settings with a name of their own~".
+\"\n".
+\"\n Every screen of F5->c writes what you choose into|~/.groovim/opts.vim| , and the same things have a NAME you can write into a configuration of your own. These are the ones worth knowing:".
+\"\n".
+\"\n*o*  The INDENT: |g:GrooVim_IndentWidth| (2 columns), |g:GrooVim_IndentWidthPerType| (a width per file type, |{\"python\":|4}| ), |g:GrooVim_IndentExpandTab| (1 for spaces, 0 for a real tab) and |g:GrooVim_IndentGuideChar| ( |\"\"| turns the guides off);".
+\"\n*o*  What is DRAWN: |g:GrooVim_ShowSpaceAndTab| (a dot on every space and an arrow on every tab), |g:GrooVim_EdgeColumn| (79, the column of the long line mark, 0 for none) and |g:GrooVim_WordWrap| ;".
+\"\n*o*  The TABS: |g:GrooVim_TabOnePerFile| (a file already open is not opened again), |g:GrooVim_TabPinMark| (the mark the pinned tab wears) and |g:GrooVim_TabMoreLeft| , |g:GrooVim_TabMoreRight| (what the tab line ends with when it scrolls);".
+\"\n*o*  The F keys: |g:GrooVim_CommandZWait| , how long you have for the second key;".
+\"\n*o*  The SELECTION count on the bar: |g:GrooVim_SelectionCountLimit| (2000 lines). Over that a |-| stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it;".
+\"\n*o*  The SORT: |g:GrooVim_SortCase| , |g:GrooVim_SortOrder| and |g:GrooVim_SortUnique| , which are what F5->c and then |[t]| asks;".
+\"\n*o*  The file TYPES Vim does not know: |g:GrooVim_SyntaxPerExtension| , and what you write there replaces the list, so keep the ones you want: >".
+\"\n     let g:GrooVim_SyntaxPerExtension = {\"inc\": \"html\", \"gds\": \"vb\", \"ejs\": \"html\"}".
+\"\n<".
+\"\n*o*  The SESSION that comes back by itself: |g:GrooVim_SessionAuto| ;".
+\"\n*o*  The PLUGINS: |g:enable_nerdtree_vim| , |g:enable_tcomment_vim| and |g:enable_move_vim| -- |0| ignores one and |1| forces it -- or |let|g:enable_all_plugins|=|0| for every one at once;".
+\"\n*o*  Where GrooVim keeps ITSELF: |GROOVIM_HOME| , of the environment, moves the whole of it -- the plugins, the saved options, the undo, the session, the viminfo: >".
+\"\n     GROOVIM_HOME=~/.groovim-work groovim file.txt".
+\"\n<  Two of those side by side are two GrooVim that know nothing of each other, on one machine.".
+\"\n".
 \"\n * The F keys (CommandZ)~".
 \"\n".
 \"\n |CommandZ| is a kind of \"super leader\": <F2>, <F3>, <F4> or <F5> and then one more key. It is what gives GrooVim room for many shortcuts in a terminal, where the combinations a keyboard can send run out fast.".
@@ -702,6 +721,6 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n * What is missing, and what is being worked on~".
 \"\n".
-\"\n The list lives in the|README.md|of the project, beside the code.".
+\"\n It is a BETA, and what is open is open where the code is:|" . g:GrooVim_Url . "| . The |README.md| of the project tells what GrooVim can do, and this help tells how it does it.".
 \"\n".
 \"\n*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*"

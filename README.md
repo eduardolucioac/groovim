@@ -13,10 +13,29 @@ There are more of them below and all of them in [`demos/`](demos/README.md).
 **NOTE:** They are made by a script and not recorded by hand -- change the editor, run
 `./tools/make-demos.sh`, and they say what it says now. ☺️
 
-What is GrooVim?
+Table of Contents
 -----
 
-**Note:** If you want to start using GrooVim immediately go to section: <a href="#installGrooVim">**"I do not want to know anything about GrooVim and want to start using it now and with all the features!"**</a>.
+- [What is GrooVim?](#what-is-groovim)
+- [Before you start!](#before-you-start)
+- [The keys you already know!](#the-keys-you-already-know)
+- [What GrooVim adds!](#what-groovim-adds)
+- [The questions GrooVim asks!](#the-questions-groovim-asks)
+- [The file you have open!](#the-file-you-have-open)
+- [Indentation!](#indentation)
+- [Moving, marking and ordering!](#moving-marking-and-ordering)
+- [The F keys (CommandZ)!](#the-f-keys-commandz)
+- [Is it working?](#is-it-working)
+- [If you liked it, consider helping the project!](#if-you-liked-it-consider-helping-the-project)
+- [How GrooVim is installed!](#how-groovim-is-installed)
+   * [Editing files of the system](#editing-files-of-the-system)
+   * [About the clipboard](#about-the-clipboard)
+   * [A Vim of its own](#a-vim-of-its-own)
+- [Install GrooVim and start using it now!](#installGrooVim)
+- [About](#about)
+
+What is GrooVim?
+-----
 
 GrooVim is an extensive script -- a `.vimrc` and the parts it loads -- that
 remodels Vim into a simpler, more intuitive and more productive editor. What it
@@ -28,19 +47,35 @@ is after:
  * Free software (GNU GPL v3.0 or later), open and community-supported;
  * At home where only a terminal exists: a server, an SSH, a machine with no desktop.
 
-Before you start with the GrooVim!
+In a hurry? <a href="#installGrooVim">**Install it and start using it now**</a>.
+
+This file says what GrooVim **can do**. **F9** opens the help inside it, which
+says **how**: every screen, every answer, the whole list of shortcuts and the
+name of every setting. The list of shortcuts in the two is written from the same
+place, and a test refuses to pass while they disagree.
+
+Before you start!
 -----
 
-IMPORTANT_I! If you do not know how Vim works, open a terminal, run __vimtutor__ and do the exercises -- 25 to 30 minutes. GrooVim does not replace the Vim underneath it, it sits on top, so knowing the Vim in its basics is what lets you use this one well -- and contribute to it.
+**IMPORTANT I!** If you do not know how Vim works, open a terminal, run
+__vimtutor__ and do the exercises -- 25 to 30 minutes. GrooVim does not replace
+the Vim underneath it, it sits on top, so knowing Vim in its basics is what lets
+you use this one well -- and contribute to it.
 
-IMPORTANT_II! Everything here was possible because of the Vim API. The editor you are using is Vim; what GrooVim adds is how it answers you.
+**IMPORTANT II!** Everything here was possible because of the Vim API. The
+editor you are using is Vim; what GrooVim adds is how it answers you.
 
- * The shortcuts may clash with the ones of YOUR system. A terminal cannot carry every combination, so when there is a clash it is easier to move the one of the system;
- * Three plugins are used when they are installed, and GrooVim works without any of them -- [NERDTree](https://github.com/preservim/nerdtree), the file tree; [tcomment](https://github.com/tomtom/tcomment_vim), which comments lines; [move](https://github.com/matze/vim-move), which moves a line or a selection;
- * No plugin manager is needed: Vim loads whatever is under `~/.groovim/pack/*/start` by itself. Each one is DETECTED, so what is missing simply stays quiet, and a shortcut that needs it says so instead of failing;
- * To force or to ignore one: `let g:enable_tcomment_vim = 0/1`, or all of them at once with `let g:enable_all_plugins = 0`.
+ * The shortcuts may clash with the ones of YOUR system. A terminal cannot carry
+   every combination, so when there is a clash it is easier to move the one of
+   the system;
+ * Three plugins are used when they are installed, and GrooVim works without any
+   of them -- [NERDTree](https://github.com/preservim/nerdtree), the file tree;
+   [tcomment](https://github.com/tomtom/tcomment_vim), which comments lines;
+   [move](https://github.com/matze/vim-move), which moves a line or a selection.
+   Each one is detected: what is missing stays quiet, and a shortcut that needs
+   it says which plugin is missing instead of failing.
 
-The GrooVim solves the following "problems"!
+The keys you already know!
 -----
 
 These do in GrooVim what they do in any editor:
@@ -53,39 +88,42 @@ These do in GrooVim what they do in any editor:
  * **PageDown**/**PageUp**, the mouse wheel and a click - and they reach the places with no text on them: a short line, the gap after the end of one *(normal mode/insert/visual)*;
  * **Alt-.**/**Alt-,** - one key walks to the next/previous window, going round *(normal mode/insert/visual)*. Ctrl-w stays the key of Vim, which every window command begins with.
 
-Some editor features!
+What GrooVim adds!
 -----
 
- * Switching between modes, with the cursor staying where and more...
-    - Shift-Up (normal mode/insert/visual) - Enter or exit the insert mode;
-    - Shift-Down (normal mode/insert/visual) - Enter or exit the visual mode;
+Vim is not turned into another editor here: what changes is how it **answers**.
+The keys an editor user already has in their fingers do what they do everywhere,
+what an editor has and Vim has not is built on top, and what Vim does that
+surprises a newcomer is moved out of the way. That is most of the work, and this
+is some of it:
+
+ * **Shift-Up** and **Shift-Down** walk in and out of insert and of the
+   selection, and the cursor stays where it is *(normal mode/insert/visual)*:
 
 ![In and out of the modes](demos/07_modes.gif)
 
- * Text selection:
-    - Alt-Right/Alt-Left (normal mode/insert/visual) - Word selection to the right/left;
-    - Alt-End/Alt-Home (normal mode/insert) - Select text on the line until the end/beginning from the current point;
-    - How much is selected is on the bar at the bottom while you hold it, the "Sel" of Notepad++, after the percentage: `[46,3]` is 46 **characters** -- not bytes, so an accented letter counts as one -- lying on 3 lines. Over `g:GrooVim_SelectionCountLimit` lines (2000) a `-` stands where the characters would be, because counting the characters of a selection that big is slower than the key that grows it; ?????? Para quê tantos detalhes técnicos. Focalize na funcionalidade. Não há necessidade de ficar citando o Notepad++.
-
- * Conventional text editors commands:
-    - Ctrl-c (visual mode) - Copy to clipboard;
-    - Ctrl-v (normal mode/insert/visual) - Paste from clipboard;
-        - Note: Copying out always works. To PASTE what another application copied you need a clipboard tool installed, or your terminal own paste (usually Ctrl-Shift-v). See <a href="#clipboard">**"About the clipboard"**</a>;
-    - Ctrl-x (visual mode) - Cut to the clipboard;
-    - Ctrl-u (normal mode/insert/visual) - Undo;
-    - Ctrl-r (normal mode/insert/visual) - Redo;
-
- * Plugins (when they are installed):
-    - Ctrl-j/Ctrl-k (normal mode/insert/visual) - Move the line or the selection up/down (*move*);
-    - Alt-Up (normal mode/insert/visual) - Comment the line or the selection, and uncomment it (*tcomment*);
-    - F4 n - Open the file tree, the same one in every tab (*NERDTree*);
+ * **Alt-Right**/**Alt-Left** take a word at a time and **Alt-End**/**Alt-Home**
+   the rest of the line. How much is selected is on the bar at the bottom while
+   you hold it: `[46,3]` is 46 characters -- not bytes, so an accented letter
+   counts as one -- lying on 3 lines;
+ * The clipboard is the one of your system, with
+   <a href="#clipboard">**nothing to install**</a>, and it works over SSH too;
+ * **F2 b** opens the block selection, because **Ctrl-v** is the paste. **Ctrl-b**
+   walks from one bracket to the one that closes it -- `(` to `)`, `[` to `]`,
+   `{` to `}` -- and takes the selection with it;
+ * What you type and what you paste land where the cursor is, which is where you
+   put it;
+ * Extensions Vim does not know are given a type: an `.inc` opens as HTML and a
+   `.gds` as Visual Basic, and the list is yours to change;
+ * With the plugins installed: **Ctrl-j**/**Ctrl-k** move the line or the
+   selection, **Alt-Up** comments it and uncomments it, **F4 n** opens the file
+   tree -- the same one in every tab.
 
 The questions GrooVim asks!
 -----
 
-Every screen and every question -- the search value, the settings, the name of a
-file, the note of a mark -- is the command line of Vim: the arrows, the history,
-Backspace and the completion with Tab are the ones you already know. ?????? Para quê esta quantidadede informação? A ideia é apresentar a funcionalidade como um dos diferenciais e não detalhes "tecnicos".
+GrooVim asks instead of refusing, and every screen of it is answered the same
+way:
 
  * **Esc** gives the question up, at any point, and nothing is done. **Ctrl-c**
    does the same, and it is also what stops a long movement;
@@ -94,161 +132,99 @@ Backspace and the completion with Tab are the ones you already know. ?????? Para
  * Every screen ends asking whether to KEEP what you chose for the next time.
    Saying no changes this session and nothing on disk.
 
-**F5 c** opens the settings, and then one letter picks the screen: `[i]`ndent,
-`[v]`iew, `[f]`ile, `[s]`earch, `[r]`eplace, `[t]`ools, `[g]`eneral.
+**F5 c** opens the settings -- all of them -- and one letter picks the screen:
+`[i]`ndent, `[v]`iew, `[f]`ile, `[s]`earch, `[r]`eplace, `[t]`ools, `[g]`eneral.
 
 The file you have open!
 -----
 
 The encoding and what ends a line belong to the **document**, not to the editor,
-and both are asked on one screen -- **F5 c** and then `[f]`:
+and both are asked on one screen -- **F5 c** and then `[f]`: `[a]`nsi, `[u]`tf-8,
+utf-8 with `[b]`om, utf-16 `[l]`e or `[e]`b, and whether to **read** the file
+again with that encoding -- the bytes do not move and their meaning changes -- or
+to **convert** it -- the text does not move and the bytes do. What ends a line is
+`[u]`nix, `[w]`indows or `[m]`acintosh. What the file is on right now is on the
+bar at the bottom: `[utf-8,unix]`, with a `,B` when there is a BOM.
 
- * The encoding and what to do with it, in one answer of two letters. The
-   encoding is `[a]nsi`, `[u]tf-8`, utf-8 with `[b]om`, utf-16 `[l]e` or utf-16
-   b`[e]`; what to do with it is `[r]`, which **reads** the file again with that
-   encoding -- the bytes do not move and their meaning changes -- or `[c]`,
-   which **converts** it -- the text does not move and the bytes do. So `uc` is
-   "utf-8, by converting";
- * What ends a line: `[u]nix` LF, `[w]indows` CRLF, `[m]acintosh` CR;
- * Reading again throws away what you have not written yet, so it is refused
-   while there is something to lose;
- * A file **deleted** from the disk while it is open asks whether to keep it
-   here. Yes brings the document back as one with changes in it, so one save
-   puts the file on disk again; no lets it go with the file, and the tab closes.
+The **language** -- the colours, the indenting, the comment character -- is one
+screen over, with `[v]`, and Tab completes among the hundreds Vim ships.
 
-What the file is on right now is on the bar at the bottom: `[utf-8,unix]`, with
-a `,B` when there is a BOM.
-
-The **language** -- what Vim calls the `filetype`, and what decides the colours,
-the indenting and the comment character -- is asked one screen over, with
-**F5 c** and then `[v]`. `none` leaves the file as plain text, and Tab completes
-among the hundreds Vim ships.
+A file **deleted** from the disk while it is open asks whether to keep it here:
+yes brings the document back as one with changes in it, so one save puts the file
+on disk again; no lets it go with the file. Saving over a file that already
+exists asks before writing over it, and closing a document with changes in it
+asks what to do with them. Nothing of yours is ever lost to an error message.
 
 Indentation!
 -----
 
-The indent is **2 columns wide and made of spaces**, and the guides that draw the
-levels come from `listchars`, native to Vim.
+The indent is **2 columns wide and made of spaces**, with guides drawing the
+levels, a dot on every space and an arrow on every tab -- a space and a tab look
+the same and are not, and that is the kind of thing you want to see. The width
+and whether Tab puts spaces are asked with **F5 c** and then `[i]`; what the
+screen SHOWS -- the guides, the symbols, the mark of a long line, the word wrap
+-- is one screen over, with `[v]`.
 
- * `g:GrooVim_IndentWidth` - the general width;
- * `g:GrooVim_IndentWidthPerType` - the width per file type. One line is enough:
+Only the file types you choose are touched. Vim already ships file type plugins
+that know what they are doing, and some of them are not a matter of taste:
+**make** needs a REAL tab on its recipe lines and **go** is written with tabs by
+gofmt. Those are left alone. The guides read the width that is really in force,
+so they follow a `modeline` or a file type plugin without being told.
 
-```
-let g:GrooVim_IndentWidthPerType = {"python": 4, "javascript": 2}
-```
-
- * `g:GrooVim_IndentGuideChar` - the char of the guide, or `""` to turn the guides off;
- * `g:GrooVim_IndentExpandTab` - 1 for spaces, 0 for a real tab;
- * `g:GrooVim_ShowSpaceAndTab` - 1 draws a dot on every space and an arrow on
-   every tab. On by default: a space and a tab look the same and are not, and
-   that is the kind of thing you want to see;
- * `g:GrooVim_EdgeColumn` - the column the vertical line is drawn on, `79` by
-   default, or 0 for no line. It is drawn on every row, so a short line gets it
-   too;
- * `g:GrooVim_WordWrap` - 1 wraps a long line onto the next row instead of running
-   it off the screen, breaking at a space and not inside a word. It is the "Word
-   wrap" of Notepad++, off by default. With it on, **Up** and **Down** walk the
-   rows you see and not the lines of the file. It is about your DOCUMENTS: the
-   panels and the help always wrap, whatever you set here, because a line of a
-   list running off the screen is an answer you cannot read; ?????? Detalhes mais técnicos como configurações de variáveis devem ficar no HELP. A ideia principal do README e demonstrar as qualidades do GrooVim e dar uma idéia mais geral sobre o seu funcionamento.
-
-The width and whether Tab puts spaces are asked with **F5 c** and then `[i]`, the
-"Tab Settings" of Notepad++; what the screen SHOWS -- the guides, the symbols,
-the vertical line, the word wrap -- is one screen over, with **F5 c** and then
-`[v]`. To change only the buffer you are on, without leaving the keyboard:
-
-```
-GrooVimIndent 4 ?????? É difícil até entender do que se trata essa seção...
-```
-
-With no argument it tells you the width in force.
-
-Only the file types you list are touched. Vim already ships file type plugins that
-know what they are doing, and some of them are not a matter of taste: **make** needs
-a REAL tab on its recipe lines and **go** is written with tabs by gofmt. Those are
-left alone.
-
-The guides read the width from the standard Vim options when drawing, so they follow
-a `modeline`, a file type plugin or a `:set shiftwidth=` you type.
-
-Relevant changes in the default Vim behavior! ?????? Apenas informe que o GrooVim facilita o processo de edição substancialmente modificando o comportamento do vim para um comportamento mais próximo e direto ao que os usuários estão acostumados e facilitando muitos processos de edição...
+Moving, marking and ordering!
 -----
 
- - Use F2 b to enable visual block mode (not Ctrl+v). Ctrl+b walks from one bracket to the one that closes it -- `(` to `)`, `[` to `]`, `{` to `}` -- and takes the selection with it in visual mode;
- - When changes from visual mode to insert mode the cursor do not move;
- - Use the system clipboard whenever it can be reached, see <a href="#clipboard">**"About the clipboard"**</a>;
- - The "insert" (includes typed text) and "paste" from the same cursor position;
- - Extensions Vim does not know are given a type: `.inc` opens as HTML and `.gds`
-   as Visual Basic. The list is `g:GrooVim_SyntaxPerExtension`, and one line adds
-   your own -- what you write there replaces the two, so keep the ones you want:
-
-```
-let g:GrooVim_SyntaxPerExtension = {"inc": "html", "gds": "vb", "ejs": "html"} ?????? Configuração que deveria estar no HELP.
-```
-
-
-Script features!
------
-
- * Navigation
-
-    - Shift-Alt-Arrows (normal mode/insert/visual) - Smooth navigation across the screen (including invalid areas) with long movements;
-    - Ctrl-Alt-Arrows (normal mode/insert/visual) - Navigation with arrows across the screen (including invalid areas) using short movements;
-    - Alt-i/Alt-o (normal mode/insert/visual) - Back to where you came FROM, and forward again: a search, a `G`, a line opened from the occurrence list, another file. Walking with the arrows leaves nothing to come back to, which is what you want; ?????? Não precisa de tantos detalhes técnicos...
-    - Ctrl-Up/Ctrl-Down (normal mode/insert/visual) - Go to the next/previous tab;
-    - Ctrl-Shift-Up/Ctrl-Shift-Down (normal mode/insert/visual) - Carry the current tab to the next/previous place in the tab line;
-    - F5 t pins a tab and marks it on the line, and **Alt-Down** goes back to it from wherever you are *(normal mode/insert/visual)*;
-    - The **path** of the file is on the bar, with your home as `~` and the middle taken out when it does not fit (`~/Data0/.../_GROOVIM/01.txt`). Vim has no status bar of two lines, so what does not fit is not written -- **F2 Space** says the whole of it, in a balloon;
-    - A new tab is born at the **end** of the line, wherever you were when you asked for it: the order of the tabs is the order you opened them in. Vim puts it after the tab you are on;
-    - A file already **open is not opened again**: the new tab gives way and you land on the tab that has it, the way every conventional editor does. It is `g:GrooVim_TabOnePerFile`, and it is caught at the birth of a tab -- walking buffers inside a tab of your own is untouched;
-    - Two tabs with the **same file name** show the piece of the path that tells them apart: `a/help.vim` beside `b/help.vim`, and `b/.../help.vim` when what differs is further up. The name comes back alone as soon as the collision is gone;
-    - With more tabs than the line is wide the tab line **scrolls**: the tab you are on is always drawn whole, and a `‹` or a `›` at the end says the line goes on that way. It is `g:GrooVim_TabMoreLeft` and `g:GrooVim_TabMoreRight`;
-
-The smooth one glides instead of jumping, goes over the places where there is no
-text -- a short line, the gap after the end of one -- and keeps the column it
-started in:
+ * **Shift-Alt-Arrows** glide instead of jumping, go over the places where there
+   is no text -- a short line, the gap after the end of one -- and keep the
+   column they started in. **Ctrl-Alt-Arrows** do the same, one short step at a
+   time *(normal mode/insert/visual)*:
 
 ![Walking smoothly](demos/06_smooth_move.gif)
 
- * Marking
-
-    - F3 m - Mark every occurrence of the word under the cursor, or of the selection. See the shortcuts below;
-    - F3 f - Find, offering the word under the cursor. With the list switched on -- **F5 c** and then `[s]` -- every line it is in comes up in a panel of its own, and Enter goes there:
+ * **Alt-i**/**Alt-o** go BACK to where you came from and forward again: a
+   search, a `G`, a line opened from the occurrence list, another file;
+ * **Ctrl-Up**/**Ctrl-Down** walk the tabs, **Ctrl-Shift-Up**/**Ctrl-Shift-Down**
+   carry the one you are on along the line, and **F5 t** pins a tab so that
+   **Alt-Down** goes back to it from wherever you are;
+ * A new tab is born at the **end** of the line, wherever you were when you asked
+   for it. A file already open is **not opened again** -- you land on the tab that
+   has it -- and two tabs with the same file name show the piece of the path that
+   tells them apart. With more tabs than the line is wide it scrolls, and the one
+   you are on is always drawn whole;
+ * The **path** of the file is on the bar, with your home as `~` and the middle
+   taken out when it does not fit; **F2 Space** says the whole of it in a balloon;
+ * **F3 m** marks every occurrence of the word under the cursor. **F3 f** finds,
+   offering that word, and with the list switched on every line it is in comes up
+   in a panel of its own, where Enter goes there:
 
 ![The occurrence list](demos/03_occurrences.gif)
 
- * Comment lines
-
-    - Alt-Up *(normal mode/insert/visual)* - Comment the line or the selection, and uncomment it (*tcomment*);
-
- * Marked lines
-
-    - F2 o *(normal mode/insert/visual)* - Put the **selected** lines in order. Asked on **F5 c** and then `[t]`: case `[s]`ensitive or `[i]`nsensitive, `[a]`scending or `[d]`escending, and whether only the **unique** lines come out -- which they do unless you say otherwise, so a line that repeats is dropped. To order by a **field** instead of by the whole line, select a block over the column the field begins at:
-
-```
-2026-03-11  Maria        V G    then F2 o  ->  in order of DATE
-2024-07-02  Joao         12l F2 b 2j then F2 o  ->  in order of NAME,
-2025-12-30  Ana          a block on the 13th column, where the names begin
-```
-
-    - m and M *(normal mode)* - Walk to the next marked line and to the one before. They take the `m` that sets a mark of Vim and the `M` that jumps to the middle of the screen: the bookmarks replace what marks were for, and `:mark a` still writes one from the command line; ?????? Lega cirtar a negação por n e N, caso não esteja citado em seção específica sobre busca.
-
-**F4 b** marks the line and the mark shows in the margin, **F4 i** writes a note
-on it, and **F4 l** lists every one of them:
+ * **n** and **N** walk what was found; **m** and **M** walk the marked lines;
+ * **F4 b** marks a line and the mark shows in the margin, **F4 i** writes a note
+   on it, and **F4 l** lists every one of them:
 
 ![Marked lines](demos/05_bookmarks.gif)
 
-F'S Shortcuts (CommandZ)!
+ * **F2 o** puts the **selected** lines in order. Whether the case counts, which
+   way it climbs and whether only the unique lines come out are asked on **F5 c**
+   and then `[t]`. To order by a **field** instead of by the whole line, select a
+   block over the column that field begins at, and the result comes back selected
+   for the next thing you want to do to it:
+
+```
+2026-03-11  Maria      a plain selection orders by the DATE
+2024-07-02  Joao       a BLOCK on the 13th column, where the names begin,
+2025-12-30  Ana        orders by the NAME
+```
+
+The F keys (CommandZ)!
 -----
 
-The CommandZ is a kind of "super leader" that allows an extensive keys combination to create keyboard shortcuts for features in Vim. Works pressing **F2**, **F3**, **F4** or **F5** and then another key. It is what gives GrooVim room for many shortcuts in a terminal, where the combinations a keyboard can send run out fast.
-
- * Features
- 
-  - Every F key remembers the last command IT ran, and runs it again when you press it with no key after it. F2 repeats what F2 did and F3 what F3 did -- one memory each, so a command of another group can never come out of this one;
-  - Pressing the same F key twice repeats at once, without waiting for a second key that is not coming. And if you hold it down the command is replicated several times;
-  - How long you have for the second key is `g:GrooVim_CommandZWait`, **one** setting, and 400ms is only what it comes set to. The moment that window closes is the moment the F key repeats -- there is no second wait;
-  - A second key that arrives after the window is not thrown away: the F key has already repeated, and the key then runs as itself (a late `d` is the `d` of Vim, left waiting for what to delete). If yours keeps arriving late -- an F key at one corner of the keyboard and an arrow at the other is a long trip -- make the window longer with `let g:GrooVim_CommandZWait = 1000`; ?????? Não precisa de tantos detalhes...
+A shortcut is an **F key** and then one more key: **F2**, **F3**, **F4** or
+**F5**, and then the letter. It is what gives GrooVim room for many shortcuts in
+a terminal, where the combinations a keyboard can send run out fast. Press an F
+key and nothing after it and it repeats the last command THAT key ran -- one
+memory each, so a command of another group can never come out of this one.
 
 <!-- shortcuts: written by tools/sync-readme.sh, do not edit by hand -->
 
@@ -436,99 +412,31 @@ it is a link:
 
 ![The About](demos/04_about.gif)
 
-When one of them does not fire, `:GrooVimKey` says what the key really
-delivered: run it, press the key, and it prints what `getchar()` handed over.
-
 Is it working?
 -----
 
 GrooVim has a battery of tests that runs on its own, and it is not only for
 whoever writes it: it is how you find out whether the GrooVim **on your machine**
-does what this file says it does. ?????? Não precisa de tantos detalhes sobre os testes. Coloque mais as informações gerais e os detalhes para o HELP.
+does what this file says it does.
 
 ```
-./tests/run.sh
+./tests/run.sh             from the project
+~/.groovim/tests/run.sh    the copy install.sh leaves beside your installation,
+                           which tests that one and needs no argument
 ```
 
 It opens a real Vim for each case, presses real keys and reads what happened --
 the occurrence list, the tabs, the replace, the session, the menu, the multiple
-carets, the dialogues. **34 cases, over a thousand checks, about half a minute.**
-It ends like this:
+carets, the dialogues. **36 cases, over a thousand checks, about half a minute**,
+and it exits `0` only when the last line says everything passed. A check that
+fails says `FAILED` beside it, with what was read in brackets.
 
-```
-=== 34_dialog ===
-   the About opens a dialogue                         ok   [ About GrooVim ]
-   ...
------------------------------------------------
-checks: 1016   failures: 0   incomplete cases: 0
-everything passed.
-```
+Beside it, `./tools/lint.py` reads the source itself -- the header every part
+opens with, the notes, the width of the lines -- and `--fix` puts them back in
+shape.
 
-??????? Faltou citar o "linter" dos .vimrc e suas partes.
-
-and it exits `0` only when that last line is there. A check that fails says
-`FAILED` beside it, with what was read in brackets; every case also leaves its
-run in `tests/results/<case>.txt` to be read afterwards.
-
-`install.sh` takes the battery along, so after installing it is already there
-and it already points at your installation: ?????? Não entendi bem o que isso quer dizer...
-
-```
-~/.groovim/tests/run.sh
-```
-
-From the project, the same three ways:
-
-```
-./tests/run.sh                      the GrooVim of this directory
-./tests/run.sh ~/.groovim/.vimrc    the GrooVim that is INSTALLED, which is that file
-./tests/run.sh '' 23_menu           one case, by name
-```
-
-Pointed at an installation, the few checks that read the **files of the
-project** -- whether the README says what the list of shortcuts says, whether the
-licence is whole, whether the task list is empty -- answer `not asked of an
-installation` instead of failing over files that were never meant to be there.
-Everything about behaviour is asked of both.
-
-They write nothing into your GrooVim: each case runs in a GrooVim home of its
-own, in a temporary directory that goes away with the run. The results of the
-last one are left in `tests/results/`, beside them.
-
-`docs/pitfalls.md` says what each case covers, and carries the traps that cost
-the most to find.
-
-There is a linter beside it, and a formatter for the notes in the source:
-
-```
-./tools/lint.py          says what is wrong
-./tools/lint.py --fix    reflows the notes to 80 columns (85 is the limit)
-```
-
-Every part opens with the same header, and the linter and the battery both ask
-for it: a banner with the name, what the file is **for** in plain prose, and a
-shorter row of `$` closing it. The description carries no `Note:` -- a note
-explains the code beside it, and this one explains the file: Não precisa desse nível detalhe. O "./tools/lint.py" já trata disso...
-
-```vim
-" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-" DEBUGGING (WHEN SOMETHING DOES NOT FIRE)
-" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-" The tools for finding OUT, which is not the same work as editing: the one that
-" reports what a key really delivers, and the one that stops the code where it
-" runs so that you can look at it.
-
-" $$$$$$$$$$$$$$$$$$$$$$$
-```
-
-After changing the text of the help in `groovim/help.vim`, to see it without
-restarting: `;source %`, then **F9** to close the help and **F9** again to build
-it anew.
-
-If you change a shortcut, run `./tools/sync-readme.sh` afterwards: the list of
-shortcuts above is written from the same place the F9 help and the F10 menu are,
-and the battery refuses to pass while this file disagrees with it.
+[`docs/pitfalls.md`](docs/pitfalls.md) says what each case covers and carries the
+traps that cost the most to find.
 
 If you liked it, consider helping the project!
 -----
@@ -551,6 +459,8 @@ groovim file.txt
 It builds a Vim of its own, installs GrooVim into `~/.groovim`, and writes a
 `groovim` command that reaches the two. Run it again whenever you like: it builds
 the Vim only when the one it finds does not serve, so a second run costs nothing.
+`./install.sh --help` lists where each thing goes and how to build a particular
+version of Vim.
 
 **The Vim of your system is not touched and is not used.** GrooVim is reached
 through `groovim` and runs on the Vim this script builds; your `vim` stays
@@ -578,94 +488,40 @@ the undo, the `viminfo`) into a directory of whoever is running, so nothing in
 your home ends up owned by root.
 
 <a name="clipboard"></a>
-### About the clipboard ?????? Detalhes que deveriam estar no HELP....
+### About the clipboard
 
-**There is nothing to install.** On a machine with a graphical session, the Vim
-`install.sh` builds talks to the clipboard itself — `+clipboard`, `+wayland`,
-`+X11`, `+xterm_clipboard`. Building it is not what hands it those: the
-features exist only when the machine that BUILT it had the headers of X11 or
-the client library of Wayland, so on a headless server the same script produces
-a Vim without them, says so at the end, and installs it anyway — because
-GrooVim goes on working there.
+**There is nothing to install.** GrooVim reaches the clipboard through a cascade
+and uses the first of these that answers: Wayland, X11, a clipboard tool that is
+already there, OSC 52 -- an escape sequence that carries the clipboard through
+the terminal, so a copy made on a server lands on the machine in front of you --
+and, last, a file of its own, which always works and lets two GrooVim share a
+copy.
 
-That is what the cascade is for. GrooVim uses the first of these that answers:
+Copying **out** always works, wherever you are. **Pasting what another
+application copied** is the one case that can need help: where neither Wayland
+nor X11 answers -- an SSH, a container, a machine with no desktop -- `Ctrl-v`
+pastes what GrooVim itself copied, and the paste of your terminal (usually
+`Ctrl-Shift-v`) brings in what came from outside. Installing a clipboard tool
+(`wl-clipboard`, `xclip`, `xsel`) brings `Ctrl-v` back to the system clipboard
+with nothing to change in your configuration, and `install.sh` says at the end
+which of these cases you are in.
 
-1. **Wayland**, Vim talking to the compositor itself;
-2. **X11**, the same way;
-3. a clipboard **tool** (`wl-copy`/`wl-paste`, `xclip`, `xsel`), used only if
-   one is already installed;
-4. **OSC 52**, an escape sequence that carries the clipboard through the
-   terminal — no X11, no Wayland, no desktop, and it crosses an SSH;
-5. a file in `~/.groovim/clipboard`, which always works and lets two GrooVim
-   instances share a copy.
-
-You can see which one is in use from inside Vim with:
-
-```
-:echo v:clipmethod
-:echo GrooVim_ClipReg()
-```
-
-#### When a clipboard tool is still worth installing
-
-Vim's own Wayland method asks the compositor for the
-`wlr-data-control-unstable-v1` or `ext-data-control-v1` protocol (`:h wayland`).
-Most compositors offer one of them — KWin and the wlroots family do — and there
-the tool is never reached: measured on KWin, `v:clipmethod` comes out `wayland`
-and the `wl-copy` installed on that machine is never called.
-
-To see whether yours offers it:
-
-```
-wayland-info | grep -E 'ext_data_control|zwlr_data_control'
-```
-
-Nothing there means Vim cannot reach the clipboard by itself. Copying still
-leaves through OSC 52; **pasting from another application** is what stops
-working, and a tool covers both:
-
-```
-sudo pacman -S wl-clipboard     # or: sudo apt install wl-clipboard
-sudo pacman -S xclip            # X11
-```
-
-GrooVim uses it on its own once it is in your `PATH`, and `install.sh` says at
-the end of the installation which of these cases you are in.
-
-On a session with no compositor and no X — an SSH, a container — no tool works
-either, and there OSC 52 is the answer. Pasting from another application is the
-one thing it cannot do: use the paste of your terminal, usually
-<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd>.
+**F9** tells the rest: how to see which of the five is in use, and why no binary
+is shipped with GrooVim.
 
 <a name="ownVim"></a>
 ### A Vim of its own
 
-`install.sh` builds a Vim for GrooVim alone and writes a `groovim` command
-that runs it. This is the recommended way.
+`install.sh` builds a Vim for GrooVim alone and writes a `groovim` command that
+runs it. This is the recommended way.
 
-**GrooVim asks for Vim 9.2 or newer**, and that is what `install.sh` builds.
-The clipboard uses what arrived in 9.2 — `v:clipproviders`, `clipmethod`,
-`:clipreset` and the `osc52` package — so on an older Vim it is the clipboard
-that stops working. Reached through the `groovim` command, GrooVim always runs
-the Vim built for it, which is why nothing checks this number while you type:
-it is decided at install time, and `install.sh` refuses to go on below it. ?????? Basta informar que o vim compatível é o 9.2, pois o vim depende de recursos dele...
+**GrooVim asks for Vim 9.2 or newer** and builds the newest 9.x release it finds.
+It depends on what arrived in 9.2 -- the clipboard providers among it -- so the
+number is decided at install time and `install.sh` refuses to go on below it.
+Nothing checks it while you type, because by then you are already running the Vim
+that was built for this.
 
-The two do not mix:
-
-| you type | you get |
-|---|---|
-| `groovim` | the Vim of GrooVim, with the `.vimrc` of GrooVim |
-| `vim` | the Vim of your system, with your own configuration |
-
-Nothing is installed over your `vim`, and GrooVim does not write into your
-`~/.vimrc`.
-
-The separation goes all the way down. GrooVim keeps its own directory,
-`~/.groovim`, and that is where its plugins, its saved options, its undo
-history and its `viminfo` live. Leaving `~/.vim` in the runtime path would have
-undone half of it: the plugins of GrooVim would be loaded by the Vim of your
-system as well -- plain `vim` opening with NERDTree because GrooVim had
-installed it. ?????? Não entendi isso! Porque o vim de Sistema deveria poder abrir plugins do GrooVim (e do vim "dele"). Isto está errado! Os plugins do GrooVim pertencem só a ele!
+The two never share anything:
 
 | | `vim` | `groovim` |
 |---|---|---|
@@ -674,94 +530,15 @@ installed it. ?????? Não entendi isso! Porque o vim de Sistema deveria poder ab
 | plugins | `~/.vim` | `~/.groovim` |
 | `viminfo` | `~/.viminfo` | `~/.groovim/viminfo` |
 
-That directory is not fixed. `GROOVIM_HOME` moves all of it at once:
-
-```
-GROOVIM_HOME=~/.groovim-work groovim file.txt
-```
-
-Plugins, saved options, undo history, the clipboard file and the `viminfo` all
-follow. Two of those, side by side, are two GrooVim that know nothing of each
-other -- one for work and one for home, with different plugins, on the same
-machine.
-
-To install:
-
-```
-./install.sh
-```
-
-It installs the build dependencies of your distribution (`pacman`, `apt-get`,
-`apt`, `dnf` and `zypper` are known, and it asks before running anything as
-root), fetches the newest Vim release, and configures it
-with only the flags that release actually offers -- it asks `./configure
---help` instead of carrying a list that ages. ?????? Há risco de recursos necessários para o GrooVim falharem silenciosamente? E outra coisa... Não é o mais novo, é 'ultima revisão" do "9.2", correto?
-
-Everything lands under `~/.local/share/groovim`, and `groovim` goes into
-`~/.local/bin`. Then:
-
-```
-groovim file.txt
-```
-
-On the machine this was written on, the difference is the whole point of the
-script: ?????? Por que se está falando de "vim do Sistema" se o usamos o nosso "próprio vim"? Não entendi o propósito disto aqui...
-
-| | `v:clipmethod` | `has('clipboard')` |
-|---|---|---|
-| Vim of the distribution | `groovim` (the fallback above) | 0 |
-| Vim built by the script | `wayland` | 1 |
-
-The Vim it builds says so when it opens: ?????? Qual a necessidade destes detalhes?
-
-```
-                       GrooVim - Vi IMproved'n'GrooVIed!
-
-                                version 9.2.1108
-                            by Bram Moolenaar et al.
-                  Modified by Questor the Elf (eduardolucioac)
-                  Vim is open source and freely distributable
-```
-
-The first line is a one-line patch to `src/version.c`, because Vim has no flag
-for it. The `Modified by` line is Vim's own `--with-modified-by`, and
-`--modified-by NAME` puts your name there instead.
-
-`./install.sh --help` lists where to put things, which `.vimrc` the
-command should run, and how to build a specific version. ?????? Qual o sentido disto "which `.vimrc` the
-command should run"? O GrooVim executa o seu .vimrc e suas partes. Isto é determinístico!
-
-**Pasting from another application.** OSC 52 carries a copy *out* through the
-terminal, but reading the clipboard *back* would require the terminal to answer
-a query, and almost no terminal does that on purpose (a program running over
-SSH could steal your clipboard). So `Ctrl-v` pastes what Vim itself copied, and
-to bring in what another application copied you use your terminal's own paste,
-which is `Ctrl-Shift-v` on most of them. ?????? Pelo que eu ví até então isso só é verdade (pelo menos em quase tosdos os casos) em um GrooVim executando em ssh. Parace ser informação desatualizada ou coisa assim...
-
-If you want `Ctrl-v` to reach the system clipboard as well, install a clipboard
-tool and GrooVim picks it up by itself, with no change to your `.vimrc`: ?????? Nem sempre isso vai ser necessário! Confirme isso!
-
-```
-sudo pacman -S wl-clipboard      # Wayland
-sudo apt install wl-clipboard    # Wayland
-sudo apt install xclip           # X11
-```
-
-GrooVim looks for `wl-copy`/`wl-paste`, then `xclip`, then `xsel`, first inside
-`~/.vim/GrooVim/bin` (see `g:GrooVim_ClipBinDir`) and then in your `$PATH`. That
-first directory exists so you can drop a tool by hand on a machine where you
-cannot use the package manager.
-
-**GrooVim ships no binary, on purpose.** A Linux executable is not portable: it
-is built for one architecture (the Arch/CachyOS build of `wl-clipboard` is
-`x86_64_v3` and needs AVX2), it is linked against one `libc`, and `wl-copy` also
-needs `libwayland-client` at run time. And on a headless server there is no
-compositor for it to talk to anyway: that is exactly the case OSC 52 already
-covers, sending your copy across SSH to the clipboard of the machine you are
-sitting at. ?????? Não há necessidade deste tipo de informação.
+GrooVim keeps its own directory, `~/.groovim`, and that is where its plugins, its
+saved options, its undo history and its `viminfo` live. `~/.vim` is not in its
+path and never is read: what belongs to GrooVim is GrooVim's alone, and what
+belongs to your Vim stays yours. That directory can be moved as a whole, which
+makes two GrooVim that know nothing of each other on one machine -- **F9** says
+how.
 
 <a name="installGrooVim"></a>
-[Install GrooVim or...] I do not want to know anything about GrooVim and want to start using it now and with all the features!
+Install GrooVim and start using it now!
 -----
 
 ```
@@ -771,9 +548,11 @@ cd groovim
 groovim file.txt
 ```
 
-Tested on Debian, Ubuntu, Fedora, Rocky, Arch and openSUSE -- `./tests/distros.sh`
-builds a throwaway machine of each and runs it. It needs `bash`, which every one
-of them ships.
+It installs the build dependencies of your distribution (`pacman`, `apt-get`,
+`apt`, `dnf` and `zypper` are known, and it asks before running anything as
+root), builds the Vim and puts everything in place. Tested on Debian, Ubuntu,
+Fedora, Rocky, Arch and openSUSE -- `./tests/distros.sh` builds a throwaway
+machine of each and runs it.
 
 That is the whole installation. What it leaves on your machine:
 
@@ -787,34 +566,19 @@ The checkout is not needed afterwards -- everything is **copied**, so you can mo
 it or throw it away. To update, pull and run `./install.sh` again.
 
 The three plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**
-and **vim-move** -- go in with it, into `~/.groovim/pack/groovim/start`. Running
-`./install.sh` again updates them. Use `--no-plugins` to leave them out: nothing
-GrooVim promises rests on one, and a shortcut whose plugin is not there says
-which one is missing instead of running. ?????? Creio que isto só faz sentido em um situação futura onde um plugin deixe de funcionar por alguma razão, de maneira que não podemos mais usa-lo. O GrooVim é realmente capaz de lidar com a ausência deles? Talvez seja o caso de travarmos a versão de cada plugin no "MAJOR.MINOR", dexando andar só o revision, se possível.
+and **vim-move** -- go in with it and are updated by running `./install.sh`
+again; `--no-plugins` leaves them out. Nothing GrooVim promises rests on one: each
+is detected, and a shortcut whose plugin is not there says which one is missing
+instead of failing. Putting one in by hand, or one of your own, needs no plugin
+manager -- **F9** says where they live and how to turn one off.
 
-To put one in by hand, or to add one of your own, nothing else is needed -- Vim 8
-and later load anything under `pack/*/start` on their own, so there is no plugin
-manager involved here either: ?????? Essa informação é desnecessária se em algum lugar nesta documentação já informamos onde os plugins do GrooVim ficam.
-
-```
-mkdir -p ~/.groovim/pack/groovim/start
-cd ~/.groovim/pack/groovim/start
-git clone https://github.com/preservim/nerdtree.git nerdtree
-```
-
-GrooVim detects each one and enables its mapping by itself. To force a plugin
-off (or on), set its variable before GrooVim is sourced: ?????? Cada plugin tem sua variável de ativação. Temos que dizer quais são, mas peso que estas são informações para estarem no HELP.
-
-```
-let g:enable_tcomment_vim = 0
-let g:enable_all_plugins = 0    " ignore every plugin at once
-```
-
-Contact ?????? Substitua pelo "About" que temos em outros projetos nossos como o https://github.com/eduardolucioac/nppstub (README). Acrescente um "Table of Contents" conforme o exemplo do README citado.
+About
 -----
 
+GrooVim 🄯 GNU GPL v3.0 or later  
+Eduardo Lúcio Amorim Costa  
+Brazil-DF  
+https://www.linkedin.com/in/eduardo-software-livre/  
 groovimdoc@gmail.com
-
-Brazil-DF
 
 <img border="0" alt="Brazil-DF" src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Map_of_Brazil_with_flag.svg/180px-Map_of_Brazil_with_flag.svg.png" height="15%" width="15%"/>
