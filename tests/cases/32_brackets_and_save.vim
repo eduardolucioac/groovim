@@ -156,10 +156,10 @@ func! GT_AfterSaveAs()
   call timer_start(100, {t -> GrooVim_TabClose()})
   call timer_start(400, {t -> feedkeys("y\<CR>", "t")})
   call timer_start(700, {t -> feedkeys("\<C-u>" . g:GT_CLOSED . "\<CR>", "t")})
-  call GT_When('tabpagenr("$") == 1', "GT_AfterCloseNameless")
+  call GT_When('tabpagenr("$") == 1', "GT_AfterCloseAsking")
 endfunc
 
-func! GT_AfterCloseNameless()
+func! GT_AfterCloseAsking()
   call GT_Ok("closing a document never saved writes it where you say",
     \ filereadable(g:GT_CLOSED) && readfile(g:GT_CLOSED) ==# ["nao salvei isto"],
     \ "   " . string(filereadable(g:GT_CLOSED) ? readfile(g:GT_CLOSED) : []) .
@@ -169,22 +169,58 @@ func! GT_AfterCloseNameless()
   call delete(g:GT_CLOSED)
 
   call GT_Ok("and throwing it away is the other answer",
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ 'OptionsToPrompt(\["y", "n"\]' &&
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ 'OptionsToPrompt(\["y", "n"\]' &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~
     \   'setbufvar(a:buffer, "&modified", 0)',
     \ "   (which is what the (N)o of Vim did, and it worked)")
   call GT_Ok("  and a document that is NOT yours is never asked about",
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ '&buftype',
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ '&buftype',
     \ "   (the occurrence list, the tree: they are accessories of a tab)")
   call GT_Ok("  and every way of closing asks first",
-    \ GT_FunctionText("GrooVim_CloseAsking") =~ "CloseNameless" &&
-    \ GT_FunctionText("GrooVim_TabClose") =~ "CloseNameless" &&
-    \ GT_FunctionText("GrooVim_TabCloseSide") =~ "CloseNameless",
+    \ GT_FunctionText("GrooVim_CloseAsking") =~ "CloseSettle" &&
+    \ GT_FunctionText("GrooVim_TabClose") =~ "CloseSettle" &&
+    \ GT_FunctionText("GrooVim_TabCloseSide") =~ "CloseSettle",
     \ "   (F5->q, F5->o, F5->w, F5->, and F5->.)")
   call GT_Ok("  without walking you through the tabs to do it",
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "win_execute" &&
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "win_findbuf",
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "win_execute" &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "win_findbuf",
     \ "   (it is written in its own window, wherever that window is)")
+
+  " ---- and a document WITH a name is asked about the same way
+  "
+  " ":confirm" of Vim asks "Save changes to "/home/.../teste.txt"? [Y]es, (N)o,
+  " (C)ancel" -- a line and a half of path, three answers written three
+  " different ways, and none of them the way anything else here is asked.
+  call writefile(["uma linha"], g:GT_CLOSED)
+  exec "tabedit " . g:GT_CLOSED
+  call setline(1, ["uma linha", "e outra"])
+  call timer_start(100, {t -> GrooVim_TabClose()})
+  call timer_start(400, {t -> feedkeys("y\<CR>", "t")})
+  call GT_When('tabpagenr("$") == 1', "GT_AfterCloseNamed")
+endfunc
+
+func! GT_AfterCloseNamed()
+  call GT_Ok("a document with a name is asked about the same way",
+    \ readfile(g:GT_CLOSED) ==# ["uma linha", "e outra"],
+    \ "   " . string(readfile(g:GT_CLOSED)) .
+    \ "   (one question, one place, the same letters)")
+  call GT_Ok("  and it is written where it already is",
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ 'l:write = "write"' &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "saveas",
+    \ "   (a document that was never saved is asked WHERE first)")
+  call GT_Ok("  and the name in the question is the name of the file",
+    \ GT_FunctionText("GrooVim_CloseSettle") =~
+    \   'fnamemodify(bufname(a:buffer), ":t")',
+    \ "   (and not the line and a half of path Vim writes out)")
+  call GT_Ok("  and a document still open somewhere else is not asked about",
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "win_id2tabwin" &&
+    \ GT_FunctionText("GrooVim_CloseSettle") =~ "index(a:tabs",
+    \ "   (nothing is being lost while a window of it is left standing)")
+  call GT_Ok("  and leaving GrooVim asks about every tab",
+    \ GT_FunctionText("GrooVim_CloseAsking") =~ '"qa"' &&
+    \ GT_FunctionText("GrooVim_CloseAsking") =~ 'range(1, tabpagenr("\$"))',
+    \ "   (F5->x, which takes them all with it)")
+  call delete(g:GT_CLOSED)
 
   call GT_Done()
 endfunc

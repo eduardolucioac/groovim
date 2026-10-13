@@ -145,29 +145,36 @@ func! GrooVim_SessionLoadByHand() abort
   call GrooVim_SessionLoad()
 endfunc
 
-" Note: A document that was NEVER SAVED, with changes in it, about to be closed.
+" Note: A document with CHANGES in it, about to be closed, and the question
+" GrooVim asks about it instead of the dialog Vim would put up.
 "
-" ":confirm" of Vim asks "Save changes to "Untitled"? [Y]es, (N)o, (C)ancel" and
-" its Yes has nowhere to write: a nameless buffer has no file name, so Vim
-" answers "E32: No file name" and the close is given up on. A question whose
-" first answer cannot be given is worse than no question.
+" ":confirm" of Vim asks "Save changes to "/home/.../teste.txt"? [Y]es, (N)o,
+" (C)ancel" -- a line and a half of path, three answers written three different
+" ways, and none of them the way anything else here is asked. And on a document
+" with NO NAME its Yes has nowhere to write: a nameless buffer has no file name,
+" so Vim answers "E32: No file name" and the close is given up on. A question
+" whose first answer cannot be given is worse than no question.
 "
-" So it is asked here, before the close, and it is the same short question every
-" editor asks -- Save "new 1"? -- with the Yes of it leading to the one question
-" of the "save as": WHERE to put it, with the folder you are in written in.
-" After that the document has a name and ":confirm" finds nothing left to ask.
-" A No clears the "modified" flag, which is that same answer given a moment
-" earlier, and an <Esc> gives the close up.
+" So it is asked here, before the close, and it is the same short question the
+" rest of GrooVim asks -- Save "teste.txt"? , Save "new 1"? -- in the same place
+" and with the same letters. A document that was never saved goes on to the one
+" question of the "save as": WHERE to put it, with the folder you are in written
+" in. After that there is nothing left for ":confirm" to ask. A No clears the
+" "modified" flag, which is that same answer given a moment earlier, and an
+" <Esc> gives the close up.
 "
 " The document is settled where it LIVES -- "win_execute" writes it in its own
 " window, in another tab if that is where it is -- so closing a side of the tab
 " line asks about each one without walking you through the tabs.
 "
+" The "tabs" are the ones about to go, and they are what tells a document being
+" LOST from one that will still be on the screen afterwards: a window of it left
+" standing outside them means nothing is being lost, and nothing is asked.
+"
 " It hands back 0 when nothing was settled, and then nothing is closed.
-func! GrooVim_CloseNamelessSettle(buffer) abort
+func! GrooVim_CloseSettle(buffer, tabs) abort
 
-  if bufname(a:buffer) !=# "" || !getbufvar(a:buffer, "&modified")
-   \ || getbufvar(a:buffer, "&buftype") !=# ""
+  if !getbufvar(a:buffer, "&modified") || getbufvar(a:buffer, "&buftype") !=# ""
     return 1
   endif
 
@@ -176,7 +183,17 @@ func! GrooVim_CloseNamelessSettle(buffer) abort
     return 1
   endif
 
-  let l:answer = GrooVim_ScreenAsk("Save \"" . GrooVim_NewNameOf(a:buffer) . "\" " .
+  for l:window in l:windows
+    if index(a:tabs, win_id2tabwin(l:window)[0]) < 0
+      return 1
+    endif
+  endfor
+
+  let l:nameless = bufname(a:buffer) ==# ""
+  let l:name = l:nameless ? GrooVim_NewNameOf(a:buffer)
+   \ : fnamemodify(bufname(a:buffer), ":t")
+
+  let l:answer = GrooVim_ScreenAsk("Save \"" . l:name . "\" " .
    \ GrooVim_OptionsToPrompt(["y", "n"], "y", ""),
    \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
   echomsg "   "
@@ -186,14 +203,19 @@ func! GrooVim_CloseNamelessSettle(buffer) abort
     return 1
   endif
 
-  " Note: No name to suggest: the one written in the question is the name of the
-  " file you are ON, and this document is another one.
-  let l:where = GrooVim_AskFileWhere("", "")
+  " Note: A document that has a name is written where it already is; one that
+  " has none is asked about first. No name to suggest there: the one written in
+  " that question is the name of the file you are ON, and this is another.
+  let l:write = "write"
+  if l:nameless
+    let l:where = GrooVim_AskFileWhere("", "")
+    let l:name = fnamemodify(l:where, ":t")
+    let l:write = "saveas " . fnameescape(l:where)
+  endif
 
   try
-    call win_execute(l:windows[0], "saveas " . fnameescape(l:where))
-    call GrooVim_GrooVimBarMsg("Saved as \"" . fnamemodify(l:where, ":t") .
-     \ "\"! Closing it now.", 4)
+    call win_execute(l:windows[0], l:write)
+    call GrooVim_GrooVimBarMsg("Saved \"" . l:name . "\"! Closing it now.", 4)
   catch
     call GrooVim_GrooVimBarMsg("It can't be saved! Reason: \"" . v:exception . "\"", 4)
     redraw!
@@ -207,10 +229,10 @@ endfunc
 " Note: The same, for every document of the tabs that are about to go, asked
 " before anything is closed -- half a tab line closed and then a question is no
 " way to be asked anything.
-func! GrooVim_CloseNamelessTabs(tabs) abort
+func! GrooVim_CloseSettleTabs(tabs) abort
   for l:tab in a:tabs
     for l:buffer in tabpagebuflist(l:tab)
-      if !GrooVim_CloseNamelessSettle(l:buffer)
+      if !GrooVim_CloseSettle(l:buffer, a:tabs)
         return 0
       endif
     endfor
@@ -218,25 +240,29 @@ func! GrooVim_CloseNamelessTabs(tabs) abort
   return 1
 endfunc
 
-" Note: Closing, asking about what would be lost. ":confirm" is what turns the
-" refusal of Vim -- "E37: No write since last change" -- into a question you can
-" answer: save, throw away, or go back. Writing that by hand would be repeating
-" what Vim already knows.
+" Note: Closing, after asking about what would be lost. Every document going
+" with it is settled first, so ":confirm" finds nothing left to ask -- it stays
+" on as the backstop it is: the refusal of Vim, "E37: No write since last
+" change", turned into a question instead of an error.
 "
-" What it cannot answer is a document with no name, which is settled first.
-" ":tabonly" takes every OTHER tab with it; a window takes nothing with it while
-" another window still shows the same document.
+" Which tabs go depends on the command: ":tabonly" takes every OTHER one, ":qa"
+" takes them all, and a ":q" takes a window -- which loses nothing while another
+" window still shows the same document.
 func! GrooVim_CloseAsking(command) abort
 
+  let l:tabs = []
   if a:command ==# "tabonly"
-    if !GrooVim_CloseNamelessTabs(filter(range(1, tabpagenr("$")),
-     \ "v:val != tabpagenr()"))
+    let l:tabs = filter(range(1, tabpagenr("$")), "v:val != tabpagenr()")
+  elseif a:command ==# "qa"
+    let l:tabs = range(1, tabpagenr("$"))
+  endif
+
+  if !empty(l:tabs)
+    if !GrooVim_CloseSettleTabs(l:tabs)
       return
     endif
-  elseif len(win_findbuf(bufnr("%"))) == 1
-    if !GrooVim_CloseNamelessSettle(bufnr("%"))
-      return
-    endif
+  elseif !GrooVim_CloseSettle(bufnr("%"), [tabpagenr()])
+    return
   endif
 
   exec "confirm " . a:command
@@ -260,7 +286,7 @@ endfunc
 func! GrooVim_TabClose() abort
 
   if tabpagenr("$") > 1
-    if !GrooVim_CloseNamelessTabs([tabpagenr()])
+    if !GrooVim_CloseSettleTabs([tabpagenr()])
       return
     endif
     confirm tabclose
@@ -277,7 +303,7 @@ func! GrooVim_TabClose() abort
     endif
   endif
 
-  if !GrooVim_CloseNamelessSettle(bufnr("%"))
+  if !GrooVim_CloseSettle(bufnr("%"), [tabpagenr()])
     return
   endif
 
@@ -305,7 +331,7 @@ func! GrooVim_TabCloseSide(side) abort
     if l:target < 1 || l:target > tabpagenr("$")
       return
     endif
-    if !GrooVim_CloseNamelessTabs([l:target])
+    if !GrooVim_CloseSettleTabs([l:target])
       return
     endif
     let l:before = tabpagenr("$")
