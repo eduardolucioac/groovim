@@ -262,6 +262,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F5->e` - Save every changed file *(normal mode/insert/visual)*;
     - `F5->a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
         - Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
+        - One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
     - `F5->n` - Open a new tab *(normal mode/insert/visual)*;
         - A document you have not saved yet is called new 1 , new 2 ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
@@ -334,9 +335,10 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
 
  * **Search** *(Finding and replacing, and the marks a search leaves)*
 
-    - `F3->/` - Removes search highlights *(normal mode/insert/visual)*;
+    - `F3->/` - Takes every highlight off the text *(normal mode/insert/visual)*;
+        - The search highlight AND the marks of F3->m : taking the highlighting off is one idea to a reader and not two, and having to remember which key clears which half would be a poor way of saying so;
     - `F3->m` - Mark every occurrence of the word under the cursor *(normal mode/insert/visual)*;
-        - It is the WORD under the cursor, and a selection changes nothing. Pressing it again on the same word takes the marks down, and so does </> , which clears the search highlight as well;
+        - It is the WORD the cursor is ON, and a selection changes nothing. A cursor over a space marks nothing: the word NEXT to it is not the word it is on. Pressing it again on the same word takes the marks down, and so does </>;
         - It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else;
     - `F3->f` - Opens for search *(normal mode/insert/visual)*;
     - `F3->h` - Opens to replace *(normal mode/insert/visual)*;

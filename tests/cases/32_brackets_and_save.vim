@@ -71,8 +71,7 @@ func! GT_Body()
   exec "edit! " . g:GT_FILE
   call setline(1, ["uma linha", "e outra"])
   call timer_start(100, {t -> GrooVim_SaveAs()})
-  call timer_start(400, {t -> feedkeys("2\<CR>", "t")})
-  call timer_start(700, {t -> feedkeys("\<C-u>" . fnamemodify(g:GT_OTHER, ":t") . "\<CR>", "t")})
+  call timer_start(400, {t -> feedkeys("\<C-u>" . g:GT_OTHER . "\<CR>", "t")})
   call GT_When('expand("%:p") ==# g:GT_OTHER', "GT_AfterSaveAs")
 endfunc
 
@@ -89,6 +88,23 @@ func! GT_AfterSaveAs()
     \ !empty(filter(copy(g:GrooVim_Shortcuts),
     \   'get(v:val, "group", "") ==# "F5" && v:val.key ==# "a" && v:val.what =~ "another name"')),
     \ "   (F5->s saves, F5->e saves every changed file, F5->a saves as)")
+  " ---- and it is ONE question, which names the folder you are in
+  "
+  " It used to ask for a PATH -- with "0" for the transfer area, "1" for none and
+  " "2" for the folder of the file -- and then for a NAME: a menu to read through
+  " before you can answer "notes.txt".
+  call GT_Ok("where to save is one question, and a name is enough",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "getcwd()" &&
+    \ len(split(GT_FunctionText("GrooVim_AskFileWhere"), "GrooVim_Ask(")) == 2,
+    \ "   (a path in front of the name puts it elsewhere)")
+  call GT_Ok("  and the folder you are in is written into it",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_PathShort(getcwd()",
+    \ "   (so a bare name holds no mystery about where it goes)")
+  call GT_Ok("  and a folder with no name in it is turned away",
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'fnamemodify(l:answer, ":p")' &&
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "NAME is missing",
+    \ "   (\":p\" ends a folder with a \"/\", which is how it is caught)")
+
   call GT_Ok("and the two ask the SAME question, in one place",
     \ GT_FunctionText("GrooVim_SaveAs") =~ "GrooVim_AskFileWhere" &&
     \ GT_FunctionText("GrooVim_SaveACopy") =~ "GrooVim_AskFileWhere",

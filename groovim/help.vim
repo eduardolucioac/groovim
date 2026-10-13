@@ -71,7 +71,8 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "File", "group": "F5", "key": "a", "modes": "niv", "run": 'call GrooVim_Operation("[save as]", "GrooVim_SaveAs", [])',
  \  "menu": "Save as...", "what": "Saves under another name and goes on editing THAT one",
  \  "notes": [
- \   "Beside |F5->s| , which saves, and |F5->e| , which saves every changed file. The COPY is |F2->y| : that one writes the file and leaves you where you were"
+ \   "Beside |F5->s| , which saves, and |F5->e| , which saves every changed file. The COPY is |F2->y| : that one writes the file and leaves you where you were",
+ \   "One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "menu": "New tab", "what": "Open a new tab",
@@ -209,11 +210,15 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Select to end of line", "what": "Selects on to the end of the line"},
  \
 "\ ---- Search
- \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "keepsel": 1, "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'}, "menu": "Clear search highlights", "what": "Removes search highlights"},
+ \ {"where": "Search", "group": "F3", "key": "/", "break": 1, "modes": "niv", "keepsel": 1, "run": {"nv": 'call feedkeys("\\z/")', "i": 'call feedkeys("\<Esc>\\z/i")'},
+ \  "menu": "Clear highlights", "what": "Takes every highlight off the text",
+ \  "notes": [
+ \   "The search highlight AND the marks of |F3->m| : taking the highlighting off is one idea to a reader and not two, and having to remember which key clears which half would be a poor way of saying so"
+ \  ]},
  \ {"where": "Search", "group": "F3", "key": "m", "modes": "niv", "run": 'call GrooVim_MarkWord()',
  \  "menu": "Mark all occurrences", "what": "Mark every occurrence of the word under the cursor",
  \  "notes": [
- \   "It is the WORD under the cursor, and a selection changes nothing. Pressing it again on the same word takes the marks down, and so does |</>| , which clears the search highlight as well",
+ \   "It is the WORD the cursor is ON, and a selection changes nothing. A cursor over a space marks nothing: the word NEXT to it is not the word it is on. Pressing it again on the same word takes the marks down, and so does |</>|",
  \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else"
  \  ]},
  \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "menu": "Find...", "what": "Opens for search"},

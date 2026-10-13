@@ -569,16 +569,25 @@ if &t_Co < 256 && !has("gui_running")
   highlight GrooVimMark ctermbg=green ctermfg=black
 endif
 
-" Note: What to mark: the WORD under the cursor, and that is the whole of it --
-" a selection is not asked about and does not change the answer.
+" Note: What to mark: the WORD the cursor is ON, and that is the whole of it --
+" neither a selection nor a word standing NEXT TO the cursor changes the answer.
 "
 " It used to take what was SELECTED when there was a selection, and that is
 " another feature wearing this one's key: marking "my selected text" lit up
 " every place those three words happen to appear in a row, which is a search and
 " not a mark. What this is for is the word you are standing on, everywhere it is
 " -- the same thing the "Style all occurrences of token" of Notepad++ does.
+"
+" And the word you are ON is not the one NEXT TO you: "<cword>" of Vim hands
+" back the next word on the line when the cursor sits on a blank, which lit up
+" the word ahead of a cursor resting on a space.
+" The cursor of a terminal is a block over one character: when that character is
+" no part of a word, there is no word here and nothing is marked.
 func! GrooVim_MarkWhat() abort
   call GrooVim_StepOntoTheText()
+  if matchstr(getline("."), '\%' . col(".") . 'c.') !~# '\k'
+    return ""
+  endif
   return expand("<cword>")
 endfunc
 

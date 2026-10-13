@@ -186,6 +186,25 @@ call GT_Ok("  and what it asks for takes no mode at all",
   \ GT_FunctionText("GrooVim_MarkWhat") =~ "cword",
   \ "   (the word under the cursor, and nothing else)")
 
+" ---- and a cursor over a SPACE marks nothing
+"
+" "<cword>" of Vim hands back the next word on the line when the cursor sits on
+" a blank, so a cursor resting on a space lit up the word AHEAD of it -- a word
+" nobody pointed at. The cursor of a terminal is a block over one character.
+exec "enew!"
+call setline(1, ["alpha beta", "beta gamma"])
+call cursor(1, 6)
+call GT_Press("\<F3>m")
+call GT_Ok("over a space it marks nothing",
+  \ g:GrooVim_MarkedWord ==# "", "   [" . g:GrooVim_MarkedWord . "]" .
+  \ "   (the word next to the cursor is not the word it is on)")
+
+call cursor(1, 7)
+call GT_Press("\<F3>m")
+call GT_Ok("  and one column to the right it marks that word",
+  \ g:GrooVim_MarkedWord ==# "beta", "   [" . g:GrooVim_MarkedWord . "]")
+call GrooVim_MarkClear()
+
 call GT_Done()
 endfunc
 

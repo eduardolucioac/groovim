@@ -273,90 +273,74 @@ exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimr
 " way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
-" Note: Save to disk and open in a new tab a copy of the current file.
-"
-" Where to put a file and what to call it, asked once and used by both the copy
-" and the "save as".
+" Note: Where to put a file, asked once and used by both the copy and the
+" "save as".
 "
 " It was written inside the copy, and the "save as" would have been the same
 " forty lines a second time -- with the second one drifting from the first the
 " day one of them was touched. What differs between them is one word in the
 " question and what is DONE with the answer; the asking is the same.
 "
-" The answers come back as [path, name]. There is no way out but a valid answer
-" or a Ctrl-C, which walks out of here and out of whoever called.
+" ONE question, the way every editor asks it: a name lands in the folder you
+" are in, and a name with a path in front of it lands where the path says. It
+" used to be two questions -- a PATH, with "0" for the transfer area, "1" for
+" none and "2" for the folder of the file, then a NAME -- which is a menu to
+" read through before you can answer "notes.txt".
+"
+" The folder you are in is written into the question, so a bare name holds no
+" mystery about where it goes, and <Tab> completes paths.
+"
+" The name of the file you are on comes WRITTEN in the answer, ready to be
+" edited or accepted -- which is what "Save a Copy As" of Notepad++ does. An
+" unnamed buffer has no name to offer and starts empty.
+"
+" The answer comes back as a full path. There is no way out but a valid answer
+" or an Esc, which walks out of here and out of whoever called.
 func! GrooVim_AskFileWhere(what) abort
 
-  let l:valueToPath = ""
-  let l:stopWhile = 0
-  while l:stopWhile == 0
-    let l:valueToPath = GrooVim_Ask("PATH to save your " . a:what . " (type \"0\" to use transfer area \"" . GrooVim_SubstringToPrompt(GrooVim_ClipGet()) . "\", \"1\" to use empty, \"2\" to use current file path or enter one): ")
-    if l:valueToPath == "0"
-      if !empty(matchstr(GrooVim_ClipGet(), "\/$"))
-        let l:stopWhile = 1
-        let l:valueToPath = GrooVim_ClipGet()
-      else
-        call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
+  while 1
+    let l:room = &columns - strdisplaywidth("NAME of the " . a:what .
+     \ " to save in \"\" (or a path and a name): ") - 20
+    let l:answer = GrooVim_Ask("NAME of the " . a:what . " to save in \"" .
+     \ GrooVim_PathShort(getcwd(), l:room) . "\" (or a path and a name): ",
+     \ expand("%:t"), "file")
+    let l:answer = substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
 
-        " Note: The "redraw!" is to ensure that the message is displayed.
-        redraw!
-
-      endif
-    elseif l:valueToPath == "1"
-      let l:stopWhile = 1
-      let l:valueToPath = ""
-    elseif l:valueToPath == "2"
-      let l:stopWhile = 1
-      let l:valueToPath = expand("%:h") . "/"
-    elseif ("" . l:valueToPath . "") != ""
-      if !empty(matchstr(l:valueToPath, "\/$"))
-        let l:stopWhile = 1
-      else
-        call GrooVim_GrooVimBarMsg("Missing end \"/\"!", 1)
-        redraw!
-      endif
+    if l:answer ==# ""
+      call GrooVim_GrooVimBarMsg("A name is needed!", 1)
+      redraw!
+      continue
     endif
+
+    " Note: ":p" spells the answer out whole: it stands "~" and a relative path
+    " up against the folder you are in, and it ends a FOLDER with a "/", which
+    " is how a folder with no file name in it is caught.
+    let l:where = fnamemodify(l:answer, ":p")
+
+    if l:where =~ "/$"
+      call GrooVim_GrooVimBarMsg("\"" . l:answer . "\" is a folder, and a NAME is missing!", 1)
+      redraw!
+      continue
+    endif
+    if l:where ==# expand("%:p")
+      call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
+      redraw!
+      continue
+    endif
+
+    return l:where
   endwhile
-
-  let l:definePathWarning = ""
-  let l:valueToName = ""
-  let l:stopWhile = 0
-  while l:stopWhile == 0
-    if l:valueToPath == ""
-      let l:definePathWarning = " (DEFINE A PATH TOO!)"
-    endif
-
-    " Note: The name of the file you are on comes WRITTEN in the answer, ready
-    " to be edited or accepted -- which is what "Save a Copy As" of Notepad++
-    " does. The second argument of the question is the text it starts with.
-    "
-    " An unnamed buffer has no name to offer, and then it starts empty as it
-    " always did.
-    let l:valueToName = GrooVim_Ask("NAME of the " . a:what . " to be saved" .
-     \ l:definePathWarning . ": ", expand("%:t"))
-
-    if ("" . l:valueToName . "") != ""
-      if ("" . l:valueToName . "") != expand('%:t') || l:valueToPath != expand("%:h") . "/"
-        let l:stopWhile = 1
-      else
-        call GrooVim_GrooVimBarMsg("Same name and path as the current file!", 1)
-        redraw!
-      endif
-    endif
-  endwhile
-
-  return [l:valueToPath, l:valueToName]
 
 endfunc
 
 " Note: Save to disk and open in a new tab a copy of the current file.
 func! GrooVim_SaveACopy() range abort
 
-  let [l:path, l:name] = GrooVim_AskFileWhere("file copy")
+  let l:where = GrooVim_AskFileWhere("file copy")
 
   try
-    exec "w " . l:path . l:name
-    exec "tabnew " . l:path . l:name
+    exec "w " . fnameescape(l:where)
+    exec "tabnew " . fnameescape(l:where)
     call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
     redraw!
   catch
@@ -375,11 +359,12 @@ endfunc
 " are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
-  let [l:path, l:name] = GrooVim_AskFileWhere("file")
+  let l:where = GrooVim_AskFileWhere("file")
 
   try
-    exec "saveas " . fnameescape(l:path . l:name)
-    call GrooVim_GrooVimBarMsg("Saved as \"" . l:name . "\"! You are editing it now.", 4)
+    exec "saveas " . fnameescape(l:where)
+    call GrooVim_GrooVimBarMsg("Saved as \"" . fnamemodify(l:where, ":t") .
+     \ "\"! You are editing it now.", 4)
     redraw!
   catch
     call GrooVim_GrooVimBarMsg("It can't be saved! Reason: \"" . v:exception . "\"", 4)
