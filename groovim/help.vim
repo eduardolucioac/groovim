@@ -85,7 +85,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Close", "what": "Close the tab you are in",
  \  "notes": [
  \   "On the LAST tab Vim refuses to close it, so what closes is the document, leaving an empty |new|1| behind",
- \   "Changes you would lose are asked about, by every way of closing. A document never saved asks WHERE to put it, the way |F5->a| asks, or you throw it away"
+ \   "Changes you would lose are asked about, by every way of closing. A document never saved asks |Save|\"new|1\"| : yes asks WHERE to put it, the way |F5->a| asks, no throws it away, and |<Esc>| closes nothing"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "o", "modes": "niv", "run": 'call GrooVim_CloseAsking("tabonly")', "menu": "Close all but this one", "what": "Close all other tabs"},
  \ {"where": "File", "group": "F5", "key": ".", "modes": "niv", "run": 'call GrooVim_TabCloseSide(1)', "menu": "Close all to the right", "what": "Close every tab to the RIGHT of this one"},

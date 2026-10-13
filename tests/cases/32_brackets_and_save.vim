@@ -154,7 +154,7 @@ func! GT_AfterSaveAs()
   tabnew
   call setline(1, ["nao salvei isto"])
   call timer_start(100, {t -> GrooVim_TabClose()})
-  call timer_start(400, {t -> feedkeys("s\<CR>", "t")})
+  call timer_start(400, {t -> feedkeys("y\<CR>", "t")})
   call timer_start(700, {t -> feedkeys("\<C-u>" . g:GT_CLOSED . "\<CR>", "t")})
   call GT_When('tabpagenr("$") == 1', "GT_AfterCloseNameless")
 endfunc
@@ -169,7 +169,7 @@ func! GT_AfterCloseNameless()
   call delete(g:GT_CLOSED)
 
   call GT_Ok("and throwing it away is the other answer",
-    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "hrow it away" &&
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ 'OptionsToPrompt(\["y", "n"\]' &&
     \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~
     \   'setbufvar(a:buffer, "&modified", 0)',
     \ "   (which is what the (N)o of Vim did, and it worked)")

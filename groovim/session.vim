@@ -152,11 +152,12 @@ endfunc
 " answers "E32: No file name" and the close is given up on. A question whose
 " first answer cannot be given is worse than no question.
 "
-" So it is asked here, before the close, and the Yes of it is the one question
+" So it is asked here, before the close, and it is the same short question every
+" editor asks -- Save "new 1"? -- with the Yes of it leading to the one question
 " of the "save as": WHERE to put it, with the folder you are in written in.
 " After that the document has a name and ":confirm" finds nothing left to ask.
-" Throwing it away clears the "modified" flag, which is that same answer given
-" a moment earlier.
+" A No clears the "modified" flag, which is that same answer given a moment
+" earlier, and an <Esc> gives the close up.
 "
 " The document is settled where it LIVES -- "win_execute" writes it in its own
 " window, in another tab if that is where it is -- so closing a side of the tab
@@ -175,13 +176,12 @@ func! GrooVim_CloseNamelessSettle(buffer) abort
     return 1
   endif
 
-  let l:answer = GrooVim_ScreenAsk("\"" . GrooVim_NewNameOf(a:buffer) .
-   \ "\" was never saved: [s]ave it or [t]hrow it away " .
-   \ GrooVim_OptionsToPrompt(["s", "t"], "s", ""),
-   \ {answer -> answer ==# "" || answer ==# "s" || answer ==# "t"})
+  let l:answer = GrooVim_ScreenAsk("Save \"" . GrooVim_NewNameOf(a:buffer) . "\" " .
+   \ GrooVim_OptionsToPrompt(["y", "n"], "y", ""),
+   \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
   echomsg "   "
 
-  if l:answer ==# "t"
+  if l:answer ==# "n"
     call setbufvar(a:buffer, "&modified", 0)
     return 1
   endif
