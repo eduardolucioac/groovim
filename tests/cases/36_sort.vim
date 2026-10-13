@@ -62,20 +62,38 @@ call GT_Ok("  and a plain selection orders by the whole line",
   \ GT_Sorted(s:fields, "VG\<F2>o") ==# ["xx-3", "yy-1", "zz-2"],
   \ "   " . string(GT_Sorted(s:fields, "VG\<F2>o")))
 
-" ---- and the selection is NOT given back
+" ---- and the RESULT comes back selected, with the cursor at the end of it
 "
-" The line between the two: a shortcut that leaves every line WHERE it was gives
-" the selection back, because what was marked is still the same thing. One that
-" MOVES the lines about does not -- after a sort the marked stretch holds other
-" lines in another order, and the unique may have left fewer of them.
+" Not through the "keepsel" the Title Case asks for: that one hands the OLD
+" marks back, and after a sort the lines moved -- with fewer of them when the
+" unique took some off -- so the stretch that was drawn is not the stretch that
+" holds the result. What is marked is the result itself.
 exec "enew!"
-call setline(1, ["banana", "Abacaxi", "banana", "cereja"])
+call setline(1, ["banana", "Abacaxi", "banana", "cereja", "fora"])
 call cursor(1, 1)
 let g:GrooVim_SortUnique = 0
-call GT_Press("VG\<F2>o")
-call GT_Ok("the selection is let go of, and the cursor is on the first line",
-  \ mode(1) ==# "n" && line(".") == 1,
-  \ "   (mode " . mode(1) . ", line " . line(".") . ")")
+call GT_Press("V3j\<F2>o")
+call GT_Ok("the result comes back selected, and LINEWISE",
+  \ mode(1) ==# "V",
+  \ "   (mode " . strtrans(mode(1)) . ")   (a sort reads whole lines and writes them back)")
+call GT_Ok("  with the cursor on the END of its last line",
+  \ line(".") == 4 && col(".") >= len(getline(4)),
+  \ "   (line " . line(".") . " column " . col(".") . " of [" . getline(".") . "])")
+exec "normal! \<Esc>"
+
+" And the unique, which leaves FEWER lines than were marked: the result is
+" shorter, and what comes back marked is the result and not what was drawn.
+exec "enew!"
+call setline(1, ["banana", "Abacaxi", "banana", "cereja", "fora"])
+call cursor(1, 1)
+let g:GrooVim_SortUnique = 1
+call GT_Press("V3j\<F2>o")
+call GT_Ok("  and with the unique it ends on the last line LEFT",
+  \ mode(1) ==# "V" && line(".") == 3 && getline(1, "$") ==#
+  \   ["Abacaxi", "banana", "cereja", "fora"],
+  \ "   (line " . line(".") . ")   " . string(getline(1, "$")))
+exec "normal! \<Esc>"
+let g:GrooVim_SortUnique = 0
 
 " ---- the ones that change the selection in place leave it marked too
 exec "enew!"

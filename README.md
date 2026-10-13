@@ -289,7 +289,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F2->o` - Sorts the lines you have selected *(normal mode/insert/visual)*;
         - Asked on F5->c and then [t] : case [s] ensitive or [i] nsensitive, [a] scending or [d] escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise;
         - By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering xx-3 , yy-1 , zz-2 from the fourth column gives yy-1 , zz-2 , xx-3;
-        - The selection is let go of afterwards: the lines moved, so the stretch you had marked no longer holds what you marked;
+        - The RESULT comes back selected, with the cursor on the end of its last line, ready for one more thing to be done to the whole of it;
     - `F2->h` - Aligns to left *(normal mode/insert/visual)*;
     - `F2->k` - Aligns to right *(normal mode/insert/visual)*;
     - `F2->j` - Aligns to center *(normal mode/insert/visual)*;

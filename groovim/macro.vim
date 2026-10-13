@@ -575,23 +575,25 @@ func! GrooVim_SortLines() abort
     silent exec (l:from + len(l:sorted)) . "," . l:to . "delete _"
   endif
 
-  " Note: And the selection is NOT given back, which is why this one does not
-  " ask for the "keepsel" the Title Case and the aligns ask for.
-  "
-  " The line between the two: a shortcut that leaves every line WHERE it was --
-  " the case of its letters changed, its text pushed left or right -- gives the
-  " selection back, because what was marked is still the same thing and you may
-  " well want to do one more thing to it. A shortcut that MOVES the lines about
-  " does not: after a sort the marked stretch holds other lines in another
-  " order, and the unique may have left fewer of them, so what would be handed
-  " back is an area that no longer means what you drew it to mean.
-  "
-  " The cursor stays on the first line of what was put in order, which is where
-  " you look to see that it was.
-  call cursor(l:from, 1)
-
   call GrooVim_GrooVimBarMsg(len(l:sorted) . " line(s) in order" .
    \ (l:gone > 0 ? ", and " . l:gone . " repeated one(s) taken off" : "") . "!", 4)
+
+  " Note: And the RESULT comes back selected, with the cursor on the end of its
+  " last line -- where you are left standing after reading down what you just
+  " put in order, and ready to do one more thing to the whole of it.
+  "
+  " Marked here and not through the "keepsel" the Title Case and the aligns ask
+  " for: that one hands the OLD marks back, and the old marks are not what this
+  " wants. The lines moved, and the unique may have left fewer of them, so the
+  " stretch that was drawn is no longer the stretch that holds the result. What
+  " is marked is the result itself -- from the first line that was sorted to the
+  " last one left of it.
+  "
+  " LINEWISE, whatever shape the selection had: a sort reads whole lines and
+  " writes whole lines back, and a block drawn over one column was only ever
+  " saying WHERE to start comparing.
+  let l:last = l:from + len(l:sorted) - 1
+  exec "normal! " . l:from . "GV" . l:last . "G$"
 
 endfunc
 

@@ -116,7 +116,7 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "Asked on F5->c and then |[t]| : case |[s]|ensitive or |[i]|nsensitive, |[a]|scending or |[d]|escending, and whether only the UNIQUE lines come out -- which they do unless you say otherwise",
  \   "By a FIELD and not by the whole line: select a BLOCK with F2->b over the column the field begins at, then press this. Ordering |xx-3| , |yy-1| , |zz-2| from the fourth column gives |yy-1| , |zz-2| , |xx-3|",
- \   "The selection is let go of afterwards: the lines moved, so the stretch you had marked no longer holds what you marked"
+ \   "The RESULT comes back selected, with the cursor on the end of its last line, ready for one more thing to be done to the whole of it"
  \  ]},
  \ {"where": "Edit", "group": "F2", "key": "h", "modes": "niv", "keepsel": 1, "run": ':left', "menu": "Align left", "what": "Aligns to left"},
  \ {"where": "Edit", "group": "F2", "key": "k", "modes": "niv", "keepsel": 1, "run": ':right', "menu": "Align right", "what": "Aligns to right"},

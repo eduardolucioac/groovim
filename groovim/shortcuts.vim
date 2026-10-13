@@ -189,9 +189,10 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
         " of their letters changed, their text pushed left or right -- what was
         " marked is still the same thing, and you may well want to do one more
         " thing to it. A shortcut that MOVES the lines about does not ask for
-        " it: after a sort the marked stretch holds other lines in another
-        " order, and what would be handed back is an area that no longer means
-        " what you drew it to mean.
+        " it: after a sort the old marks hold other lines in another order, and
+        " fewer of them when the unique took some off. That one marks what it
+        " wants marked itself -- see the sort -- which is the result and not the
+        " stretch that was drawn.
         "
         " And a shortcut that OPENS a selection (the block of F2->b, the select
         " all of F3->a) would have the old one put back over the new, and one
