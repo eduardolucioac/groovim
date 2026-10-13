@@ -145,12 +145,102 @@ func! GrooVim_SessionLoadByHand() abort
   call GrooVim_SessionLoad()
 endfunc
 
+" Note: A document that was NEVER SAVED, with changes in it, about to be closed.
+"
+" ":confirm" of Vim asks "Save changes to "Untitled"? [Y]es, (N)o, (C)ancel" and
+" its Yes has nowhere to write: a nameless buffer has no file name, so Vim
+" answers "E32: No file name" and the close is given up on. A question whose
+" first answer cannot be given is worse than no question.
+"
+" So it is asked here, before the close, and the Yes of it is the one question
+" of the "save as": WHERE to put it, with the folder you are in written in.
+" After that the document has a name and ":confirm" finds nothing left to ask.
+" Throwing it away clears the "modified" flag, which is that same answer given
+" a moment earlier.
+"
+" The document is settled where it LIVES -- "win_execute" writes it in its own
+" window, in another tab if that is where it is -- so closing a side of the tab
+" line asks about each one without walking you through the tabs.
+"
+" It hands back 0 when nothing was settled, and then nothing is closed.
+func! GrooVim_CloseNamelessSettle(buffer) abort
+
+  if bufname(a:buffer) !=# "" || !getbufvar(a:buffer, "&modified")
+   \ || getbufvar(a:buffer, "&buftype") !=# ""
+    return 1
+  endif
+
+  let l:windows = win_findbuf(a:buffer)
+  if empty(l:windows)
+    return 1
+  endif
+
+  let l:answer = GrooVim_ScreenAsk("\"" . GrooVim_NewNameOf(a:buffer) .
+   \ "\" was never saved: [s]ave it or [t]hrow it away " .
+   \ GrooVim_OptionsToPrompt(["s", "t"], "s", ""),
+   \ {answer -> answer ==# "" || answer ==# "s" || answer ==# "t"})
+  echomsg "   "
+
+  if l:answer ==# "t"
+    call setbufvar(a:buffer, "&modified", 0)
+    return 1
+  endif
+
+  " Note: No name to suggest: the one written in the question is the name of the
+  " file you are ON, and this document is another one.
+  let l:where = GrooVim_AskFileWhere("file", "")
+
+  try
+    call win_execute(l:windows[0], "saveas " . fnameescape(l:where))
+    call GrooVim_GrooVimBarMsg("Saved as \"" . fnamemodify(l:where, ":t") .
+     \ "\"! Closing it now.", 4)
+  catch
+    call GrooVim_GrooVimBarMsg("It can't be saved! Reason: \"" . v:exception . "\"", 4)
+    redraw!
+    return 0
+  endtry
+
+  return 1
+
+endfunc
+
+" Note: The same, for every document of the tabs that are about to go, asked
+" before anything is closed -- half a tab line closed and then a question is no
+" way to be asked anything.
+func! GrooVim_CloseNamelessTabs(tabs) abort
+  for l:tab in a:tabs
+    for l:buffer in tabpagebuflist(l:tab)
+      if !GrooVim_CloseNamelessSettle(l:buffer)
+        return 0
+      endif
+    endfor
+  endfor
+  return 1
+endfunc
+
 " Note: Closing, asking about what would be lost. ":confirm" is what turns the
 " refusal of Vim -- "E37: No write since last change" -- into a question you can
 " answer: save, throw away, or go back. Writing that by hand would be repeating
 " what Vim already knows.
+"
+" What it cannot answer is a document with no name, which is settled first.
+" ":tabonly" takes every OTHER tab with it; a window takes nothing with it while
+" another window still shows the same document.
 func! GrooVim_CloseAsking(command) abort
+
+  if a:command ==# "tabonly"
+    if !GrooVim_CloseNamelessTabs(filter(range(1, tabpagenr("$")),
+     \ "v:val != tabpagenr()"))
+      return
+    endif
+  elseif len(win_findbuf(bufnr("%"))) == 1
+    if !GrooVim_CloseNamelessSettle(bufnr("%"))
+      return
+    endif
+  endif
+
   exec "confirm " . a:command
+
 endfunc
 
 " Note: Closing the tab you are in. Vim REFUSES to close the last tab -- "E784:
@@ -170,6 +260,9 @@ endfunc
 func! GrooVim_TabClose() abort
 
   if tabpagenr("$") > 1
+    if !GrooVim_CloseNamelessTabs([tabpagenr()])
+      return
+    endif
     confirm tabclose
     return
   endif
@@ -182,6 +275,10 @@ func! GrooVim_TabClose() abort
       call GrooVim_GrooVimBarMsg("There is no document here to close!", 5)
       return
     endif
+  endif
+
+  if !GrooVim_CloseNamelessSettle(bufnr("%"))
+    return
   endif
 
   let l:document = bufnr("%")
@@ -206,6 +303,9 @@ func! GrooVim_TabCloseSide(side) abort
   while 1
     let l:target = a:side > 0 ? tabpagenr() + 1 : tabpagenr() - 1
     if l:target < 1 || l:target > tabpagenr("$")
+      return
+    endif
+    if !GrooVim_CloseNamelessTabs([l:target])
       return
     endif
     let l:before = tabpagenr("$")

@@ -292,18 +292,21 @@ nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 "
 " The name of the file you are on comes WRITTEN in the answer, ready to be
 " edited or accepted -- which is what "Save a Copy As" of Notepad++ does. An
-" unnamed buffer has no name to offer and starts empty.
+" unnamed buffer has no name to offer and starts empty, and so does a call that
+" asks about ANOTHER document than the one you are on.
 "
 " The answer comes back as a full path. There is no way out but a valid answer
 " or an Esc, which walks out of here and out of whoever called.
-func! GrooVim_AskFileWhere(what) abort
+func! GrooVim_AskFileWhere(what, ...) abort
+
+  let l:suggestion = a:0 > 0 ? a:1 : expand("%:t")
 
   while 1
     let l:room = &columns - strdisplaywidth("NAME of the " . a:what .
      \ " to save in \"\" (or a path and a name): ") - 20
     let l:answer = GrooVim_Ask("NAME of the " . a:what . " to save in \"" .
      \ GrooVim_PathShort(getcwd(), l:room) . "\" (or a path and a name): ",
-     \ expand("%:t"), "file")
+     \ l:suggestion, "file")
     let l:answer = substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
 
     if l:answer ==# ""

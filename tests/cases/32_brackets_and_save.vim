@@ -128,21 +128,65 @@ func! GT_AfterSaveAs()
 
   call delete(g:GT_FILE)
   call delete(g:GT_OTHER)
-  " ---- saving a document that has no name yet asks where to put it
-"
-" It answered "E32: No file name" over an error of Vim, which is not an answer
-" to give anybody. What every editor does with a first save is ask, which is
-" what "save as" already did.
-call GT_Ok("the save asks when there is no name",
-  \ GT_FunctionText("GrooVim_Save") =~ "GrooVim_SaveAs" &&
-  \ GT_FunctionText("GrooVim_Save") =~ 'expand("%") ==# ""',
-  \ "   (and writes the file, whole, when there is one)")
-call GT_Ok("  and it writes the file and not a selection",
-  \ GT_FunctionText("GrooVim_Save") !~ "VisualWrite" &&
-  \ GT_FunctionText("GrooVim_Save") =~ "write",
-  \ "   (the branch for visual mode did the very same \"w\")")
 
-call GT_Done()
+  " ---- saving a document that has no name yet asks where to put it
+  "
+  " It answered "E32: No file name" over an error of Vim, which is not an answer
+  " to give anybody. What every editor does with a first save is ask, which is
+  " what "save as" already did.
+  call GT_Ok("the save asks when there is no name",
+    \ GT_FunctionText("GrooVim_Save") =~ "GrooVim_SaveAs" &&
+    \ GT_FunctionText("GrooVim_Save") =~ 'expand("%") ==# ""',
+    \ "   (and writes the file, whole, when there is one)")
+  call GT_Ok("  and it writes the file and not a selection",
+    \ GT_FunctionText("GrooVim_Save") !~ "VisualWrite" &&
+    \ GT_FunctionText("GrooVim_Save") =~ "write",
+    \ "   (the branch for visual mode did the very same \"w\")")
+
+  " ---- and CLOSING one asks about it, instead of the dialog of Vim
+  "
+  " ":confirm" asks "Save changes to "Untitled"? [Y]es, (N)o, (C)ancel" and its
+  " Yes has nowhere to write: a nameless buffer has no file name, so Vim answers
+  " "E32: No file name" and gives the close up. A question whose first answer
+  " cannot be given is worse than no question.
+  let g:GT_CLOSED = g:GT_OUT . "/fechado.txt"
+  call delete(g:GT_CLOSED)
+  tabnew
+  call setline(1, ["nao salvei isto"])
+  call timer_start(100, {t -> GrooVim_TabClose()})
+  call timer_start(400, {t -> feedkeys("s\<CR>", "t")})
+  call timer_start(700, {t -> feedkeys("\<C-u>" . g:GT_CLOSED . "\<CR>", "t")})
+  call GT_When('tabpagenr("$") == 1', "GT_AfterCloseNameless")
+endfunc
+
+func! GT_AfterCloseNameless()
+  call GT_Ok("closing a document never saved writes it where you say",
+    \ filereadable(g:GT_CLOSED) && readfile(g:GT_CLOSED) ==# ["nao salvei isto"],
+    \ "   " . string(filereadable(g:GT_CLOSED) ? readfile(g:GT_CLOSED) : []) .
+    \ "   (the Yes of Vim had nowhere to write it)")
+  call GT_Ok("  and the tab went",
+    \ tabpagenr("$") == 1, "   (tabs " . tabpagenr("$") . ")")
+  call delete(g:GT_CLOSED)
+
+  call GT_Ok("and throwing it away is the other answer",
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "hrow it away" &&
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~
+    \   'setbufvar(a:buffer, "&modified", 0)',
+    \ "   (which is what the (N)o of Vim did, and it worked)")
+  call GT_Ok("  and a document that is NOT yours is never asked about",
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ '&buftype',
+    \ "   (the occurrence list, the tree: they are accessories of a tab)")
+  call GT_Ok("  and every way of closing asks first",
+    \ GT_FunctionText("GrooVim_CloseAsking") =~ "CloseNameless" &&
+    \ GT_FunctionText("GrooVim_TabClose") =~ "CloseNameless" &&
+    \ GT_FunctionText("GrooVim_TabCloseSide") =~ "CloseNameless",
+    \ "   (F5->q, F5->o, F5->w, F5->, and F5->.)")
+  call GT_Ok("  without walking you through the tabs to do it",
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "win_execute" &&
+    \ GT_FunctionText("GrooVim_CloseNamelessSettle") =~ "win_findbuf",
+    \ "   (it is written in its own window, wherever that window is)")
+
+  call GT_Done()
 endfunc
 
 call GT_AfterStartup("GT_Body")

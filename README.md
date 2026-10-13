@@ -269,6 +269,7 @@ The CommandZ is a kind of "super leader" that allows an extensive keys combinati
     - `F5->q` - Close the window *(normal mode/insert/visual)*;
     - `F5->w` - Close the tab you are in *(normal mode/insert/visual)*;
         - On the LAST tab Vim refuses to close it, so what closes is the document, leaving an empty new 1 behind;
+        - Changes you would lose are asked about, by every way of closing. A document never saved asks WHERE to put it, the way F5->a asks, or you throw it away;
     - `F5->o` - Close all other tabs *(normal mode/insert/visual)*;
     - `F5->.` - Close every tab to the RIGHT of this one *(normal mode/insert/visual)*;
     - `F5->,` - Close every tab to the LEFT of this one *(normal mode/insert/visual)*;
