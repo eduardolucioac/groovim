@@ -62,11 +62,18 @@ PLUGINS=1
 # Only these names are touched. Anything else of yours in the same directory is
 # left where it is.
 #
-# Each line: name|where it comes from|what it is for
+# A RELEASE goes in, and not whatever the default branch of each one happens to
+# be on the day you install. It is the same rule the Vim above is built by: the
+# series is pinned and the newest release INSIDE it is the one taken, so a fix
+# arrives on its own and a new major -- which is where a plugin changes the
+# commands GrooVim drives it by -- does not arrive behind your back. A machine
+# installed today and one installed next year get the same editor.
+#
+# Each line: name|where it comes from|the series|what it is for
 GROOVIM_PLUGINS="
-nerdtree|https://github.com/preservim/nerdtree.git|the file tree of F4->n
-tcomment_vim|https://github.com/tomtom/tcomment_vim.git|the comment toggle, which Vim has no command of its own for
-vim-move|https://github.com/matze/vim-move.git|moving a line or a selection up and down
+nerdtree|https://github.com/preservim/nerdtree.git|7|the file tree of F4->n
+tcomment_vim|https://github.com/tomtom/tcomment_vim.git|4|the comment toggle, which Vim has no command of its own for
+vim-move|https://github.com/matze/vim-move.git|v1|moving a line or a selection up and down
 "
 
 # What GrooVim used to install and does not any more.
@@ -811,8 +818,33 @@ fi
 # The three plugins, into the package directory GrooVim looks in. Not being able
 # to fetch one is not a failure: GrooVim works without every one of them, and a
 # shortcut whose plugin is missing now says which one instead of breaking.
+# The newest release of a plugin INSIDE the series it is pinned to.
+#
+# The tags are read from the remote and nothing is cloned to find out, the way
+# the newest Vim is looked for above. Only the tags of that series are kept --
+# "7.1.3" and not "6.10.16", "v1.4" and not "v201" -- which also keeps the "sort
+# -V" honest: every name left shares the same prefix, so what is compared is the
+# numbers.
+newest_release() {
+  git ls-remote --tags --refs "$1" 2>/dev/null \
+    | awk -F/ '{print $NF}' | grep -E "^$2\.[0-9]+(\.[0-9]+)*$" \
+    | sort -V | tail -1
+}
+
+# One that is already there, put ON that release.
+#
+# A shallow clone has one commit and nothing else, so the tag is FETCHED by name
+# before it can be checked out -- and the checkout leaves the plugin on a
+# detached head, which is what a pinned release is. A "git pull" was what used to
+# be here, and it would walk a plugin into its next major on its own.
+at_release() {
+  ( cd "$1" \
+    && git fetch --quiet --depth 1 origin "+refs/tags/$3:refs/tags/$3" \
+    && git checkout --quiet "$3" ) >/dev/null 2>&1
+}
+
 install_plugins() {
-  local where name url what
+  local where name url series what tag
 
   step "Plugins"
 
@@ -843,16 +875,23 @@ install_plugins() {
     fi
   done
 
-  printf '%s\n' "$GROOVIM_PLUGINS" | while IFS='|' read -r name url what; do
+  printf '%s\n' "$GROOVIM_PLUGINS" | while IFS='|' read -r name url series what; do
     [ -n "$name" ] || continue
+
+    tag="$(newest_release "$url" "$series")"
+    if [ -z "$tag" ]; then
+      yellow "  $name -- I found no release of the $series series. Is there network?"
+      continue
+    fi
+
     if [ -d "$where/$name/.git" ]; then
-      if ( cd "$where/$name" && git pull --quiet --ff-only ) >/dev/null 2>&1; then
-        green "  $name -- up to date"
+      if at_release "$where/$name" "$url" "$tag"; then
+        green "  $name $tag -- up to date"
       else
-        yellow "  $name -- there already, could not update it"
+        yellow "  $name -- there already, could not put it on $tag"
       fi
-    elif git clone --quiet --depth 1 "$url" "$where/$name" >/dev/null 2>&1; then
-      green "  $name -- $what"
+    elif git clone --quiet --depth 1 --branch "$tag" "$url" "$where/$name" >/dev/null 2>&1; then
+      green "  $name $tag -- $what"
     else
       yellow "  $name -- could not fetch it. What needs it will say so."
     fi

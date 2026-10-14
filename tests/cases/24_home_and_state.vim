@@ -67,6 +67,25 @@ func! GT_Body()
       \ "   (green answers nobody produced here are worse than none)")
     call GT_Ok("  and says so when it ends",
       \ l:text =~ "Check it with:", "")
+
+    " ---- and the plugins go in on a RELEASE, not on a default branch
+    "
+    " A "git pull" was what used to be here, and it would walk a plugin into its
+    " next major on its own -- the one place a plugin changes the commands
+    " GrooVim drives it by. The series is pinned and the newest release inside it
+    " is taken, which is the rule the Vim itself is built by.
+    call GT_Ok("the installer pins the plugins to a release series",
+      \ l:text =~ "newest_release()" &&
+      \ l:text =~ 'clone .*--branch "\$tag"',
+      \ "   (a fix arrives on its own, a new major does not)")
+    call GT_Ok("  and every plugin on the list carries its series",
+      \ len(filter(readfile(l:installer),
+      \   'v:val =~ "^[a-z][a-z_-]*|https://.*|[v0-9][0-9.]*|"')) == 3,
+      \ "   (name|where it comes from|the series|what it is for)")
+    call GT_Ok("  and one already there is put ON that release",
+      \ l:text =~ "at_release()" && l:text =~ "refs/tags/" &&
+      \ l:text =~ "checkout",
+      \ "   (a shallow clone has no tags, so it is fetched by name first)")
   endif
 
   call GT_Done()

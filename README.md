@@ -566,11 +566,17 @@ The checkout is not needed afterwards -- everything is **copied**, so you can mo
 it or throw it away. To update, pull and run `./install.sh` again.
 
 The three plugins GrooVim knows how to drive -- **NERDTree**, **tcomment_vim**
-and **vim-move** -- go in with it and are updated by running `./install.sh`
-again; `--no-plugins` leaves them out. Nothing GrooVim promises rests on one: each
-is detected, and a shortcut whose plugin is not there says which one is missing
-instead of failing. Putting one in by hand, or one of your own, needs no plugin
-manager -- **F9** says where they live and how to turn one off.
+and **vim-move** -- go in with it, each on a **release** and not on whatever its
+default branch is that day: the series is pinned and the newest release inside it
+is the one taken, the same rule the Vim is built by. A fix arrives on its own, a
+new major does not arrive behind your back, and a machine installed today and one
+installed next year get the same editor. Running `./install.sh` again updates
+them; `--no-plugins` leaves them out.
+
+Nothing GrooVim promises rests on one: each is detected, and a shortcut whose
+plugin is not there says which one is missing instead of failing. Putting one in
+by hand, or one of your own, needs no plugin manager -- **F9** says where they
+live and how to turn one off.
 
 About
 -----

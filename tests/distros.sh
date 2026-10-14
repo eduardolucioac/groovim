@@ -135,7 +135,13 @@ if [ -x "$HOME/.local/bin/groovim" ]; then
   echo "features: $("$HOME/.local/share/groovim/bin/vim" --version 2>/dev/null \
     | tr ' \t' '\n\n' | grep -xE '[+-](clipboard|popupwin|terminal|python3(/dyn)?|X11|xterm_clipboard)' \
     | sort -u | tr '\n' ' ')"
-  echo "plugins: $(ls "$HOME/.groovim/pack/groovim/start" 2>/dev/null | tr '\n' ' ')"
+  # With the release each one is ON. They are pinned to a series and the newest
+  # release inside it is what goes in, so "nerdtree@7.1.3" is the whole answer to
+  # "which plugin is this machine running" -- a bare name was not.
+  echo "plugins: $(for d in "$HOME"/.groovim/pack/groovim/start/*/; do
+    [ -d "$d" ] || continue
+    printf '%s@%s ' "$(basename "$d")" "$(git -C "$d" describe --tags 2>/dev/null || echo '?')"
+  done)"
 else
   echo "there is no groovim command"
 fi
