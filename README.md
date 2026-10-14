@@ -1,8 +1,9 @@
 GrooVim - Vi IMproved'n'GrooVIed!
 =============
 
-<!-- <img border="0" alt="GrooVim Doc" src="http://imageshack.com/a/img829/4064/meg6.png" height="15%" width="15%"/>GrooVim Doc -->
-![GrooVim Doc](./images/groovim_doc.png)
+**Guess who's back? Back again!** 😁
+
+![Groovim is groovy!](./images/groovim_is_groovy.png)
 
 Writing in several places at once -- **F2 n** takes whole lines, **F2 m** takes
 places of their own:
@@ -587,6 +588,5 @@ Eduardo Lúcio Amorim Costa
 Brazil-ES  
 https://www.linkedin.com/in/eduardo-software-livre/  
 
-<!-- <img border="0" alt="Brazil-DF" src="./images/brazil.png" height="15%" width="15%"/> -->
 ![Brazil](./images/brazil.png)
 
