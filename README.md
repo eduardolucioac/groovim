@@ -1,7 +1,8 @@
 GrooVim - Vi IMproved'n'GrooVIed!
 =============
 
-<img border="0" alt="GrooVim Doc" src="http://imageshack.com/a/img829/4064/meg6.png" height="15%" width="15%"/>GrooVim Doc
+<!-- <img border="0" alt="GrooVim Doc" src="http://imageshack.com/a/img829/4064/meg6.png" height="15%" width="15%"/>GrooVim Doc -->
+![GrooVim Doc](./images/groovim_doc.png)
 
 Writing in several places at once -- **F2 n** takes whole lines, **F2 m** takes
 places of their own:
@@ -513,7 +514,7 @@ is shipped with GrooVim.
 ### A Vim of its own
 
 `install.sh` builds a Vim for GrooVim alone and writes a `groovim` command that
-runs it. This is the recommended way.
+runs it.
 
 **GrooVim asks for Vim 9.2 or newer** and builds the newest 9.x release it finds.
 It depends on what arrived in 9.2 -- the clipboard providers among it -- so the
@@ -583,8 +584,9 @@ About
 
 GrooVim 🄯 GNU GPL v3.0 or later  
 Eduardo Lúcio Amorim Costa  
-Brazil-DF  
+Brazil-ES  
 https://www.linkedin.com/in/eduardo-software-livre/  
-groovimdoc@gmail.com
 
-<img border="0" alt="Brazil-DF" src="http://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Map_of_Brazil_with_flag.svg/180px-Map_of_Brazil_with_flag.svg.png" height="15%" width="15%"/>
+<!-- <img border="0" alt="Brazil-DF" src="./images/brazil.png" height="15%" width="15%"/> -->
+![Brazil](./images/brazil.png)
+
