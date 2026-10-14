@@ -210,14 +210,11 @@ Moving, marking and ordering!
  * **F2 o** puts the **selected** lines in order. Whether the case counts, which
    way it climbs and whether only the unique lines come out are asked on **F5 c**
    and then `[t]`. To order by a **field** instead of by the whole line, select a
-   block over the column that field begins at, and the result comes back selected
-   for the next thing you want to do to it:
+   **block** over the column that field begins at -- the comparison starts there,
+   and what is to the left of it comes along. The result comes back selected,
+   ready for the next thing you want to do to it:
 
-```
-2026-03-11  Maria      a plain selection orders by the DATE
-2024-07-02  Joao       a BLOCK on the 13th column, where the names begin,
-2025-12-30  Ana        orders by the NAME
-```
+![Putting the lines in order](demos/08_sort.gif)
 
 The F keys (CommandZ)!
 -----

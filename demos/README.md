@@ -53,6 +53,15 @@ keeps the column it started in.
 
 ![Walking smoothly](06_smooth_move.gif)
 
+### Putting the lines in order
+
+**F2 o** puts the selected lines in order. Twice over the same four lines here:
+by the whole line, which begins with the date, and then by a FIELD -- a block on
+the column the names begin at says to compare FROM there, so the same lines come
+out in order of the name. The result comes back selected either time.
+
+![Putting the lines in order](08_sort.gif)
+
 ### In and out of the modes
 
 **Shift+Up** walks towards typing and back out of it, **Shift+Down** towards
