@@ -75,7 +75,14 @@ let g:GrooVim_Shortcuts = [
  \   "One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths",
  \   "A file that is already there is asked about before it is written over, and a no asks for the name again"
  \  ]},
- \ {"where": "File", "group": "F5", "key": "n", "break": 1, "modes": "niv", "run": 'call GrooVim_TabNew()',
+ \ {"where": "File", "group": "F5", "key": "p", "break": 1, "modes": "niv", "run": 'call GrooVim_Operation("[open]", "GrooVim_FileOpen", [])',
+ \  "menu": "Open...", "what": "Opens a file by name, in a tab of its own",
+ \  "notes": [
+ \   "The same question |F5->a| asks: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths",
+ \   "A file that is NOT there is asked about instead of being opened -- Vim opens a document under any name you type and says nothing, so a path with one letter wrong came up as an empty tab wearing the name of the file you meant. Yes starts it anyway",
+ \   "The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it"
+ \  ]},
+ \ {"where": "File", "group": "F5", "key": "n", "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "menu": "New tab", "what": "Open a new tab",
  \  "notes": [
  \   "A document you have not saved yet is called |new|1| , |new|2| ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called \"new 1\" wherever you happen to be",

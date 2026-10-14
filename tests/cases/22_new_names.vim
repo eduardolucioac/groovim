@@ -102,6 +102,63 @@ func! GT_Body()
   call GT_Ok("  and the tab is still named after the file",
     \ GrooVim_TabLabel(tabpagenr()) ==# "a.txt", "   [" . GrooVim_TabLabel(tabpagenr()) . "]")
 
+  " ---- and F5->p opens a file BY NAME, in a tab of its own
+  "
+  " The one way into a tab that was missing: F5->n opens an empty one, the tree
+  " opens what you can see from where you are, and a path you have in your hand
+  " -- out of a message, a terminal, a build that failed -- had to go through
+  " the ":e" of Vim.
+  tabonly! | enew!
+  let g:GT_OPEN = g:GT_OUT . "/abrir.txt"
+  call writefile(["uma linha de um arquivo que existe"], g:GT_OPEN)
+  call timer_start(100, {t -> GrooVim_FileOpen()})
+  call timer_start(400, {t -> feedkeys(g:GT_OPEN . "\<CR>", "t")})
+  call GT_When('expand("%:p") ==# g:GT_OPEN', "GT_AfterOpen")
+endfunc
+
+func! GT_AfterOpen()
+  call GT_Ok("F5->p opens the file you name",
+    \ expand("%:p") ==# g:GT_OPEN &&
+    \ getline(1) ==# "uma linha de um arquivo que existe",
+    \ "   [" . expand("%:t") . "]")
+  call GT_Ok("  in a tab of its own, at the END of the line",
+    \ tabpagenr() == tabpagenr("$") && tabpagenr("$") > 1,
+    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+  call GT_Ok("  and it asks the same question the saving asks",
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "GrooVim_AskFileName" &&
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_AskFileName",
+    \ "   (so the two read alike, and <Tab> completes in both)")
+  call GT_Ok("  and a folder is turned away, like a name that is missing",
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "isdirectory" &&
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "NAME is missing",
+    \ "   (a folder is not a document)")
+
+  " ---- and a file that is NOT there is asked about
+  "
+  " Vim opens a document under any name you type and says nothing, so a path
+  " with one letter wrong came up as an empty tab wearing the name of the file
+  " you meant -- and the file you meant was one letter away, still closed.
+  tabonly! | enew!
+  let g:GT_NOT_THERE = g:GT_OUT . "/nao_existe.txt"
+  call delete(g:GT_NOT_THERE)
+  call timer_start(100, {t -> GrooVim_FileOpen()})
+  call timer_start(400, {t -> feedkeys(g:GT_NOT_THERE . "\<CR>", "t")})
+  call timer_start(800, {t -> feedkeys("n\<CR>", "t")})
+  call GT_When('g:GrooVim_GrooVimBarMsgValue =~ "Nothing opened"', "GT_AfterNotThere")
+endfunc
+
+func! GT_AfterNotThere()
+  call GT_Ok("a file that is not there is asked about",
+    \ g:GrooVim_GrooVimBarMsgValue =~ "Nothing opened" &&
+    \ expand("%:p") !=# g:GT_NOT_THERE,
+    \ "   [" . g:GrooVim_GrooVimBarMsgValue . "]   (and a no opens nothing)")
+  call GT_Ok("  and the question offers to START it",
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "is not there. Start it" &&
+    \ GT_FunctionText("GrooVim_FileOpen") =~
+    \   'OptionsToPrompt(\["y", "n"\], "n"',
+    \ "   (the default is the answer that opens nothing)")
+
+  call delete(g:GT_OPEN)
   call GT_Done()
 endfunc
 

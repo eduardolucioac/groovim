@@ -94,12 +94,16 @@ func! GT_AfterSaveAs()
   " "2" for the folder of the file -- and then for a NAME: a menu to read through
   " before you can answer "notes.txt".
   call GT_Ok("where to save is one question, and a name is enough",
-    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "getcwd()" &&
-    \ len(split(GT_FunctionText("GrooVim_AskFileWhere"), "GrooVim_Ask(")) == 2,
+    \ GT_FunctionText("GrooVim_AskFileName") =~ "getcwd()" &&
+    \ len(split(GT_FunctionText("GrooVim_AskFileName"), "GrooVim_Ask(")) == 2,
     \ "   (a path in front of the name puts it elsewhere)")
   call GT_Ok("  and the folder you are in is written into it",
-    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_PathShort(getcwd()",
+    \ GT_FunctionText("GrooVim_AskFileName") =~ "GrooVim_PathShort(getcwd()",
     \ "   (so a bare name holds no mystery about where it goes)")
+  call GT_Ok("  and the opening of F5->p asks that same question",
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "GrooVim_AskFileName" &&
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_AskFileName",
+    \ "   (written once, so the two cannot drift apart)")
   call GT_Ok("  and a folder with no name in it is turned away",
     \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'fnamemodify(l:answer, ":p")' &&
     \ GT_FunctionText("GrooVim_AskFileWhere") =~ "NAME is missing",

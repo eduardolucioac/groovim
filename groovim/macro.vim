@@ -273,6 +273,26 @@ exec "nnoremap <silent> <leader>zvv :tabdo source " . fnameescape(g:GrooVim_Vimr
 " way of saying so.
 nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 
+" Note: The question that asks for a FILE, in the one shape every part of
+" GrooVim asks it: what is wanted first, the folder you are in after it, and the
+" other way of answering last. The saving asks it, the copy asks it and the
+" opening of F5->p asks it, so the three read alike and <Tab> completes a path
+" in all of them.
+"
+" The answer comes back with the blanks at either end taken off: a path pasted
+" from somewhere else arrives with them more often than not.
+func! GrooVim_AskFileName(head, suggestion) abort
+
+  let l:room = &columns - strdisplaywidth(a:head .
+   \ " (\"\") or path and filename: ") - 20
+  let l:answer = GrooVim_Ask(a:head . " (\"" .
+   \ GrooVim_PathShort(getcwd(), l:room) . "\") or path and filename: ",
+   \ a:suggestion, "file")
+
+  return substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
+
+endfunc
+
 " Note: Where to put a file, asked once and used by both the copy and the
 " "save as".
 "
@@ -303,13 +323,8 @@ func! GrooVim_AskFileWhere(what, ...) abort
   let l:suggestion = a:0 > 0 ? a:1 : expand("%:t")
 
   while 1
-    let l:head = "Filename" . (a:what ==# "" ? "" : " of the " . a:what)
-    let l:room = &columns - strdisplaywidth(l:head .
-     \ " (\"\") or path and filename: ") - 20
-    let l:answer = GrooVim_Ask(l:head . " (\"" .
-     \ GrooVim_PathShort(getcwd(), l:room) . "\") or path and filename: ",
-     \ l:suggestion, "file")
-    let l:answer = substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
+    let l:answer = GrooVim_AskFileName("Filename" .
+     \ (a:what ==# "" ? "" : " of the " . a:what), l:suggestion)
 
     if l:answer ==# ""
       call GrooVim_GrooVimBarMsg("A name is needed!", 1)
@@ -344,6 +359,9 @@ func! GrooVim_AskFileWhere(what, ...) abort
     " destroys nothing -- and whoever asked us writes with the "!" form, which
     " is what this question was asked for.
     if filereadable(l:where)
+      let l:room = &columns - strdisplaywidth(g:GrooVim_ScreenMark .
+       \ "\"\" is already there. Replace it " .
+       \ GrooVim_OptionsToPrompt(["y", "n"], "n", "")) - 2
       let l:replace = GrooVim_ScreenAsk("\"" . GrooVim_PathShort(l:where, l:room) .
        \ "\" is already there. Replace it " .
        \ GrooVim_OptionsToPrompt(["y", "n"], "n", ""),

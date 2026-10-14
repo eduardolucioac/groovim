@@ -195,6 +195,11 @@ Moving, marking and ordering!
    you are on is always drawn whole;
  * The **path** of the file is on the bar, with your home as `~` and the middle
    taken out when it does not fit; **F2 Space** says the whole of it in a balloon;
+ * **F5 p** opens a file by name, in a tab of its own: the same question the
+   saving asks, so a name lands in the folder you are in and a name with a path
+   in front of it lands where the path says, with **Tab** completing as you go.
+   A file that is **not there** is asked about instead of being opened under the
+   name you typed;
  * A file handed from **another terminal** opens in the GrooVim you already have
    open, in a tab of its own, instead of starting a second one:
 
@@ -252,6 +257,10 @@ memory each, so a command of another group can never come out of this one.
         - Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
         - One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
         - A file that is already there is asked about before it is written over, and a no asks for the name again;
+    - `F5->p` - Opens a file by name, in a tab of its own *(normal mode/insert/visual)*;
+        - The same question F5->a asks: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
+        - A file that is NOT there is asked about instead of being opened -- Vim opens a document under any name you type and says nothing, so a path with one letter wrong came up as an empty tab wearing the name of the file you meant. Yes starts it anyway;
+        - The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it;
     - `F5->n` - Open a new tab *(normal mode/insert/visual)*;
         - A document you have not saved yet is called new 1 , new 2 ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;

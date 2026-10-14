@@ -342,6 +342,65 @@ func! GrooVim_TabNew() abort
   setlocal ma
 endfunc
 
+" Note: Opening a file BY NAME, which is the one way into a tab that was
+" missing: F5->n opens an empty one, the tree of F4->n opens what you can see
+" from where you are, and a path you have in your hand -- out of a message, a
+" terminal, a build that failed -- had to go through the ":e" of Vim.
+"
+" The same question the saving asks, so the two read alike: a name lands in the
+" folder you are in, which the question names, a name with a path in front of it
+" lands where the path says, and <Tab> completes.
+"
+" A file that is NOT THERE is asked about instead of being opened. Vim opens a
+" document under any name you type and tells you nothing, so a path with one
+" letter wrong came up as an empty tab wearing the name of the file you meant --
+" and the file you meant was one letter away, still closed. Answering yes opens
+" it anyway, which is how a file is STARTED by name.
+"
+" The tab is a tab of GrooVim like any other: it is born at the END of the line,
+" and a file already open is not opened twice -- you land on the tab that has
+" it.
+func! GrooVim_FileOpen() abort
+
+  let l:answer = GrooVim_AskFileName("Filename to open", "")
+  if l:answer ==# ""
+    call GrooVim_GrooVimBarMsg("A name is needed!", 4)
+    return
+  endif
+
+  let l:path = fnamemodify(l:answer, ":p")
+
+  if isdirectory(l:path) || l:path =~ "/$"
+    call GrooVim_GrooVimBarMsg("\"" . l:answer .
+     \ "\" is a folder, and a NAME is missing!", 4)
+    return
+  endif
+
+  if !filereadable(l:path)
+    let l:room = &columns - strdisplaywidth(g:GrooVim_ScreenMark .
+     \ "\"\" is not there. Start it " .
+     \ GrooVim_OptionsToPrompt(["y", "n"], "n", "")) - 2
+    let l:start = GrooVim_ScreenAsk("\"" . GrooVim_PathShort(l:path, l:room) .
+     \ "\" is not there. Start it " .
+     \ GrooVim_OptionsToPrompt(["y", "n"], "n", ""),
+     \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
+    redraw!
+    if l:start !=# "y"
+      call GrooVim_GrooVimBarMsg("Nothing opened!", 4)
+      return
+    endif
+  endif
+
+  try
+    exec "tabedit " . fnameescape(l:path)
+    call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") . "\" is open!", 4)
+  catch
+    call GrooVim_GrooVimBarMsg("\"" . l:answer . "\" could not be opened! Reason: \"" .
+     \ v:exception . "\"", 5)
+  endtry
+
+endfunc
+
 " Note: The tab line, which SCROLLS instead of being cut: with more tabs than
 " the terminal is wide, a WINDOW of tabs is drawn and the window follows you. It
 " moves only as much as it has to for the tab you are ON to be whole on the
