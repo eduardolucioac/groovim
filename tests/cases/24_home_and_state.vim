@@ -86,8 +86,78 @@ func! GT_Body()
       \ l:text =~ "at_release()" && l:text =~ "refs/tags/" &&
       \ l:text =~ "checkout",
       \ "   (a shallow clone has no tags, so it is fetched by name first)")
+
+    " ---- and the command knows how to hand a file to a GrooVim already open
+    call GT_Ok("the command has the flag that hands a file over",
+      \ l:text =~ "-j|--jrinst" && l:text =~ "JUST_REUSE",
+      \ "   (groovim -j file.txt, \"just reuse an instance\")")
+    call GT_Ok("  and it writes into the mailbox of the OLDEST one alive",
+      \ l:text =~ "sort -n" && l:text =~ 'kill -0 "\\$pid"',
+      \ "   (the name carries the time it opened and the process it is)")
+    call GT_Ok("  and sweeps the mailbox of one that is gone",
+      \ l:text =~ 'rm -f "\\$GROOVIM_STATE/inbox/\\$name"',
+      \ "   (a GrooVim that was killed had no chance to take its own down)")
+    call GT_Ok("  and with none open it opens the file itself",
+      \ l:text =~ "there is no GrooVim open to hand it to",
+      \ "   (and says so, instead of swallowing the file)")
+    call GT_Ok("  and its --help answers for the flags of GrooVim too",
+      \ l:text =~ "GrooVim adds:" && l:text =~ '"\\$GROOVIM_VIM" --help',
+      \ "   (Vim knows nothing of them, so Vim alone could not answer)")
   endif
 
+  " ---- the mailbox this GrooVim listens on
+  "
+  " "groovim -j file" opens the file in a GrooVim that is ALREADY running. Vim
+  " has a way of its own for this, "--remote-tab", and it rides on X11 -- so it
+  " is there on a desktop and gone on an SSH, in a container and on a machine
+  " with no desktop, which is where GrooVim is at home. This asks for nothing
+  " but a directory both sides can write in.
+  call GT_Ok("this GrooVim has a mailbox of its own",
+    \ filereadable(GrooVim_InboxMine()) &&
+    \ GrooVim_InboxMine() =~ "/inbox/[0-9]\\+\\." . getpid() . "$",
+    \ "   [" . fnamemodify(GrooVim_InboxMine(), ":t") .
+    \ "]   (the time it opened, and the process it is)")
+  call GT_Ok("  and it starts empty",
+    \ getfsize(GrooVim_InboxMine()) == 0, "   (nothing to open yet)")
+
+  " Note: Nothing is opened while a QUESTION is on the screen: a tab opening
+  " under a prompt would take the keys it was waiting for.
+  let g:GT_HANDED = g:GT_OUT . "/entregue.txt"
+  call writefile(["uma linha entregue"], g:GT_HANDED)
+  let g:GrooVim_Busy = 1
+  call writefile([g:GT_HANDED], GrooVim_InboxMine())
+  call GT_When("1", "GT_WhileBusy")
+endfunc
+
+func! GT_WhileBusy()
+  call timer_start(900, {t -> GT_AfterBusy()})
+endfunc
+
+func! GT_AfterBusy()
+  call GT_Ok("  and nothing is taken from it while a question is up",
+    \ getfsize(GrooVim_InboxMine()) > 0 && expand("%:p") !=# g:GT_HANDED,
+    \ "   (the file is not going anywhere: the next tick finds it still there)")
+
+  let g:GrooVim_Busy = 0
+  call GT_When('expand("%:p") ==# g:GT_HANDED', "GT_AfterInbox")
+endfunc
+
+func! GT_AfterInbox()
+  call GT_Ok("a file written into the mailbox opens in a tab",
+    \ expand("%:p") ==# g:GT_HANDED && getline(1) ==# "uma linha entregue",
+    \ "   [" . expand("%:t") . "]   (and the bar says it was handed over)")
+  call GT_Ok("  at the END of the tab line, like any other tab",
+    \ tabpagenr() == tabpagenr("$"),
+    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+  call GT_Ok("  and the mailbox is empty again",
+    \ getfsize(GrooVim_InboxMine()) == 0,
+    \ "   (taken away and put back empty before a line of it was read)")
+  call GT_Ok("  and it is taken down on the way out",
+    \ !empty(filter(GT_SourceLines(),
+    \   'v:val =~ "VimLeave .* delete(GrooVim_InboxMine())"')),
+    \ "   (nobody hands a file to a GrooVim that is not there any more)")
+
+  call delete(g:GT_HANDED)
   call GT_Done()
 endfunc
 

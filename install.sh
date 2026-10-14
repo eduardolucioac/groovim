@@ -608,6 +608,84 @@ if [ ! -r "\$GROOVIM_VIMRC" ]; then
   exit 1
 fi
 
+# The help of Vim, and then what GrooVim adds to it. Vim knows nothing of the
+# flags of this script, so a "--help" that only asked Vim would leave them
+# unanswerable.
+for arg in "\$@"; do
+  case "\$arg" in
+    -h|--help)
+      "\$GROOVIM_VIM" --help
+      cat <<'GROOVIMHELP'
+
+GrooVim adds:
+
+   -j, --jrinst         Open the files in a GrooVim that is ALREADY running
+                        ("just reuse an instance"), each in a tab of its own.
+                        The oldest one still open takes them. With none open,
+                        this one opens them as usual.
+
+Environment:
+
+   GROOVIM_VIM          the Vim to run       GROOVIM_HOME   where GrooVim lives
+   GROOVIM_VIMRC        the .vimrc to run    GROOVIM_STATE  where this run writes
+
+Inside GrooVim, <F9> is its own help: every key, every screen, every setting.
+GROOVIMHELP
+      exit 0
+      ;;
+  esac
+done
+
+# Note: "-j" hands the files to a GrooVim already open instead of starting
+# another one.
+#
+# The mailbox of each running GrooVim is a file in "inbox/", named for the
+# moment it opened and the process it is: the TIME says which was there first,
+# and the PID is how this finds out whether it still is. Writing a line into
+# one is the whole of handing a file over -- the GrooVim it belongs to reads it
+# on a clock and opens a tab.
+#
+# A mailbox whose process is gone is swept here, which is the only place that
+# can know: a GrooVim that was killed had no chance to take its own down.
+GROOVIM_STATE="\${GROOVIM_STATE:-\$GROOVIM_HOME}"
+JUST_REUSE=0
+FILES=()
+for arg in "\$@"; do
+  case "\$arg" in
+    -j|--jrinst) JUST_REUSE=1 ;;
+    *) FILES+=("\$arg") ;;
+  esac
+done
+
+if [ "\$JUST_REUSE" -eq 1 ]; then
+  # Whatever happens next, the flag itself is not for Vim.
+  set -- "\${FILES[@]}"
+fi
+
+if [ "\$JUST_REUSE" -eq 1 ] && [ "\${#FILES[@]}" -gt 0 ]; then
+  mailbox=""
+  for name in \$(ls "\$GROOVIM_STATE/inbox" 2>/dev/null | sort -n); do
+    pid="\${name##*.}"
+    case "\$pid" in
+      ''|*[!0-9]*) continue ;;
+    esac
+    if kill -0 "\$pid" 2>/dev/null; then
+      mailbox="\$GROOVIM_STATE/inbox/\$name"
+      break
+    fi
+    rm -f "\$GROOVIM_STATE/inbox/\$name"
+  done
+
+  if [ -n "\$mailbox" ]; then
+    for file in "\${FILES[@]}"; do
+      printf '%s\\n' "\$(realpath -m -- "\$file")" >> "\$mailbox"
+    done
+    echo "groovim: handed over to the GrooVim already open (pid \$pid)."
+    exit 0
+  fi
+  echo "groovim: there is no GrooVim open to hand it to, so this one opens it." >&2
+fi
+
 exec "\$GROOVIM_VIM" -u "\$GROOVIM_VIMRC" "\$@"
 END
 

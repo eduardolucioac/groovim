@@ -195,6 +195,16 @@ Moving, marking and ordering!
    you are on is always drawn whole;
  * The **path** of the file is on the bar, with your home as `~` and the middle
    taken out when it does not fit; **F2 Space** says the whole of it in a balloon;
+ * A file handed from **another terminal** opens in the GrooVim you already have
+   open, in a tab of its own, instead of starting a second one:
+
+```
+groovim -j README.md        # "just reuse an instance" (also: --jrinst)
+```
+
+   The oldest GrooVim still open takes it, and with none open that same command
+   opens the file itself. It asks for no X and no desktop, so it works over SSH
+   as well;
  * **F3 m** marks every occurrence of the word under the cursor. **F3 f** finds,
    offering that word, and with the list switched on every line it is in comes up
    in a panel of its own, where Enter goes there:

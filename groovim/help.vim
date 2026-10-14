@@ -627,7 +627,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  With more tabs than the line is wide it SCROLLS: the tab you are on is drawn whole, and a |‹| or a |›| at the end says the line goes on that way;".
 \"\n*o*  Two tabs with the same file NAME show enough of the path to be told apart, |a/help.vim| beside |b/help.vim| ;".
 \"\n*o*  A new tab is born at the END of the line, wherever you were when you asked for it: the order of the tabs is the order you opened them in;".
-\"\n*o*  A file already open is not opened again: you land on the tab that has it.".
+\"\n*o*  A file already open is not opened again: you land on the tab that has it;".
+\"\n*o*  A file handed from OUTSIDE opens a tab too: |groovim|-j|file| , typed in another terminal, puts it in the GrooVim already open instead of starting a second one -- \"just reuse an instance\". The oldest one open takes it, and with none open that command opens the file itself. It asks for no X and no desktop, so it works over SSH; |groovim|--help| says it as well.".
 \"\n".
 \"\n * The bar at the bottom~".
 \"\n".
@@ -697,6 +698,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n     let g:GrooVim_SyntaxPerExtension = {\"inc\": \"html\", \"gds\": \"vb\", \"ejs\": \"html\"}".
 \"\n<".
 \"\n*o*  The SESSION that comes back by itself: |g:GrooVim_SessionAuto| ;".
+\"\n*o*  The MAILBOX a file handed from outside arrives in: |g:GrooVim_InboxDir| and |g:GrooVim_InboxPollMs| , how often it is looked at (400ms);".
 \"\n*o*  The PLUGINS: |g:enable_nerdtree_vim| , |g:enable_tcomment_vim| and |g:enable_move_vim| -- |0| ignores one and |1| forces it -- or |let|g:enable_all_plugins|=|0| for every one at once;".
 \"\n*o*  Where GrooVim keeps ITSELF: |GROOVIM_HOME| , of the environment, moves the whole of it -- the plugins, the saved options, the undo, the session, the viminfo: >".
 \"\n     GROOVIM_HOME=~/.groovim-work groovim file.txt".

@@ -353,3 +353,114 @@ func! GrooVim_TabCloseSide(side) abort
   endwhile
 endfunc
 
+
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+" THE INBOX (A FILE HANDED TO A GrooVim ALREADY OPEN)
+" $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: "groovim -j file" opens the file in a GrooVim that is ALREADY running
+" instead of starting another one -- "just reuse an instance" -- and this is the
+" half that listens.
+"
+" Vim has a way of its own for this, "--remote-tab", and it is not the one used
+" here: it rides on "+clientserver", which on Unix means X11. Measured, and it
+" works on a desktop -- the file lands in a tab of the running GrooVim. It also
+" does not exist on an SSH, in a container or on a machine with no desktop,
+" which is where GrooVim is at home, so taking it would have meant a feature
+" that is there on the machine nobody needs it on.
+"
+" What is here is a MAILBOX, and it asks for nothing but a directory both sides
+" can write in. Every GrooVim opens one of its own, named for the moment it
+" opened and the process it is, and reads it on a clock. "groovim -j" writes the
+" path of the file into the mailbox of the oldest one still alive. The name
+" carries both halves because both are needed: the TIME says which GrooVim was
+" there first, and the PID is how the one handing the file over finds out
+" whether it is still there.
+let g:GrooVim_InboxDir = get(g:, "GrooVim_InboxDir", g:GrooVim_State . "/inbox")
+let g:GrooVim_InboxPollMs = get(g:, "GrooVim_InboxPollMs", 400)
+
+func! GrooVim_InboxMine() abort
+  if !exists("s:inbox")
+    let s:inbox = g:GrooVim_InboxDir . "/" . localtime() . "." . getpid()
+  endif
+  return s:inbox
+endfunc
+
+" Note: The mailbox is opened EMPTY and on a clock of its own.
+"
+" A timer and not "CursorHold": that one fires once after you stop typing and
+" not again until you press something, so a GrooVim left alone on a screen would
+" never hear anything. A timer fires while Vim sits waiting for a key, which is
+" exactly when a file handed from somewhere else should come up.
+func! GrooVim_InboxOpen() abort
+
+  if !isdirectory(g:GrooVim_InboxDir)
+    silent! call mkdir(g:GrooVim_InboxDir, "p", 0700)
+  endif
+  if !isdirectory(g:GrooVim_InboxDir)
+    return
+  endif
+
+  call writefile([], GrooVim_InboxMine())
+  call timer_start(g:GrooVim_InboxPollMs, "GrooVim_InboxRead", {"repeat": -1})
+
+endfunc
+
+" Note: What was left in the mailbox, opened in a tab each.
+"
+" ":tabedit" and not a window of its own: the tab it opens is a tab of GrooVim
+" like any other -- it is born at the END of the line, and a file already open
+" is not opened twice, you land on the tab that has it.
+"
+" Nothing is opened while a QUESTION is on the screen. A tab opening under a
+" prompt would take the keys it was waiting for, and the file is not going
+" anywhere: the next tick of the clock finds it still there.
+"
+" The mailbox is taken AWAY and an empty one put in its place before a line of
+" it is read. What arrives between the two is written into a file nobody reads
+" again, which is one request lost; what would be lost by reading first and
+" emptying afterwards is anything that arrives while the tabs are opening, which
+" is a much longer moment. The name it is taken away to begins with a dot, which
+" is how the other half knows it is not a mailbox.
+func! GrooVim_InboxRead(timer) abort
+
+  if g:GrooVim_Busy
+    return
+  endif
+
+  let l:mine = GrooVim_InboxMine()
+  if getfsize(l:mine) <= 0
+    return
+  endif
+
+  let l:reading = g:GrooVim_InboxDir . "/." . getpid() . ".reading"
+  if rename(l:mine, l:reading) != 0
+    return
+  endif
+  call writefile([], l:mine)
+
+  let l:paths = filter(readfile(l:reading), 'v:val !=# ""')
+  call delete(l:reading)
+
+  for l:path in l:paths
+    try
+      exec "tabedit " . fnameescape(l:path)
+      call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") .
+       \ "\" was handed to this GrooVim!", 5)
+    catch
+      call GrooVim_GrooVimBarMsg("\"" . l:path . "\" could not be opened! Reason: \"" .
+       \ v:exception . "\"", 5)
+    endtry
+  endfor
+
+  redraw!
+
+endfunc
+
+" Note: And it is taken down on the way out, so that nobody hands a file to a
+" GrooVim that is not there any more. The one left behind by a GrooVim that was
+" KILLED is swept by whoever tries to use it: the process it names is asked
+" whether it is alive first.
+autocmd! VimLeave * call delete(GrooVim_InboxMine())
+
+call GrooVim_InboxOpen()
