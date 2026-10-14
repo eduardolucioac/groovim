@@ -232,6 +232,70 @@ func! GrooVim_SearchGuySync() abort
   endif
 endfunc
 
+" Note: The rule a panel draws across itself, as wide as the SCREEN is.
+"
+" It was a hundred and three dashes written into the string, with the label
+" counted out by hand in the middle of them -- a width that fits a window of a
+" hundred and three columns and no other. A panel WRAPS what does not fit (see
+" "GrooVim_PanelSetup" below, which is why: a line of a list running off the
+" screen is an answer you cannot read), so on anything narrower the rule folded
+" onto a second row and took a line of the list with it. Measured on the demo of
+" the occurrence list, 84 columns: four hits found, three of them on the screen.
+"
+" The label goes in the MIDDLE of what there is, so it stays in the middle at
+" any width.
+func! GrooVim_PanelRule(label) abort
+
+  let l:room = GrooVim_PanelRoom()
+  if a:label ==# ""
+    return repeat("-", l:room)
+  endif
+
+  let l:middle = "[ " . a:label . " ]"
+  let l:left = (l:room - strdisplaywidth(l:middle)) / 2
+  return repeat("-", max([0, l:left])) . l:middle .
+   \ repeat("-", max([0, l:room - l:left - strdisplaywidth(l:middle)]))
+
+endfunc
+
+" Note: And the shorter one, which is what separates the name of a file from the
+" lines under it. Shorter ON PURPOSE -- it divides INSIDE what the rule above
+" opened -- and never wider than there is room for.
+func! GrooVim_PanelRuleShort() abort
+  return repeat("-", min([71, GrooVim_PanelRoom()]))
+endfunc
+
+" Note: The room a panel has for TEXT, which is not the width of the window: a
+" panel draws LINE NUMBERS and keeps a column for signs, and neither of those is
+" text. Measured on a panel of 84 columns: the gutter is 6 and the text begins
+" at the seventh, so 78 is the whole of what a line has.
+"
+" One column over is not one column of damage. The panels wrap AND break at a
+" space ("linebreak"), so a rule 79 wide folded at the last space before the
+" edge -- the one inside "[ Search List ]" -- and half of it went down to the
+" next row, taking a line of the list with it.
+"
+" The gutter is asked of the panel itself and not counted out of the options:
+" "screenpos" says which screen column the first character of the first line is
+" drawn in, and what lies to the left of it is the gutter, whatever is making
+" it. The screen answers for the one moment there is no panel yet, which is the
+" first time one is built.
+func! GrooVim_PanelRoom() abort
+
+  for l:window in range(1, winnr("$"))
+    if GrooVim_IsHelperBuffer(bufname(winbufnr(l:window)))
+      let l:gutter = screenpos(win_getid(l:window), 1, 1).col -
+       \ win_screenpos(l:window)[1]
+      if l:gutter > 0
+        return max([20, winwidth(l:window) - l:gutter])
+      endif
+    endif
+  endfor
+
+  return max([20, &columns - max([&numberwidth, 4]) - 2])
+
+endfunc
+
 " Note: Turns the window into what it really is: a list you read and navigate,
 " never one you type into.
 "

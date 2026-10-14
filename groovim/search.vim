@@ -447,13 +447,13 @@ func! GrooVim_SearchGuyTraveler(mod) range abort
     let l:cur_pos_last = [0,0,0]
 
     if g:matchedLinesGlobal == ""
-      call GrooVim_SearchGuyMatches("", "-------------------------------------------[ Search List ]-------------------------------------------", "", "", "", "")
+      call GrooVim_SearchGuyMatches("", GrooVim_PanelRule("Search List"), "", "", "", "")
     else
-      call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------------------------------------", "", "", "", "")
+      call GrooVim_SearchGuyMatches("", GrooVim_PanelRule(""), "", "", "", "")
     endif
 
     call GrooVim_SearchGuyMatches("", expand('%:p'), "", "", "", "")
-    call GrooVim_SearchGuyMatches("", "-----------------------------------------------------------------------", "", "", "", "")
+    call GrooVim_SearchGuyMatches("", GrooVim_PanelRuleShort(), "", "", "", "")
 
     while (getpos(".")[1] > l:cur_pos_last[1] || (getpos(".")[1] == l:cur_pos_last[1] && getpos(".")[2] > l:cur_pos_last[2])) && l:theresAMatch == 1
       let l:cur_pos_last = getpos(".")

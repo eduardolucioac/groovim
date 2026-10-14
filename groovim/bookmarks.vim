@@ -310,11 +310,11 @@ func! GrooVim_BookmarkPanelBuild() abort
       continue
     endif
     call GrooVim_BookmarkPanelLine(0, l:first
-     \ ? "-------------------------------------------[ Bookmarks ]-------------------------------------------"
-     \ : "-----------------------------------------------------------------------------------------------------", "")
+     \ ? GrooVim_PanelRule("Bookmarks")
+     \ : GrooVim_PanelRule(""), "")
     let l:first = 0
     call GrooVim_BookmarkPanelLine(0, l:file, "")
-    call GrooVim_BookmarkPanelLine(0, "-----------------------------------------------------------------------", "")
+    call GrooVim_BookmarkPanelLine(0, GrooVim_PanelRuleShort(), "")
     for l:one in l:marks
       call GrooVim_BookmarkPanelLine(l:one.line, GrooVim_BookmarkPanelText(l:one), l:file)
     endfor

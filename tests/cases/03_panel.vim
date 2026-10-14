@@ -91,4 +91,30 @@ let g:GT_NONE = GT_Travelled(["nothing here", "nor here"])
 call GT_Ok("  and a file with none says none", g:GT_NONE == 0,
   \ "   (" . g:GT_NONE . ")")
 
+" ---- the rule a panel draws is as wide as the panel, and no wider
+"
+" It was a hundred and three dashes written into the string, with the label
+" counted out by hand in the middle of them. The panels wrap AND break at a
+" space, so one column over the edge was not one column of damage: the rule
+" folded at the last space before it -- the one inside "[ Search List ]" -- and
+" half of it went down to the next row, taking a line of the list with it.
+call GT_Ok("the rule is as wide as the panel has room for",
+  \ strdisplaywidth(GrooVim_PanelRule("Search List")) == GrooVim_PanelRoom(),
+  \ "   (" . strdisplaywidth(GrooVim_PanelRule("Search List")) . " of " .
+  \ GrooVim_PanelRoom() . " columns)")
+call GT_Ok("  and the label sits in the middle of it",
+  \ GrooVim_PanelRule("Search List") =~ "^-\\+\\[ Search List \\]-\\+$",
+  \ "   (so it stays in the middle at any width)")
+call GT_Ok("  and the shorter one never goes over either",
+  \ strdisplaywidth(GrooVim_PanelRuleShort()) <= GrooVim_PanelRoom(),
+  \ "   (" . strdisplaywidth(GrooVim_PanelRuleShort()) .
+  \ " columns, and it divides INSIDE what the other opened)")
+call GT_Ok("  and the room is the panel's own, gutter taken off",
+  \ GT_FunctionText("GrooVim_PanelRoom") =~ "screenpos" &&
+  \ GT_FunctionText("GrooVim_PanelRoom") =~ "win_screenpos",
+  \ "   (the numbers and the column the signs sit in are not text)")
+call GT_Ok("  and no panel writes a rule of its own any more",
+  \ empty(filter(GT_SourceLines(), 'v:val =~ "\"-\\{20,}"')),
+  \ "   (a hundred and three dashes fit one window and no other)")
+
 call GT_Done()
