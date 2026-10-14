@@ -417,6 +417,27 @@ func! GrooVim_ClipReg() abort
 
 endfunc
 
+" Note: And the clipboard reaches the COMMAND LINE, which is where every
+" question of GrooVim is answered: the path of a file, the value to search for,
+" the name to save under. A path you have in your hand is the commonest answer
+" there is, and it had to come in through the paste of the TERMINAL --
+" <Ctrl-Shift-v> -- because <Ctrl-v> there is the "insert the next character
+" literally" of Vim. Measured: pressing it ate the <Enter> that came after and
+" left a |^M| on the line, so the question never ended.
+"
+" <Ctrl-q> is the other name Vim gives that same function, and it is untouched:
+" nothing was taken away, it moved.
+"
+" The NEWLINE at the end is dropped. A path copied out of a message or a
+" terminal carries one more often than not, and a command line has nowhere to
+" put it: it lands as a |^@| at the end of the answer -- measured, and the file
+" was then looked for under a name with a NUL in it.
+cnoremap <C-v> <C-r>=GrooVim_ClipLine()<CR>
+
+func! GrooVim_ClipLine() abort
+  return substitute(GrooVim_ClipGet(), '[\r\n]\+$', "", "")
+endfunc
+
 " Note: Pastes what the CLIPBOARD OF GROOVIM has, and not what the "+" register
 " has. They are the same thing until OSC 52 is the method in use.
 "

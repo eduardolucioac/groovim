@@ -650,7 +650,18 @@ func! GrooVim_Ask(prompt, ...) abort
     call interrupt()
   endif
 
-  return l:answer
+  " Note: And the NEWLINE a pasted answer ends with is dropped, whichever paste
+  " brought it in. A command line has nowhere to put one: it lands as a |^@| at
+  " the end of the answer -- measured, pasting a path with the paste of the
+  " terminal -- and the file was then looked for under a name with a NUL in it.
+  " What is INSIDE an answer is left alone: there it was asked for.
+  "
+  " The pattern is in SINGLE quotes, and that is not a taste. Between double
+  " ones Vim reads the escapes itself: "[\r\n]\+$" reaches the regex engine as
+  " a collection of two real bytes followed by a LITERAL plus, because "\+" in a
+  " double-quoted string is just "+". It matched nothing, and the newline went
+  " on through -- measured, byte 10 still at the end of the answer.
+  return substitute(l:answer, '[\r\n]\+$', "", "")
 endfunc
 
 " Note: Asks until the answer passes the test, ALWAYS with the same question.

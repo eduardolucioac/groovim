@@ -306,4 +306,32 @@ call GT_Ok("  and the register is said CHARACTERWISE, not guessed",
   \ GT_FunctionText("GrooVim_ClipPaste") =~ 'setreg("z", l:text, "v")',
   \ "   (what ends in a line break would be guessed linewise)")
 
+" ---- and Ctrl+V reaches the COMMAND LINE, where every question is answered
+"
+" A path you have in your hand is the commonest answer there is, and it had to
+" come in through the paste of the TERMINAL: <Ctrl-v> there is the "insert the
+" next character literally" of Vim, which ate the <Enter> that came after it and
+" left a ^M on the line, so the question never ended. <Ctrl-q> is the other name
+" Vim gives that same function and is untouched.
+call GT_Ok("Ctrl+V pastes into the command line too",
+  \ maparg("<C-v>", "c") =~ "GrooVim_ClipLine",
+  \ "   [" . maparg("<C-v>", "c") . "]")
+
+call GrooVim_ClipSet("/tmp/um/caminho.txt\n")
+call GT_Ok("  and the line break a pasted path carries is dropped",
+  \ GrooVim_ClipLine() ==# "/tmp/um/caminho.txt",
+  \ "   [" . strtrans(GrooVim_ClipLine()) . "]   (a command line has nowhere to put one)")
+
+" And the same at the door every question goes through, for the paste of the
+" terminal, which GrooVim never sees: it arrives as a ^@ at the end of the
+" answer -- measured, and the file was then looked for under a name with a NUL
+" in it.
+call GT_Ok("  and so is the one the terminal's own paste leaves",
+  \ GT_FunctionText("GrooVim_Ask") =~ "substitute(l:answer",
+  \ "   (every question of GrooVim goes through that one door)")
+call GT_Ok("  with the pattern in SINGLE quotes, which is not a taste",
+  \ GT_FunctionText("GrooVim_Ask") =~ "'\\[.r.n\\].+\\$'" &&
+  \ GT_FunctionText("GrooVim_ClipLine") =~ "'\\[.r.n\\].+\\$'",
+  \ "   (between double ones \"\\+\" is just a plus, and it matched nothing)")
+
 call GT_Done()
