@@ -417,6 +417,55 @@ func! GrooVim_ClipReg() abort
 
 endfunc
 
+" Note: The paste of the TERMINAL goes through the same door as the paste of
+" GrooVim, and in NORMAL mode it did not.
+"
+" Over SSH, and on any terminal whose clipboard Vim cannot read, <Ctrl-Shift-v>
+" is the paste there is -- so the two have to put the text in the same place.
+" Measured, the cursor on the second quote of |grep|-iFl|''| : <Ctrl-v> left
+" |'google-chrome'| , the text where the cursor is, and the terminal left
+" |''google-chrome| , one character further on. Vim pastes what arrives in
+" normal mode like a |p| , and |p| is "after the character you are on".
+"
+" A terminal says where a paste BEGINS and where it ENDS, and Vim gives those
+" two moments a key name of their own. The beginning is a key like any other and
+" can be answered; the END cannot -- Vim swallows it inside its own paste, and a
+" mapping on it is never reached. Measured: the start fired, the end never did,
+" and what came out of a paste begun in normal mode was insert mode, still
+" typing.
+"
+" So the text is READ here, key by key, until that end arrives -- and then
+" pasted by the one function that pastes, which is what makes the two agree by
+" construction and not by coincidence. A line break inside a paste arrives as a
+" carriage return, the way a terminal sends one.
+"
+" Only NORMAL mode is answered. In insert mode the cursor is BETWEEN characters
+" and Vim already puts the text where it is.
+"
+" If a terminal ever began a paste and never ended it, this would wait for the
+" key that is not coming -- a <Ctrl-c> gets out, as it does from any question.
+func! GrooVim_PasteFromTerminal() abort
+
+  let l:text = ""
+  while 1
+    let l:key = getchar()
+    let l:char = type(l:key) == v:t_number ? nr2char(l:key) : l:key
+    if l:char ==# "\<PasteEnd>"
+      break
+    endif
+    let l:text .= l:char ==# "\r" ? "\n" : l:char
+  endwhile
+
+  if l:text ==# ""
+    return
+  endif
+
+  call GrooVim_PasteText(l:text, "n")
+
+endfunc
+
+nnoremap <silent> <PasteStart> :call GrooVim_PasteFromTerminal()<cr>
+
 " Note: And the clipboard reaches the COMMAND LINE, which is where every
 " question of GrooVim is answered: the path of a file, the value to search for,
 " the name to save under. A path you have in your hand is the commonest answer
@@ -474,6 +523,20 @@ func! GrooVim_ClipPaste(mode) abort
     return
   endif
 
+  call GrooVim_PasteText(l:text, a:mode)
+
+endfunc
+
+" Note: And this is the one that WRITES it, wherever the text came from -- the
+" clipboard of GrooVim above, or the paste of the terminal. Two doors into one
+" room, so the two cannot land in different places.
+func! GrooVim_PasteText(text, mode) abort
+
+  if !GrooVim_CanChange() || a:text ==# ""
+    return
+  endif
+
+  let l:text = a:text
   let l:kept = getreg("z")
   let l:keptType = getregtype("z")
 
@@ -497,25 +560,6 @@ func! GrooVim_ClipPaste(mode) abort
       " Note: "gv" because getting here left visual mode, and "_d so that what
       " is replaced does not land in a register.
       silent! exec "normal! gv\"_d\"zP`]"
-
-    elseif a:mode ==# "n"
-
-      " Note: In NORMAL mode the text lands AFTER the character the cursor is
-      " on, and that is not a taste either: it is where the paste of the
-      " TERMINAL puts it, and over SSH that paste is the only one there is.
-      "
-      " Measured, the cursor on the second quote of |grep|-iFl|''| : the
-      " terminal left |''google-chrome| and this left |'google-chrome'| . Two
-      " pastes from one place, two places for the text -- and the one that has
-      " to be relied on is the terminal's.
-      "
-      " In INSERT mode they already agreed, and for a reason worth keeping in
-      " mind: there the cursor is BETWEEN characters, so "before the cursor" and
-      " "after the character before it" are the same place. In normal mode the
-      " cursor is a block ON a character and the two are a character apart.
-      "
-      " It is also what the |p| of Vim means, which is mapped through here.
-      silent! exec "normal! \"zp`]"
 
     else
       silent! exec "normal! \"zP`]"

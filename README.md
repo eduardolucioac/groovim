@@ -131,7 +131,8 @@ way:
    does the same, and it is also what stops a long movement;
  * **Ctrl-v** pastes into the question, the way it pastes into the text, and the
    line break a copied path carries is dropped -- a question has nowhere to put
-   one;
+   one. The paste of your **terminal** puts it in the same place, which matters
+   over SSH, where that paste is the one there is;
  * An empty answer is not the same as giving up: on most screens it means "leave
    this one alone", and the question says so when it does;
  * Every screen ends asking whether to KEEP what you chose for the next time.

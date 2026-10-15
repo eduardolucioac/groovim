@@ -303,41 +303,56 @@ call GT_Ok("  and so does one that ends in a line break",
   \ "   [" . GT_Colou("XY\n", "i\<C-v>") . "] against [" . s:digitado . "]")
 
 call GT_Ok("  and the register is said CHARACTERWISE, not guessed",
-  \ GT_FunctionText("GrooVim_ClipPaste") =~ 'setreg("z", l:text, "v")',
+  \ GT_FunctionText("GrooVim_PasteText") =~ 'setreg("z", l:text, "v")',
   \ "   (what ends in a line break would be guessed linewise)")
 
-" ---- and in NORMAL mode it lands where the paste of the TERMINAL lands
+" ---- and the paste of the TERMINAL lands where this one lands
 "
-" Which is AFTER the character the cursor is on, and that is not a taste: over
-" SSH the paste of the terminal is the only one there is, so the two have to put
-" the text in the same place. Measured, the cursor on the second quote of
-" "grep -iFl ''": the terminal left "''google-chrome" and this left
-" "'google-chrome'" -- two pastes from one position, two places for the text.
-"
-" In INSERT mode they already agreed, and for a reason worth keeping in mind:
-" there the cursor is BETWEEN characters, so "before the cursor" and "after the
-" character before it" are the same place.
+" Over SSH, and on any terminal whose clipboard Vim cannot read, Ctrl-Shift-V is
+" the paste there is -- so the two have to put the text in the same place.
+" Measured through a terminal, the cursor on the second quote of "grep -iFl \'\'":
+" Ctrl-V left "\'google-chrome\'", the text where the cursor is, and the terminal
+" left "\'\'google-chrome", one character further on. Vim pastes what arrives in
+" normal mode like a "p", and "p" is "after the character you are on".
 exec "enew!"
 call setline(1, ["grep -iFl '' -- {}"])
 call cursor(1, 12)
 call GrooVim_ClipSet("google-chrome")
 call GrooVim_ClipPaste("n")
-call GT_Ok("in normal mode the paste lands AFTER the character under the cursor",
-  \ getline(1) ==# "grep -iFl ''google-chrome -- {}",
-  \ "   [" . getline(1) . "]   (which is where the paste of the terminal lands)")
+call GT_Ok("the paste lands where the cursor IS, in normal mode too",
+  \ getline(1) ==# "grep -iFl 'google-chrome' -- {}",
+  \ "   [" . getline(1) . "]")
 call GT_Ok("  and the cursor ends after what was pasted",
-  \ col(".") == 26, "   (column " . col(".") . ")")
-call GT_Ok("  and it is the p of Vim, which is mapped through here",
-  \ GT_FunctionText("GrooVim_ClipPaste") =~ '"zp`\]',
-  \ "   (before this, a plain p pasted like a P)")
+  \ col(".") == 25, "   (column " . col(".") . ")")
+
+" A terminal says where a paste BEGINS and where it ENDS, and Vim gives those
+" two moments a key of their own. The beginning can be answered; the END cannot
+" -- Vim swallows it inside its own paste, and a mapping on it is never reached.
+" Measured: the start fired, the end never did, and what came out of a paste
+" begun in normal mode was INSERT mode, still typing. So the text is read here,
+" key by key, and pasted by the one function that pastes.
+call GT_Ok("and the paste of the terminal is answered in normal mode",
+  \ maparg("<PasteStart>", "n") =~ "GrooVim_PasteFromTerminal",
+  \ "   [" . maparg("<PasteStart>", "n") . "]")
+call GT_Ok("  and nothing is mapped on it in INSERT mode",
+  \ maparg("<PasteStart>", "i") ==# "",
+  \ "   (there the cursor is BETWEEN characters: Vim already lands on it)")
+call GT_Ok("  and it reads until the END key and pastes what it read",
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ "getchar()" &&
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ "PasteEnd" &&
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ "GrooVim_PasteText",
+  \ "   (the two doors into one room, so they cannot land apart)")
+call GT_Ok("  and a line break inside it arrives as a carriage return",
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ '"\\r" ? "\\n"',
+  \ "   (which is how a terminal sends one)")
 
 exec "enew!"
 call setline(1, ["abc"])
 call cursor(1, 3)
-call GrooVim_ClipPaste("n")
-call GT_Ok("  and at the end of a line it goes after the last character",
-  \ getline(1) ==# "abcgoogle-chrome",
-  \ "   [" . getline(1) . "]")
+call GrooVim_PasteText("XY", "n")
+call GT_Ok("  and both doors write through the same one",
+  \ getline(1) ==# "abXYc",
+  \ "   [" . getline(1) . "]   (GrooVim_PasteText, whoever called)")
 
 " ---- and Ctrl+V reaches the COMMAND LINE, where every question is answered
 "
