@@ -590,9 +590,9 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  No plugin manager is needed: Vim loads whatever is under|~/.groovim/pack/*/start| by itself. Each one is DETECTED, so what is missing simply stays quiet, and a shortcut that needs it says so instead of failing;".
 \"\n*o*  To force or to ignore one:|let|g:enable_tcomment_vim|=|0/1| , or all of them at once with|let|g:enable_all_plugins|=|0/1| .".
 \"\n".
-\"\n * The keys you already know~".
+\"\n * The keys you (maybe) already know~".
 \"\n".
-\"\n These do in GrooVim what they do in any editor:".
+\"\n These do in GrooVim what they (maybe) do in any editor:".
 \"\n".
 \"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time (normal mode/insert/visual);".
 \"\n*o*  <Tab> - indents, and over a selection every line of it (normal mode/visual);".

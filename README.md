@@ -20,7 +20,7 @@ Table of Contents
 
 - [What is GrooVim?](#what-is-groovim)
 - [Before you start!](#before-you-start)
-- [The keys you already know!](#the-keys-you-already-know)
+- [The keys you (maybe) already know!](#the-keys-you-maybe-already-know)
 - [What GrooVim adds!](#what-groovim-adds)
 - [The questions GrooVim asks!](#the-questions-groovim-asks)
 - [The file you have open!](#the-file-you-have-open)
@@ -77,10 +77,10 @@ editor you are using is Vim; what GrooVim adds is how it answers you.
    Each one is detected: what is missing stays quiet, and a shortcut that needs
    it says which plugin is missing instead of failing.
 
-The keys you already know!
+The keys you (maybe) already know!
 -----
 
-These do in GrooVim what they do in any editor:
+These do in GrooVim what they (maybe) do in any editor:
 
  * **Ctrl-Left**/**Ctrl-Right** - a word at a time *(normal mode/insert/visual)*;
  * **Tab** - indents, and over a selection it indents every line of it *(normal mode/visual)*;
