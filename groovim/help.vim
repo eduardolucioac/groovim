@@ -230,7 +230,13 @@ let g:GrooVim_Shortcuts = [
  \   "It is the WORD the cursor is ON, and a selection changes nothing. A cursor over a space marks nothing: the word NEXT to it is not the word it is on. Pressing it again on the same word takes the marks down, and so does |</>|",
  \   "It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else"
  \  ]},
- \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'}, "menu": "Find...", "what": "Opens for search"},
+ \ {"where": "Search", "group": "F3", "key": "f", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["n"])', "v": 'call GrooVim_Operation("[search]", "GrooVim_SearchWithMyOptions", ["v"])'},
+ \  "menu": "Find...", "what": "Opens for search",
+ \  "notes": [
+ \   "The word under the cursor, or what is selected, comes OFFERED: an empty answer takes the offer",
+ \   "Without the list it GOES to the first match and |n| walks from there; what is not there is said on the bar. With the list it is the list that you walk, so the cursor stays where it was",
+ \   "The search BEFORE this one stops being painted the moment this opens -- Vim keeps the last pattern between sessions, so a word searched for yesterday was lit up before you typed a letter"
+ \  ]},
  \ {"where": "Search", "group": "F3", "key": "h", "modes": "niv", "run": {"ni": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["n"])', "v": 'call GrooVim_Operation("[replace]", "GrooVim_EntertainmentReplace", ["v"])'},
  \  "menu": "Replace...", "what": "Opens to replace",
  \  "notes": [

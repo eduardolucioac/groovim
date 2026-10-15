@@ -343,6 +343,9 @@ memory each, so a command of another group can never come out of this one.
         - It is the WORD the cursor is ON, and a selection changes nothing. A cursor over a space marks nothing: the word NEXT to it is not the word it is on. Pressing it again on the same word takes the marks down, and so does </>;
         - It does not move the cursor and does not touch what <n> would find next: you can mark a name and go on searching for something else;
     - `F3->f` - Opens for search *(normal mode/insert/visual)*;
+        - The word under the cursor, or what is selected, comes OFFERED: an empty answer takes the offer;
+        - Without the list it GOES to the first match and n walks from there; what is not there is said on the bar. With the list it is the list that you walk, so the cursor stays where it was;
+        - The search BEFORE this one stops being painted the moment this opens -- Vim keeps the last pattern between sessions, so a word searched for yesterday was lit up before you typed a letter;
     - `F3->h` - Opens to replace *(normal mode/insert/visual)*;
         - The replace begins at the CURSOR. WITH confirmation, having reached the end of the file it continues from the top if occurrences were left behind, and says so. Without confirmation it does only what it says, from the cursor down. Configure it with F5->c and then [r];
     - `n` - Goes to the next of what was searched for *(normal mode)*;

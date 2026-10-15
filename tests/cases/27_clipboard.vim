@@ -306,6 +306,39 @@ call GT_Ok("  and the register is said CHARACTERWISE, not guessed",
   \ GT_FunctionText("GrooVim_ClipPaste") =~ 'setreg("z", l:text, "v")',
   \ "   (what ends in a line break would be guessed linewise)")
 
+" ---- and in NORMAL mode it lands where the paste of the TERMINAL lands
+"
+" Which is AFTER the character the cursor is on, and that is not a taste: over
+" SSH the paste of the terminal is the only one there is, so the two have to put
+" the text in the same place. Measured, the cursor on the second quote of
+" "grep -iFl ''": the terminal left "''google-chrome" and this left
+" "'google-chrome'" -- two pastes from one position, two places for the text.
+"
+" In INSERT mode they already agreed, and for a reason worth keeping in mind:
+" there the cursor is BETWEEN characters, so "before the cursor" and "after the
+" character before it" are the same place.
+exec "enew!"
+call setline(1, ["grep -iFl '' -- {}"])
+call cursor(1, 12)
+call GrooVim_ClipSet("google-chrome")
+call GrooVim_ClipPaste("n")
+call GT_Ok("in normal mode the paste lands AFTER the character under the cursor",
+  \ getline(1) ==# "grep -iFl ''google-chrome -- {}",
+  \ "   [" . getline(1) . "]   (which is where the paste of the terminal lands)")
+call GT_Ok("  and the cursor ends after what was pasted",
+  \ col(".") == 26, "   (column " . col(".") . ")")
+call GT_Ok("  and it is the p of Vim, which is mapped through here",
+  \ GT_FunctionText("GrooVim_ClipPaste") =~ '"zp`\]',
+  \ "   (before this, a plain p pasted like a P)")
+
+exec "enew!"
+call setline(1, ["abc"])
+call cursor(1, 3)
+call GrooVim_ClipPaste("n")
+call GT_Ok("  and at the end of a line it goes after the last character",
+  \ getline(1) ==# "abcgoogle-chrome",
+  \ "   [" . getline(1) . "]")
+
 " ---- and Ctrl+V reaches the COMMAND LINE, where every question is answered
 "
 " A path you have in your hand is the commonest answer there is, and it had to

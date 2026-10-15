@@ -273,6 +273,19 @@ func! GrooVim_EasySearch(mod) range abort
       set hlsearch
     endif
 
+    " Note: And the search BEFORE this one stops being painted, here and not
+    " when it is over.
+    "
+    " "hlsearch" paints whatever is in the search register, and the register
+    " outlives the session: Vim keeps it in the "viminfo" and hands it back the
+    " next time GrooVim opens. So merely opening the search lit up a word
+    " searched for yesterday -- measured, with the prompt still waiting for the
+    " first letter and "v:hlsearch" already 1.
+    "
+    " "nohlsearch" stops the painting and keeps the register, which is what
+    " |n| and |N| walk by. The search typed next lights itself.
+    nohlsearch
+
     " Note: Set "ignorecase" if is off.
     if !&ignorecase && g:searchReplace_CaseSensitive == 0
       " Note: Case sensitive search.
@@ -369,19 +382,31 @@ func! GrooVim_EasySearch(mod) range abort
     " Works but does not allow default "backward search".
 
     let @/ = l:pattern
-    let l:initialPos = getpos(".")
 
-    " Note: This operation is duplicated ("feedkeys" and "exec") causing a
-    " double execution of the search, but it was the only way to not have
-    " problems with "n" and "N" navigating and the search with list. If not
-    " done, the highlight is lost after a few movements of the cursor.
-    if g:search_WithList == 0
-      call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>\<Esc>" . g:cmdLineCaller . "call setpos(\".\", [" . l:initialPos[0] . ", " . l:initialPos[1] . ", " . l:initialPos[2] . ", " . l:initialPos[3] . "])|redraw!\<cr>")
+    " Note: And the search GOES to what it found, which is what a search does
+    " everywhere. Without the list it used to run and then put the cursor back
+    " where it started -- the matches lit up and you were left standing where
+    " you were, with |n| as the only way to reach the first one. With the list
+    " the cursor going back is right, and it is done there: what you asked for
+    " then is the list, and the list is how you walk.
+    "
+    " What is NOT there is said on the bar and not thrown as an error. Vim
+    " answers "E486: Pattern not found: zebra" in red, which is the editor
+    " complaining about having nothing to do; the one who asked simply wants to
+    " know. The register keeps the pattern either way, so the search is still
+    " the one |n| walks by.
+    if search(l:pattern, "nw") == 0
+
+      " Note: The "redraw!" is what takes the question off the screen. Nothing
+      " else is going to: the search that would have repainted everything is
+      " the one that did not run.
+      call GrooVim_GrooVimBarMsg("Nothing found for \"" . l:valueToSearch . "\"!", 5)
+      redraw!
+
     else
       call feedkeys("\<Esc>" . l:search_Operator . l:pattern . "\<cr>")
+      call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
     endif
-
-    call GrooVim_GrooVimBarMsg("You could set me using F5->c and then [s]!", 5)
 
   finally
 

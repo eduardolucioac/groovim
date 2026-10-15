@@ -498,6 +498,25 @@ func! GrooVim_ClipPaste(mode) abort
       " is replaced does not land in a register.
       silent! exec "normal! gv\"_d\"zP`]"
 
+    elseif a:mode ==# "n"
+
+      " Note: In NORMAL mode the text lands AFTER the character the cursor is
+      " on, and that is not a taste either: it is where the paste of the
+      " TERMINAL puts it, and over SSH that paste is the only one there is.
+      "
+      " Measured, the cursor on the second quote of |grep|-iFl|''| : the
+      " terminal left |''google-chrome| and this left |'google-chrome'| . Two
+      " pastes from one place, two places for the text -- and the one that has
+      " to be relied on is the terminal's.
+      "
+      " In INSERT mode they already agreed, and for a reason worth keeping in
+      " mind: there the cursor is BETWEEN characters, so "before the cursor" and
+      " "after the character before it" are the same place. In normal mode the
+      " cursor is a block ON a character and the two are a character apart.
+      "
+      " It is also what the |p| of Vim means, which is mapped through here.
+      silent! exec "normal! \"zp`]"
+
     else
       silent! exec "normal! \"zP`]"
     endif
