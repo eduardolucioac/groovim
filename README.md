@@ -31,6 +31,7 @@ Table of Contents
 - [If you liked it, consider helping the project!](#if-you-liked-it-consider-helping-the-project)
 - [How GrooVim is installed!](#how-groovim-is-installed)
    * [The command itself](#the-command-itself)
+   * [Coming to the front](#coming-to-the-front)
    * [In the menu of your desktop](#in-the-menu-of-your-desktop)
    * [Editing files of the system](#editing-files-of-the-system)
    * [About the clipboard](#about-the-clipboard)
@@ -217,9 +218,9 @@ groovim -j a.txt b.txt c.txt
    The oldest GrooVim still open takes them, and with none open that same
    command opens them itself. It asks for no X and no desktop, so it works over
    SSH as well, and it is what the **menu entry** uses: files opened from a file
-   manager land in the GrooVim you already have open, and clicking the entry
-   with nothing selected does nothing when one is open -- the flag asked for the
-   one that is open to be used, and a second window is the opposite of that;
+   manager land in the GrooVim you already have open, which is **brought to the
+   front** -- and clicking the entry with nothing selected brings it to the
+   front and no more, instead of starting a second one;
  * **F3 m** marks every occurrence of the word under the cursor. **F3 f** finds,
    offering that word, and with the list switched on every line it is in comes up
    in a panel of its own, where Enter goes there:
@@ -506,6 +507,21 @@ What you **wrote** -- the options you chose to keep, the session, the marked
 lines, the undo of every file, the plugins -- is asked about and kept unless you
 say otherwise. Nothing of it touches the directory you ran the script from, and
 your own `vim` is never involved. `./install.sh --help` lists every option.
+
+### Coming to the front
+
+GrooVim lives in a terminal, and the window belongs to the **terminal** -- so
+the window brought to the front is the one of the nearest ancestor of your
+GrooVim that has one. Three ways of asking, and the first that answers is used:
+**KDE Plasma** answers on D-Bus, which is what makes this work on Wayland, where
+a program cannot raise another program's window by itself; **sway** and the
+wlroots family take a window by the process in it; and on **X11**, any desktop,
+`xdotool` or `wmctrl` do it when one of them is installed. None of them is
+installed by GrooVim: each is already there, or that road is not taken.
+
+Where none answers -- GNOME on Wayland is the one that matters, because it locks
+the interface this would need -- the file is still handed over and opens in the
+GrooVim you have; only the window stays where it is.
 
 ### In the menu of your desktop
 

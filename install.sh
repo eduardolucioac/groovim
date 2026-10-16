@@ -971,6 +971,115 @@ if [ "\$TEXT_FROM_STDIN" -eq 0 ] && [ ! -t 0 ]; then
   fi
 fi
 
+# Note: Bringing the GrooVim that is already open TO THE FRONT, which is what
+# clicking the icon of a graphical program does and what nobody expects to have
+# to do by hand.
+#
+# GrooVim lives in a terminal, and the window belongs to the TERMINAL: Konsole,
+# GNOME Terminal, xfce4-terminal. So the window to raise is the window of an
+# ancestor of this GrooVim, and the way up is the process tree -- "/proc" says
+# who the parent of each one is, and the terminal is somewhere up that line.
+#
+# Three ways of asking for it, and the first that answers is the one used. None
+# of them is installed by GrooVim: each is already there, or that road is not
+# taken.
+#
+# |1.| *KDE*Plasma* , on Wayland and on X11: KWin answers on D-Bus. Its window
+#     runner lists every window and "getWindowInfo" says which process each one
+#     belongs to -- measured, and that is what makes this work on WAYLAND, where
+#     a program cannot raise another program's window by itself;
+# |2.| *sway* and the wlroots family, which take a window by the process in it;
+# |3.| *X11* , any desktop, through "xdotool" or "wmctrl" IF one of them is
+#     installed. GrooVim ships no binaries, so a tool that is not there is a
+#     road not taken.
+#
+# What is not covered, and it is worth saying rather than pretending: GNOME on
+# WAYLAND. Raising another program's window there goes through an interface that
+# GNOME locks in its released builds, and there is no honest way around it. On
+# GNOME over X11 the tools of (3) work.
+#
+# The escape sequence a terminal is supposed to answer -- "CSI 5 t", raise --
+# was measured first, because it would have been the one road that needs no
+# desktop at all and crosses SSH. Konsole 26.08 does not answer it: with the
+# window covered by another, the sequence changed nothing and no focus event
+# came back. It is not used.
+groovim_raise() {
+
+  # Note: Two lines, and not one with both on it: a shell expands the whole
+  # command line BEFORE the assignments take effect, so a "local p=\$wanted"
+  # written beside "local wanted=\$1" reads the OLD \$wanted -- which is
+  # nothing. Measured with the trace on: wanted had the number, p was empty, and
+  # the walk up the tree ended before it began.
+  local wanted="\$1" chain="" ppid up id uuid wpid tool
+  local p="\$1"
+
+  up=0
+  while [ -n "\$p" ] && [ "\$p" != "1" ] && [ "\$up" -lt 20 ]; do
+    chain="\$chain \$p"
+    ppid="\$(awk '{print \$4}' "/proc/\$p/stat" 2>/dev/null)"
+    p="\$ppid"
+    up=\$((up + 1))
+  done
+  [ -n "\$chain" ] || return 1
+
+  tool=""
+  command -v qdbus6 >/dev/null 2>&1 && tool=qdbus6
+  [ -z "\$tool" ] && command -v qdbus >/dev/null 2>&1 && tool=qdbus
+  if [ -n "\$tool" ] && "\$tool" org.kde.KWin /KWin >/dev/null 2>&1; then
+
+    # Note: Every window with the process it belongs to, asked for ONCE, and
+    # then the chain is walked from the GrooVim OUTWARDS -- the nearest ancestor
+    # that owns a window is the terminal, and that is the window wanted.
+    #
+    # Reading the windows first and the chain second is the whole of it. The
+    # other way round takes whichever window KWin happens to list first, and up
+    # that chain there are others: the shell that started the terminal, the
+    # editor that started the shell. Measured, and what came to the front was a
+    # window of Visual Studio Code -- an ancestor, five steps further up.
+    local pairs="" pair
+    for id in \$("\$tool" --literal org.kde.KWin /WindowsRunner org.kde.krunner1.Match "" 2>/dev/null \
+      | grep -o '"0_{[^"]*}"' | tr -d '"'); do
+      uuid="\${id#0_}"
+      wpid="\$("\$tool" --literal org.kde.KWin /KWin org.kde.KWin.getWindowInfo "\$uuid" 2>/dev/null \
+        | tr ',' '\\n' | sed -n 's/.*"pid" = \\[Variant(int): \\([0-9]*\\)\\].*/\\1/p')"
+      [ -n "\$wpid" ] && pairs="\$pairs \$wpid=\$id"
+    done
+
+    for p in \$chain; do
+      for pair in \$pairs; do
+        case "\$pair" in
+          "\$p="*)
+            "\$tool" org.kde.KWin /WindowsRunner org.kde.krunner1.Run "\${pair#*=}" "" >/dev/null 2>&1 && return 0
+            ;;
+        esac
+      done
+    done
+  fi
+
+  if command -v swaymsg >/dev/null 2>&1; then
+    for p in \$chain; do
+      swaymsg "[pid=\$p] focus" >/dev/null 2>&1 && return 0
+    done
+  fi
+
+  if [ -n "\${DISPLAY:-}" ]; then
+    if command -v xdotool >/dev/null 2>&1; then
+      for p in \$chain; do
+        id="\$(xdotool search --pid "\$p" 2>/dev/null | tail -1)"
+        [ -n "\$id" ] && xdotool windowactivate "\$id" >/dev/null 2>&1 && return 0
+      done
+    fi
+    if command -v wmctrl >/dev/null 2>&1; then
+      for p in \$chain; do
+        id="\$(wmctrl -lp 2>/dev/null | awk -v want="\$p" '\$3 == want {print \$1; exit}')"
+        [ -n "\$id" ] && wmctrl -i -a "\$id" >/dev/null 2>&1 && return 0
+      done
+    fi
+  fi
+
+  return 1
+}
+
 # Note: "-j" hands the files to a GrooVim already open instead of starting
 # another one.
 #
@@ -1000,7 +1109,11 @@ if [ "\$JUST_REUSE" -eq 1 ]; then
     for file in "\${FILES[@]}"; do
       printf '%s\\n' "\$(realpath -m -- "\$file")" >> "\$mailbox"
     done
-    echo "groovim: handed over to the GrooVim already open (pid \$pid)."
+    if groovim_raise "\$pid"; then
+      echo "groovim: handed to the GrooVim already open (pid \$pid), and it is in front."
+    else
+      echo "groovim: handed over to the GrooVim already open (pid \$pid)."
+    fi
     exit 0
   fi
 
@@ -1013,7 +1126,11 @@ if [ "\$JUST_REUSE" -eq 1 ]; then
   # your own -- is asking for something this cannot hand over, and Vim answers
   # it as it always did.
   if [ -n "\$mailbox" ] && [ "\${#ARGS[@]}" -eq 0 ]; then
-    echo "groovim: one is already open (pid \$pid), and there is nothing to hand to it."
+    if groovim_raise "\$pid"; then
+      echo "groovim: the GrooVim already open (pid \$pid) is in front."
+    else
+      echo "groovim: one is already open (pid \$pid), and there is nothing to hand to it."
+    fi
     exit 0
   fi
 

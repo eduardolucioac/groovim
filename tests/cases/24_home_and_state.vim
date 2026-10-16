@@ -162,7 +162,27 @@ func! GT_Body()
     call GT_Ok("  and the menu entry hands them to the GrooVim already open",
       \ l:text =~ "Exec=\\$BINDIR/groovim --jrinst %F",
       \ "   (several at a time, which is what %F passes)")
-    call GT_Ok("  and with one open and nothing to hand over, nothing is done",
+    " ---- and the one that is open is brought TO THE FRONT
+    "
+    " GrooVim lives in a terminal and the window belongs to the TERMINAL, so the
+    " window to raise is the window of an ancestor of the GrooVim that took the
+    " file. KDE answers on D-Bus (which is what makes this work on Wayland, where
+    " a program cannot raise another program's window by itself), sway takes a
+    " window by the process in it, and on X11 "xdotool" or "wmctrl" do it when
+    " one of them is installed.
+    call GT_Ok("the one already open is brought to the front",
+      \ l:text =~ "groovim_raise()" && l:text =~ "org.kde.KWin" &&
+      \ l:text =~ "swaymsg" && l:text =~ "xdotool" && l:text =~ "wmctrl",
+      \ "   (and none of them is installed by GrooVim: each is there or it is not)")
+    call GT_Ok("  by walking the process tree OUTWARDS from the GrooVim",
+      \ l:text =~ "pairs=" &&
+      \ l:text =~ "Reading the windows first and the chain second",
+      \ "   (the nearest ancestor with a window is the terminal; further up\n" .
+      \ "    the chain are the shell that started it and the editor that\n" .
+      \ "    started the shell -- measured, and what came to the front was a\n" .
+      \ "    window of Visual Studio Code)")
+
+    call GT_Ok("  and with one open and nothing to hand over, it is raised and no more",
       \ l:text =~ "nothing to hand to it" &&
       \ l:text =~ 'ARGS\[@\]}. -eq 0',
       \ "   (the flag asked for the one that is open: a second is the opposite)")
