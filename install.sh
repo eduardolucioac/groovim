@@ -1003,16 +1003,16 @@ fi
 #     windows WITH their process and activates one by id.
 #
 # |5.| The TERMINAL ITSELF, asked to present its window through the one method
-#     every desktop agrees on: "org.freedesktop.Application.Activate". Only for
-#     the terminals whose answer to it was READ and does what it says -- GNOME
-#     Console (kgx) presents its active window, and GNOME Terminal does not:
-#     its handler is an explicit no-op, "/* No-op required because GApplication
-#     is stupid */". A call that reports success and raises nothing is worse
-#     than no call, so only the ones that were read are asked.
+#     every desktop agrees on: "org.freedesktop.Application.Activate" -- and
+#     only with a TOKEN of the desktop in hand, which a file manager hands over
+#     in the environment when it starts this command. Measured on GNOME 46 with
+#     no token: the call is answered, it reports success, and the window does
+#     not move. A compositor does not raise a window because a program asked
+#     nicely; it raises it because the desktop says the asking was yours.
 #
-#     The token of the desktop goes with it when there is one. A file manager
-#     hands one over in the environment, and on Wayland that is what tells the
-#     compositor the raise was asked for by somebody with the right to ask.
+#     Only for the terminals whose answer to it was READ and does what it says:
+#     GNOME Console (kgx) presents its active window, GNOME Terminal answers
+#     with "/* No-op required because GApplication is stupid */".
 #
 # On GNOME over Wayland with no extension, a terminal that is an X11 client
 # (xterm, urxvt, anything under XWayland) is still reached by (3) -- those tools
@@ -1107,29 +1107,6 @@ groovim_raise() {
     fi
   fi
 
-  # Note: And the terminal asked to present ITSELF, which is the only road that
-  # asks nothing of the desktop. The name of the process says which application
-  # it is; the object path of an application is its name with the dots turned
-  # into slashes.
-  if command -v gdbus >/dev/null 2>&1; then
-    local app path token
-    for p in \$chain; do
-      case "\$(cat "/proc/\$p/comm" 2>/dev/null)" in
-        kgx) app="org.gnome.Console" ;;
-        *)   app="" ;;
-      esac
-      [ -n "\$app" ] || continue
-      path="/\${app//./\/}"
-      if [ -n "\${XDG_ACTIVATION_TOKEN:-}" ]; then
-        token="{'activation-token': <'\$XDG_ACTIVATION_TOKEN'>}"
-      else
-        token="@a{sv} {}"
-      fi
-      gdbus call --session --dest "\$app" --object-path "\$path" \
-        --method org.freedesktop.Application.Activate "\$token" >/dev/null 2>&1 && return 0
-    done
-  fi
-
   if [ -n "\${DISPLAY:-}" ]; then
     if command -v xdotool >/dev/null 2>&1; then
       for p in \$chain; do
@@ -1143,6 +1120,35 @@ groovim_raise() {
         [ -n "\$id" ] && wmctrl -i -a "\$id" >/dev/null 2>&1 && return 0
       done
     fi
+  fi
+
+  # Note: And last, the terminal asked to present ITSELF, which is the only road
+  # that asks nothing of the desktop -- and the only one that cannot be trusted
+  # to have done anything.
+  #
+  # It is taken ONLY with a token of the desktop in hand. Measured on GNOME 46,
+  # with none: the call is answered, it reports success, and the window does not
+  # move -- a compositor does not let a program raise a window because another
+  # program asked nicely. With a token it is the desktop asking, which is what a
+  # file manager hands over when it starts this command.
+  #
+  # And only for the terminals whose answer was READ and does what it says:
+  # GNOME Console presents its active window, GNOME Terminal answers with an
+  # explicit no-op. One that reports success and raises nothing would end the
+  # cascade before the roads that work.
+  if [ -n "\${XDG_ACTIVATION_TOKEN:-}" ] && command -v gdbus >/dev/null 2>&1; then
+    local app path
+    for p in \$chain; do
+      case "\$(cat "/proc/\$p/comm" 2>/dev/null)" in
+        kgx) app="org.gnome.Console" ;;
+        *)   app="" ;;
+      esac
+      [ -n "\$app" ] || continue
+      path="/\${app//./\/}"
+      gdbus call --session --dest "\$app" --object-path "\$path" \
+        --method org.freedesktop.Application.Activate \
+        "{'activation-token': <'\$XDG_ACTIVATION_TOKEN'>}" >/dev/null 2>&1 && return 0
+    done
   fi
 
   return 1

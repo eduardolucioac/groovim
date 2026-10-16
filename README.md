@@ -470,6 +470,11 @@ shape.
 [`docs/pitfalls.md`](docs/pitfalls.md) says what each case covers and carries the
 traps that cost the most to find.
 
+Two things cannot be asked of one machine, and each has a tool that builds the
+machines instead: `./tests/distros.sh` runs the installer on a throwaway machine
+of six distributions, and `./tests/desktops.sh` runs the raising of a window on
+a desktop of each kind.
+
 If you liked it, consider helping the project!
 -----
 
@@ -530,14 +535,27 @@ GrooVim that has one. Four ways of asking, and the first that answers is used:
    only senders it knows;
  * the **terminal itself**, asked to present its window through
    `org.freedesktop.Application.Activate`, which is the one method every desktop
-   agrees on. Only for the terminals whose answer to it was read and does what
-   it says: **GNOME Console** (the default terminal of GNOME) presents its
-   window, **GNOME Terminal** does not -- its handler is an explicit no-op.
+   agrees on -- and only with an **activation token** in hand, which the desktop
+   hands over when it starts the command. Only for the terminals whose answer to
+   it was read and does what it says: **GNOME Console** presents its window,
+   **GNOME Terminal** does not, its handler being an explicit no-op.
 
 None of these is installed by GrooVim: each is already there, or that road is
-not taken. What is left with no road at all is **GNOME Terminal, on Wayland,
-with no extension**: there the file is still handed over and opens in the
-GrooVim you have, and only the window stays where it is.
+not taken. Where none answers, the file is still handed over and opens in the
+GrooVim you have; only the window stays where it is, and the command says
+"handed over" instead of "it is in front".
+
+Each of these was **measured on a desktop of its own**, in a throwaway machine:
+
+```
+./tests/desktops.sh              Xfce, MATE, Cinnamon, GNOME on X11, sway, GNOME on Wayland
+./tests/desktops.sh sway gnome   only these
+```
+
+What it reads is never the message the command prints: it is the window manager
+itself, asked which window is active before and after, and the terminal of the
+first window, which writes down every focus it gains and loses. The two have to
+agree.
 
 ### In the menu of your desktop
 
