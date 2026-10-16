@@ -172,7 +172,8 @@ func! GT_Body()
     " one of them is installed.
     call GT_Ok("the one already open is brought to the front",
       \ l:text =~ "groovim_raise()" && l:text =~ "org.kde.KWin" &&
-      \ l:text =~ "swaymsg" && l:text =~ "xdotool" && l:text =~ "wmctrl",
+      \ l:text =~ "swaymsg" && l:text =~ "xdotool" && l:text =~ "wmctrl" &&
+      \ l:text =~ "org.gnome.Shell.Extensions.Windows",
       \ "   (and none of them is installed by GrooVim: each is there or it is not)")
     call GT_Ok("  by walking the process tree OUTWARDS from the GrooVim",
       \ l:text =~ "pairs=" &&

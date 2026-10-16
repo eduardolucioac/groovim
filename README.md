@@ -512,16 +512,27 @@ your own `vim` is never involved. `./install.sh --help` lists every option.
 
 GrooVim lives in a terminal, and the window belongs to the **terminal** -- so
 the window brought to the front is the one of the nearest ancestor of your
-GrooVim that has one. Three ways of asking, and the first that answers is used:
-**KDE Plasma** answers on D-Bus, which is what makes this work on Wayland, where
-a program cannot raise another program's window by itself; **sway** and the
-wlroots family take a window by the process in it; and on **X11**, any desktop,
-`xdotool` or `wmctrl` do it when one of them is installed. None of them is
-installed by GrooVim: each is already there, or that road is not taken.
+GrooVim that has one. Four ways of asking, and the first that answers is used:
 
-Where none answers -- GNOME on Wayland is the one that matters, because it locks
-the interface this would need -- the file is still handed over and opens in the
-GrooVim you have; only the window stays where it is.
+ * **KDE Plasma** answers on D-Bus, which is what makes this work on Wayland,
+   where a program cannot raise another program's window by itself;
+ * **sway** and the wlroots family take a window by the process in it;
+ * **X11**, any desktop, through `xdotool` or `wmctrl` when one of them is
+   installed -- and an XWayland window is an X11 window, so a terminal that is
+   an X11 client is reached this way on a Wayland session too;
+ * **GNOME**, through the
+   [Window Calls](https://extensions.gnome.org/extension/4724/window-calls/)
+   extension, which lists the windows with their process and activates one by
+   id. GNOME Shell itself offers nothing for this: `Eval` is locked behind the
+   unsafe mode of its released builds, `Introspect.GetWindows` is read-only and
+   does not say which process a window belongs to, and `FocusApp` -- which
+   sounds like the one -- selects an app in the **overview grid** and answers
+   only senders it knows.
+
+None of these is installed by GrooVim: each is already there, or that road is
+not taken. The one case with no road at all is a **Wayland-native terminal on
+GNOME with no extension**: the file is still handed over and opens in the
+GrooVim you have, and only the window stays where it is.
 
 ### In the menu of your desktop
 

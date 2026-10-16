@@ -993,10 +993,24 @@ fi
 #     installed. GrooVim ships no binaries, so a tool that is not there is a
 #     road not taken.
 #
-# What is not covered, and it is worth saying rather than pretending: GNOME on
-# WAYLAND. Raising another program's window there goes through an interface that
-# GNOME locks in its released builds, and there is no honest way around it. On
-# GNOME over X11 the tools of (3) work.
+# |4.| *GNOME* , through the extension that answers for it. GNOME Shell itself
+#     offers nothing: "Eval" is locked behind the unsafe mode of its released
+#     builds, "Introspect.GetWindows" is read only and does not even say which
+#     process a window belongs to, and "FocusApp" -- which sounds like the one
+#     -- selects an app in the OVERVIEW GRID and only answers senders it knows.
+#     Read in the source of gnome-shell, not guessed. What does answer is the
+#     "Window Calls" extension, widely installed for exactly this: it lists the
+#     windows WITH their process and activates one by id.
+#
+# On GNOME over Wayland with no extension, a terminal that is an X11 client
+# (xterm, urxvt, anything under XWayland) is still reached by (3) -- those tools
+# see X11 windows, and an XWayland window is one. A Wayland-native terminal
+# there is the one case with no road: the file is handed over and opens, and
+# only the window stays where it is.
+#
+# NOT MEASURED HERE, unlike the rest: this machine runs KDE, and (1) is the one
+# that was watched working. (2) and (4) are written from the interfaces they
+# call, each guarded so that a failure is simply the next road being taken.
 #
 # The escape sequence a terminal is supposed to answer -- "CSI 5 t", raise --
 # was measured first, because it would have been the one road that needs no
@@ -1060,6 +1074,25 @@ groovim_raise() {
     for p in \$chain; do
       swaymsg "[pid=\$p] focus" >/dev/null 2>&1 && return 0
     done
+  fi
+
+  # Note: GNOME, through "Window Calls". Its list is JSON on one line, with a
+  # "pid" and an "id" in each window, so one object per line and a look for the
+  # process is the whole of the reading.
+  if command -v gdbus >/dev/null 2>&1; then
+    local windows
+    windows="\$(gdbus call --session --dest org.gnome.Shell \
+      --object-path /org/gnome/Shell/Extensions/Windows \
+      --method org.gnome.Shell.Extensions.Windows.List 2>/dev/null | tr -d '\\\\')"
+    if [ -n "\$windows" ]; then
+      for p in \$chain; do
+        id="\$(printf '%s' "\$windows" | tr '{' '\\n' \
+          | grep -E "\"pid\": *\$p[,}]" | sed -n 's/.*"id": *\\([0-9]*\\).*/\\1/p' | head -1)"
+        [ -n "\$id" ] && gdbus call --session --dest org.gnome.Shell \
+          --object-path /org/gnome/Shell/Extensions/Windows \
+          --method org.gnome.Shell.Extensions.Windows.Activate "\$id" >/dev/null 2>&1 && return 0
+      done
+    fi
   fi
 
   if [ -n "\${DISPLAY:-}" ]; then
