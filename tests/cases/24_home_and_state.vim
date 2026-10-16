@@ -162,6 +162,13 @@ func! GT_Body()
     call GT_Ok("  and the menu entry hands them to the GrooVim already open",
       \ l:text =~ "Exec=\\$BINDIR/groovim --jrinst %F",
       \ "   (several at a time, which is what %F passes)")
+    call GT_Ok("  and with one open and nothing to hand over, nothing is done",
+      \ l:text =~ "nothing to hand to it" &&
+      \ l:text =~ 'ARGS\[@\]}. -eq 0',
+      \ "   (the flag asked for the one that is open: a second is the opposite)")
+    call GT_Ok("  and a flag of Vim that takes a VALUE does not count as a file",
+      \ l:text =~ "-u|-U|-i|-s|-S|-c|-T|-t|-w|-W|--cmd",
+      \ "   (\"-S script.vim notes.txt\" counted two, and handed the script over)")
 
     call GT_Ok("  and its --help answers for the flags of GrooVim too",
       \ l:text =~ "GrooVim adds:" && l:text =~ '"\\$GROOVIM_VIM" --help',

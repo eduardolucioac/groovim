@@ -630,10 +630,12 @@ have_desktop() {
 #
 # "--jrinst" is what makes a file opened from a file manager land in the GrooVim
 # you already have open, in a tab of its own, instead of starting a second one
-# -- several files at a time, which is what "%F" hands over. Clicking the entry
-# with no file has nothing to hand over and opens a GrooVim, which is the only
-# thing that can be SHOWN: a terminal program cannot raise the window of another
-# terminal.
+# -- several files at a time, which is what "%F" hands over.
+#
+# Clicking the entry with no file selected hands over nothing, and with a
+# GrooVim already open that is exactly what happens: nothing. The flag asked for
+# the one that is open to be used, and a second window is the opposite of that.
+# With none open it opens one, which is what the entry is for.
 #
 # The SVG is what a desktop wants -- it is drawn at whatever size the place it
 # lands in asks for -- and the PNG goes in beside it for the few that do not
@@ -859,7 +861,9 @@ GrooVim adds:
    -j, --jrinst         Open the files in a GrooVim that is ALREADY running
                         ("just reuse an instance"), each in a tab of its own.
                         The oldest one still open takes them. With none open,
-                        this one opens them as usual.
+                        this one opens them as usual -- and with one open and no
+                        file to hand over, nothing is done and no second GrooVim
+                        is started.
    -0, --stdin0         The list of files arriving on the standard input is
                         separated by NULs and not by line breaks, which is what
                         "grep -Z" and "find -print0" write.
@@ -908,6 +912,24 @@ while [ \$# -gt 0 ]; do
     -j|--jrinst) JUST_REUSE=1 ;;
     -0|--stdin0) STDIN_ZERO=1 ;;
     -)           TEXT_FROM_STDIN=1; ARGS+=("\$1") ;;
+
+    # Note: The flags of Vim that take a VALUE, and the value with them.
+    #
+    # Without this the value is read as a file, because it does not begin with
+    # a "-": "groovim -S script.vim notes.txt" counted two files and would have
+    # handed the SCRIPT to a GrooVim already open. Measured, and it is how a
+    # "-i NONE" ended up on the list as well.
+    #
+    # "-r" and "-q" are left out on purpose: their value is optional, so there
+    # is no telling from here whether the next word is theirs or a file.
+    -u|-U|-i|-s|-S|-c|-T|-t|-w|-W|--cmd|--startuptime|--servername|--log|--remote-send|--remote-expr)
+      ARGS+=("\$1")
+      if [ \$# -gt 1 ]; then
+        ARGS+=("\$2")
+        shift
+      fi
+      ;;
+
     -*)          ARGS+=("\$1") ;;
     *)           ARGS+=("\$1"); FILES+=("\$1") ;;
   esac
@@ -960,7 +982,7 @@ fi
 #
 # A mailbox whose process is gone is swept here, which is the only place that
 # can know: a GrooVim that was killed had no chance to take its own down.
-if [ "\$JUST_REUSE" -eq 1 ] && [ "\${#FILES[@]}" -gt 0 ]; then
+if [ "\$JUST_REUSE" -eq 1 ]; then
   mailbox=""
   for name in \$(ls "\$GROOVIM_STATE/inbox" 2>/dev/null | sort -n); do
     pid="\${name##*.}"
@@ -974,14 +996,30 @@ if [ "\$JUST_REUSE" -eq 1 ] && [ "\${#FILES[@]}" -gt 0 ]; then
     rm -f "\$GROOVIM_STATE/inbox/\$name"
   done
 
-  if [ -n "\$mailbox" ]; then
+  if [ -n "\$mailbox" ] && [ "\${#FILES[@]}" -gt 0 ]; then
     for file in "\${FILES[@]}"; do
       printf '%s\\n' "\$(realpath -m -- "\$file")" >> "\$mailbox"
     done
     echo "groovim: handed over to the GrooVim already open (pid \$pid)."
     exit 0
   fi
-  echo "groovim: there is no GrooVim open to hand it to, so this one opens it." >&2
+
+  # Note: A GrooVim is open and there is NOTHING to hand to it, which is what
+  # clicking the menu entry with no file selected comes down to. Nothing is what
+  # is done, then: the flag asked for the one that is open to be used, and
+  # starting a second one is the opposite of that.
+  #
+  # Only a "-j" on its OWN. Anything else on the line -- "--version", a "-c" of
+  # your own -- is asking for something this cannot hand over, and Vim answers
+  # it as it always did.
+  if [ -n "\$mailbox" ] && [ "\${#ARGS[@]}" -eq 0 ]; then
+    echo "groovim: one is already open (pid \$pid), and there is nothing to hand to it."
+    exit 0
+  fi
+
+  if [ -z "\$mailbox" ] && [ "\${#FILES[@]}" -gt 0 ]; then
+    echo "groovim: there is no GrooVim open to hand it to, so this one opens it." >&2
+  fi
 fi
 
 # Note: A TAB for each file, which is what GrooVim does with everything else.

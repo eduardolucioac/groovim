@@ -217,7 +217,9 @@ groovim -j a.txt b.txt c.txt
    The oldest GrooVim still open takes them, and with none open that same
    command opens them itself. It asks for no X and no desktop, so it works over
    SSH as well, and it is what the **menu entry** uses: files opened from a file
-   manager land in the GrooVim you already have open;
+   manager land in the GrooVim you already have open, and clicking the entry
+   with nothing selected does nothing when one is open -- the flag asked for the
+   one that is open to be used, and a second window is the opposite of that;
  * **F3 m** marks every occurrence of the word under the cursor. **F3 f** finds,
    offering that word, and with the list switched on every line it is in comes up
    in a panel of its own, where Enter goes there:
