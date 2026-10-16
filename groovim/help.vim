@@ -643,7 +643,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Two tabs with the same file NAME show enough of the path to be told apart, |a/help.vim| beside |b/help.vim| ;".
 \"\n*o*  A new tab is born at the END of the line, wherever you were when you asked for it: the order of the tabs is the order you opened them in;".
 \"\n*o*  A file already open is not opened again: you land on the tab that has it;".
-\"\n*o*  A file handed from OUTSIDE opens a tab too: |groovim|-j|file| , typed in another terminal, puts it in the GrooVim already open instead of starting a second one -- \"just reuse an instance\". The oldest one open takes it, and with none open that command opens the file itself. It asks for no X and no desktop, so it works over SSH; |groovim|--help| says it as well.".
+\"\n*o*  A file handed from OUTSIDE opens a tab too: |groovim|-j|file| , typed in another terminal, puts it in the GrooVim already open instead of starting a second one -- \"just reuse an instance\", and several files at a time. The oldest one open takes them, and with none open that command opens them itself. It asks for no X and no desktop, so it works over SSH, and it is what the menu entry of your desktop uses;".
+\"\n*o*  The command opens one TAB for each file it is given, and reads a LIST of names arriving on its input -- |find|./|-name|'*.log'||||groovim| . A lone |-| is Vim's own: read the text from there. |groovim|--help| says the rest.".
 \"\n".
 \"\n * The bar at the bottom~".
 \"\n".

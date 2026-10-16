@@ -30,6 +30,7 @@ Table of Contents
 - [Is it working?](#is-it-working)
 - [If you liked it, consider helping the project!](#if-you-liked-it-consider-helping-the-project)
 - [How GrooVim is installed!](#how-groovim-is-installed)
+   * [The command itself](#the-command-itself)
    * [In the menu of your desktop](#in-the-menu-of-your-desktop)
    * [Editing files of the system](#editing-files-of-the-system)
    * [About the clipboard](#about-the-clipboard)
@@ -210,11 +211,13 @@ Moving, marking and ordering!
 
 ```
 groovim -j README.md        # "just reuse an instance" (also: --jrinst)
+groovim -j a.txt b.txt c.txt
 ```
 
-   The oldest GrooVim still open takes it, and with none open that same command
-   opens the file itself. It asks for no X and no desktop, so it works over SSH
-   as well;
+   The oldest GrooVim still open takes them, and with none open that same
+   command opens them itself. It asks for no X and no desktop, so it works over
+   SSH as well, and it is what the **menu entry** uses: files opened from a file
+   manager land in the GrooVim you already have open;
  * **F3 m** marks every occurrence of the word under the cursor. **F3 f** finds,
    offering that word, and with the list switched on every line it is in comes up
    in a panel of its own, where Enter goes there:
@@ -518,6 +521,26 @@ that has one.
 through `groovim` and runs on the Vim this script builds; your `vim` stays
 exactly as it was, with its own configuration and its own plugins. [Why a Vim of
 its own](#ownVim).
+
+### The command itself
+
+`groovim` takes what Vim takes, and a search hands it its answer the way it
+hands it to anything else:
+
+```
+groovim a.txt b.txt c.txt                      one TAB for each
+find ./ -name '*.log' | groovim                a list of names on the input
+find ./ -type f -exec grep -IiFl 'x' -- {} \; | groovim -R
+find ./ -type f -exec grep -IiFlZ 'x' -- {} \; | groovim --stdin0
+find ./ -type f -exec grep -IiFl 'x' -- {} \; -exec groovim {} +
+```
+
+More than one file opens one **tab** for each, which Vim does not do on its own
+-- it opens them as buffers and shows the first, so a search that found twelve
+files looks like it found one. Say `-p`, `-o` or `-O` yourself and that
+arrangement is used instead. A lone `-` means what it means in Vim: read the
+**text** from the input, and then nothing is taken as a list of names. Every
+other flag goes to Vim untouched.
 
 ### Editing files of the system
 

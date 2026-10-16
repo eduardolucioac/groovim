@@ -333,6 +333,15 @@ let s:tabFirst = 1
 let g:GrooVim_TabMoreLeft = get(g:, "GrooVim_TabMoreLeft", "‹")
 let g:GrooVim_TabMoreRight = get(g:, "GrooVim_TabMoreRight", "›")
 
+" Note: How many tabs may be opened AT ONCE, which is what the "-p" of the
+" "groovim" command runs into.
+"
+" Vim stops at ten and puts the rest in buffers nobody can see, so a search that
+" found twelve files opened ten tabs and hid two. The number here is not a taste
+" either: it is "as many as you asked for", and nobody asks for two hundred
+" files by accident.
+set tabpagemax=200
+
 " Note: A new tab, at the END of the tab line, and one you can type in. The
 " "setlocal ma" is there because a ":set noma" written elsewhere leaks into
 " every buffer opened afterwards -- see the note on it in

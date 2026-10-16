@@ -628,6 +628,13 @@ have_desktop() {
 # the PATH the session happens to have, and a session is started long before a
 # shell of yours reads anything.
 #
+# "--jrinst" is what makes a file opened from a file manager land in the GrooVim
+# you already have open, in a tab of its own, instead of starting a second one
+# -- several files at a time, which is what "%F" hands over. Clicking the entry
+# with no file has nothing to hand over and opens a GrooVim, which is the only
+# thing that can be SHOWN: a terminal program cannot raise the window of another
+# terminal.
+#
 # The SVG is what a desktop wants -- it is drawn at whatever size the place it
 # lands in asks for -- and the PNG goes in beside it for the few that do not
 # read SVG. "Icon=groovim" names neither: the desktop picks whichever it can
@@ -663,7 +670,7 @@ Version=1.0
 Name=GrooVim
 GenericName=Text Editor
 Comment=Vi IMproved'n'GrooVIed -- Vim remodelled as a simpler, more intuitive editor
-Exec=$BINDIR/groovim %F
+Exec=$BINDIR/groovim --jrinst %F
 TryExec=$BINDIR/groovim
 Icon=groovim
 Terminal=true
@@ -853,6 +860,19 @@ GrooVim adds:
                         ("just reuse an instance"), each in a tab of its own.
                         The oldest one still open takes them. With none open,
                         this one opens them as usual.
+   -0, --stdin0         The list of files arriving on the standard input is
+                        separated by NULs and not by line breaks, which is what
+                        "grep -Z" and "find -print0" write.
+
+And of its own accord:
+
+   A list of file NAMES on the standard input is read and opened, so
+   "find . -name '*.log' | groovim" works. A lone "-" among the arguments
+   means what it means in Vim -- read the TEXT from there -- and then nothing
+   is taken as a list.
+
+   More than one file opens one TAB for each, as GrooVim does everywhere. Say
+   "-p", "-o" or "-O" yourself and that arrangement is used instead.
 
 Environment:
 
@@ -866,6 +886,69 @@ GROOVIMHELP
   esac
 done
 
+# Note: What is for this script, what is for Vim, and which of them are FILES.
+#
+# A flag of ours is taken out of the way -- Vim would not know what to do with
+# it -- and everything else is handed over untouched. The files are told apart
+# by not beginning with a "-", which is the same thing Vim does with its own
+# command line, and they are what the handing over and the tabs below are about.
+#
+# A lone "-" is Vim's own: READ THE TEXT from the standard input. It is kept in
+# the arguments and it turns the reading of a file list off, because the two
+# cannot both have that input.
+GROOVIM_STATE="\${GROOVIM_STATE:-\$GROOVIM_HOME}"
+JUST_REUSE=0
+STDIN_ZERO=0
+TEXT_FROM_STDIN=0
+ARGS=()
+FILES=()
+
+while [ \$# -gt 0 ]; do
+  case "\$1" in
+    -j|--jrinst) JUST_REUSE=1 ;;
+    -0|--stdin0) STDIN_ZERO=1 ;;
+    -)           TEXT_FROM_STDIN=1; ARGS+=("\$1") ;;
+    -*)          ARGS+=("\$1") ;;
+    *)           ARGS+=("\$1"); FILES+=("\$1") ;;
+  esac
+  shift
+done
+
+# Note: A list of file NAMES arriving on the standard input, which is how a
+# search hands its answer to an editor:
+#
+#   find ./ -name '*.log' | groovim
+#   find ./ -type f -exec grep -IiFl 'something' -- {} \\; | groovim
+#
+# One name per line, or separated by NULs with "-0", which is what "grep -Z" and
+# "find -print0" write and the only form that survives a name with a line break
+# in it.
+#
+# Vim needs a TERMINAL to be an editor in, and the one it had was taken by the
+# pipe, so it is handed back from /dev/tty. Without a terminal to go back to --
+# a cron job, a script with no session -- there is nothing to open anyway, and
+# Vim says so itself.
+if [ "\$TEXT_FROM_STDIN" -eq 0 ] && [ ! -t 0 ]; then
+  if [ "\$STDIN_ZERO" -eq 1 ]; then
+    while IFS= read -r -d "" name; do
+      [ -n "\$name" ] && { ARGS+=("\$name"); FILES+=("\$name"); }
+    done
+  else
+    while IFS= read -r name; do
+      [ -n "\$name" ] && { ARGS+=("\$name"); FILES+=("\$name"); }
+    done
+  fi
+  # The terminal is only taken back when there IS one to take: with none -- a
+  # cron job, a file manager, a script with no session -- the redirection itself
+  # fails, and the shell says so in a line nobody asked for. Tried first on a
+  # command that can be silenced, which "exec" cannot -- and with the silence
+  # asked for BEFORE the input, because a shell reads redirections from left to
+  # right and the complaint is made by the one it is reading.
+  if : 2>/dev/null < /dev/tty; then
+    exec < /dev/tty
+  fi
+fi
+
 # Note: "-j" hands the files to a GrooVim already open instead of starting
 # another one.
 #
@@ -877,21 +960,6 @@ done
 #
 # A mailbox whose process is gone is swept here, which is the only place that
 # can know: a GrooVim that was killed had no chance to take its own down.
-GROOVIM_STATE="\${GROOVIM_STATE:-\$GROOVIM_HOME}"
-JUST_REUSE=0
-FILES=()
-for arg in "\$@"; do
-  case "\$arg" in
-    -j|--jrinst) JUST_REUSE=1 ;;
-    *) FILES+=("\$arg") ;;
-  esac
-done
-
-if [ "\$JUST_REUSE" -eq 1 ]; then
-  # Whatever happens next, the flag itself is not for Vim.
-  set -- "\${FILES[@]}"
-fi
-
 if [ "\$JUST_REUSE" -eq 1 ] && [ "\${#FILES[@]}" -gt 0 ]; then
   mailbox=""
   for name in \$(ls "\$GROOVIM_STATE/inbox" 2>/dev/null | sort -n); do
@@ -916,7 +984,25 @@ if [ "\$JUST_REUSE" -eq 1 ] && [ "\${#FILES[@]}" -gt 0 ]; then
   echo "groovim: there is no GrooVim open to hand it to, so this one opens it." >&2
 fi
 
-exec "\$GROOVIM_VIM" -u "\$GROOVIM_VIMRC" "\$@"
+# Note: A TAB for each file, which is what GrooVim does with everything else.
+#
+# Vim opens many files as many BUFFERS and shows the first one, so a search that
+# found twelve files looked like it had found one. "-p" is the flag that makes
+# them tabs, and "tabpagemax" in the tabs part is what lets them all be there.
+#
+# Said by hand -- "-p", "-o" for windows one above the other, "-O" side by side
+# -- that arrangement is the one used: somebody who names it means it.
+if [ "\${#FILES[@]}" -gt 1 ]; then
+  arrange=""
+  for arg in "\${ARGS[@]}"; do
+    case "\$arg" in
+      -p*|-o*|-O*) arrange="\$arg"; break ;;
+    esac
+  done
+  [ -z "\$arrange" ] && ARGS=("-p" "\${ARGS[@]}")
+fi
+
+exec "\$GROOVIM_VIM" -u "\$GROOVIM_VIMRC" "\${ARGS[@]}"
 END
 
   chmod +x "$target"

@@ -103,4 +103,14 @@ call GT_Ok("  and so does an empty one, opened from the middle",
   \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
 tabonly!
 
+" ---- and how many tabs may be opened AT ONCE
+"
+" Vim stops at ten and puts the rest in buffers nobody can see, so "groovim"
+" opening the twelve files a search found would have shown ten tabs and hidden
+" two. The command opens them with "-p", and this is what lets them all be
+" there.
+call GT_Ok("many tabs may be opened at once",
+  \ &tabpagemax >= 200,
+  \ "   (tabpagemax " . &tabpagemax . ", and Vim comes set to 10)")
+
 call GT_Done()

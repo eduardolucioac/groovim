@@ -122,7 +122,7 @@ func! GT_Body()
       \ l:text =~ "xsessions",
       \ "   (a session running says so; one only INSTALLED leaves its files)")
     call GT_Ok("  and the path of the command is written out whole",
-      \ l:text =~ 'Exec=\$BINDIR/groovim %F',
+      \ l:text =~ 'Exec=\$BINDIR/groovim' && l:text =~ 'TryExec=\$BINDIR/groovim',
       \ "   (a session is started long before a shell of yours reads a PATH)")
 
     " ---- and it takes GrooVim out again
@@ -137,6 +137,31 @@ func! GT_Body()
       \ l:text =~ "points somewhere else. Left where it is" &&
       \ l:text =~ "readlink",
       \ "   (another GrooVim under another prefix, or one put there by hand)")
+
+    " ---- and the command behaves like a command: many files, and a list on
+    " the standard input
+    "
+    " "find ./ -name '*.log' | groovim" is how a search hands its answer to an
+    " editor, and it is the shape every tool of this kind takes.
+    call GT_Ok("a list of file names on the standard input is read",
+      \ l:text =~ "TEXT_FROM_STDIN" && l:text =~ 'read -r name' &&
+      \ l:text =~ "exec < /dev/tty",
+      \ "   (and the terminal is handed back to Vim, which the pipe had taken)")
+    call GT_Ok("  with NULs when asked, which is what grep -Z writes",
+      \ l:text =~ "-0|--stdin0" && l:text =~ 'read -r -d ""',
+      \ "   (the only form that survives a name with a line break in it)")
+    call GT_Ok("  and a lone \"-\" is still Vim's own",
+      \ l:text =~ 'TEXT_FROM_STDIN=1',
+      \ "   (read the TEXT from there, and then nothing is taken as a list)")
+    call GT_Ok("and more than one file opens one TAB for each",
+      \ l:text =~ 'ARGS=("-p"' && l:text =~ "arrange",
+      \ "   (Vim opens them as buffers and shows the first)")
+    call GT_Ok("  unless you said -p, -o or -O yourself",
+      \ l:text =~ "-p\\*|-o\\*|-O\\*",
+      \ "   (somebody who names an arrangement means it)")
+    call GT_Ok("  and the menu entry hands them to the GrooVim already open",
+      \ l:text =~ "Exec=\\$BINDIR/groovim --jrinst %F",
+      \ "   (several at a time, which is what %F passes)")
 
     call GT_Ok("  and its --help answers for the flags of GrooVim too",
       \ l:text =~ "GrooVim adds:" && l:text =~ '"\\$GROOVIM_VIM" --help',
