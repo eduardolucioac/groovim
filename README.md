@@ -527,11 +527,16 @@ GrooVim that has one. Four ways of asking, and the first that answers is used:
    unsafe mode of its released builds, `Introspect.GetWindows` is read-only and
    does not say which process a window belongs to, and `FocusApp` -- which
    sounds like the one -- selects an app in the **overview grid** and answers
-   only senders it knows.
+   only senders it knows;
+ * the **terminal itself**, asked to present its window through
+   `org.freedesktop.Application.Activate`, which is the one method every desktop
+   agrees on. Only for the terminals whose answer to it was read and does what
+   it says: **GNOME Console** (the default terminal of GNOME) presents its
+   window, **GNOME Terminal** does not -- its handler is an explicit no-op.
 
 None of these is installed by GrooVim: each is already there, or that road is
-not taken. The one case with no road at all is a **Wayland-native terminal on
-GNOME with no extension**: the file is still handed over and opens in the
+not taken. What is left with no road at all is **GNOME Terminal, on Wayland,
+with no extension**: there the file is still handed over and opens in the
 GrooVim you have, and only the window stays where it is.
 
 ### In the menu of your desktop

@@ -1002,11 +1002,23 @@ fi
 #     "Window Calls" extension, widely installed for exactly this: it lists the
 #     windows WITH their process and activates one by id.
 #
+# |5.| The TERMINAL ITSELF, asked to present its window through the one method
+#     every desktop agrees on: "org.freedesktop.Application.Activate". Only for
+#     the terminals whose answer to it was READ and does what it says -- GNOME
+#     Console (kgx) presents its active window, and GNOME Terminal does not:
+#     its handler is an explicit no-op, "/* No-op required because GApplication
+#     is stupid */". A call that reports success and raises nothing is worse
+#     than no call, so only the ones that were read are asked.
+#
+#     The token of the desktop goes with it when there is one. A file manager
+#     hands one over in the environment, and on Wayland that is what tells the
+#     compositor the raise was asked for by somebody with the right to ask.
+#
 # On GNOME over Wayland with no extension, a terminal that is an X11 client
 # (xterm, urxvt, anything under XWayland) is still reached by (3) -- those tools
-# see X11 windows, and an XWayland window is one. A Wayland-native terminal
-# there is the one case with no road: the file is handed over and opens, and
-# only the window stays where it is.
+# see X11 windows, and an XWayland window is one. What is left with no road at
+# all is GNOME Terminal, Wayland-native, with no extension installed: there the
+# file is handed over and opens, and only the window stays where it is.
 #
 # NOT MEASURED HERE, unlike the rest: this machine runs KDE, and (1) is the one
 # that was watched working. (2) and (4) are written from the interfaces they
@@ -1093,6 +1105,29 @@ groovim_raise() {
           --method org.gnome.Shell.Extensions.Windows.Activate "\$id" >/dev/null 2>&1 && return 0
       done
     fi
+  fi
+
+  # Note: And the terminal asked to present ITSELF, which is the only road that
+  # asks nothing of the desktop. The name of the process says which application
+  # it is; the object path of an application is its name with the dots turned
+  # into slashes.
+  if command -v gdbus >/dev/null 2>&1; then
+    local app path token
+    for p in \$chain; do
+      case "\$(cat "/proc/\$p/comm" 2>/dev/null)" in
+        kgx) app="org.gnome.Console" ;;
+        *)   app="" ;;
+      esac
+      [ -n "\$app" ] || continue
+      path="/\${app//./\/}"
+      if [ -n "\${XDG_ACTIVATION_TOKEN:-}" ]; then
+        token="{'activation-token': <'\$XDG_ACTIVATION_TOKEN'>}"
+      else
+        token="@a{sv} {}"
+      fi
+      gdbus call --session --dest "\$app" --object-path "\$path" \
+        --method org.freedesktop.Application.Activate "\$token" >/dev/null 2>&1 && return 0
+    done
   fi
 
   if [ -n "\${DISPLAY:-}" ]; then

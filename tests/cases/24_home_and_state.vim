@@ -173,8 +173,14 @@ func! GT_Body()
     call GT_Ok("the one already open is brought to the front",
       \ l:text =~ "groovim_raise()" && l:text =~ "org.kde.KWin" &&
       \ l:text =~ "swaymsg" && l:text =~ "xdotool" && l:text =~ "wmctrl" &&
-      \ l:text =~ "org.gnome.Shell.Extensions.Windows",
+      \ l:text =~ "org.gnome.Shell.Extensions.Windows" &&
+      \ l:text =~ "org.freedesktop.Application.Activate",
       \ "   (and none of them is installed by GrooVim: each is there or it is not)")
+    call GT_Ok("  and only a terminal whose answer was READ is asked to present itself",
+      \ l:text =~ "kgx) app=" && l:text !~ "gnome-terminal) app=",
+      \ "   (GNOME Console presents its window; GNOME Terminal answers with a\n" .
+      \ "    no-op, and a call that reports success and raises nothing is\n" .
+      \ "    worse than no call)")
     call GT_Ok("  by walking the process tree OUTWARDS from the GrooVim",
       \ l:text =~ "pairs=" &&
       \ l:text =~ "Reading the windows first and the chain second",
