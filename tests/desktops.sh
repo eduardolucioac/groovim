@@ -48,6 +48,8 @@ done
 # installed and not a copy of it written for the occasion.
 COMMAND="${GROOVIM_COMMAND:-$HOME/.local/bin/groovim}"
 [ -r "$COMMAND" ] || { echo "I cannot read $COMMAND -- install GrooVim first."; exit 1; }
+INSTALLER="$BASE/../install.sh"
+[ -r "$INSTALLER" ] || { echo "I cannot read $INSTALLER."; exit 1; }
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -69,6 +71,36 @@ bash -n "$WORK/raise-no-extension.sh" 2>/dev/null || {
   echo "The copy without the extension road does not parse -- the markers drifted."
   exit 1
 }
+
+# Note: The extension of GNOME is put in by the INSTALLER itself, and not by a
+# copy of what it does written here. What is measured on that machine is then
+# the thing that ships: the same address, the same version for the same shell,
+# the same directory. The function is taken out whole and given the few pieces
+# of the installer it leans on.
+{
+  sed -n '/^readonly GNOME_EXTENSION=/,/^}$/p' "$INSTALLER"
+  sed -n '/^install_gnome_extension() {/,/^}$/p' "$INSTALLER"
+} > "$WORK/extension.sh"
+[ -s "$WORK/extension.sh" ] || { echo "There is no install_gnome_extension() in $INSTALLER."; exit 1; }
+
+cat > "$WORK/install-extension.sh" <<'END'
+#!/bin/bash
+# The installer's own step, with the handful of things it expects around it.
+set -u
+EXTENSION=1
+ASSUME_YES=1
+GROOVIM_HOME_DIR="$HOME/.groovim"; mkdir -p "$GROOVIM_HOME_DIR"
+green()  { printf '      %s
+' "$*"; }
+yellow() { printf '      %s
+' "$*"; }
+step()   { printf '   %s
+' "$*"; }
+ask()    { return 0; }
+export XDG_CURRENT_DESKTOP=GNOME
+. /opt/extension.sh
+install_gnome_extension
+END
 
 cp "$PIECES"/focus-log.sh "$PIECES"/x11.sh "$PIECES"/sway.sh "$PIECES"/gnome.sh "$WORK/"
 
@@ -127,7 +159,7 @@ RUN apt-get update -qq && apt-get install -y -qq --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && useradd -m -s /bin/bash measurer \
     && systemctl set-default multi-user.target
-COPY focus-log.sh gnome.sh raise.sh raise-no-extension.sh /opt/
+COPY focus-log.sh gnome.sh raise.sh raise-no-extension.sh extension.sh install-extension.sh /opt/
 RUN chmod +x /opt/*.sh
 CMD ["/sbin/init"]
 END
@@ -163,15 +195,9 @@ while IFS='|' read -r name what image how; do
     $RUNTIME run -d --name groovim-desktop-gnome --systemd=always \
       "groovim-desktop-gnome" >/dev/null 2>&1
     sleep 10
-    $RUNTIME exec -u measurer groovim-desktop-gnome bash -c '
-      cd /tmp
-      curl -s "https://extensions.gnome.org/extension-info/?uuid=window-calls@domandoman.xyz&shell_version=46" -o info.json
-      url="$(grep -o "\"download_url\": *\"[^\"]*\"" info.json | cut -d\" -f4)"
-      [ -n "$url" ] || exit 0
-      curl -sL "https://extensions.gnome.org$url" -o wc.zip
-      mkdir -p ~/.local/share/gnome-shell/extensions/window-calls@domandoman.xyz
-      cd ~/.local/share/gnome-shell/extensions/window-calls@domandoman.xyz
-      unzip -o -q /tmp/wc.zip' >/dev/null 2>&1
+    printf '%s   the installer putting the extension in:%s\n' "$BLUE" "$OFF"
+    $RUNTIME exec -u measurer groovim-desktop-gnome bash /opt/install-extension.sh 2>&1 \
+      | sed 's/^/   /' | tail -4
     $RUNTIME exec -u measurer groovim-desktop-gnome bash /opt/gnome.sh 2>&1 | sed 's/^/   /'
     $RUNTIME rm -f groovim-desktop-gnome >/dev/null 2>&1
   elif [ "$image" = "sway" ]; then

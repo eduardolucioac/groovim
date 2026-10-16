@@ -125,6 +125,26 @@ func! GT_Body()
       \ l:text =~ 'Exec=\$BINDIR/groovim' && l:text =~ 'TryExec=\$BINDIR/groovim',
       \ "   (a session is started long before a shell of yours reads a PATH)")
 
+    " ---- and on GNOME it offers the extension that answers for it
+    "
+    " Nothing else on GNOME can bring a window to the front, so the installer
+    " asks -- a piece of somebody else's software, into a directory of yours,
+    " and a question is the honest way to put it there.
+    call GT_Ok("on GNOME the installer offers the extension",
+      \ l:text =~ "install_gnome_extension()" &&
+      \ l:text =~ "extensions.gnome.org/extension-info" &&
+      \ l:text =~ "XDG_CURRENT_DESKTOP",
+      \ "   (for the shell that is running, and only on a GNOME session)")
+    call GT_Ok("  and it ASKS, and takes --no-extension for an answer",
+      \ l:text =~ 'ask "  Install it?"' && l:text =~ "--no-extension",
+      \ "   (never installed behind your back)")
+    call GT_Ok("  and one that was already there is left alone",
+      \ l:text =~ "the extension that does it is already there",
+      \ "   (installed and enabled as it was found)")
+    call GT_Ok("  and taking GrooVim out takes it only if it CAME with GrooVim",
+      \ l:text =~ "extension-came-with-groovim",
+      \ "   (a marker, because what was already there was not brought)")
+
     " ---- and it takes GrooVim out again
     call GT_Ok("the installer can take GrooVim out",
       \ l:text =~ "uninstall_groovim()" && l:text =~ "--uninstall",

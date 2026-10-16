@@ -62,6 +62,7 @@ PLUGINS=1
 APPS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
 ICONS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor"
 DESKTOP=1
+EXTENSION=1
 
 # Taking it out again, and whether what you WROTE goes with it.
 UNINSTALL=0
@@ -150,6 +151,8 @@ Options:
   --no-plugins       do not install the plugins GrooVim uses. What depends on
                      one then says so instead of running
   --no-desktop       do not install the menu entry and the icons
+  --no-extension     do not offer the GNOME extension that brings a window to
+                     the front (nothing else on GNOME can)
   --uninstall        take GrooVim out: the command, the Vim it built, the menu
                      entry and the icons. What you chose and wrote -- the
                      options, the session, the marked lines, the plugins -- is
@@ -180,6 +183,7 @@ while [ $# -gt 0 ]; do
     --no-deps)   SKIP_DEPS=1 ;;
     --no-plugins) PLUGINS=0 ;;
     --no-desktop) DESKTOP=0 ;;
+    --no-extension) EXTENSION=0 ;;
     --uninstall) UNINSTALL=1 ;;
     --purge)     PURGE=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
@@ -707,6 +711,118 @@ END
   return 0
 }
 
+# ------------------------------------------------------- the GNOME extension ---
+
+# Note: On GNOME there is nothing of its own to bring a window to the front.
+#
+# Measured, and read in the source of gnome-shell: "Eval" is locked behind the
+# unsafe mode of its released builds, "Introspect.GetWindows" answers an
+# ordinary caller with "GetWindows is not allowed", and "FocusApp" selects an
+# app in the overview grid. The terminal can be asked to present itself, and
+# that one needs a token the desktop only hands over when IT starts the command.
+#
+# What does answer is an extension, "Window Calls", which lists the windows with
+# their process and activates one by id. It is offered here and never installed
+# behind your back: it is a piece of somebody else's software, it goes into a
+# directory of yours, and a question is the honest way to put it there.
+#
+# From extensions.gnome.org, for the shell that is running, which is the same
+# place and the same file the "Extensions" app of GNOME would fetch. The one on
+# the main branch of its repository is NOT the same thing: it throws "w is not
+# defined" on GNOME 46 and raises nothing -- measured, in a GNOME of its own.
+#
+# A marker is left behind, so that taking GrooVim out knows the extension came
+# with it. One that was already there is left alone, installed and enabled as it
+# was found.
+readonly GNOME_EXTENSION="window-calls@domandoman.xyz"
+
+gnome_extension_dir() {
+  echo "${XDG_DATA_HOME:-$HOME/.local/share}/gnome-shell/extensions/$GNOME_EXTENSION"
+}
+
+install_gnome_extension() {
+
+  local version url zip dir fetch
+
+  [ "$EXTENSION" -eq 1 ] || return 0
+  case "${XDG_CURRENT_DESKTOP:-}${DESKTOP_SESSION:-}" in
+    *GNOME*|*gnome*) ;;
+    *) return 0 ;;
+  esac
+
+  step "Bringing a window to the front on GNOME"
+
+  dir="$(gnome_extension_dir)"
+  if [ -d "$dir" ]; then
+    green "  the extension that does it is already there"
+    return 0
+  fi
+
+  fetch=""
+  command -v curl >/dev/null 2>&1 && fetch="curl -sL"
+  [ -z "$fetch" ] && command -v wget >/dev/null 2>&1 && fetch="wget -qO-"
+  if [ -z "$fetch" ]; then
+    yellow "  there is no curl and no wget here, so I cannot fetch it."
+    return 0
+  fi
+
+  version="$(gnome-shell --version 2>/dev/null | grep -o '[0-9]\+' | head -1)"
+  if [ -z "$version" ]; then
+    yellow "  I cannot tell which GNOME Shell this is. Nothing done."
+    return 0
+  fi
+
+  echo "  GNOME has no way of its own to bring a window to the front, so"
+  echo "  \"groovim -j file\" opens the file in the GrooVim you have and leaves"
+  echo "  the window where it is. The extension \"Window Calls\" is what answers"
+  echo "  for it -- from extensions.gnome.org, into a directory of yours, with"
+  echo "  no password asked."
+  if ! ask "  Install it?"; then
+    yellow "  not installed. Everything else works as it does."
+    return 0
+  fi
+
+  url="$($fetch "https://extensions.gnome.org/extension-info/?uuid=$GNOME_EXTENSION&shell_version=$version" 2>/dev/null \
+    | grep -o '"download_url": *"[^"]*"' | cut -d'"' -f4)"
+  if [ -z "$url" ]; then
+    yellow "  extensions.gnome.org offers none for GNOME Shell $version."
+    return 0
+  fi
+
+  zip="$(mktemp)"
+  if ! $fetch "https://extensions.gnome.org$url" > "$zip" 2>/dev/null || [ ! -s "$zip" ]; then
+    rm -f "$zip"
+    yellow "  I could not fetch it. Is there network?"
+    return 0
+  fi
+
+  mkdir -p "$dir"
+  if command -v unzip >/dev/null 2>&1; then
+    unzip -o -q "$zip" -d "$dir" 2>/dev/null
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 -c "import sys, zipfile; zipfile.ZipFile(sys.argv[1]).extractall(sys.argv[2])" "$zip" "$dir"
+  else
+    rm -f "$zip"
+    rmdir "$dir" 2>/dev/null
+    yellow "  there is no unzip and no python3 here to open it with."
+    return 0
+  fi
+  rm -f "$zip"
+
+  if [ ! -r "$dir/metadata.json" ]; then
+    rm -rf "$dir"
+    yellow "  what came down was not an extension. Nothing installed."
+    return 0
+  fi
+
+  : > "$GROOVIM_HOME_DIR/extension-came-with-groovim"
+  command -v gnome-extensions >/dev/null 2>&1 && gnome-extensions enable "$GNOME_EXTENSION" >/dev/null 2>&1
+
+  green "  $dir"
+  echo "  GNOME loads an extension when the session starts, so this one answers"
+  echo "  after your next log in. On X11, Alt+F2 and then \"r\" is enough."
+}
+
 # -------------------------------------------------------------- uninstall ---
 
 # Note: Taking GrooVim out, and the line this draws is between what GrooVim
@@ -770,6 +886,15 @@ uninstall_groovim() {
   if [ -d "$SOURCE" ] && [ -n "$SOURCE" ]; then
     rm -rf "$SOURCE"
     green "  the source it was built from: $SOURCE"
+  fi
+
+  # Note: The extension goes only if it CAME with GrooVim, which is what the
+  # marker says. One that was already there is somebody's own, and taking it
+  # away would be taking away what was not brought.
+  if [ -e "$GROOVIM_HOME_DIR/extension-came-with-groovim" ]; then
+    rm -rf "$(gnome_extension_dir)"
+    command -v gnome-extensions >/dev/null 2>&1 && gnome-extensions disable "$GNOME_EXTENSION" >/dev/null 2>&1
+    green "  the GNOME extension that came with it"
   fi
 
   rm -f "$APPS_DIR/groovim.desktop" \
@@ -1531,6 +1656,7 @@ install_groovim
 install_plugins
 write_groovim
 install_desktop
+install_gnome_extension
 offer_system_link
 check_the_result
 check_the_clipboard

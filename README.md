@@ -532,7 +532,11 @@ GrooVim that has one. Four ways of asking, and the first that answers is used:
    unsafe mode of its released builds, `Introspect.GetWindows` is read-only and
    does not say which process a window belongs to, and `FocusApp` -- which
    sounds like the one -- selects an app in the **overview grid** and answers
-   only senders it knows;
+   only senders it knows. **On a GNOME session the installer offers to put that
+   extension in** -- from extensions.gnome.org, for the shell you are running,
+   into a directory of yours and with no password asked. It is a question, never
+   a surprise, and `--no-extension` says no in advance. GNOME loads an extension
+   when the session starts, so it answers after your next log in;
  * the **terminal itself**, asked to present its window through
    `org.freedesktop.Application.Activate`, which is the one method every desktop
    agrees on -- and only with an **activation token** in hand, which the desktop
