@@ -100,6 +100,44 @@ func! GT_Body()
     call GT_Ok("  and with none open it opens the file itself",
       \ l:text =~ "there is no GrooVim open to hand it to",
       \ "   (and says so, instead of swallowing the file)")
+    " ---- and it puts GrooVim in the MENU of a desktop
+    "
+    " One file and two icons, in the directories of the user: KDE Plasma, GNOME,
+    " Xfce, Cinnamon, MATE and every other desktop that follows the
+    " freedesktop.org specification read the same ones, which is the whole point
+    " of the specification.
+    call GT_Ok("the installer writes a menu entry",
+      \ l:text =~ "groovim.desktop" && l:text =~ "Terminal=true" &&
+      \ l:text =~ "Icon=groovim",
+      \ "   (Terminal=true is what opens it in a terminal of its own)")
+    call GT_Ok("  with ONE main category, so it is in the menu once",
+      \ l:text =~ "Categories=Utility;TextEditor;",
+      \ "   (a second main one puts GrooVim in the menu twice)")
+    call GT_Ok("  and the icons where an icon theme looks",
+      \ l:text =~ "scalable/apps/groovim.svg" &&
+      \ l:text =~ "256x256/apps/groovim.png",
+      \ "   (the SVG for whoever draws it at any size, the PNG for the rest)")
+    call GT_Ok("  and only where there IS a desktop",
+      \ l:text =~ "have_desktop()" && l:text =~ "XDG_CURRENT_DESKTOP" &&
+      \ l:text =~ "xsessions",
+      \ "   (a session running says so; one only INSTALLED leaves its files)")
+    call GT_Ok("  and the path of the command is written out whole",
+      \ l:text =~ 'Exec=\$BINDIR/groovim %F',
+      \ "   (a session is started long before a shell of yours reads a PATH)")
+
+    " ---- and it takes GrooVim out again
+    call GT_Ok("the installer can take GrooVim out",
+      \ l:text =~ "uninstall_groovim()" && l:text =~ "--uninstall",
+      \ "   (the command, the Vim it built, the menu entry and the icons)")
+    call GT_Ok("  and what you WROTE is asked about, not assumed",
+      \ l:text =~ "What you wrote" && l:text =~ "Take that as well?" &&
+      \ l:text =~ "--purge",
+      \ "   (the options, the session, the marked lines, the plugins)")
+    call GT_Ok("  and a link of somebody else is left where it is",
+      \ l:text =~ "points somewhere else. Left where it is" &&
+      \ l:text =~ "readlink",
+      \ "   (another GrooVim under another prefix, or one put there by hand)")
+
     call GT_Ok("  and its --help answers for the flags of GrooVim too",
       \ l:text =~ "GrooVim adds:" && l:text =~ '"\\$GROOVIM_VIM" --help',
       \ "   (Vim knows nothing of them, so Vim alone could not answer)")

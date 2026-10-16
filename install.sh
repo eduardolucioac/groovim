@@ -10,6 +10,7 @@
 #
 #   ./install.sh                installs, or brings an installation up to date
 #   ./install.sh --rebuild      builds the Vim again even if the one there serves
+#   ./install.sh --uninstall    takes GrooVim out again
 #   ./install.sh --help         every option
 #
 # Run it again whenever you want: it builds the Vim only if the one it finds does
@@ -54,6 +55,17 @@ GROOVIM_HOME_DIR="${GROOVIM_HOME:-$HOME/.groovim}"
 SYSTEM_LINK_DIR="${GROOVIM_SYSTEM_BINDIR:-/usr/local/bin}"
 SYSTEM_LINK=1
 PLUGINS=1
+
+# Where a desktop looks for what it can open and for the pictures of it. The
+# user's own directories and not the ones of the system: GrooVim installs itself
+# for whoever runs this, and asks for no password to do it.
+APPS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+ICONS_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor"
+DESKTOP=1
+
+# Taking it out again, and whether what you WROTE goes with it.
+UNINSTALL=0
+PURGE=0
 
 # The plugins GrooVim uses, and what each one is for. They were never installed
 # by this script, and the README asked you to clone them by hand -- so a machine
@@ -109,7 +121,10 @@ ask() {
   [ "$ASSUME_YES" -eq 1 ] && return 0
   local answer
   printf '%s [y/N] ' "$1"
-  read -r answer </dev/tty || return 1
+  # Note: With no terminal to ask -- a run from a script, from a pipe -- the
+  # answer is NO and the shell says nothing about it. The error of a /dev/tty
+  # that is not there is noise in the middle of an answer.
+  read -r answer </dev/tty 2>/dev/null || { echo; return 1; }
   [[ "$answer" =~ ^[yY]$ ]]
 }
 
@@ -134,6 +149,12 @@ Options:
   --no-deps          do not install build dependencies
   --no-plugins       do not install the plugins GrooVim uses. What depends on
                      one then says so instead of running
+  --no-desktop       do not install the menu entry and the icons
+  --uninstall        take GrooVim out: the command, the Vim it built, the menu
+                     entry and the icons. What you chose and wrote -- the
+                     options, the session, the marked lines, the plugins -- is
+                     asked about, and kept unless you say otherwise
+  --purge            with --uninstall, take that too, without asking
   --yes              answer yes to everything
   --help             this
 
@@ -158,6 +179,9 @@ while [ $# -gt 0 ]; do
     --rebuild)   REBUILD=1 ;;
     --no-deps)   SKIP_DEPS=1 ;;
     --no-plugins) PLUGINS=0 ;;
+    --no-desktop) DESKTOP=0 ;;
+    --uninstall) UNINSTALL=1 ;;
+    --purge)     PURGE=1 ;;
     --yes|-y)    ASSUME_YES=1 ;;
     --help|-h)   usage; exit 0 ;;
     *)           die "I do not know the option \"$1\". Try --help." ;;
@@ -563,6 +587,212 @@ install_groovim() {
   fi
 }
 
+# ---------------------------------------------------------------- desktop ---
+
+# Note: Is there a DESKTOP on this machine?
+#
+# Two questions in one, and both are worth asking. A session RUNNING says so in
+# the environment -- which desktop, which session, which display -- and that is
+# the common case: somebody installing GrooVim from a terminal of their own
+# desktop.
+#
+# A desktop that is INSTALLED and not running says nothing there, and that is
+# the case of an installation over SSH: the machine has KDE or GNOME on it and
+# whoever is installing is not sitting in front of it. What it does leave behind
+# is the session files every display manager reads, so those answer for it.
+#
+# A server with neither has no menu to put anything in, and nothing is done.
+have_desktop() {
+  [ -n "${XDG_CURRENT_DESKTOP:-}${DESKTOP_SESSION:-}${WAYLAND_DISPLAY:-}${DISPLAY:-}" ] && return 0
+  ls /usr/share/xsessions/*.desktop /usr/share/wayland-sessions/*.desktop \
+    /usr/local/share/xsessions/*.desktop >/dev/null 2>&1
+}
+
+# Note: The entry of the menu and the pictures that go with it.
+#
+# One file and two icons, in the directories of the user and not of the system:
+# GrooVim installs itself for whoever runs this and asks for no password to do
+# it. KDE Plasma, GNOME, Xfce, Cinnamon, MATE and every other desktop that
+# follows the freedesktop.org specification read those directories -- the entry
+# is the same file for all of them, which is the whole point of the
+# specification.
+#
+# "Terminal=true" is what makes a desktop open GrooVim in a terminal of its own,
+# because GrooVim is a terminal editor and there is no window for it otherwise.
+#
+# ONE main category, "Utility", with "TextEditor" saying what kind. A second
+# main one -- "Development" was there first -- puts GrooVim in the menu twice,
+# which the validator of the specification says out loud when it is asked.
+#
+# The path of the command is written out whole. "groovim" alone would depend on
+# the PATH the session happens to have, and a session is started long before a
+# shell of yours reads anything.
+#
+# The SVG is what a desktop wants -- it is drawn at whatever size the place it
+# lands in asks for -- and the PNG goes in beside it for the few that do not
+# read SVG. "Icon=groovim" names neither: the desktop picks whichever it can
+# use, which is how an icon theme works.
+install_desktop() {
+
+  local entry="$APPS_DIR/groovim.desktop"
+
+  step "The menu entry and the icons"
+
+  if [ "$DESKTOP" -eq 0 ]; then
+    yellow "  skipped by --no-desktop"
+    return 0
+  fi
+  if ! have_desktop; then
+    echo "  there is no desktop on this machine, so there is no menu to be in"
+    return 0
+  fi
+  if [ ! -r "$HERE/groovim.svg" ] && [ ! -r "$HERE/groovim.png" ]; then
+    yellow "  I cannot find the icons beside this script. Nothing installed."
+    return 0
+  fi
+
+  mkdir -p "$APPS_DIR" "$ICONS_DIR/scalable/apps" "$ICONS_DIR/256x256/apps"
+
+  [ -r "$HERE/groovim.svg" ] && cp "$HERE/groovim.svg" "$ICONS_DIR/scalable/apps/groovim.svg"
+  [ -r "$HERE/groovim.png" ] && cp "$HERE/groovim.png" "$ICONS_DIR/256x256/apps/groovim.png"
+
+  cat > "$entry" <<END
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=GrooVim
+GenericName=Text Editor
+Comment=Vi IMproved'n'GrooVIed -- Vim remodelled as a simpler, more intuitive editor
+Exec=$BINDIR/groovim %F
+TryExec=$BINDIR/groovim
+Icon=groovim
+Terminal=true
+StartupNotify=false
+Categories=Utility;TextEditor;
+Keywords=vim;groovim;editor;text;
+MimeType=text/plain;text/english;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-pascal;text/x-tex;text/x-shellscript;application/x-shellscript;text/markdown;application/json;text/xml;
+END
+
+  # Note: A desktop entry that is wrong is worse than none -- some desktops hide
+  # it and say nothing -- so it is read back by the tool that knows the rules,
+  # when the tool is there.
+  if command -v desktop-file-validate >/dev/null 2>&1; then
+    if ! desktop-file-validate "$entry" 2>&1 | sed 's/^/    /'; then
+      yellow "  the entry was written, and the validator above is not happy with it"
+    fi
+  fi
+
+  # Note: The caches, which is what makes it show up WITHOUT logging out. Each
+  # desktop keeps its own and each one of these is a no-op where it is not
+  # wanted, so they are all asked and none is required.
+  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APPS_DIR" >/dev/null 2>&1
+  command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q -f -t "$ICONS_DIR" >/dev/null 2>&1
+  command -v xdg-desktop-menu >/dev/null 2>&1 && xdg-desktop-menu forceupdate >/dev/null 2>&1
+  command -v kbuildsycoca6 >/dev/null 2>&1 && kbuildsycoca6 --noincremental >/dev/null 2>&1
+  command -v kbuildsycoca5 >/dev/null 2>&1 && kbuildsycoca5 --noincremental >/dev/null 2>&1
+
+  green "  $entry"
+  echo "  icons in $ICONS_DIR (scalable and 256x256)"
+  echo "  it opens in a terminal of its own, and takes files you drop on it"
+
+  return 0
+}
+
+# -------------------------------------------------------------- uninstall ---
+
+# Note: Taking GrooVim out, and the line this draws is between what GrooVim
+# BROUGHT and what you WROTE.
+#
+# What it brought goes without asking: the command, the Vim built for it, the
+# menu entry, the icons, the source it was built from. None of that is yours --
+# it can all be put back by running this script again.
+#
+# What you wrote is another matter: the options you chose to keep, the session,
+# the marked lines, the undo of every file, the plugins. That is asked about,
+# and kept when the answer is no. "--purge" is the answer given in advance.
+#
+# Nothing here touches the directory this script was run FROM. A checkout is
+# yours, and a script that deletes the repository it lives in is a script nobody
+# can trust.
+uninstall_groovim() {
+
+  local candidate
+
+  step "Taking GrooVim out"
+
+  if [ -e "$BINDIR/groovim" ]; then
+    rm -f "$BINDIR/groovim"
+    green "  the command: $BINDIR/groovim"
+  fi
+
+  # Note: The link that makes "sudo groovim" work, and ONLY when it points at
+  # the installation being taken out.
+  #
+  # A link somewhere else is somebody else's: another GrooVim installed under
+  # another prefix, or one put there by hand. Reading where it points is the
+  # only way to tell, and following it is what "readlink -f" does.
+  #
+  # It was made with a password and needs one to go.
+  for candidate in "$SYSTEM_LINK_DIR" /usr/local/bin /usr/bin /bin; do
+    [ -e "$candidate/groovim" ] || [ -L "$candidate/groovim" ] || continue
+    if [ ! -L "$candidate/groovim" ]; then
+      yellow "  $candidate/groovim is not a link of ours. Left where it is."
+      break
+    fi
+    if [ "$(readlink "$candidate/groovim")" != "$BINDIR/groovim" ]; then
+      yellow "  $candidate/groovim points somewhere else. Left where it is."
+      break
+    fi
+    if [ -w "$candidate" ]; then
+      rm -f "$candidate/groovim" && green "  the link for sudo: $candidate/groovim"
+    elif command -v sudo >/dev/null 2>&1 && ask "  Take the link for sudo out too ($candidate/groovim)? (it asks for your password)"; then
+      sudo rm -f "$candidate/groovim" && green "  the link for sudo: $candidate/groovim"
+    else
+      yellow "  left where it is: $candidate/groovim"
+    fi
+    break
+  done
+
+  if [ -d "$PREFIX" ] && [ -n "$PREFIX" ]; then
+    rm -rf "$PREFIX"
+    green "  the Vim it built: $PREFIX"
+  fi
+
+  if [ -d "$SOURCE" ] && [ -n "$SOURCE" ]; then
+    rm -rf "$SOURCE"
+    green "  the source it was built from: $SOURCE"
+  fi
+
+  rm -f "$APPS_DIR/groovim.desktop" \
+    "$ICONS_DIR/scalable/apps/groovim.svg" "$ICONS_DIR/256x256/apps/groovim.png"
+  command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$APPS_DIR" >/dev/null 2>&1
+  command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q -f -t "$ICONS_DIR" >/dev/null 2>&1
+  command -v kbuildsycoca6 >/dev/null 2>&1 && kbuildsycoca6 --noincremental >/dev/null 2>&1
+  green "  the menu entry and the icons"
+
+  step "What you wrote"
+
+  if [ ! -d "$GROOVIM_HOME_DIR" ]; then
+    echo "  there is nothing in $GROOVIM_HOME_DIR"
+  elif [ "$PURGE" -eq 1 ]; then
+    rm -rf "$GROOVIM_HOME_DIR"
+    green "  taken too, by --purge: $GROOVIM_HOME_DIR"
+  else
+    echo "  $GROOVIM_HOME_DIR holds the options you kept, the session, the marked"
+    echo "  lines, the undo of every file you edited and the plugins."
+    if ask "  Take that as well?"; then
+      rm -rf "$GROOVIM_HOME_DIR"
+      green "  taken: $GROOVIM_HOME_DIR"
+    else
+      echo "  kept. Installing GrooVim again finds it where it is."
+    fi
+  fi
+
+  step "Done"
+  echo "  GrooVim is out. Your own Vim was never touched."
+  exit 0
+}
+
 # ---------------------------------------------------------------- wrapper ---
 
 write_groovim() {
@@ -869,6 +1099,13 @@ blue "GrooVim -- a Vim of its own"
 # "groovim" command and runs on the Vim this script builds; what your
 # distribution ships is none of its business, and looking at it here only ever
 # told people about a Vim GrooVim was never going to use.
+# Taking it out comes before everything the installing does: there is no Vim to
+# look at, no dependency to install and nothing to build. It is here and not up
+# with the options because a function has to be WRITTEN before it can be called.
+if [ "$UNINSTALL" -eq 1 ]; then
+  uninstall_groovim
+fi
+
 NEED_BUILD=1
 if [ "$REBUILD" -eq 1 ]; then
   step "The Vim of GrooVim"
@@ -978,6 +1215,7 @@ install_plugins() {
 install_groovim
 install_plugins
 write_groovim
+install_desktop
 offer_system_link
 check_the_result
 check_the_clipboard

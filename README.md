@@ -30,6 +30,7 @@ Table of Contents
 - [Is it working?](#is-it-working)
 - [If you liked it, consider helping the project!](#if-you-liked-it-consider-helping-the-project)
 - [How GrooVim is installed!](#how-groovim-is-installed)
+   * [In the menu of your desktop](#in-the-menu-of-your-desktop)
    * [Editing files of the system](#editing-files-of-the-system)
    * [About the clipboard](#about-the-clipboard)
    * [A Vim of its own](#a-vim-of-its-own)
@@ -481,11 +482,37 @@ One command, from a checkout of this repository:
 groovim file.txt
 ```
 
-It builds a Vim of its own, installs GrooVim into `~/.groovim`, and writes a
-`groovim` command that reaches the two. Run it again whenever you like: it builds
-the Vim only when the one it finds does not serve, so a second run costs nothing.
-`./install.sh --help` lists where each thing goes and how to build a particular
-version of Vim.
+It builds a Vim of its own, installs GrooVim into `~/.groovim`, writes a
+`groovim` command that reaches the two, and -- on a machine that has a desktop --
+puts GrooVim in the **menu**, with its icon and the file types it opens.
+
+**To update**, run it again: that is the whole of it. The Vim is built only when
+the one it finds does not serve, so a second run costs nothing, and the parts
+that are no longer part of GrooVim are taken out instead of lingering.
+
+**To take it out**:
+
+```
+./install.sh --uninstall     the command, the Vim it built, the menu entry, the icons
+./install.sh --uninstall --purge   that, and what you wrote as well
+```
+
+What you **wrote** -- the options you chose to keep, the session, the marked
+lines, the undo of every file, the plugins -- is asked about and kept unless you
+say otherwise. Nothing of it touches the directory you ran the script from, and
+your own `vim` is never involved. `./install.sh --help` lists every option.
+
+### In the menu of your desktop
+
+The entry is one file in the places the freedesktop.org specification names, so
+KDE Plasma, GNOME, Xfce, Cinnamon, MATE and the rest read the same one. It opens
+GrooVim in a terminal of its own and takes the files you drop on it; the icon
+goes in as an **SVG**, drawn at whatever size the place it lands in asks for,
+with a PNG beside it for whoever does not read SVG.
+
+On a machine with no desktop -- a server, a container -- there is no menu to be
+in, and the installer says so and moves on. `--no-desktop` says no on a machine
+that has one.
 
 **The Vim of your system is not touched and is not used.** GrooVim is reached
 through `groovim` and runs on the Vim this script builds; your `vim` stays
