@@ -112,20 +112,29 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
   " -- so nothing is repeated and the key is handed back, to run as itself. It
   " used to be swallowed here.
   "
-  " Anything else IS the second key, and it becomes what this F key repeats from
-  " now on.
+  " Anything else IS the second key -- and it is only TRIED here. What this F
+  " key repeats is written further down, where the key turns out to be a
+  " shortcut of this group and runs.
+  "
+  " Because the key that follows an F key is not always a shortcut, and a key
+  " that does nothing was taking the memory of one that does. Reported, and
+  " measured afterwards with real keys: F2 alone to repeat F2->m and then an
+  " arrow to walk to the next place -- the arrow arrived inside the window, was
+  " read as the second key of "F2", and from then on F2 alone repeated nothing
+  " at all, because what it remembered was "F2 and an arrow", which is no
+  " command. The last command it RAN is the only thing worth remembering.
   "
   " And nothing at all, the budget spent, repeats what this key last ran. That
   " is the whole of "do that again": press the key, do not press another.
+  let l:char = get(g:GrooVim_CommandZChars, a:GrooVim_CommandZFCallerNow, "")
+
   if l:key != "" && l:key !=# get(s:GrooVim_CommandZKeys, a:GrooVim_CommandZFCallerNow, "")
     if index(values(s:GrooVim_CommandZKeys), l:key) >= 0
       call feedkeys(l:key, "t")
       return
     endif
-    let g:GrooVim_CommandZChars[a:GrooVim_CommandZFCallerNow] = l:key
+    let l:char = l:key
   endif
-
-  let l:char = get(g:GrooVim_CommandZChars, a:GrooVim_CommandZFCallerNow, "")
 
   if l:char != "" && g:GrooVim_CommandZUnblock == 1
     " Note: Prevents rerun a command while another is in progress.
@@ -168,6 +177,13 @@ func! GrooVim_CommandZRun(GrooVim_CommandZFCallerNow, modType) abort
          \ l:one.needs.name . ", which is not installed here!", 6)
         break
       endif
+
+      " Note: And THIS is what the key remembers, here and nowhere else: the
+      " shortcut was found, it belongs to this group, it answers in this mode
+      " and it is about to run. A key that is none of those leaves the memory
+      " exactly as it was, so the last command that worked is still the one the
+      " F key alone does again.
+      let g:GrooVim_CommandZChars[a:GrooVim_CommandZFCallerNow] = l:char
 
       " Note: The net. A shortcut that edits meets a buffer which refuses with
       " "E21", and the error of Vim is not an answer to give anybody. Caught

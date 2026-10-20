@@ -713,6 +713,33 @@ func! GT_Body()
   call GT_Ok("another F key after F3 runs as ITSELF", line("$") == l:lines,
     \ "   (" . line("$") . " lines, and F3 did not repeat)")
 
+  " And a second key that is NO shortcut of that group leaves the memory alone.
+  "
+  " Reported, and measured with real keys afterwards: F2 alone to repeat F2->m,
+  " and then an arrow to walk to the next place. The arrow arrived INSIDE the
+  " window, was read as the second key of F2 -- and from then on F2 alone
+  " repeated nothing at all, because what it had remembered was an arrow, which
+  " is no command of F2. The last command that RAN is the only one worth
+  " remembering.
+  let s:was = g:GrooVim_CommandZChars["F3"]
+  let l:lines = line("$")
+  call GT_Press("\<F3>\<Right>")
+  call GT_Ok("a second key that is no shortcut leaves the memory alone",
+    \ g:GrooVim_CommandZChars["F3"] ==# s:was,
+    \ "   (F3 still repeats [" . g:GrooVim_CommandZChars["F3"] . "])")
+  call GT_Ok("  and nothing runs in its place", line("$") == l:lines,
+    \ "   (" . line("$") . " lines: a key that is not a shortcut does nothing,\n" .
+    \ "    which is what an Esc pressed to back out of an F key counts on)")
+  call GT_Press("\<F3>\<F3>")
+  call GT_Ok("  and the one it kept is the one it does again",
+    \ line("$") == l:lines + 1, "   (" . line("$") . " lines)")
+  call GT_Ok("  and the memory is written where the shortcut is FOUND",
+    \ stridx(GT_FunctionText("GrooVim_CommandZRun"), "for l:one in") > 0 &&
+    \ stridx(GT_FunctionText("GrooVim_CommandZRun"), "for l:one in") <
+    \   stridx(GT_FunctionText("GrooVim_CommandZRun"),
+    \     "g:GrooVim_CommandZChars[a:GrooVim_CommandZFCallerNow] = l:char"),
+    \ "   (inside the lookup, and not before it)")
+
   call GT_Ok("and the F keys have ONE number left",
     \ exists("g:GrooVim_CommandZWait") && !exists("g:GrooVim_CommandZSettle")
     \   && !exists("g:GrooVim_CommandZRepeat"),
