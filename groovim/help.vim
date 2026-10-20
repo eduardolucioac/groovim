@@ -61,7 +61,11 @@ let g:GrooVim_Shortcuts = [
  \   "It stands in the MIDDLE of the screen, in every mode: where the file IS has nothing to do with the line you are on, and over that line it would be in the way of the text",
  \   "From VISUAL mode what you had selected is still selected afterwards"
  \  ]},
- \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])', "menu": "Save a copy as...", "what": "Save to disk and open in a new tab a copy of the current file"},
+ \ {"where": "File", "group": "F2", "key": "y", "modes": "niv", "run": 'call GrooVim_Operation("[save a copy]", "GrooVim_SaveACopy", [])',
+ \  "menu": "Save a copy as...", "what": "Writes a copy of this file to disk",
+ \  "notes": [
+ \   "And leaves you where you were: a copy is made to HAVE it, and what you are editing is what you were editing. |F5->a| is the other one -- it saves under another name and goes on editing THAT one"
+ \  ]},
  \ {"where": "File", "group": "F5", "key": "s", "modes": "niv", "keepsel": 1, "run": 'call GrooVim_Save()',
  \  "menu": "Save", "what": "Save to disk",
  \  "notes": [

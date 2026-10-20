@@ -266,6 +266,34 @@ func! GT_AfterReplace()
     \ "   (which is what the question was asked for)")
   call delete(g:GT_THERE)
 
+  " ---- and the COPY of F2->y does not open what it wrote
+  "
+  " It used to open the copy in a tab of its own, which is the one thing a copy
+  " is not for: a copy is made to HAVE it, and what you are editing is what you
+  " were editing.
+  tabonly! | enew!
+  let g:GT_COPY = g:GT_OUT . "/a_copia.txt"
+  call delete(g:GT_COPY)
+  call setline(1, ["o que esta na tela"])
+  let g:GT_TABS_BEFORE = tabpagenr("$")
+  call timer_start(100, {t -> GrooVim_SaveACopy()})
+  call timer_start(400, {t -> feedkeys("\<C-u>" . g:GT_COPY . "\<CR>", "t")})
+  call GT_When('filereadable(g:GT_COPY)', "GT_AfterCopy")
+endfunc
+
+func! GT_AfterCopy()
+  call GT_Ok("the copy is written to disk",
+    \ readfile(g:GT_COPY) ==# ["o que esta na tela"],
+    \ "   " . string(readfile(g:GT_COPY)))
+  call GT_Ok("  and it is NOT opened: you stay where you were",
+    \ tabpagenr("$") == g:GT_TABS_BEFORE && expand("%:p") !=# g:GT_COPY,
+    \ "   (tabs " . tabpagenr("$") . ", and you are on [" . expand("%:t") . "])")
+  call GT_Ok("  and nothing in the function opens a tab",
+    \ GT_FunctionText("GrooVim_SaveACopy") !~ "tabnew" &&
+    \ GT_FunctionText("GrooVim_SaveACopy") =~ "You are still on",
+    \ "   (F5->a is the one that goes on editing another file)")
+  call delete(g:GT_COPY)
+
   call GT_Done()
 endfunc
 

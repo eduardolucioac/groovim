@@ -260,7 +260,8 @@ memory each, so a command of another group can never come out of this one.
         - The bar at the bottom shows as much of the path as can be read and this says all of it. The balloon goes down on the cursor moving or on <Esc> , and nothing it covers is lost -- you go on typing with it up;
         - It stands in the MIDDLE of the screen, in every mode: where the file IS has nothing to do with the line you are on, and over that line it would be in the way of the text;
         - From VISUAL mode what you had selected is still selected afterwards;
-    - `F2->y` - Save to disk and open in a new tab a copy of the current file *(normal mode/insert/visual)*;
+    - `F2->y` - Writes a copy of this file to disk *(normal mode/insert/visual)*;
+        - And leaves you where you were: a copy is made to HAVE it, and what you are editing is what you were editing. F5->a is the other one -- it saves under another name and goes on editing THAT one;
     - `F5->s` - Save to disk *(normal mode/insert/visual)*;
         - A document with no name yet is asked where to go, the way F5->a asks;
     - `F5->e` - Save every changed file *(normal mode/insert/visual)*;

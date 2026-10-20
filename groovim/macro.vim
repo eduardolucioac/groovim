@@ -377,19 +377,41 @@ func! GrooVim_AskFileWhere(what, ...) abort
 
 endfunc
 
-" Note: Save to disk and open in a new tab a copy of the current file.
+" Note: A COPY of this file on disk, and you stay where you are.
+"
+" It used to open the copy in a tab of its own, which is the one thing a copy is
+" not for: a copy is made to HAVE it, and what you are editing is the file you
+" were editing. "Save a Copy As" of Notepad++ (inspiration) writes it and leaves
+" you alone, and so does this.
+"
+" The other two keys are the ones that change where you are: |F5->a| saves under
+" another name and goes on editing THAT one, and |F5->s| saves what you have.
 func! GrooVim_SaveACopy() range abort
 
   let l:where = GrooVim_AskFileWhere("copy")
 
+  " Note: And the document does not take the name of its copy.
+  "
+  " A ":w name" NAMES a document that has none yet -- "F" is one of the letters
+  " "cpoptions" comes with -- so a copy made from a |new|1| left you editing the
+  " copy, which is exactly what this key is not for. Measured: the tab stayed,
+  " and the document on it was the copy.
+  "
+  " The letter is put back the way it was found, because it is not ours.
+  let l:cpoptionsWas = &cpoptions
+
   try
+    set cpoptions-=F
     exec "w! " . fnameescape(l:where)
-    exec "tabnew " . fnameescape(l:where)
-    call GrooVim_GrooVimBarMsg("A file copy was created!", 1)
+    call GrooVim_GrooVimBarMsg("A copy was written to \"" .
+     \ fnamemodify(l:where, ":t") . "\"! You are still on " .
+     \ (expand("%:t") ==# "" ? "this document" : "\"" . expand("%:t") . "\"") . ".", 5)
     redraw!
   catch
     call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
     redraw!
+  finally
+    let &cpoptions = l:cpoptionsWas
   endtry
 
 endfunc
