@@ -290,7 +290,7 @@ func! GT_AfterCopy()
     \ "   (tabs " . tabpagenr("$") . ", and you are on [" . expand("%:t") . "])")
   call GT_Ok("  and nothing in the function opens a tab",
     \ GT_FunctionText("GrooVim_SaveACopy") !~ "tabnew" &&
-    \ GT_FunctionText("GrooVim_SaveACopy") =~ "You are still on",
+    \ GT_FunctionText("GrooVim_SaveACopy") =~ "cpoptions-=F",
     \ "   (F5->a is the one that goes on editing another file)")
   call delete(g:GT_COPY)
 

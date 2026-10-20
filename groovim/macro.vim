@@ -404,8 +404,7 @@ func! GrooVim_SaveACopy() range abort
     set cpoptions-=F
     exec "w! " . fnameescape(l:where)
     call GrooVim_GrooVimBarMsg("A copy was written to \"" .
-     \ fnamemodify(l:where, ":t") . "\"! You are still on " .
-     \ (expand("%:t") ==# "" ? "this document" : "\"" . expand("%:t") . "\"") . ".", 5)
+     \ fnamemodify(l:where, ":t") . "\"!", 5)
     redraw!
   catch
     call GrooVim_GrooVimBarMsg("The file copy can't be saved! Reason: \"" . v:exception . "\"", 1)
