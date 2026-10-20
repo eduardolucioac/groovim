@@ -318,7 +318,7 @@ memory each, so a command of another group can never come out of this one.
     - `Ctrl+V` - Pastes what is in the transfer area *(normal mode/insert/visual)*;
     - `Ctrl+U` - Undoes the last change *(normal mode/insert/visual)*;
     - `Ctrl+R` - Does again what was undone *(normal mode/insert/visual)*;
-    - `F2->n` - Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below *(normal mode)*;
+    - `F2->n` - Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below *(normal mode/insert)*;
         - The line you started on is the anchor and does not move: Down and Up move the OTHER end, so three down and one up leaves two lines taken;
         - Everything else happens in every caret, each one where IT is: what you type, the Enter that cuts its own line, the Tab that fills to the next stop of its own column, the Del , the Backspace -- and End , which is the end of each line, on lines of any length;
         - A line too short to reach the column takes the text at ITS end, so no line is left out;

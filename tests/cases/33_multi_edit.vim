@@ -56,6 +56,26 @@ func! GT_Body()
     \ "    and asking for one would be the block of Vim again. Measured with a\n" .
     \ "    real F2 through a real terminal: the mode went to insert by itself)")
 
+  " ---- and it is reached from INSERT mode as well
+  "
+  " Typing is where you are when you find out that the next three lines need the
+  " same thing, and leaving insert to ask for it is a step nobody takes on
+  " purpose. The key works from there and lands in the same place: the column
+  " the cursor is in, with the line you are on as the anchor.
+  call GT_Fresh(["alpha um", "beta dois", "gama tres", "delta quatro"])
+  call GT_Press("7|\<F2>n\<Down>\<Down>XY\<Esc>")
+  let s:fromNormal = getline(1, 4)
+  call GT_Fresh(["alpha um", "beta dois", "gama tres", "delta quatro"])
+  call GT_Press("7|i\<F2>n\<Down>\<Down>XY\<Esc>")
+  call GT_Ok("F2->n starts from insert mode too, and lands where it does in normal",
+    \ getline(1, 4) ==# s:fromNormal &&
+    \ getline(1) ==# "alpha XYum" && getline(3) ==# "gama tXYres",
+    \ "   " . string(getline(1, 4)))
+  call GT_Ok("  and the list says both modes",
+    \ !empty(filter(copy(g:GrooVim_Shortcuts),
+    \   'get(v:val, "group", "") ==# "F2" && v:val.key ==# "n" && v:val.modes ==# "ni"')),
+    \ "   (what the help, the menu and the README say comes from there)")
+
   " ---- a column of lines, typed in one go
   call GT_Fresh(["um alfa fim", "dois beta fim", "tres gama fim",
     \ "quatro delta fim", "zz"])

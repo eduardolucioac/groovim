@@ -167,7 +167,7 @@ let g:GrooVim_Shortcuts = [
  \  "menu": "Undo", "what": "Undoes the last change"},
  \ {"where": "Edit", "keys": "<C-r>", "modes": "niv",
  \  "menu": "Redo", "what": "Does again what was undone"},
- \ {"where": "Edit", "group": "F2", "key": "n", "break": 1, "modes": "n",
+ \ {"where": "Edit", "group": "F2", "key": "n", "break": 1, "modes": "ni",
  \  "run": 'call GrooVim_MultiColumnStart()',
  \  "menu": "Write on several lines",
  \  "what": "Writes on several lines at once: it goes straight into insert, and the arrows take in the lines above and below",
