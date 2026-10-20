@@ -221,6 +221,22 @@ func! GrooVim_MultiSeal() abort
   let s:marking = 0
   call GrooVim_MultiKeysOn(0)
 
+  " Note: And the cursor comes back to the LAST place marked, if it had walked
+  " off one.
+  "
+  " While you are choosing, the arrows are your own walk: they take you to where
+  " the next place goes. Press Esc after walking without marking there and the
+  " cursor is standing somewhere nobody chose -- and the cursor WRITES, like
+  " every caret does, so the text went into a place that was never marked, with
+  " the terminal drawing a caret there that GrooVim knows nothing about.
+  " Measured: two places marked, one arrow more, Esc, and an "X" came out in
+  " THREE places.
+  let l:last = g:GrooVim_MultiPoints[-1]
+  if [line("."), col(".")] != l:last
+   \ && index(g:GrooVim_MultiPoints, [line("."), col(".")]) < 0
+    call cursor(l:last[0], l:last[1])
+  endif
+
   " Note: And they change COLOUR, from the orange of choosing to the yellow of
   " writing -- the cursor of the terminal with them, because it is one of the
   " carets too. It is the answer to "can I write now?", given without a word.
@@ -580,7 +596,7 @@ func! GrooVim_MultiFlush() abort
     elseif l:what ==# "\<Del>" && l:joinAt > 0
       call GrooVim_MultiJoined(l:atLine + 1, l:atLine, l:joinAt, -1, 0)
     elseif l:what ==# "\<Del>"
-      call GrooVim_MultiShift(l:atLine, l:atColumn + 1, -1, -1)
+      call GrooVim_MultiShift(l:atLine, l:atColumn + 1, -1, -1, 0)
     elseif l:what ==# "\<CR>"
       " Note: The Enter of the real cursor cut its line in two: everything that
       " was below it is one line further down, and whatever sat after the cut on
@@ -595,9 +611,9 @@ func! GrooVim_MultiFlush() abort
       call GrooVim_MultiCut(l:atLine, l:atColumn, -1, 0)
     elseif l:what ==# "\<Tab>"
       call GrooVim_MultiShift(l:atLine, l:atColumn,
-       \ len(getline(l:atLine)) - s:lengthWas, -1)
+       \ len(getline(l:atLine)) - s:lengthWas, -1, 0)
     else
-      call GrooVim_MultiShift(l:atLine, l:atColumn, l:step, -1)
+      call GrooVim_MultiShift(l:atLine, l:atColumn, l:step, -1, 0)
     endif
 
     for l:which in range(len(g:GrooVim_MultiPoints))
@@ -682,7 +698,7 @@ func! GrooVim_MultiDo(which, what, room) abort
       call setline(l:point[0],
        \ strcharpart(l:line, 0, l:at - 2) . strcharpart(l:line, l:at - 1))
       let g:GrooVim_MultiPoints[a:which][1] = l:at - 1
-      call GrooVim_MultiShift(l:point[0], l:at, -1, a:which)
+      call GrooVim_MultiShift(l:point[0], l:at, -1, a:which, 1)
     endif
     return
   endif
@@ -699,7 +715,7 @@ func! GrooVim_MultiDo(which, what, room) abort
     elseif l:at <= len(l:line)
       call setline(l:point[0],
        \ strcharpart(l:line, 0, l:at - 1) . strcharpart(l:line, l:at))
-      call GrooVim_MultiShift(l:point[0], l:at + 1, -1, a:which)
+      call GrooVim_MultiShift(l:point[0], l:at + 1, -1, a:which, 1)
     endif
     return
   endif
@@ -718,14 +734,14 @@ func! GrooVim_MultiDo(which, what, room) abort
     call setline(l:point[0],
      \ strcharpart(l:line, 0, l:at - 1) . l:fill . strcharpart(l:line, l:at - 1))
     let g:GrooVim_MultiPoints[a:which][1] = l:at + len(l:fill)
-    call GrooVim_MultiShift(l:point[0], l:at, len(l:fill), a:which)
+    call GrooVim_MultiShift(l:point[0], l:at, len(l:fill), a:which, 1)
     return
   endif
 
   call setline(l:point[0],
    \ strcharpart(l:line, 0, l:at - 1) . a:what . strcharpart(l:line, l:at - 1))
   let g:GrooVim_MultiPoints[a:which][1] = l:at + 1
-  call GrooVim_MultiShift(l:point[0], l:at, 1, a:which)
+  call GrooVim_MultiShift(l:point[0], l:at, 1, a:which, 1)
 
 endfunc
 
@@ -794,7 +810,17 @@ endfunc
 " on: it is skipped when the text is written, because Vim has already written
 " there, but it has to TRAVEL with the cursor -- left behind, it stops being the
 " cursor's own caret at the second letter and the line takes the text twice.
-func! GrooVim_MultiShift(line, column, step, except) abort
+
+" Note: And the REAL cursor is one more thing on that line to be moved, which is
+" what "alsoCursor" says. A caret BEFORE it writing or taking a character away
+" pushes everything after it along, the cursor included; for the cursor's OWN
+" key Vim has moved it already, so there it is left alone.
+"
+" Measured with three carets on one line: a backspace left the cursor two
+" columns past its own caret -- drawn by the terminal, which is what made a
+" FOURTH caret appear on a line that had three -- and the letter typed after
+" that went in where nobody had marked.
+func! GrooVim_MultiShift(line, column, step, except, alsoCursor) abort
 
   let l:which = 0
   for l:point in g:GrooVim_MultiPoints
@@ -803,6 +829,10 @@ func! GrooVim_MultiShift(line, column, step, except) abort
     endif
     let l:which = l:which + 1
   endfor
+
+  if a:alsoCursor && s:cursorLine == a:line && s:cursorColumn >= a:column
+    let s:cursorColumn = s:cursorColumn + a:step
+  endif
 
 endfunc
 

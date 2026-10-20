@@ -437,6 +437,54 @@ func! GT_Body()
     \ "   (writing in the first moves the second, or it falls one behind for\n" .
     \ "    every letter)")
 
+  " ---- and the cursor stays ON its caret, with others before it on the line
+  "
+  " The caret of the last place marked is not drawn at all: it is the cursor of
+  " the terminal, standing there. So a cursor left even one column off its own
+  " caret is a caret MORE on the screen -- which is how it was reported: three
+  " places marked, a backspace pressed, and four carets on a line that had
+  " three.
+  "
+  " What was missing: a caret BEFORE the cursor on its own line writing or
+  " taking a character away pushes everything after it along, and the cursor was
+  " not pushed -- only the carets were. Measured with three places on one line,
+  " one backspace: the carets landed on 5, 9 and 13 and the cursor on 15.
+  for s:key in [["\<BS>", "TCDFCLDFPGDFSEEC", 13], ["X", "TCDF XCLDF XPGDF XSEEC", 19],
+    \ ["\<Del>", "TCDF LDF GDF EEC", 14]]
+    call GT_Fresh(["TCDF CLDF PGDF SEEC"])
+    call cursor(1, 6)
+    call GT_Press("\<F2>m" . repeat("\<Right>", 5) . "\<F2>m" .
+      \ repeat("\<Right>", 5) . "\<F2>m\<Esc>" . s:key[0])
+    call GT_Settle()
+    call GT_Ok("after " . strtrans(s:key[0]) .
+      \ " the cursor is left where its caret is",
+      \ getline(1) ==# s:key[1] && col(".") == s:key[2],
+      \ "   [" . getline(1) . "]   cursor on " . col(".") .
+      \ ", and its caret on " . s:key[2] .
+      \ "\n    (off by one is a caret MORE on the screen: the last place marked\n" .
+      \ "     is drawn by the cursor of the terminal, standing on it)")
+    call GrooVim_MultiClear()
+    call GT_Undo()
+  endfor
+
+  " ---- and Esc puts the cursor back on the last place marked
+  "
+  " While you choose, the arrows are YOUR walk: they take you to where the next
+  " place goes. Walk and then press Esc without marking there, and the cursor is
+  " left standing somewhere nobody chose -- and the cursor writes, like every
+  " caret does. Measured with real keys: two places marked, one arrow more, Esc,
+  " and an "X" came out in THREE places, with the terminal drawing a caret on a
+  " place GrooVim knew nothing about.
+  call GT_Fresh(["aaa bbb ccc ddd"])
+  call GT_Press("\<F2>m" . repeat("\<Right>", 4) . "\<F2>m" .
+    \ repeat("\<Right>", 4) . "\<Esc>X")
+  call GT_Settle()
+  call GT_Ok("Esc after walking brings the cursor back to the last place",
+    \ getline(1) ==# "Xaaa Xbbb ccc ddd",
+    \ "   [" . getline(1) . "]   (two places marked, two X and no more)")
+  call GrooVim_MultiClear()
+  call GT_Undo()
+
   " ---- and Esc with nothing typed lets go of the places
   call GT_Fresh(["um", "dois", "tres"])
   call GT_Press("\<F2>m")
