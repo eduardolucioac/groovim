@@ -139,6 +139,65 @@ let NERDTreeWinPos = "right"
 let g:NERDTreeCustomOpenArgs =
  \ {"file": {"reuse": "all", "where": "t", "keepopen": 1}, "dir": {}}
 
+" Note: And the DOUBLE CLICK opens it the same way, which it did not.
+"
+" Two doors to the same thing, and only one of them had been given the rule.
+" What the setting above reaches is the "custom open" of NERDTree, which is what
+" <Enter> is bound to; the double click is bound to another function of the
+" plugin ("activateFileNode"), and that one has the old way written INTO it --
+" "where: p", the window you came from -- where no setting can reach it.
+" Reported from the tree panel: Enter opened a tab and a double click on the
+" same file took the place of what was being read.
+"
+" So the double click is bound to the custom open as well, which is the one
+" GrooVim has already described: a tab of its own, and a file already open
+" jumped to instead of opened twice.
+"
+" "override" is not decoration: NERDTree keeps its key maps in a list by key and
+" scope and REFUSES to replace one that is already there unless it is told to --
+" measured, without it the double click went on opening in the window you came
+" from and nothing said why.
+"
+" At "VimEnter", because the plugins are loaded after this file is read and the
+" function that takes a key map does not exist yet when these lines run.
+if g:enable_nerdtree_vim
+
+  func! GrooVim_TreeOpenFile(node) abort
+    call a:node.activate(get(get(g:, "NERDTreeCustomOpenArgs", {}), "file",
+     \ {"reuse": "all", "where": "t", "keepopen": 1}))
+  endfunc
+
+  " Note: A bookmark can be a file or a folder, and the folder unfolds instead
+  " of opening -- the same two roads the plugin itself takes for them.
+  func! GrooVim_TreeOpenBookmark(node) abort
+    let l:args = get(g:, "NERDTreeCustomOpenArgs", {})
+    if a:node.path.isDirectory
+      call a:node.activate(b:NERDTree, get(l:args, "dir", {}))
+    else
+      call a:node.activate(b:NERDTree, get(l:args, "file",
+       \ {"reuse": "all", "where": "t", "keepopen": 1}))
+    endif
+  endfunc
+
+  func! GrooVim_TreeDoubleClickOpens() abort
+    if !exists("*NERDTreeAddKeyMap")
+      return
+    endif
+    call NERDTreeAddKeyMap({"key": "<2-LeftMouse>", "scope": "FileNode",
+     \ "callback": "GrooVim_TreeOpenFile", "override": 1,
+     \ "quickhelpText": "open in a tab of its own"})
+    call NERDTreeAddKeyMap({"key": "<2-LeftMouse>", "scope": "Bookmark",
+     \ "callback": "GrooVim_TreeOpenBookmark", "override": 1,
+     \ "quickhelpText": "open in a tab of its own"})
+  endfunc
+
+  augroup GrooVim_TreeMouse
+    autocmd!
+    autocmd VimEnter * call GrooVim_TreeDoubleClickOpens()
+  augroup END
+
+endif
+
 "* move-vim
 
 " Note: Mapping to move-vim.

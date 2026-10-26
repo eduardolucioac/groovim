@@ -383,6 +383,7 @@ memory each, so a command of another group can never come out of this one.
     - `F4->n` - Opens/closes the file tree *(normal mode/insert/visual)*;
         - Asked for once, the tree is in EVERY tab, including the ones opened afterwards: it is a dock, like the search list and the list of marked lines. Pressing it again takes it from every tab;
         - In the tree, Enter opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds;
+        - A DOUBLE CLICK does exactly what Enter does -- one click unfolds a folder, two open a file. They are two doors to the same thing, and the mouse used to go through the other one: it put the file in the window you came from, over the one you were reading;
     - `F4->b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->l` - Lists every marked line, or takes the list away *(normal mode/insert/visual)*;

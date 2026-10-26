@@ -519,6 +519,31 @@ func! GT_Body()
     \ "   (there \"open\" means unfold, and a folder in a tab of its own\n" .
     \ "    would be a tab with a tree in it)")
 
+  " And the DOUBLE CLICK opens it the same way, which it did not: the setting
+  " above reaches the "custom open" of NERDTree, which is what Enter is bound
+  " to, while the double click is bound to another function of the plugin with
+  " the old way written INTO it. Reported, and measured through a terminal with
+  " a real double click on the tree:
+  "
+  "   before:  one tab, ['beta.txt']               -- what was being read, gone
+  "   now:     two tabs, ['alfa.txt', 'beta.txt']  -- and the tree still open
+  call GT_Ok("and a double click in the tree opens it the same way",
+    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "2-LeftMouse" &&
+    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "GrooVim_TreeOpenFile",
+    \ "   (Enter and the mouse are two doors to the same thing)")
+  call GT_Ok("  and the bookmarks of the tree answer to it too",
+    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "GrooVim_TreeOpenBookmark",
+    \ "   (a bookmark that is a folder unfolds, like the plugin does)")
+  call GT_Ok("  and it says OVERRIDE, or the plugin keeps its own",
+    \ len(split(GT_FunctionText("GrooVim_TreeDoubleClickOpens"),
+    \   "override", 1)) == 3,
+    \ "   (NERDTree keeps its key maps by key and scope and refuses to\n" .
+    \ "    replace one that is there unless it is told to: measured, without\n" .
+    \ "    it the double click went on opening in the window you came from)")
+  call GT_Ok("  and what it opens with is the setting, not a copy of it",
+    \ GT_FunctionText("GrooVim_TreeOpenFile") =~ "NERDTreeCustomOpenArgs",
+    \ "   (one rule, read by both doors)")
+
   call GT_Ok("  and the tree by what it is, not by the plugin that draws it",
     \ filter(copy(GT_Of("F4")), 'v:val.key ==# "n"')[0].what =~ "file tree", "")
   call GT_Ok("and the menu divides the tree from the marks",

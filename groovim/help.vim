@@ -290,7 +290,8 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "View", "group": "F4", "key": "n", "modes": "niv", "run": 'call GrooVim_ToggleNERDTreeTabs()',
  \  "notes": [
  \   "Asked for once, the tree is in EVERY tab, including the ones opened afterwards: it is a dock, like the search list and the list of marked lines. Pressing it again takes it from every tab",
- \   "In the tree, |Enter| opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds"
+ \   "In the tree, |Enter| opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds",
+ \   "A DOUBLE CLICK does exactly what |Enter| does -- one click unfolds a folder, two open a file. They are two doors to the same thing, and the mouse used to go through the other one: it put the file in the window you came from, over the one you were reading"
  \  ],
  \  "menu": "File tree", "what": "Opens/closes the *file tree*",
  \  "needs": {"switch": "enable_nerdtree_vim", "name": "the NERDTree plugin"}},
