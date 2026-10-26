@@ -139,9 +139,26 @@ func! GrooVim_InsertRedo() abort
 endfunc
 
 " Note: Allows "Space" in normal mode.
+"
+" Through "norm!" and not "norm", and a buffer that refuses to change is told
+" apart before either -- which is the same bug twice.
+"
+" ":normal" runs its keys THROUGH the mappings, and "i" is a mapping of its own
+" inside the tree of NERDTree: it opens the file in a split. So a space pressed
+" in the tree ran the "i" of NERDTree, the space itself was left over, came back
+" to THIS mapping, which pressed "i" again -- and so on. Measured, one space on
+" a folder of the tree: eight "E169: Command too recursive" over a red screen
+" and an editor left at a "-- More --" prompt.
+"
+" "norm!" is the "i" of Vim and nobody else's, and the tree never gets that far
+" anyway: it cannot be changed, and GrooVim says so the way it says it
+" everywhere else.
 noremap <silent> <script> <Space> :call GrooVim_SpaceOnNormalMode()<cr>
 func! GrooVim_SpaceOnNormalMode() abort
-  exec "norm i\<Space>"
+  if !GrooVim_CanChange()
+    return
+  endif
+  exec "norm! i\<Space>"
 endfunc
 
 " Note: Walking the windows of a tab, both ways.

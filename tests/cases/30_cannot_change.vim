@@ -42,6 +42,7 @@ endfunc
 func! GT_Body()
   for l:one in [["Enter", "\<Enter>"], ["Tab", "\<Tab>"], ["Shift-Tab", "\<S-Tab>"],
     \ ["Backspace", "\<BS>"], ["Del", "\<Del>"], ["Ctrl-v", "\<C-v>"], ["p", "p"],
+    \ ["Space", " "],
     \ ["F3 d", "\<F3>d"], ["F2 h", "\<F2>h"]]
     call GT_Key(l:one[0], l:one[1])
   endfor
@@ -87,6 +88,22 @@ func! GT_Body()
     \ &buftype ==# "", "   (line " . line(".") . ", buftype [" . &buftype . "])")
   cclose
 
+  " ---- and the space, which found a second way to go wrong
+  "
+  " ":normal" runs its keys THROUGH the mappings, and the space typed one in
+  " with an "i" in front of it. In the tree of NERDTree the "i" is a mapping of
+  " its own -- it opens the file in a split -- so the space ran THAT, the space
+  " itself was left over, came back to the mapping, and pressed "i" again.
+  " Measured through a terminal, one space on a folder of the tree: eight "E169:
+  " Command too recursive" over a red screen and an editor left at a "-- More --"
+  " prompt. With the "!" and the door above, 539 bytes came back instead of
+  " 3243, none of them an error.
+  call GT_Ok("the space types with the \"i\" of Vim and nobody else's",
+    \ GT_FunctionText("GrooVim_SpaceOnNormalMode") =~ "norm!" &&
+    \ GT_FunctionText("GrooVim_SpaceOnNormalMode") =~ "GrooVim_CanChange",
+    \ "   (a plugin that maps \"i\" in its own window turned one space into a\n" .
+    \ "    mapping calling itself)")
+
   " ---- and a buffer that DOES accept changes is not touched by any of this
   enew!
   call setline(1, ["uma linha"])
@@ -94,6 +111,13 @@ func! GT_Body()
   call feedkeys("\<Enter>", "x")
   call GT_Ok("and where changing IS allowed, the key still works",
     \ line("$") == 2, "   (" . line("$") . " lines)")
+
+  enew!
+  call setline(1, ["uma linha"])
+  call cursor(1, 1)
+  call feedkeys(" ", "x")
+  call GT_Ok("  and a space is still a space where one can be typed",
+    \ getline(1) ==# " uma linha", "   [" . getline(1) . "]")
 
   call GT_Done()
 endfunc
