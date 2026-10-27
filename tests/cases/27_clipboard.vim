@@ -382,4 +382,76 @@ call GT_Ok("  with the pattern in SINGLE quotes, which is not a taste",
   \ GT_FunctionText("GrooVim_ClipLine") =~ "'\\[.r.n\\].+\\$'",
   \ "   (between double ones \"\\+\" is just a plus, and it matched nothing)")
 
+" ---- and a file DROPPED on the window comes in through that same door
+"
+" A terminal has no other way to say it: Konsole turns a drop into text -- each
+" path through "KShell::quoteArg", and, in the words of its own source, "Each
+" filename(including the last) should be followed by one space" -- and pastes
+" it. Measured through a terminal before this: the path landed in the file as
+" text, which is not what a hand that drags a file onto an editor is asking for.
+"
+" The space at the end is the password. A drop and a paste of the same path are
+" the SAME BYTES, so what is left to tell them apart is that Konsole puts a
+" space after every name and a hand that copies a path does not.
+let s:um = g:GT_FIX . "/a.txt"
+let s:dois = g:GT_FIX . "/b.txt"
+call GT_Ok("a dropped path is read as a path",
+  \ GrooVim_DropPaths(s:um . " ") ==# [s:um],
+  \ "   " . string(GrooVim_DropPaths(s:um . " ")))
+call GT_Ok("  and without the space at the end it is only text",
+  \ GrooVim_DropPaths(s:um) ==# [],
+  \ "   (a path you copied and pasted goes on being pasted)")
+call GT_Ok("  and a name that is not THERE is only text as well",
+  \ GrooVim_DropPaths(g:GT_FIX . "/nao-existe.txt ") ==# [],
+  \ "   (every word has to be a file that can be read)")
+call GT_Ok("  and a line break says it is not a drop",
+  \ GrooVim_DropPaths(s:um . " \n") ==# [],
+  \ "   (what a terminal drops is one line)")
+call GT_Ok("  and two files come back as two",
+  \ GrooVim_DropPaths(s:um . " " . s:dois . " ") ==# [s:um, s:dois],
+  \ "   " . string(GrooVim_DropPaths(s:um . " " . s:dois . " ")))
+
+" A name with a space in it arrives QUOTED, which is what KShell::quoteArg does
+" with anything that is not a plain word -- and inside the quotes a quote of its
+" own is written |'\''| .
+call GT_Ok("  and a quoted name is ONE file and not two",
+  \ GrooVim_DropWords("'/um/com espaco.txt' ") ==# ["/um/com espaco.txt"],
+  \ "   " . string(GrooVim_DropWords("'/um/com espaco.txt' ")))
+call GT_Ok("  and the quote inside a quoted name comes back",
+  \ GrooVim_DropWords("'/um/com'\\''aspa.txt' ") ==# ["/um/com'aspa.txt"],
+  \ "   " . string(GrooVim_DropWords("'/um/com'\\''aspa.txt' ")))
+call GT_Ok("  and half a quoted name is no name at all",
+  \ GrooVim_DropWords("'/um/sem fim ") ==# [],
+  \ "   (a text that ends inside a quote did not come from a drop)")
+
+call GT_Ok("and the door of the terminal's paste asks about it first",
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ "GrooVim_DropPaths" &&
+  \ GT_FunctionText("GrooVim_PasteFromTerminal") =~ "GrooVim_DropOpen",
+  \ "   (and a no goes on to paste the text, which is what the n is for)")
+
+" And the question itself, answered. One tab for each file, which is where the
+" open files of GrooVim live -- and the default is yes, because a drop is a
+" thing you did with your hand and not something that happened to you.
+silent! tabonly
+exec "enew!"
+let s:tabsWere = tabpagenr("$")
+call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+let s:took = GrooVim_DropOpen([s:um, s:dois])
+call GT_Ok("a yes opens one tab for each file", s:took == 1 &&
+  \ tabpagenr("$") == s:tabsWere + 2,
+  \ "   (" . tabpagenr("$") . " tabs, from " . s:tabsWere . ")")
+call GT_Ok("  and it says so on the bar",
+  \ g:GrooVim_GrooVimBarMsgValue =~ "2 files are open",
+  \ "   [" . trim(g:GrooVim_GrooVimBarMsgValue) . "]")
+
+silent! tabonly
+exec "enew!"
+let s:tabsWere = tabpagenr("$")
+call timer_start(200, {t -> feedkeys("n\<CR>", "t")})
+let s:took = GrooVim_DropOpen([s:um])
+call GT_Ok("and a no opens nothing, so the text is pasted instead",
+  \ s:took == 0 && tabpagenr("$") == s:tabsWere,
+  \ "   (" . tabpagenr("$") . " tabs)")
+silent! tabonly
+
 call GT_Done()

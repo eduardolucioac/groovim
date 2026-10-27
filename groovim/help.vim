@@ -704,6 +704,13 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n*o*  Where neither answers, <Ctrl-v> pastes what GrooVim itself copied, and the paste of your terminal -- usually <Ctrl-Shift-v> -- brings in what another application copied;".
 \"\n*o*  Installing a tool brings <Ctrl-v> back to the system clipboard, with nothing to change in your configuration: |sudo|pacman|-S|wl-clipboard| or |sudo|apt|install|xclip| .".
 \"\n".
+\"\n *DRAGGING*A*FILE*ONTO*GrooVim!* A terminal has no way of saying \"a file was dropped here\": what it does is PASTE the path, which is what Konsole does -- every name followed by one space. GrooVim reads that and asks |\"x\"|was|dropped|here.|Open|it|[y[default]/n]?| . A yes opens one TAB for each file dropped, and a file already open is jumped to instead of opened twice; a no pastes the text, because pasting a path INTO a file is a thing people do all day:".
+\"\n".
+\"\n*o*  The space at the END is what tells the two apart. A drop and a paste of the same path are the same bytes, and Konsole puts a space after every name while a hand that copies a path does not;".
+\"\n*o*  In Konsole it works as it comes. The setting is in the profile, under |Mouse| : |Disable|drag|&|drop|menu|for|files|&|URLs| . With that menu ON, a drop asks Copy/Move/Link first and only |Paste|Location| reaches GrooVim -- and Copy and Move really do copy and move the file;".
+\"\n*o*  In NORMAL mode, which is where the paste of the terminal is GrooVim's to answer. In insert mode Vim takes it in itself and the path is typed in, as it always was;".
+\"\n*o*  A FOLDER dropped goes on pasting its path: a folder in a tab of its own would be a tab with nothing to read in it.".
+\"\n".
 \"\n *NO*BINARY*IS*SHIPPED*WITH*GrooVim,*ON*PURPOSE!* A Linux executable is built for one architecture and linked against one libc; what works on the machine it was built on is exactly what cannot be promised anywhere else. GrooVim looks for the tool in|~/.groovim/bin| first and then in your|$PATH| , so you can drop one there by hand where a package manager is not an option.".
 \"\n".
 \"\n * The settings with a name of their own~".

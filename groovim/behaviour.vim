@@ -460,11 +460,171 @@ func! GrooVim_PasteFromTerminal() abort
     return
   endif
 
+  " Note: A file DRAGGED onto the window comes in through this very door, and
+  " it is not text anybody wants typed.
+  let l:dropped = GrooVim_DropPaths(l:text)
+  if !empty(l:dropped) && GrooVim_DropOpen(l:dropped)
+    return
+  endif
+
   call GrooVim_PasteText(l:text, "n")
 
 endfunc
 
 nnoremap <silent> <PasteStart> :call GrooVim_PasteFromTerminal()<cr>
+
+" Note: A file DROPPED on the window, which a terminal hands over as a paste.
+"
+" Konsole, read in its own source ("TerminalDisplay::dropEvent", 26.08.2), turns
+" a drop into text: each path through "KShell::quoteArg" -- bare, or in single
+" quotes when it has a space in it -- and, in the words of the comment there,
+" "Each filename(including the last) should be followed by one space". The text
+" is then pasted, and with bracketed paste on (Vim turns it on) it arrives here
+" between <PasteStart> and <PasteEnd>. Measured through a terminal: the path
+" landed in the file as text, which is not what a hand that drags a file onto an
+" editor is asking for.
+"
+" A drop and a paste of the same path are THE SAME BYTES -- there is nothing in
+" them to tell one from the other -- so GrooVim asks instead of guessing, and a
+" no pastes the text the way it always did. Pasting a path INTO a file is a
+" thing people do all day; it is not to be taken away by a guess.
+"
+" The space at the end is what makes the question worth asking at all: Konsole
+" puts one after every name, and a hand that copies a path does not. Without
+" that test every pasted word that happens to be a filename would stop to ask.
+"
+" Only files, and only files that are THERE. A folder dropped goes on pasting
+" its path -- in a tab of its own it would be a tab with nothing in it.
+func! GrooVim_DropPaths(text) abort
+
+  if a:text =~# "\n" || a:text !~# " $"
+    return []
+  endif
+
+  let l:words = GrooVim_DropWords(a:text)
+  if empty(l:words)
+    return []
+  endif
+
+  let l:paths = []
+  for l:word in l:words
+    let l:path = fnamemodify(l:word, ":p")
+    if !filereadable(l:path)
+      return []
+    endif
+    call add(l:paths, l:path)
+  endfor
+
+  return l:paths
+
+endfunc
+
+" Note: The words of a dropped text, undone from the quoting of a shell -- which
+" is what "KShell::quoteArg" writes: a name with nothing special in it comes
+" bare, and anything else comes between single quotes, with a quote of its own
+" written as |'\''| . So a path with a space in it is ONE word and not two, and
+" the quotes are not part of the name.
+"
+" An unfinished quote hands back nothing: half a quoted name is not a name, and
+" a text that ends in the middle of one did not come from a drop.
+func! GrooVim_DropWords(text) abort
+
+  let l:words = []
+  let l:word = ""
+  let l:started = 0
+  let l:inQuote = 0
+  let l:escaped = 0
+
+  for l:char in split(a:text, '\zs')
+    if l:escaped
+      let l:word .= l:char
+      let l:escaped = 0
+      let l:started = 1
+    elseif l:inQuote
+      if l:char ==# "'"
+        let l:inQuote = 0
+      else
+        let l:word .= l:char
+      endif
+    elseif l:char ==# "\\"
+      let l:escaped = 1
+    elseif l:char ==# "'"
+      let l:inQuote = 1
+      let l:started = 1
+    elseif l:char ==# " "
+      if l:started
+        call add(l:words, l:word)
+      endif
+      let l:word = ""
+      let l:started = 0
+    else
+      let l:word .= l:char
+      let l:started = 1
+    endif
+  endfor
+
+  return (l:inQuote || l:escaped) ? [] : l:words
+
+endfunc
+
+" Note: The question, and the tabs. One tab for each file dropped, which is
+" where the open files of GrooVim live -- and a file already open is not opened
+" twice: the tab that has it is the one you land on, by the same rule that holds
+" for the tree and for the files handed over with "--jrinst".
+"
+" Answers 1 when the drop was dealt with, so that a no goes on to paste the text
+" and a yes does not.
+func! GrooVim_DropOpen(paths) abort
+
+  let l:many = len(a:paths) > 1
+  let l:prompt = GrooVim_OptionsToPrompt(["y", "n"], "y", "")
+  let l:room = &columns - strdisplaywidth(g:GrooVim_ScreenMark .
+   \ "\"\" was dropped here. Open it " . l:prompt) - 2
+
+  let l:what = l:many
+   \ ? len(a:paths) . " files were dropped here. Open them "
+   \ : "\"" . GrooVim_PathShort(a:paths[0], l:room) .
+   \   "\" was dropped here. Open it "
+
+  try
+    let l:answer = GrooVim_ScreenAsk(l:what . l:prompt,
+     \ {answer -> answer ==# "" || answer ==# "y" || answer ==# "n"})
+  catch
+
+    " Note: Esc gives the question up, and giving up is neither of the two
+    " answers: nothing is opened and nothing is pasted.
+    call GrooVim_GrooVimBarMsg("Nothing opened!", 4)
+    redraw!
+    return 1
+  endtry
+
+  redraw!
+  if l:answer ==# "n"
+    return 0
+  endif
+
+  let l:opened = 0
+  for l:path in a:paths
+    try
+      exec "tabedit " . fnameescape(l:path)
+      let l:opened = l:opened + 1
+    catch
+      call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") .
+       \ "\" could not be opened! Reason: \"" . v:exception . "\"", 5)
+    endtry
+  endfor
+
+  if l:opened == 1 && !l:many
+    call GrooVim_GrooVimBarMsg("\"" . fnamemodify(a:paths[0], ":t") .
+     \ "\" is open!", 4)
+  elseif l:opened > 0
+    call GrooVim_GrooVimBarMsg(l:opened . " files are open, one tab each!", 4)
+  endif
+
+  redraw!
+  return 1
+
+endfunc
 
 " Note: And the clipboard reaches the COMMAND LINE, which is where every
 " question of GrooVim is answered: the path of a file, the value to search for,
