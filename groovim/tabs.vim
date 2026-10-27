@@ -133,6 +133,27 @@ func! GrooVim_FreshPageWindow() abort
 
 endfunc
 
+" Note: How GrooVim OPENS a file, wherever the file came from: the drop, the
+" name asked for by F5->p, the tree, a file handed over from another terminal.
+"
+" A tab of its own, which is where the open files live -- unless the page you
+" are on is the fresh "new 1" above, and then the file opens IN it. Asked again
+" for every file of a list, which is what makes the FIRST of them take the page
+" and the rest get a tab each: once the first is in, the page is not fresh any
+" more and the question answers itself.
+func! GrooVim_OpenInTab(path) abort
+
+  let l:fresh = GrooVim_FreshPageWindow()
+  if l:fresh
+    exec l:fresh . "wincmd w"
+    exec "edit " . fnameescape(a:path)
+    return
+  endif
+
+  exec "tabedit " . fnameescape(a:path)
+
+endfunc
+
 " Note: A path written to be READ in the room there is: your home as "~", and
 " the middle taken out when it does not fit.
 "
@@ -439,7 +460,7 @@ func! GrooVim_FileOpen() abort
   endif
 
   try
-    exec "tabedit " . fnameescape(l:path)
+    call GrooVim_OpenInTab(l:path)
     call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") . "\" is open!", 4)
   catch
     call GrooVim_GrooVimBarMsg("\"" . l:answer . "\" could not be opened! Reason: \"" .

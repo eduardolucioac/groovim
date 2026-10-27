@@ -269,6 +269,10 @@ func! GT_AfterInbox()
   call GT_Ok("  and the mailbox is empty again",
     \ getfsize(GrooVim_InboxMine()) == 0,
     \ "   (taken away and put back empty before a line of it was read)")
+  call GT_Ok("  and it opens the way everything else opens a file",
+    \ GT_FunctionText("GrooVim_InboxRead") =~ "GrooVim_OpenInTab",
+    \ "   (so a file handed over takes the empty \"new 1\" too, instead of\n" .
+    \ "    opening a second tab beside a page nobody wrote in)")
   call GT_Ok("  and it is taken down on the way out",
     \ !empty(filter(GT_SourceLines(),
     \   'v:val =~ "VimLeave .* delete(GrooVim_InboxMine())"')),

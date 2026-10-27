@@ -109,6 +109,7 @@ func! GT_Body()
   " -- out of a message, a terminal, a build that failed -- had to go through
   " the ":e" of Vim.
   tabonly! | enew!
+  call setline(1, "ja escrevi nesta pagina")
   let g:GT_OPEN = g:GT_OUT . "/abrir.txt"
   call writefile(["uma linha de um arquivo que existe"], g:GT_OPEN)
   call timer_start(100, {t -> GrooVim_FileOpen()})
@@ -123,7 +124,9 @@ func! GT_AfterOpen()
     \ "   [" . expand("%:t") . "]")
   call GT_Ok("  in a tab of its own, at the END of the line",
     \ tabpagenr() == tabpagenr("$") && tabpagenr("$") > 1,
-    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")")
+    \ "   (tab " . tabpagenr() . " of " . tabpagenr("$") . ")" .
+    \ "   (something was written on the page it was asked from, so the file\n" .
+    \ "    does not cover it)")
   call GT_Ok("  and it asks the same question the saving asks",
     \ GT_FunctionText("GrooVim_FileOpen") =~ "GrooVim_AskFileName" &&
     \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_AskFileName",
@@ -132,6 +135,27 @@ func! GT_AfterOpen()
     \ GT_FunctionText("GrooVim_FileOpen") =~ "isdirectory" &&
     \ GT_FunctionText("GrooVim_FileOpen") =~ "NAME is missing",
     \ "   (a folder is not a document)")
+
+  " ---- and on the empty "new 1" it opens IN it
+  "
+  " One tab, one document, with no name and nothing typed into it: the page
+  " GrooVim hands you when it opens with no file. A second tab beside a page
+  " nobody wrote in is a tab too many, and Notepad++ (inspiration) opens a file
+  " in an empty window instead of beside it.
+  tabonly! | enew!
+  call timer_start(100, {t -> GrooVim_FileOpen()})
+  call timer_start(400, {t -> feedkeys(g:GT_OPEN . "\<CR>", "t")})
+  call GT_When('expand("%:p") ==# g:GT_OPEN', "GT_AfterOpenFresh")
+endfunc
+
+func! GT_AfterOpenFresh()
+  call GT_Ok("and asked from the empty \"new 1\", it opens IN it",
+    \ tabpagenr("$") == 1 && expand("%:p") ==# g:GT_OPEN,
+    \ "   (" . tabpagenr("$") . " tab)   (no \"new 1\" left over beside it)")
+  call GT_Ok("  through the one function that opens files",
+    \ GT_FunctionText("GrooVim_FileOpen") =~ "GrooVim_OpenInTab" &&
+    \ GT_FunctionText("GrooVim_OpenInTab") =~ "GrooVim_FreshPageWindow",
+    \ "   (the drop, F5->p, the tree and the mailbox take the same road)")
 
   " ---- and a file that is NOT there is asked about
   "

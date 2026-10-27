@@ -436,7 +436,7 @@ silent! tabonly!
 exec "enew!"
 call setline(1, "ja escrevi aqui")
 let s:tabsWere = tabpagenr("$")
-call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+call feedkeys("y\<CR>", "t")
 let s:took = GrooVim_DropOpen([s:um, s:dois])
 call GT_Ok("a yes opens one tab for each file", s:took == 1 &&
   \ tabpagenr("$") == s:tabsWere + 2,
@@ -450,7 +450,7 @@ call GT_Ok("  and it says so on the bar",
 silent! tabonly!
 exec "enew!"
 let s:tabsWere = tabpagenr("$")
-call timer_start(200, {t -> feedkeys("n\<CR>", "t")})
+call feedkeys("n\<CR>", "t")
 let s:took = GrooVim_DropOpen([s:um])
 call GT_Ok("and a no opens nothing, so the text is pasted instead",
   \ s:took == 0 && tabpagenr("$") == s:tabsWere,
@@ -482,7 +482,7 @@ call GT_Ok("  and neither is one tab out of two",
 
 silent! tabonly!
 exec "enew!"
-call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+call feedkeys("y\<CR>", "t")
 call GrooVim_DropOpen([s:um])
 call GT_Ok("a file dropped on it opens IN it, and not beside it",
   \ tabpagenr("$") == 1 && expand("%:t") ==# "a.txt",
@@ -490,7 +490,7 @@ call GT_Ok("a file dropped on it opens IN it, and not beside it",
 
 silent! tabonly!
 exec "enew!"
-call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+call feedkeys("y\<CR>", "t")
 call GrooVim_DropOpen([s:um, s:dois])
 call GT_Ok("  and of two dropped, the first takes it and the other opens beside",
   \ tabpagenr("$") == 2,

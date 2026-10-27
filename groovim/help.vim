@@ -84,7 +84,8 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "The same question |F5->a| asks: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths",
  \   "A file that is NOT there is asked about instead of being opened -- Vim opens a document under any name you type and says nothing, so a path with one letter wrong came up as an empty tab wearing the name of the file you meant. Yes starts it anyway",
- \   "The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it"
+ \   "The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it",
+ \   "And on the empty |new|1| GrooVim opens with -- one tab, no name, nothing typed in it -- the file opens IN it instead of in a second tab beside a page nobody wrote in. It is what Notepad++ (inspiration) does, and what the tree, a file DROPPED on the window and a file handed over with |--jrinst| do here"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "n", "modes": "niv", "run": 'call GrooVim_TabNew()',
  \  "menu": "New tab", "what": "Open a new tab",
@@ -291,6 +292,7 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "Asked for once, the tree is in EVERY tab, including the ones opened afterwards: it is a dock, like the search list and the list of marked lines. Pressing it again takes it from every tab",
  \   "In the tree, |Enter| opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds",
+ \   "On the empty |new|1| GrooVim opens with, the file opens IN it instead of in a tab beside it -- the same rule |F5->p| , a file dropped on the window and |--jrinst| go by",
  \   "A DOUBLE CLICK does exactly what |Enter| does -- one click unfolds a folder, two open a file. They are two doors to the same thing, and the mouse used to go through the other one: it put the file in the window you came from, over the one you were reading"
  \  ],
  \  "menu": "File tree", "what": "Opens/closes the *file tree*",

@@ -162,38 +162,67 @@ let g:NERDTreeCustomOpenArgs =
 " function that takes a key map does not exist yet when these lines run.
 if g:enable_nerdtree_vim
 
+  " Note: WHERE a file chosen in the tree goes: a tab of its own, which is what
+  " the setting above says -- unless the page you are on is the empty "new 1"
+  " GrooVim opens with, and then it goes IN it.
+  "
+  " "p" is the window you came from, which on a fresh page IS that page: the
+  " tree is beside it and nothing else is open. It is how NERDTree opened files
+  " before GrooVim asked for a tab, so the plugin does its own bookkeeping and
+  " the tree stays where it is.
+  func! GrooVim_TreeOpenArgs() abort
+
+    let l:args = get(get(g:, "NERDTreeCustomOpenArgs", {}), "file",
+     \ {"reuse": "all", "where": "t", "keepopen": 1})
+
+    if GrooVim_FreshPageWindow()
+      let l:args = extend(copy(l:args), {"where": "p"})
+    endif
+
+    return l:args
+
+  endfunc
+
   func! GrooVim_TreeOpenFile(node) abort
-    call a:node.activate(get(get(g:, "NERDTreeCustomOpenArgs", {}), "file",
-     \ {"reuse": "all", "where": "t", "keepopen": 1}))
+    call a:node.activate(GrooVim_TreeOpenArgs())
   endfunc
 
   " Note: A bookmark can be a file or a folder, and the folder unfolds instead
   " of opening -- the same two roads the plugin itself takes for them.
   func! GrooVim_TreeOpenBookmark(node) abort
-    let l:args = get(g:, "NERDTreeCustomOpenArgs", {})
     if a:node.path.isDirectory
-      call a:node.activate(b:NERDTree, get(l:args, "dir", {}))
+      call a:node.activate(b:NERDTree,
+       \ get(get(g:, "NERDTreeCustomOpenArgs", {}), "dir", {}))
     else
-      call a:node.activate(b:NERDTree, get(l:args, "file",
-       \ {"reuse": "all", "where": "t", "keepopen": 1}))
+      call a:node.activate(b:NERDTree, GrooVim_TreeOpenArgs())
     endif
   endfunc
 
-  func! GrooVim_TreeDoubleClickOpens() abort
+  " Note: BOTH keys that open a file in the tree -- the <Enter> and the double
+  " click -- go through the same two functions, so the mouse and the keyboard
+  " cannot land in different places. The <Enter> of the tree is the "custom
+  " open" of NERDTree, which is a key of its own and can be changed, so it is
+  " asked for by name and not spelled out.
+  func! GrooVim_TreeOpenKeys() abort
+
     if !exists("*NERDTreeAddKeyMap")
       return
     endif
-    call NERDTreeAddKeyMap({"key": "<2-LeftMouse>", "scope": "FileNode",
-     \ "callback": "GrooVim_TreeOpenFile", "override": 1,
-     \ "quickhelpText": "open in a tab of its own"})
-    call NERDTreeAddKeyMap({"key": "<2-LeftMouse>", "scope": "Bookmark",
-     \ "callback": "GrooVim_TreeOpenBookmark", "override": 1,
-     \ "quickhelpText": "open in a tab of its own"})
+
+    for l:key in ["<2-LeftMouse>", get(g:, "NERDTreeMapCustomOpen", "<CR>")]
+      call NERDTreeAddKeyMap({"key": l:key, "scope": "FileNode",
+       \ "callback": "GrooVim_TreeOpenFile", "override": 1,
+       \ "quickhelpText": "open in a tab of its own"})
+      call NERDTreeAddKeyMap({"key": l:key, "scope": "Bookmark",
+       \ "callback": "GrooVim_TreeOpenBookmark", "override": 1,
+       \ "quickhelpText": "open in a tab of its own"})
+    endfor
+
   endfunc
 
   augroup GrooVim_TreeMouse
     autocmd!
-    autocmd VimEnter * call GrooVim_TreeDoubleClickOpens()
+    autocmd VimEnter * call GrooVim_TreeOpenKeys()
   augroup END
 
 endif

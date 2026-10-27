@@ -444,7 +444,7 @@ func! GrooVim_InboxRead(timer) abort
 
   for l:path in l:paths
     try
-      exec "tabedit " . fnameescape(l:path)
+      call GrooVim_OpenInTab(l:path)
       call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") .
        \ "\" was handed to this GrooVim!", 5)
     catch

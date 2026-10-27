@@ -528,21 +528,33 @@ func! GT_Body()
   "   before:  one tab, ['beta.txt']               -- what was being read, gone
   "   now:     two tabs, ['alfa.txt', 'beta.txt']  -- and the tree still open
   call GT_Ok("and a double click in the tree opens it the same way",
-    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "2-LeftMouse" &&
-    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "GrooVim_TreeOpenFile",
+    \ GT_FunctionText("GrooVim_TreeOpenKeys") =~ "2-LeftMouse" &&
+    \ GT_FunctionText("GrooVim_TreeOpenKeys") =~ "GrooVim_TreeOpenFile",
     \ "   (Enter and the mouse are two doors to the same thing)")
   call GT_Ok("  and the bookmarks of the tree answer to it too",
-    \ GT_FunctionText("GrooVim_TreeDoubleClickOpens") =~ "GrooVim_TreeOpenBookmark",
+    \ GT_FunctionText("GrooVim_TreeOpenKeys") =~ "GrooVim_TreeOpenBookmark",
     \ "   (a bookmark that is a folder unfolds, like the plugin does)")
   call GT_Ok("  and it says OVERRIDE, or the plugin keeps its own",
-    \ len(split(GT_FunctionText("GrooVim_TreeDoubleClickOpens"),
+    \ len(split(GT_FunctionText("GrooVim_TreeOpenKeys"),
     \   "override", 1)) == 3,
     \ "   (NERDTree keeps its key maps by key and scope and refuses to\n" .
     \ "    replace one that is there unless it is told to: measured, without\n" .
     \ "    it the double click went on opening in the window you came from)")
+  call GT_Ok("  and the ENTER of the tree goes through the same two functions",
+    \ GT_FunctionText("GrooVim_TreeOpenKeys") =~ "NERDTreeMapCustomOpen",
+    \ "   (the mouse and the keyboard cannot land in different places, and\n" .
+    \ "    the Enter of the tree is a key that can be changed, so it is asked\n" .
+    \ "    for by name)")
   call GT_Ok("  and what it opens with is the setting, not a copy of it",
-    \ GT_FunctionText("GrooVim_TreeOpenFile") =~ "NERDTreeCustomOpenArgs",
+    \ GT_FunctionText("GrooVim_TreeOpenFile") =~ "GrooVim_TreeOpenArgs" &&
+    \ GT_FunctionText("GrooVim_TreeOpenArgs") =~ "NERDTreeCustomOpenArgs",
     \ "   (one rule, read by both doors)")
+  call GT_Ok("  and on the empty \"new 1\" the file goes IN it",
+    \ GT_FunctionText("GrooVim_TreeOpenArgs") =~ "GrooVim_FreshPageWindow" &&
+    \ GT_FunctionText("GrooVim_TreeOpenArgs") =~ '"where": "p"',
+    \ "   (\"p\" is the window you came from, which on a fresh page IS that\n" .
+    \ "    page: measured through a terminal, Enter and double click both\n" .
+    \ "    left ONE tab with the file in it and the tree beside it)")
 
   call GT_Ok("  and the tree by what it is, not by the plugin that draws it",
     \ filter(copy(GT_Of("F4")), 'v:val.key ==# "n"')[0].what =~ "file tree", "")

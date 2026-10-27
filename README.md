@@ -212,13 +212,15 @@ Moving, marking and ordering!
    -- so GrooVim asks: `"x" was dropped here. Open it [y[default]/n]?`. A yes
    opens one tab for each file dropped -- and the first of them takes the empty
    `new 1` GrooVim opens with, instead of a second tab beside a page nobody
-   wrote in; a no pastes the text, because pasting a path **into** a file is a
-   thing people do all day. It works where the
+   wrote in -- the same rule **F5 p**, the tree and `--jrinst` go by; a no
+   pastes the text, because pasting a path **into** a file is a thing people do
+   all day. It works where the
    terminal pastes the path on a drop, which Konsole does as it comes, and in
    normal mode: in insert mode Vim takes the paste in itself and the path is
    typed in. **F9** says the rest;
  * A file handed from **another terminal** opens in the GrooVim you already have
-   open, in a tab of its own, instead of starting a second one:
+   open, in a tab of its own -- or in the empty `new 1`, when that is all you
+   have open -- instead of starting a second one:
 
 ```
 groovim -j README.md        # "just reuse an instance" (also: --jrinst)
@@ -283,6 +285,7 @@ memory each, so a command of another group can never come out of this one.
         - The same question F5->a asks: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
         - A file that is NOT there is asked about instead of being opened -- Vim opens a document under any name you type and says nothing, so a path with one letter wrong came up as an empty tab wearing the name of the file you meant. Yes starts it anyway;
         - The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it;
+        - And on the empty new 1 GrooVim opens with -- one tab, no name, nothing typed in it -- the file opens IN it instead of in a second tab beside a page nobody wrote in. It is what Notepad++ (inspiration) does, and what the tree, a file DROPPED on the window and a file handed over with --jrinst do here;
     - `F5->n` - Open a new tab *(normal mode/insert/visual)*;
         - A document you have not saved yet is called new 1 , new 2 ... It is a name on SCREEN only -- the buffer stays nameless, so saving it asks you where to put it instead of writing a file called "new 1" wherever you happen to be;
         - The new tab goes to the END of the tab line, and the number is the LOWEST one nobody is using: close new 2 of new 1 , new 2 , new 3 and the next one is new 2 again;
@@ -393,6 +396,7 @@ memory each, so a command of another group can never come out of this one.
     - `F4->n` - Opens/closes the file tree *(normal mode/insert/visual)*;
         - Asked for once, the tree is in EVERY tab, including the ones opened afterwards: it is a dock, like the search list and the list of marked lines. Pressing it again takes it from every tab;
         - In the tree, Enter opens the file in a TAB OF ITS OWN and leaves the one you were reading where it was. A file already open is jumped to instead of opened again, and a folder simply unfolds;
+        - On the empty new 1 GrooVim opens with, the file opens IN it instead of in a tab beside it -- the same rule F5->p , a file dropped on the window and --jrinst go by;
         - A DOUBLE CLICK does exactly what Enter does -- one click unfolds a folder, two open a file. They are two doors to the same thing, and the mouse used to go through the other one: it put the file in the window you came from, over the one you were reading;
     - `F4->b` - Marks the line, or takes the mark off ( bookmark ) *(normal mode/insert/visual)*;
     - `F4->i` - Writes a note on the marked line, or changes it ( bookmark ) *(normal mode/insert/visual)*;
