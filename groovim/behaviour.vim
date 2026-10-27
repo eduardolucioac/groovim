@@ -603,10 +603,22 @@ func! GrooVim_DropOpen(paths) abort
     return 0
   endif
 
+  " Note: And the FIRST of them takes the page that is already there, when that
+  " page is the empty "new 1" of an editor just opened. A second tab beside a
+  " page nobody wrote in is a tab too many -- Notepad++ (inspiration) does the
+  " same with a file dropped on an empty window.
+  let l:fresh = GrooVim_FreshPageWindow()
+
   let l:opened = 0
   for l:path in a:paths
     try
-      exec "tabedit " . fnameescape(l:path)
+      if l:fresh
+        exec l:fresh . "wincmd w"
+        exec "edit " . fnameescape(l:path)
+        let l:fresh = 0
+      else
+        exec "tabedit " . fnameescape(l:path)
+      endif
       let l:opened = l:opened + 1
     catch
       call GrooVim_GrooVimBarMsg("\"" . fnamemodify(l:path, ":t") .

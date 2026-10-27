@@ -210,8 +210,10 @@ Moving, marking and ordering!
  * A file **dragged onto the window** opens in a tab of its own. A terminal has
    no way of saying "a file was dropped here" -- what it does is paste the path
    -- so GrooVim asks: `"x" was dropped here. Open it [y[default]/n]?`. A yes
-   opens one tab for each file dropped; a no pastes the text, because pasting a
-   path **into** a file is a thing people do all day. It works where the
+   opens one tab for each file dropped -- and the first of them takes the empty
+   `new 1` GrooVim opens with, instead of a second tab beside a page nobody
+   wrote in; a no pastes the text, because pasting a path **into** a file is a
+   thing people do all day. It works where the
    terminal pastes the path on a drop, which Konsole does as it comes, and in
    normal mode: in insert mode Vim takes the paste in itself and the path is
    typed in. **F9** says the rest;

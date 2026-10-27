@@ -706,6 +706,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n".
 \"\n *DRAGGING*A*FILE*ONTO*GrooVim!* A terminal has no way of saying \"a file was dropped here\": what it does is PASTE the path, which is what Konsole does -- every name followed by one space. GrooVim reads that and asks |\"x\"|was|dropped|here.|Open|it|[y[default]/n]?| . A yes opens one TAB for each file dropped, and a file already open is jumped to instead of opened twice; a no pastes the text, because pasting a path INTO a file is a thing people do all day:".
 \"\n".
+\"\n*o*  The FIRST file takes the page that is already there when that page is the empty |new|1| GrooVim opens with -- one tab, no name, nothing typed in it -- and the others get a tab each. A page with something written in it is never covered;".
 \"\n*o*  The space at the END is what tells the two apart. A drop and a paste of the same path are the same bytes, and Konsole puts a space after every name while a hand that copies a path does not;".
 \"\n*o*  In Konsole it works as it comes. The setting is in the profile, under |Mouse| : |Disable|drag|&|drop|menu|for|files|&|URLs| . With that menu ON, a drop asks Copy/Move/Link first and only |Paste|Location| reaches GrooVim -- and Copy and Move really do copy and move the file;".
 \"\n*o*  In NORMAL mode, which is where the paste of the terminal is GrooVim's to answer. In insert mode Vim takes it in itself and the path is typed in, as it always was;".

@@ -95,6 +95,44 @@ func! GrooVim_IsADocument(buffer) abort
    \ && buflisted(a:buffer)
 endfunc
 
+" Note: The "new 1" of an editor that was just opened, and the window it is in.
+"
+" One tab, one document, with no name, nothing typed into it and nothing to
+" save: the page GrooVim hands you when it opens with no file. A file arriving
+" then belongs IN it -- that is what Notepad++ (inspiration) does with a file
+" dropped on an empty "new 1" -- instead of opening a second tab beside a page
+" nobody wrote in.
+"
+" The window NUMBER and not a yes: the accessories of a tab are skipped (with
+" the tree open there are two windows and the page is still fresh), and whoever
+" opens the file has to do it in the window of the document and not in the tree
+" it happened to be standing in.
+"
+" Answers 0 when there is nothing of the sort, which is every other moment.
+func! GrooVim_FreshPageWindow() abort
+
+  if tabpagenr("$") != 1
+    return 0
+  endif
+
+  let l:found = 0
+  for l:window in range(1, winnr("$"))
+    let l:buffer = winbufnr(l:window)
+    if GrooVim_IsHelperBuffer(bufname(l:buffer))
+      continue
+    endif
+    if l:found || !GrooVim_IsADocument(l:buffer)
+     \ || getbufvar(l:buffer, "&modified")
+     \ || getbufline(l:buffer, 1, "$") !=# [""]
+      return 0
+    endif
+    let l:found = l:window
+  endfor
+
+  return l:found
+
+endfunc
+
 " Note: A path written to be READ in the room there is: your home as "~", and
 " the middle taken out when it does not fit.
 "

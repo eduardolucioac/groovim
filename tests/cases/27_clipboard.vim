@@ -432,19 +432,22 @@ call GT_Ok("and the door of the terminal's paste asks about it first",
 " And the question itself, answered. One tab for each file, which is where the
 " open files of GrooVim live -- and the default is yes, because a drop is a
 " thing you did with your hand and not something that happened to you.
-silent! tabonly
+silent! tabonly!
 exec "enew!"
+call setline(1, "ja escrevi aqui")
 let s:tabsWere = tabpagenr("$")
 call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
 let s:took = GrooVim_DropOpen([s:um, s:dois])
 call GT_Ok("a yes opens one tab for each file", s:took == 1 &&
   \ tabpagenr("$") == s:tabsWere + 2,
-  \ "   (" . tabpagenr("$") . " tabs, from " . s:tabsWere . ")")
+  \ "   (" . tabpagenr("$") . " tabs, from " . s:tabsWere . ")" .
+  \ "   (something was typed on this page, so neither file covers it --\n" .
+  \ "    the empty \"new 1\" has a block of its own further down)")
 call GT_Ok("  and it says so on the bar",
   \ g:GrooVim_GrooVimBarMsgValue =~ "2 files are open",
   \ "   [" . trim(g:GrooVim_GrooVimBarMsgValue) . "]")
 
-silent! tabonly
+silent! tabonly!
 exec "enew!"
 let s:tabsWere = tabpagenr("$")
 call timer_start(200, {t -> feedkeys("n\<CR>", "t")})
@@ -452,6 +455,47 @@ let s:took = GrooVim_DropOpen([s:um])
 call GT_Ok("and a no opens nothing, so the text is pasted instead",
   \ s:took == 0 && tabpagenr("$") == s:tabsWere,
   \ "   (" . tabpagenr("$") . " tabs)")
-silent! tabonly
+silent! tabonly!
+
+" ---- and the first file dropped takes the "new 1" that is already there
+"
+" One tab, one document, with no name, nothing typed in it: the page GrooVim
+" hands you when it opens with no file. A second tab beside a page nobody wrote
+" in is a tab too many, and Notepad++ (inspiration) does the same with a file
+" dropped on an empty window.
+silent! tabonly!
+exec "enew!"
+call GT_Ok("an empty \"new 1\" alone is a fresh page",
+  \ GrooVim_FreshPageWindow() == winnr(),
+  \ "   (window " . GrooVim_FreshPageWindow() . " of " . winnr("$") . ")")
+call setline(1, "ja escrevi aqui")
+call GT_Ok("  and a page with something typed in it is not",
+  \ GrooVim_FreshPageWindow() == 0, "   (what you wrote is not to be covered)")
+exec "enew!"
+exec "edit! " . s:um
+call GT_Ok("  and neither is a page with a FILE in it",
+  \ GrooVim_FreshPageWindow() == 0, "   [" . fnamemodify(bufname("%"), ":t") . "]")
+exec "enew!"
+tabnew
+call GT_Ok("  and neither is one tab out of two",
+  \ GrooVim_FreshPageWindow() == 0, "   (" . tabpagenr("$") . " tabs)")
+
+silent! tabonly!
+exec "enew!"
+call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+call GrooVim_DropOpen([s:um])
+call GT_Ok("a file dropped on it opens IN it, and not beside it",
+  \ tabpagenr("$") == 1 && expand("%:t") ==# "a.txt",
+  \ "   (" . tabpagenr("$") . " tabs, [" . expand("%:t") . "])")
+
+silent! tabonly!
+exec "enew!"
+call timer_start(200, {t -> feedkeys("y\<CR>", "t")})
+call GrooVim_DropOpen([s:um, s:dois])
+call GT_Ok("  and of two dropped, the first takes it and the other opens beside",
+  \ tabpagenr("$") == 2,
+  \ "   (" . tabpagenr("$") . " tabs)   (one tab each, as asked)")
+silent! tabonly!
+exec "enew!"
 
 call GT_Done()
