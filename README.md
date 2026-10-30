@@ -196,9 +196,11 @@ Moving, marking and ordering!
    as not saved -- the `+` on the bar and in the tab line -- with the file on
    disk untouched. It is what the `x` of the window of Notepad++ does. The
    copies are written on a clock as well as on the way out, which is what
-   answers a **crash**: measured with the editor killed outright, the text came
-   back. Closing a **tab** is another thing and goes on asking, because there
-   you are throwing one document away on purpose;
+   answers a **crash** -- and the session is written on that same clock, so the
+   tabs come back from one too. Measured with the editor killed outright: the
+   text, the tabs and the one you were **on**, all back. Closing a **tab** is
+   another thing and goes on asking, because there you are throwing one
+   document away on purpose;
  * **Alt-i**/**Alt-o** go BACK to where you came from and forward again: a
    search, a `G`, a line opened from the occurrence list, another file;
  * **Ctrl-Up**/**Ctrl-Down** walk the tabs, **Ctrl-Shift-Up**/**Ctrl-Shift-Down**
@@ -309,10 +311,11 @@ memory each, so a command of another group can never come out of this one.
     - `F5->x` - Close everything and leave *(normal mode/insert/visual)*;
         - Closing the WHOLE editor does not ask: what you have not saved is COPIED and comes back on the next start, the way the x of the window of Notepad++ answers. The document comes back marked as not saved -- the + on the bar and in the tab line -- and the file on disk is not touched;
         - Closing a TAB is another thing and goes on asking -- save, throw away, or go back -- because there you are throwing one document away on purpose;
-        - The copies live in ~/.groovim/unsaved and are written on a clock as well as on the way out, which is what answers a CRASH: measured with the editor killed outright, the text came back. Turn the whole thing off with let g:GrooVim_UnsavedAuto = 0;
+        - And you come back to the TAB you were on, whichever one it was: the index says which document was in front, and the session carries the tabs;
+        - The copies live in ~/.groovim/unsaved and are written on a clock as well as on the way out, which is what answers a CRASH -- the session is written on that same clock, so the tabs come back from a crash too. Measured with the editor killed outright: the text, the tabs and the one in front, all back. Turn the whole thing off with let g:GrooVim_UnsavedAuto = 0;
     - `F5->[` - Saves the current session *(normal mode/insert/visual)*;
     - `F5->]` - Brings the last saved session back *(normal mode/insert/visual)*;
-        - The session saves itself when you leave and comes back when you open GrooVim with NO file. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;
+        - The session saves itself when you leave -- and every few seconds while you work, which is what makes the tabs survive a crash. It comes back when you open GrooVim with NO file. While that is on, <[> and <]> say so instead of pretending to work. Turn it off with F5->c;
 
  * **Edit** *(Changing the text: the transfer area, undo, the indent, the case)*
 

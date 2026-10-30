@@ -32,9 +32,29 @@ let g:GrooVim_SessionFile = get(g:, "GrooVim_SessionFile", g:GrooVim_State . "/s
 " size belongs to the terminal.
 set sessionoptions=buffers,curdir,tabpages
 
+" Note: Written BESIDE the real one and moved into place, which is one rename
+" and cannot be read half done.
+"
+" It matters because this is written on a CLOCK now and not only on the way out
+" -- see the unsaved text further down -- and a crash can land in the middle of
+" anything. A session half written is a session that fails to load, and that is
+" the tabs of the day before gone for nothing.
 func! GrooVim_SessionSave() abort
+
   call mkdir(fnamemodify(g:GrooVim_SessionFile, ":h"), "p")
-  exec "mksession! " . fnameescape(g:GrooVim_SessionFile)
+
+  let l:temp = g:GrooVim_SessionFile . ".new"
+  try
+    exec "mksession! " . fnameescape(l:temp)
+  catch
+    call delete(l:temp)
+    return
+  endtry
+
+  if filereadable(l:temp)
+    call rename(l:temp, g:GrooVim_SessionFile)
+  endif
+
 endfunc
 
 " Note: The directory you STARTED IN wins over the one the session remembers.
@@ -602,9 +622,18 @@ func! GrooVim_UnsavedWrite() abort
       if !filereadable(l:copy)
         continue
       endif
+
+    " Note: A copy is only written again when the TEXT has changed. The index
+    " is written on every pass -- it carries the tab you are on, which changes
+    " by walking and not by typing -- and without this every walk between tabs
+    " would write every document out again.
+    elseif get(s:unsavedTicks, l:buffer, -1) == l:info.changedtick
+     \ && filereadable(l:copy)
     elseif writefile(getbufline(l:buffer, 1, "$"), l:copy) != 0
       let l:all = 0
       continue
+    else
+      let s:unsavedTicks[l:buffer] = l:info.changedtick
     endif
     let l:kept[l:copy] = 1
 
@@ -639,7 +668,13 @@ func! GrooVim_UnsavedWrite() abort
     return l:all
   endif
 
-  if writefile([json_encode(l:entries)], l:index) != 0
+  " Note: And WHICH document was in front when this was written, so that coming
+  " back lands on the tab you were on and not on the last one that happened to
+  " be filled in. It is written whether that document has text to keep or not --
+  " you can close GrooVim standing on a file you had just saved, with what is
+  " not saved waiting in another tab.
+  if writefile([json_encode({"here": GrooVim_UnsavedHereNow(),
+   \ "files": l:entries})], l:index) != 0
     let l:all = 0
   endif
 
@@ -647,9 +682,42 @@ func! GrooVim_UnsavedWrite() abort
 
 endfunc
 
+" Note: How a document is NAMED between one GrooVim and the next: its file,
+" when it has one, and its "new N" when it has not. The second is not as solid
+" as the first -- the numbers are handed out again on the way back -- but it is
+" all a document with no file has, and it is only used to choose a tab.
+func! GrooVim_UnsavedNameOf(buffer) abort
+  return bufname(a:buffer) ==# ""
+   \ ? "new:" . GrooVim_NewNameOf(a:buffer)
+   \ : "file:" . fnamemodify(bufname(a:buffer), ":p")
+endfunc
+
+func! GrooVim_UnsavedHereNow() abort
+  let l:buffer = bufnr("%")
+  if GrooVim_IsHelperBuffer(bufname(l:buffer)) || &buftype !=# ""
+
+    " Note: Standing in the tree or in a list is standing in a tab all the same:
+    " what is wanted is the DOCUMENT of that tab.
+    for l:other in tabpagebuflist(tabpagenr())
+      if !GrooVim_IsHelperBuffer(bufname(l:other))
+       \ && getbufvar(l:other, "&buftype") ==# ""
+        return GrooVim_UnsavedNameOf(l:other)
+      endif
+    endfor
+    return ""
+  endif
+  return GrooVim_UnsavedNameOf(l:buffer)
+endfunc
+
 " Note: The clock. Only when something has CHANGED since the last copy, which is
 " what the stamp below is for: with nothing typed, this costs one comparison.
+"
+" The document in FRONT is part of the stamp, because it is written down too:
+" the tab you are on changes by walking and not by typing, and without it in
+" here the index went on naming the tab you were in when you last typed --
+" measured, a crash on tab 1 coming back on tab 3.
 let s:unsavedStamp = ""
+let s:unsavedTicks = {}
 
 func! GrooVim_UnsavedSoon(...) abort
 
@@ -664,13 +732,33 @@ func! GrooVim_UnsavedSoon(...) abort
     endif
   endfor
 
-  let l:now = join(l:stamp, ",")
+  let l:now = join(l:stamp, ",") . "|" . GrooVim_UnsavedHereNow()
   if l:now ==# s:unsavedStamp
     return
   endif
 
   let s:unsavedStamp = l:now
   call GrooVim_UnsavedWrite()
+
+endfunc
+
+" Note: The CLOCK writes the session too, and not only the copies.
+"
+" A crash takes the way out with it, and the way out is where the session was
+" written: measured with the editor killed outright, the text came back and the
+" three tabs it was in did not -- one tab, with the document that had the copy.
+" The layout is as much "where you were" as the text is.
+"
+" Only from the timer, which is what the argument says: the events that also
+" call the copies -- leaving a buffer, losing the focus, a write -- happen far
+" more often, and the layout changes slowly.
+func! GrooVim_UnsavedClock(timer) abort
+
+  call GrooVim_UnsavedSoon()
+
+  if g:GrooVim_SessionAuto == 1
+    call GrooVim_SessionSave()
+  endif
 
 endfunc
 
@@ -690,6 +778,14 @@ func! GrooVim_UnsavedRestore() abort
   let l:back = 0
   let l:changed = []
 
+  " Note: Where the session left us, which is the tab GrooVim was on when it
+  " was closed in the ordinary way -- "mksession" writes that down too. It is
+  " the answer to fall back on, because putting the documents back walks
+  " through tabs and would leave you on the last one filled in.
+  let l:wasWindow = win_getid()
+  let l:here = ""
+  let l:hereWindow = 0
+
   for l:index in sort(glob(g:GrooVim_UnsavedDir . "/*.index", 0, 1))
 
     if l:index ==# l:mine
@@ -697,17 +793,23 @@ func! GrooVim_UnsavedRestore() abort
       continue
     endif
 
-    let l:entries = []
-    try
-      let l:entries = json_decode(join(readfile(l:index), ""))
-    catch
+    let l:entries = GrooVim_UnsavedIndexRead(l:index)
+    if empty(l:entries)
       call delete(l:index)
       continue
-    endtry
+    endif
 
-    for l:entry in (type(l:entries) == v:t_list ? l:entries : [])
+    if GrooVim_UnsavedIndexHere(l:index) !=# ""
+      let l:here = GrooVim_UnsavedIndexHere(l:index)
+    endif
+
+    for l:entry in l:entries
       if GrooVim_UnsavedPut(l:entry, l:changed)
         let l:back = l:back + 1
+        if l:here !=# "" && l:here ==# (get(l:entry, "path", "") !=# ""
+         \ ? "file:" . l:entry.path : "new:" . get(l:entry, "name", ""))
+          let l:hereWindow = win_getid()
+        endif
       endif
     endfor
 
@@ -715,12 +817,28 @@ func! GrooVim_UnsavedRestore() abort
     " between the two there is a moment with the text in a buffer and nowhere
     " else, and that moment is exactly what this whole part exists to avoid.
     call GrooVim_UnsavedWrite()
-    for l:entry in (type(l:entries) == v:t_list ? l:entries : [])
+    for l:entry in l:entries
       call delete(get(l:entry, "copy", ""))
     endfor
     call delete(l:index)
 
   endfor
+
+  " Note: And the tab you were on when you closed is the tab you come back to.
+  "
+  " The document that was in front is looked for among the ones just put back
+  " first, and then among the ones the session opened -- you can close GrooVim
+  " standing on a file you had just saved, with what is not saved waiting in
+  " another tab. Failing both, the session's own answer is left as it was.
+  if l:hereWindow > 0
+    call win_gotoid(l:hereWindow)
+  elseif l:here =~# "^file:"
+   \ && bufnr(strpart(l:here, 5)) > 0
+   \ && !empty(win_findbuf(bufnr(strpart(l:here, 5))))
+    call win_gotoid(win_findbuf(bufnr(strpart(l:here, 5)))[0])
+  elseif l:wasWindow > 0
+    call win_gotoid(l:wasWindow)
+  endif
 
   if l:back == 0
     return
@@ -735,6 +853,43 @@ func! GrooVim_UnsavedRestore() abort
      \ join(map(copy(l:changed), 'fnamemodify(v:val, ":t")'), "\", \"") .
      \ "\" changed on disk meanwhile!", 8)
   endif
+
+endfunc
+
+" Note: An index read, in either shape one can have. A LIST is what the first
+" of these held -- the documents and nothing else; a DICTIONARY is the one with
+" the tab you were on written into it as well. The older shape is still read,
+" because it may be somebody's unsaved text, written by the GrooVim that was
+" running when this one was installed over it.
+func! GrooVim_UnsavedIndexRead(index) abort
+
+  let l:read = []
+  try
+    let l:read = json_decode(join(readfile(a:index), ""))
+  catch
+    return []
+  endtry
+
+  if type(l:read) == v:t_list
+    return l:read
+  endif
+
+  return type(l:read) == v:t_dict ? get(l:read, "files", []) : []
+
+endfunc
+
+" Note: And which document was in FRONT when it was written, by the name a
+" document has between one GrooVim and the next.
+func! GrooVim_UnsavedIndexHere(index) abort
+
+  let l:read = []
+  try
+    let l:read = json_decode(join(readfile(a:index), ""))
+  catch
+    return ""
+  endtry
+
+  return type(l:read) == v:t_dict ? get(l:read, "here", "") : ""
 
 endfunc
 
@@ -855,4 +1010,4 @@ augroup END
 " Note: On a clock of its own as well as on the events above, because a hand
 " that goes on typing never fires "CursorHold" -- and a crash does not wait for
 " a pause.
-call timer_start(g:GrooVim_UnsavedEveryMs, "GrooVim_UnsavedSoon", {"repeat": -1})
+call timer_start(g:GrooVim_UnsavedEveryMs, "GrooVim_UnsavedClock", {"repeat": -1})

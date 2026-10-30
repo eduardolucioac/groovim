@@ -112,13 +112,14 @@ let g:GrooVim_Shortcuts = [
  \  "notes": [
  \   "Closing the WHOLE editor does not ask: what you have not saved is COPIED and comes back on the next start, the way the |x| of the window of Notepad++ answers. The document comes back marked as not saved -- the |+| on the bar and in the tab line -- and the file on disk is not touched",
  \   "Closing a TAB is another thing and goes on asking -- save, throw away, or go back -- because there you are throwing one document away on purpose",
- \   "The copies live in|~/.groovim/unsaved| and are written on a clock as well as on the way out, which is what answers a CRASH: measured with the editor killed outright, the text came back. Turn the whole thing off with |let|g:GrooVim_UnsavedAuto|=|0|"
+ \   "And you come back to the TAB you were on, whichever one it was: the index says which document was in front, and the session carries the tabs",
+ \   "The copies live in|~/.groovim/unsaved| and are written on a clock as well as on the way out, which is what answers a CRASH -- the session is written on that same clock, so the tabs come back from a crash too. Measured with the editor killed outright: the text, the tabs and the one in front, all back. Turn the whole thing off with |let|g:GrooVim_UnsavedAuto|=|0|"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "menu": "Save session", "what": "Saves the current session"},
  \ {"where": "File", "group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
  \  "menu": "Load session", "what": "Brings the last saved session back",
  \  "notes": [
- \   "The session saves itself when you leave and comes back when you open GrooVim with NO file. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
+ \   "The session saves itself when you leave -- and every few seconds while you work, which is what makes the tabs survive a crash. It comes back when you open GrooVim with NO file. While that is on, |<[>| and |<]>| say so instead of pretending to work. Turn it off with F5->c"
  \  ]},
  \
 "\ ---- Edit

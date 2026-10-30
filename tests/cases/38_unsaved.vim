@@ -46,7 +46,7 @@ func! GT_Body()
     \ "   " . string(filereadable(s:copy) ? readfile(s:copy) : []))
   call GT_Ok("  and an index names it, with the FILE it belongs to",
     \ filereadable(GrooVim_UnsavedIndexOf(getpid())) &&
-    \ !empty(filter(json_decode(join(readfile(GrooVim_UnsavedIndexOf(getpid())), "")),
+    \ !empty(filter(GrooVim_UnsavedIndexRead(GrooVim_UnsavedIndexOf(getpid())),
     \   'v:val.path ==# g:GT_DIRTY && v:val.copy ==# s:copy')),
     \ "   (the name, the cursor, and the time the file had on disk)")
   call GT_Ok("  and the file on disk was not touched",
@@ -61,7 +61,7 @@ func! GT_Body()
     \ "   (what is in the directory is what is really waiting to come back)")
   call GT_Ok("  and the index goes with the last copy",
     \ !filereadable(GrooVim_UnsavedIndexOf(getpid())) ||
-    \ empty(filter(json_decode(join(readfile(GrooVim_UnsavedIndexOf(getpid())), "")),
+    \ empty(filter(GrooVim_UnsavedIndexRead(GrooVim_UnsavedIndexOf(getpid())),
     \   'v:val.path ==# g:GT_DIRTY')),
     \ "   " . string(GT_Copies()))
 
@@ -71,7 +71,7 @@ func! GT_Body()
   let s:nameless = bufnr("%")
   call GrooVim_UnsavedWrite()
   call GT_Ok("a document with no file is copied the same way",
-    \ !empty(filter(json_decode(join(readfile(GrooVim_UnsavedIndexOf(getpid())), "")),
+    \ !empty(filter(GrooVim_UnsavedIndexRead(GrooVim_UnsavedIndexOf(getpid())),
     \   'v:val.path ==# "" && v:val.name =~ "new "')),
     \ "   (its name is all there is of it, and it comes back as one)")
   silent! exec "bwipeout! " . s:nameless
@@ -95,18 +95,18 @@ func! GT_Body()
   let s:deadNameless = GrooVim_UnsavedCopyOf(s:dead, 8)
   call writefile(["texto que nao foi salvo"], s:deadCopy)
   call writefile(["um documento sem arquivo"], s:deadNameless)
-  call writefile([json_encode([
+  call writefile([json_encode({"here": "new:new 1", "files": [
     \ {"path": g:GT_BACK, "name": "", "copy": s:deadCopy,
     \  "line": 1, "col": 1, "disk": getftime(g:GT_BACK)},
     \ {"path": "", "name": "new 1", "copy": s:deadNameless,
-    \  "line": 1, "col": 1, "disk": 0}])],
+    \  "line": 1, "col": 1, "disk": 0}]})],
     \ GrooVim_UnsavedIndexOf(s:dead))
 
   " And one from a process that IS alive, which must be left exactly as it is.
   let s:aliveCopy = GrooVim_UnsavedCopyOf(1, 9)
   call writefile(["texto de outro GrooVim, ainda aberto"], s:aliveCopy)
-  call writefile([json_encode([{"path": "", "name": "new 9",
-    \ "copy": s:aliveCopy, "line": 1, "col": 1, "disk": 0}])],
+  call writefile([json_encode({"here": "", "files": [{"path": "", "name": "new 9",
+    \ "copy": s:aliveCopy, "line": 1, "col": 1, "disk": 0}]})],
     \ GrooVim_UnsavedIndexOf(1))
 
   let s:tabsWere = tabpagenr("$")
@@ -138,6 +138,14 @@ func! GT_Body()
     \ filereadable(GrooVim_UnsavedIndexOf(1)),
     \ "   (two editors open at once do not take each other's text)")
 
+  call GT_Ok("  and the tab you were ON is the tab you come back to",
+    \ bufname("%") ==# "" &&
+    \ getline(1, "$") ==# ["um documento sem arquivo"],
+    \ "   [" . (bufname("%") ==# "" ? "new" : fnamemodify(bufname("%"), ":t")) .
+    \ "]   (the index says which document was in front, and the restore\n" .
+    \ "    walks through tabs: without this you landed on the last one\n" .
+    \ "    filled in. Measured, a crash on tab 1 coming back on tab 3)")
+
   call delete(s:aliveCopy)
   call delete(GrooVim_UnsavedIndexOf(1))
 
@@ -156,6 +164,16 @@ func! GT_Body()
     \ GT_FunctionText("GrooVim_CloseAsking") =~ "CloseSettle",
     \ "   (there you are throwing one document away on purpose)")
 
+  call GT_Ok("  and the index names the document that was in FRONT",
+    \ GT_FunctionText("GrooVim_UnsavedWrite") =~ "GrooVim_UnsavedHereNow" &&
+    \ GrooVim_UnsavedNameOf(bufnr("%")) =~ "^new:\\|^file:",
+    \ "   [" . GrooVim_UnsavedNameOf(bufnr("%")) . "]   (its file, or its\n" .
+    \ "    \"new N\" when it has none)")
+  call GT_Ok("  and standing in the tree or in a list names the DOCUMENT of that tab",
+    \ GT_FunctionText("GrooVim_UnsavedHereNow") =~ "GrooVim_IsHelperBuffer" &&
+    \ GT_FunctionText("GrooVim_UnsavedHereNow") =~ "tabpagebuflist",
+    \ "   (an accessory is not a tab of its own)")
+
   " ---- and the copies are written on a CLOCK, which is what answers a crash
   call GT_Ok("the copies are written on a clock as well",
     \ !empty(filter(GT_SourceLines(),
@@ -168,6 +186,21 @@ func! GT_Body()
     \ !empty(filter(GT_SourceLines(),
     \   'v:val =~ "VimLeavePre \\* call GrooVim_UnsavedWrite"')),
     \ "")
+  call GT_Ok("  and the SESSION is written on that clock as well",
+    \ GT_FunctionText("GrooVim_UnsavedClock") =~ "GrooVim_SessionSave" &&
+    \ GT_FunctionText("GrooVim_UnsavedClock") =~ "GrooVim_SessionAuto",
+    \ "   (a crash takes the way out with it, and the way out is where the\n" .
+    \ "    session was written: measured, the text came back and the three\n" .
+    \ "    tabs it was in did not)")
+  call GT_Ok("  and it is written BESIDE and moved into place",
+    \ GT_FunctionText("GrooVim_SessionSave") =~ "rename(" &&
+    \ GT_FunctionText("GrooVim_SessionSave") =~ "l:temp",
+    \ "   (a session half written is a session that fails to load, and on a\n" .
+    \ "    clock a crash can land in the middle of one)")
+  call GT_Ok("  and a copy is only written again when the TEXT changed",
+    \ GT_FunctionText("GrooVim_UnsavedWrite") =~ "unsavedTicks",
+    \ "   (the index goes out on every pass, because it carries the tab you\n" .
+    \ "    are on, and that changes by walking and not by typing)")
   call GT_Ok("  and a document that is modified and no longer LOADED keeps its copy",
     \ GT_FunctionText("GrooVim_UnsavedWrite") =~ "bufloaded",
     \ "   (Vim unloads the buffers and fires VimLeavePre after: the last write\n" .
