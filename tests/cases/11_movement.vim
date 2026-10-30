@@ -354,6 +354,30 @@ func! GT_ViewConclude()
     \ maparg("<ScrollWheelDown>", "i") =~ "GrooVim_GroovyMoveMarkColumn",
     \ "   (the \"<C-o>\" is what loses it: by the time the function runs it\n" .
     \ "    is already the column of the short line the wheel passed)")
+  " And the same with the lines WRAPPED, which is where it was reported: word
+  " wrap is a setting people turn on, and with it on the column was not kept at
+  " all -- not by the wheel and not by the arrows. Measured through a terminal
+  " in insert mode from column 62, eight presses of Shift+Alt+Up with the lines
+  " wrapped: 62, 62, 61, 60, 59, 59, 58, 57.
+  setlocal wrap
+  call cursor(60, 62)
+  call feedkeys("i" . repeat("\<ScrollWheelUp>", 6) . "\<Esc>", "x")
+  call GT_Ok("  and it keeps it with the lines WRAPPED too",
+    \ virtcol(".") == s:columnWas,
+    \ "   (column " . virtcol(".") . ", and it was " . s:columnWas . ")")
+  call cursor(60, 62)
+  call feedkeys("i" . repeat("\<C-A-Up>", 10) . "\<Esc>", "x")
+  call GT_Ok("  and so does the arrow that walks one line at a time",
+    \ virtcol(".") == s:columnWas,
+    \ "   (column " . virtcol(".") . ", and it was " . s:columnWas . ")" .
+    \ "   (ten lines of every length, one press each)")
+  call GT_Ok("  and past the width of the screen Vim is left to itself",
+    \ GT_FunctionText("GrooVim_GroovyMoveKeepColumn") =~
+    \   "GrooVim_WindowTextWidth",
+    \ "   (wrapped, the walk aims at a column of the SCREEN, and the number\n" .
+    \ "    kept here is a column of the BUFFER: the two are the same thing\n" .
+    \ "    only while the column fits in one row of the screen)")
+  setlocal nowrap
   call GT_Ok("  and it puts \"virtualedit\" back when the cursor is on the text",
     \ GT_FunctionText("GrooVim_ScrollAdm") =~ "virtcol" &&
     \ GT_FunctionText("GrooVim_ScrollAdm") =~ "onemore",

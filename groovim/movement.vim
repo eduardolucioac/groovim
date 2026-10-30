@@ -124,22 +124,44 @@ endfunc
 " walk -- the "virtualedit" and, in insert mode, the "<C-o>"; Vim keeps it by
 " itself between one "j" and the next.
 "
-" Not while the lines WRAP. There the walk is in display rows ("gj" and "gk")
-" and the aim is a column of the SCREEN, which Vim keeps on its own; the number
-" put back here is a column of the BUFFER, and the two are not the same thing
-" once a line is folded into three rows. Measured on a window of 60 columns,
-" three movements down and three back: 100, 113, 124, 134 going out and 123,
-" 112, 99 coming home -- one line lost on every step of the way back, because
-" the way back was aiming at a column the cursor was not on.
+" With the lines WRAPPED it is a column of the SCREEN that the walk aims at --
+" there the steps are display rows, "gj" and "gk" -- and the number put back
+" here is a column of the BUFFER. While the column still fits in ONE row of the
+" screen the two are the same thing, and that is the common case: a window of a
+" hundred columns and a file of code. Past that they are not, and a line folded
+" into three rows was measured being aimed at a column the cursor was not on, so
+" there Vim is left to its own devices.
+"
+" It used to be left to Vim for EVERY wrapped line, and that is a hole: word
+" wrap is a setting people turn on (|g:GrooVim_WordWrap|), and with it on the
+" cursor walked away to the left, one column for every line shorter than the one
+" it was in. Reported, and measured through a terminal in insert mode from
+" column 62, eight presses of Shift+Alt+Up: 62, 62, 61, 60, 59, 59, 58, 57 with
+" the lines wrapped, and 62 the whole way without them.
 func! GrooVim_GroovyMoveKeepColumn(direction, columnToKeep) abort
   if (a:direction != "u" && a:direction != "d") || a:columnToKeep <= 0
     return
   endif
-  if &wrap
+  if &wrap && a:columnToKeep > GrooVim_WindowTextWidth()
     return
   endif
   let l:positionNow = getcurpos()
   call cursor([l:positionNow[1], l:positionNow[2], l:positionNow[3], a:columnToKeep])
+endfunc
+
+" Note: The columns a LINE has to itself on the screen: the window, less what is
+" drawn beside it -- the numbers, the signs, the fold column. Asked of the
+" screen itself through "screenpos", which answers where the first character of
+" the line really lands, instead of adding up the options that make a gutter.
+func! GrooVim_WindowTextWidth() abort
+
+  let l:start = screenpos(win_getid(), line("."), 1)
+  if empty(l:start) || get(l:start, "col", 0) <= 0
+    return winwidth(0)
+  endif
+
+  return win_screenpos(0)[1] + winwidth(0) - l:start.col
+
 endfunc
 
 func! GrooVim_GroovyMove(mod, direction, blockSmoothness, GrooVim_GroovyMoveType) range abort
