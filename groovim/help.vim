@@ -110,7 +110,9 @@ let g:GrooVim_Shortcuts = [
  \ {"where": "File", "group": "F5", "key": "x", "modes": "niv", "run": 'call GrooVim_CloseAsking("qa")',
  \  "menu": "Exit", "what": "Close everything and leave",
  \  "notes": [
- \   "Every way of closing ASKS about unsaved text: save, throw away, or go back"
+ \   "Closing the WHOLE editor does not ask: what you have not saved is COPIED and comes back on the next start, the way the |x| of the window of Notepad++ answers. The document comes back marked as not saved -- the |+| on the bar and in the tab line -- and the file on disk is not touched",
+ \   "Closing a TAB is another thing and goes on asking -- save, throw away, or go back -- because there you are throwing one document away on purpose",
+ \   "The copies live in|~/.groovim/unsaved| and are written on a clock as well as on the way out, which is what answers a CRASH: measured with the editor killed outright, the text came back. Turn the whole thing off with |let|g:GrooVim_UnsavedAuto|=|0|"
  \  ]},
  \ {"where": "File", "group": "F5", "key": "[", "break": 1, "modes": "niv", "run": 'call GrooVim_SessionSaveByHand()', "menu": "Save session", "what": "Saves the current session"},
  \ {"where": "File", "group": "F5", "key": "]", "modes": "niv", "run": 'call GrooVim_SessionLoadByHand()',
@@ -730,6 +732,7 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n     let g:GrooVim_SyntaxPerExtension = {\"inc\": \"html\", \"gds\": \"vb\", \"ejs\": \"html\"}".
 \"\n<".
 \"\n*o*  The SESSION that comes back by itself: |g:GrooVim_SessionAuto| ;".
+\"\n*o*  The text you have NOT saved, kept across the way out and across a crash: |g:GrooVim_UnsavedAuto| , with |g:GrooVim_UnsavedEveryMs| (5000) saying how often the copies are written and |g:GrooVim_UnsavedDir| where they live;".
 \"\n*o*  The MAILBOX a file handed from outside arrives in: |g:GrooVim_InboxDir| and |g:GrooVim_InboxPollMs| , how often it is looked at (400ms);".
 \"\n*o*  The PLUGINS: |g:enable_nerdtree_vim| , |g:enable_tcomment_vim| and |g:enable_move_vim| -- |0| ignores one and |1| forces it -- or |let|g:enable_all_plugins|=|0| for every one at once;".
 \"\n*o*  Where GrooVim keeps ITSELF: |GROOVIM_HOME| , of the environment, moves the whole of it -- the plugins, the saved options, the undo, the session, the viminfo: >".

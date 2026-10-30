@@ -119,6 +119,15 @@ augroup GrooVim_Session
   autocmd VimLeavePre * if g:GrooVim_SessionAuto == 1 | call GrooVim_SessionSave() | endif
   autocmd VimEnter * ++nested if g:GrooVim_SessionAuto == 1 && argc() == 0 |
         \ call GrooVim_SessionLoad() | endif
+
+  " Note: And the text that was not saved comes back AFTER the session, which
+  " is what opened the tabs it belongs in -- a document whose tab is already
+  " there is filled in, and only one that is not gets a tab of its own.
+  "
+  " With a file named on the command line too, and not only on the empty call
+  " the session answers to: what you have not saved is yours whichever way you
+  " opened the editor.
+  autocmd VimEnter * ++nested call GrooVim_UnsavedRestore()
 augroup END
 
 " Note: By hand only when it is not automatic. With the session saving itself,
@@ -260,6 +269,19 @@ endfunc
 " takes them all, and a ":q" takes a window -- which loses nothing while another
 " window still shows the same document.
 func! GrooVim_CloseAsking(command) abort
+
+  " Note: Closing the WHOLE editor does not ask any more: what is not saved is
+  " COPIED and comes back on the next start, the way Notepad++ (inspiration)
+  " answers its own "x". Closing a tab or a window goes on asking, because there
+  " you are throwing one document away on purpose.
+  "
+  " And only when the copies were really written: "GrooVim_UnsavedWrite" answers
+  " 0 when one of them could not be, and then the question is still the right
+  " thing to do.
+  if a:command ==# "qa" && g:GrooVim_UnsavedAuto && GrooVim_UnsavedWrite()
+    qa!
+    return
+  endif
 
   let l:tabs = []
   if a:command ==# "tabonly"
@@ -464,3 +486,373 @@ endfunc
 autocmd! VimLeave * call delete(GrooVim_InboxMine())
 
 call GrooVim_InboxOpen()
+
+" $$$$$$$$$$$$$$$$$$$$$$$
+
+" Note: The text you had NOT saved, kept across the way out -- and across a
+" crash.
+"
+" What the session carries is which files were open; what you had typed into
+" them it cannot carry, because ":mksession" writes down names and not text. So
+" closing GrooVim with something unsaved used to be a question for every
+" document, and a power cut was a loss.
+"
+" Notepad++ (inspiration) does not ask: it keeps a COPY of every document that
+" has text not yet written to disk, and on the next start the document is back
+" the way you left it, still marked as not saved -- the "+" on the bar and in
+" the tab line. GrooVim does the same here, with the copies in
+" "~/.groovim/unsaved".
+"
+" It is the whole EDITOR closing that behaves this way -- F5->x, the "x" of the
+" window of Notepad++. Closing a TAB is another thing and goes on asking: there
+" you are throwing one document away on purpose, and nothing is coming back to
+" tell you about it.
+"
+" The copies are written on a clock as well, and that is the half that answers a
+" crash: nothing is written only on the way out, because the way out is exactly
+" what a crash does not have.
+let g:GrooVim_UnsavedAuto = get(g:, "GrooVim_UnsavedAuto", 1)
+let g:GrooVim_UnsavedDir = get(g:, "GrooVim_UnsavedDir", g:GrooVim_State . "/unsaved")
+let g:GrooVim_UnsavedEveryMs = get(g:, "GrooVim_UnsavedEveryMs", 5000)
+
+" Note: One set of copies per GrooVim, named after the process that wrote them:
+" two editors open at once would otherwise write over each other. The one a
+" GrooVim leaves behind is taken over by the next one to open -- and only when
+" the process that wrote it is GONE, which is what tells a GrooVim that closed
+" from one that is still running beside this one.
+func! GrooVim_UnsavedIndexOf(pid) abort
+  return g:GrooVim_UnsavedDir . "/" . a:pid . ".index"
+endfunc
+
+func! GrooVim_UnsavedCopyOf(pid, buffer) abort
+  return g:GrooVim_UnsavedDir . "/" . a:pid . "." . a:buffer . ".txt"
+endfunc
+
+" Note: Whether a process is still there. "/proc" is asked first, which is the
+" machine GrooVim runs on; where there is no "/proc" the question goes to
+" "kill -0", which answers without touching anything.
+func! GrooVim_ProcessAlive(pid) abort
+
+  if a:pid <= 0
+    return 0
+  endif
+
+  if isdirectory("/proc/1")
+    return isdirectory("/proc/" . a:pid)
+  endif
+
+  silent! call system("kill -0 " . shellescape(a:pid))
+  return v:shell_error == 0
+
+endfunc
+
+" Note: A document of YOURS with text not yet on disk. The accessories of a tab
+" -- the tree, the lists, the help -- are not documents, and a buffer that is
+" not loaded has nothing to copy.
+func! GrooVim_UnsavedWorth(buffer) abort
+  return getbufvar(a:buffer, "&modified") && getbufvar(a:buffer, "&buftype") ==# ""
+   \ && bufloaded(a:buffer) && !GrooVim_IsHelperBuffer(bufname(a:buffer))
+endfunc
+
+" Note: The copies, written. One file per document and one index naming them,
+" which is what the next GrooVim reads.
+"
+" Answers 1 when every document that needed a copy got one -- and that is what
+" the way out asks before it stops asking you about them: if a copy could not be
+" written, the question is still the right thing to do.
+func! GrooVim_UnsavedWrite() abort
+
+  if !g:GrooVim_UnsavedAuto
+    return 0
+  endif
+
+  if !isdirectory(g:GrooVim_UnsavedDir)
+    silent! call mkdir(g:GrooVim_UnsavedDir, "p", 0700)
+  endif
+  if !isdirectory(g:GrooVim_UnsavedDir)
+    return 0
+  endif
+
+  let l:pid = getpid()
+  let l:entries = []
+  let l:kept = {}
+  let l:all = 1
+
+  for l:info in getbufinfo({"buflisted": 1})
+
+    let l:buffer = l:info.bufnr
+    if !getbufvar(l:buffer, "&modified")
+     \ || getbufvar(l:buffer, "&buftype") !=# ""
+     \ || GrooVim_IsHelperBuffer(bufname(l:buffer))
+      continue
+    endif
+
+    let l:copy = GrooVim_UnsavedCopyOf(l:pid, l:buffer)
+
+    " Note: A document still MODIFIED and no longer LOADED is the way OUT
+    " itself: Vim unloads the buffers first and fires "VimLeavePre" after, so
+    " the last write of all found nothing to read -- and, finding nothing, took
+    " the copies down. Measured, with one document open: everything written a
+    " second earlier was gone by the time the editor was.
+    "
+    " The copy on disk was written while the document WAS loaded, and that copy
+    " is the text. It is kept as it is, with the name and the line, which can
+    " all be asked of a buffer that is not loaded.
+    if !bufloaded(l:buffer)
+      if !filereadable(l:copy)
+        continue
+      endif
+    elseif writefile(getbufline(l:buffer, 1, "$"), l:copy) != 0
+      let l:all = 0
+      continue
+    endif
+    let l:kept[l:copy] = 1
+
+    " Note: The name of the file as well as its text, and the TIME the file had
+    " on disk when the copy was taken: coming back, a file that somebody else
+    " has written to since is worth saying out loud before your own text is put
+    " over the screen.
+    let l:path = bufname(l:buffer) ==# ""
+     \ ? "" : fnamemodify(bufname(l:buffer), ":p")
+    call add(l:entries, {
+     \ "path": l:path,
+     \ "name": GrooVim_NewNameOf(l:buffer),
+     \ "copy": l:copy,
+     \ "line": l:buffer == bufnr("%") ? line(".") : l:info.lnum,
+     \ "col": l:buffer == bufnr("%") ? col(".") : 1,
+     \ "disk": l:path ==# "" ? 0 : getftime(l:path)})
+
+  endfor
+
+  " Note: And the copies of documents that have been SAVED since -- or thrown
+  " away -- are taken down, so that what is in the directory is what is really
+  " waiting to come back.
+  for l:old in glob(g:GrooVim_UnsavedDir . "/" . l:pid . ".*.txt", 0, 1)
+    if !has_key(l:kept, l:old)
+      call delete(l:old)
+    endif
+  endfor
+
+  let l:index = GrooVim_UnsavedIndexOf(l:pid)
+  if empty(l:entries)
+    call delete(l:index)
+    return l:all
+  endif
+
+  if writefile([json_encode(l:entries)], l:index) != 0
+    let l:all = 0
+  endif
+
+  return l:all
+
+endfunc
+
+" Note: The clock. Only when something has CHANGED since the last copy, which is
+" what the stamp below is for: with nothing typed, this costs one comparison.
+let s:unsavedStamp = ""
+
+func! GrooVim_UnsavedSoon(...) abort
+
+  if !g:GrooVim_UnsavedAuto
+    return
+  endif
+
+  let l:stamp = []
+  for l:info in getbufinfo({"buflisted": 1})
+    if GrooVim_UnsavedWorth(l:info.bufnr)
+      call add(l:stamp, l:info.bufnr . ":" . l:info.changed . ":" . l:info.changedtick)
+    endif
+  endfor
+
+  let l:now = join(l:stamp, ",")
+  if l:now ==# s:unsavedStamp
+    return
+  endif
+
+  let s:unsavedStamp = l:now
+  call GrooVim_UnsavedWrite()
+
+endfunc
+
+" Note: And what a GrooVim that is gone left behind comes back, on the next
+" start. Straight back, with no question: you did not throw it away, and a
+" question about text you never meant to lose is a question with one answer.
+"
+" The documents come back MODIFIED, which is the whole point: the "+" is on the
+" bar and in the tab line, and closing one tab goes on asking about it.
+func! GrooVim_UnsavedRestore() abort
+
+  if !g:GrooVim_UnsavedAuto || !isdirectory(g:GrooVim_UnsavedDir)
+    return
+  endif
+
+  let l:mine = GrooVim_UnsavedIndexOf(getpid())
+  let l:back = 0
+  let l:changed = []
+
+  for l:index in sort(glob(g:GrooVim_UnsavedDir . "/*.index", 0, 1))
+
+    if l:index ==# l:mine
+     \ || GrooVim_ProcessAlive(str2nr(fnamemodify(l:index, ":t:r")))
+      continue
+    endif
+
+    let l:entries = []
+    try
+      let l:entries = json_decode(join(readfile(l:index), ""))
+    catch
+      call delete(l:index)
+      continue
+    endtry
+
+    for l:entry in (type(l:entries) == v:t_list ? l:entries : [])
+      if GrooVim_UnsavedPut(l:entry, l:changed)
+        let l:back = l:back + 1
+      endif
+    endfor
+
+    " Note: Taken down only AFTER this GrooVim has written copies of its own:
+    " between the two there is a moment with the text in a buffer and nowhere
+    " else, and that moment is exactly what this whole part exists to avoid.
+    call GrooVim_UnsavedWrite()
+    for l:entry in (type(l:entries) == v:t_list ? l:entries : [])
+      call delete(get(l:entry, "copy", ""))
+    endfor
+    call delete(l:index)
+
+  endfor
+
+  if l:back == 0
+    return
+  endif
+
+  redraw!
+  if empty(l:changed)
+    call GrooVim_GrooVimBarMsg(l:back .
+     \ " document(s) came back with text that is not saved yet!", 6)
+  else
+    call GrooVim_GrooVimBarMsg(l:back . " document(s) came back, and \"" .
+     \ join(map(copy(l:changed), 'fnamemodify(v:val, ":t")'), "\", \"") .
+     \ "\" changed on disk meanwhile!", 8)
+  endif
+
+endfunc
+
+" Note: One document put back where it belongs: in the tab the session already
+" opened for it, or in one of its own. A document that never had a file comes
+" back as a document with no file -- it gets its "new N" like any other.
+func! GrooVim_UnsavedPut(entry, changed) abort
+
+  let l:copy = get(a:entry, "copy", "")
+  if l:copy ==# "" || !filereadable(l:copy)
+    return 0
+  endif
+
+  let l:text = readfile(l:copy)
+  let l:path = get(a:entry, "path", "")
+
+  if l:path !=# ""
+
+    let l:buffer = bufnr(l:path)
+    let l:windows = l:buffer > 0 ? win_findbuf(l:buffer) : []
+    if !empty(l:windows)
+      call win_gotoid(l:windows[0])
+    else
+      call GrooVim_OpenInTab(l:path)
+    endif
+
+    if get(a:entry, "disk", 0) > 0 && getftime(l:path) > a:entry.disk
+      call add(a:changed, l:path)
+    endif
+
+  else
+
+    let l:page = GrooVim_UnsavedEmptyPage()
+    if empty(l:page)
+      tabnew
+    else
+      exec "tabnext " . l:page[0]
+      exec l:page[1] . "wincmd w"
+    endif
+
+  endif
+
+  if !GrooVim_CanChangeQuiet()
+    return 0
+  endif
+
+  silent! call setline(1, empty(l:text) ? [""] : l:text)
+  if line("$") > max([len(l:text), 1])
+    silent! exec (max([len(l:text), 1]) + 1) . ",$delete _"
+  endif
+
+  call cursor(min([get(a:entry, "line", 1), line("$")]), get(a:entry, "col", 1))
+  return 1
+
+endfunc
+
+" Note: An empty page to put a document with NO FILE back into, wherever it is.
+"
+" The session leaves one standing for every tab that held a nameless document --
+" ":mksession" writes down the tab and not the text -- so coming back there is
+" an empty "new N" waiting in exactly the place the document belongs. Without
+" this it was left where it was and the document opened in a tab of its own
+" beside it: measured, three tabs where two were meant.
+"
+" "GrooVim_FreshPageWindow" is the other half of the same idea and answers only
+" for an editor with ONE tab, which is not where this happens.
+"
+" Answers [tab, window], or an empty list when there is no such page.
+func! GrooVim_UnsavedEmptyPage() abort
+
+  for l:tab in range(1, tabpagenr("$"))
+
+    let l:found = 0
+    let l:window = 0
+    for l:which in range(1, len(tabpagebuflist(l:tab)))
+
+      let l:buffer = tabpagebuflist(l:tab)[l:which - 1]
+      if GrooVim_IsHelperBuffer(bufname(l:buffer))
+        continue
+      endif
+
+      if l:found || !GrooVim_IsADocument(l:buffer)
+       \ || getbufvar(l:buffer, "&modified")
+       \ || getbufline(l:buffer, 1, "$") !=# [""]
+        let l:found = 0
+        break
+      endif
+
+      let l:found = 1
+      let l:window = l:which
+
+    endfor
+
+    if l:found
+      return [l:tab, l:window]
+    endif
+
+  endfor
+
+  return []
+
+endfunc
+
+" Note: The same question "GrooVim_CanChange" answers, asked without saying
+" anything on the bar: a document that refuses to be changed is not one that was
+" copied, so this is a net and not a message.
+func! GrooVim_CanChangeQuiet() abort
+  return &modifiable && !&readonly
+endfunc
+
+augroup GrooVim_Unsaved
+  autocmd!
+  autocmd CursorHold,CursorHoldI,BufLeave,FocusLost,BufWritePost *
+   \ call GrooVim_UnsavedSoon()
+  autocmd VimLeavePre * call GrooVim_UnsavedWrite()
+augroup END
+
+" Note: On a clock of its own as well as on the events above, because a hand
+" that goes on typing never fires "CursorHold" -- and a crash does not wait for
+" a pause.
+call timer_start(g:GrooVim_UnsavedEveryMs, "GrooVim_UnsavedSoon", {"repeat": -1})
