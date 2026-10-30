@@ -42,10 +42,31 @@ func! GrooVim_KeysIfCanChange(keys) abort
 endfunc
 
 " Note: Scrolls with the wheel allowing the cursor over "invalid" areas.
+"
+" And keeping the COLUMN, which it did not: the wheel walked away to the left,
+" one column for every line shorter than the one you were in. Reported, and
+" measured through a terminal from column 62 of a long line, three wheel ticks
+" at a time: 62, 61, 60, 60, 59, 58 -- a line with nothing on it cost a column,
+" and the column never came back. The smooth movement of the arrows had the
+" machinery for this from the start; the wheel had none of it.
+"
+" The same three steps as before, with the column the cursor TRIES to keep put
+" back around them: before, because that is what "<Up>" and "<Down>" aim at, and
+" after, because coming out of "virtualedit=all" snaps the cursor onto the text
+" and resets it -- the one the NEXT tick of the wheel will read.
+"
+" In insert mode the number comes from the mapping, taken before its "<C-o>":
+" by the time this runs, the trip through normal mode has already lost it.
 func! GrooVim_ScrollAdm(mod, direction) range abort
+
+  let l:columnToKeep = a:mod ==# "i" ? g:GrooVim_GroovyMoveColumn : getcurpos()[4]
+  let g:GrooVim_GroovyMoveColumn = 0
+
   if &virtualedit == "onemore"
     set virtualedit=all
   endif
+
+  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
 
   " Note: No "gv" here: the wheel of visual mode comes through "<Cmd>" and the
   " selection was never lost.
@@ -54,6 +75,16 @@ func! GrooVim_ScrollAdm(mod, direction) range abort
   elseif a:direction == "d"
     exec "norm \<Down>\<Down>\<Down>"
   endif
+
+  " Note: Back to "onemore" only when the cursor is on the text, the same rule
+  " the smooth movement goes by: forcing it while the cursor is out over an area
+  " with no character in it would drag it back onto the line.
+  if virtcol(".") <= virtcol("$") && &virtualedit ==# "all"
+    set virtualedit=onemore
+  endif
+
+  call GrooVim_GroovyMoveKeepColumn(a:direction, l:columnToKeep)
+  call GrooVim_GroovyMoveColorsBack()
 
   let g:onMoveScreen = 1
 endfunc

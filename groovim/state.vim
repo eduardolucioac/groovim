@@ -446,10 +446,14 @@ nnoremap <silent> <S-ScrollWheelUp> :call GrooVim_ScrollAdm("n", "u")<cr>
 nnoremap <silent> <ScrollWheelDown> :call GrooVim_ScrollAdm("n", "d")<cr>
 nnoremap <silent> <S-ScrollWheelDown> :call GrooVim_ScrollAdm("n", "d")<cr>
 
-inoremap <silent> <ScrollWheelUp> <C-o>:call GrooVim_ScrollAdm("i", "u")<cr>
-inoremap <silent> <S-ScrollWheelUp> <C-o>:call GrooVim_ScrollAdm("i", "u")<cr>
-inoremap <silent> <ScrollWheelDown> <C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
-inoremap <silent> <S-ScrollWheelDown> <C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
+" Note: The column to keep is taken BEFORE the "<C-o>", like the smooth
+" movement of the arrows takes it: going to normal mode and coming back is what
+" loses it, and by the time the function runs it is already the column of the
+" short line the wheel happened to pass.
+inoremap <silent> <ScrollWheelUp> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_ScrollAdm("i", "u")<cr>
+inoremap <silent> <S-ScrollWheelUp> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_ScrollAdm("i", "u")<cr>
+inoremap <silent> <ScrollWheelDown> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
+inoremap <silent> <S-ScrollWheelDown> <C-r>=GrooVim_GroovyMoveMarkColumn()<cr><C-o>:call GrooVim_ScrollAdm("i", "d")<cr>
 
 " Note: The wheel of visual mode goes through "<Cmd>" for the same reason the
 " movement keys do: a ":" would take the cursor to the first line of the range

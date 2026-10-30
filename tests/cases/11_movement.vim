@@ -320,6 +320,47 @@ func! GT_ViewConclude()
   call GT_Ok("  with the selection still up", mode() ==# "v",
     \ "   (mode [" . strtrans(mode()) . "])")
 
+  " ---- and the wheel keeps the COLUMN, which it did not
+  "
+  " It walked away to the left, one column for every line shorter than the one
+  " you were in, and the column never came back. Reported from insert mode, and
+  " measured through a terminal from column 62 of a long line, three wheel ticks
+  " at a time: 62, 61, 60, 60, 59, 58 -- a line with nothing on it cost a
+  " column. The smooth movement of the arrows had the machinery for this from
+  " the start; the wheel had none of it.
+  call feedkeys("\<Esc>", "x")
+  exec "enew!"
+  let s:sizes = [80, 13, 1, 76, 0, 2, 84, 26, 34, 14]
+  let s:lines = []
+  for s:i in range(1, 60)
+    call add(s:lines, repeat("x", s:sizes[s:i % len(s:sizes)]))
+  endfor
+  call setline(1, s:lines)
+  setlocal nowrap
+  call cursor(60, 62)
+  let s:columnWas = virtcol(".")
+
+  " In ONE press, and in INSERT mode, because that is where it goes wrong:
+  " insert does not survive between two fed keys, and what loses the column is
+  " the trip out of insert and back that every tick of the wheel makes.
+  call feedkeys("i" . repeat("\<ScrollWheelUp>", 6) . "\<Esc>", "x")
+  call GT_Ok("the wheel keeps the column it started in",
+    \ virtcol(".") == s:columnWas,
+    \ "   (column " . virtcol(".") . ", and it was " . s:columnWas . ")" .
+    \ "   (six ticks over lines of 80, 34, 26, 14, 13, 2, 1 and 0: with the\n" .
+    \ "    column not kept it came out at 57)")
+  call GT_Ok("  and it is taken before the trip out of insert, like the arrows",
+    \ maparg("<ScrollWheelUp>", "i") =~ "GrooVim_GroovyMoveMarkColumn" &&
+    \ maparg("<ScrollWheelDown>", "i") =~ "GrooVim_GroovyMoveMarkColumn",
+    \ "   (the \"<C-o>\" is what loses it: by the time the function runs it\n" .
+    \ "    is already the column of the short line the wheel passed)")
+  call GT_Ok("  and it puts \"virtualedit\" back when the cursor is on the text",
+    \ GT_FunctionText("GrooVim_ScrollAdm") =~ "virtcol" &&
+    \ GT_FunctionText("GrooVim_ScrollAdm") =~ "onemore",
+    \ "   (forcing it while the cursor is out over nothing drags it back onto\n" .
+    \ "    the line, which is what the wheel is allowed to travel over)")
+  exec "enew!"
+
   " ---- and what the mapping of a selection must NOT ask about
   "
   " With the key coming through "<Cmd>" the selection is still up, and while it
