@@ -1,9 +1,12 @@
 GrooVim - Vi IMproved'n'GrooVIed!
 =============
 
-**Guess who's back? Back again!** 😁
+**A cool and powerful terminal text editor like you've never seen before!  
+We promise you that! 🫵😎**
 
 ![Groovim is groovy!](./images/groovim_is_groovy.png)
+
+**Guess who's back? Back again!** 🧟‍♂️  
 
 Writing in several places at once -- **F2 n** takes whole lines, **F2 m** takes
 places of their own:
