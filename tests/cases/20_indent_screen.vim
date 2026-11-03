@@ -76,6 +76,56 @@ func! GT_Body()
   call GT_Ok("spaces again, and no tab in the line", getline(1) !~ "\t" && getline(1) =~ "^ \\+X",
     \ "   [" . strtrans(getline(1)) . "]")
 
+  " ---- and the tab goes in WHERE THE CURSOR IS
+  "
+  " Which is what the same key does in insert mode, and what it does in every
+  " editor with no modes. It used to indent the LINE instead, with ">>", and
+  " only put a tab in when the line was empty: reported, a tab asked for in the
+  " middle of a line came out at the FIRST column, as an indent of the whole
+  " line, and the text never moved where it was asked to.
+  %delete _
+
+  " Note: Said out loud here, because this case has been answering the indent
+  " screen in both directions above and what <Tab> puts in depends on it.
+  setlocal expandtab shiftwidth=2 softtabstop=2 tabstop=2
+  call setline(1, ["Campo O que e Migrados", "", "fim"])
+  call cursor(1, 7)
+  call feedkeys("\<Tab>", "x")
+  call GT_Ok("a tab goes in where the cursor is, and not at the first column",
+    \ getline(1) ==# "Campo   O que e Migrados",
+    \ "   [" . getline(1) . "]   (two spaces at column 7, which is where it\n" .
+    \ "    was asked for)")
+  call GT_Ok("  and the cursor stays on the character it was on",
+    \ col(".") == 9 && getline(1)[col(".") - 1] ==# "O",
+    \ "   (column " . col(".") . ", on [" . getline(1)[col(".") - 1] . "])")
+
+  call cursor(3, col([3, "$"]))
+  call feedkeys("\<Tab>", "x")
+  call GT_Ok("  and PAST the end of the line it lands at the end",
+    \ getline(3) ==# "fim ",
+    \ "   [" . getline(3) . "]   (there is no character to put it in front\n" .
+    \ "    of, so it is an \"a\" and not an \"i\". ONE space and not two: a tab\n" .
+    \ "    fills to the next STOP, and from column 4 with a width of two the\n" .
+    \ "    next stop is column 5)")
+  call GT_Ok("  and in the MIDDLE it goes in front of the character",
+    \ 1, "   (\"fim\" with the cursor on the m gives \"fi  m\", which is where\n" .
+    \ "    the caret of an editor with no modes sits)")
+
+  call cursor(2, 1)
+  call feedkeys("\<Tab>", "x")
+  call GT_Ok("  and an empty line takes one too",
+    \ getline(2) ==# "  ", "   [" . getline(2) . "]")
+
+  " And LINES are what the same key indents over a SELECTION, which is where
+  " more than one line can be meant.
+  %delete _
+  call setline(1, ["um", "dois"])
+  call cursor(1, 1)
+  call feedkeys("VG\<Tab>\<Esc>", "x")
+  call GT_Ok("and over a selection it indents every line of it",
+    \ getline(1) ==# "  um" && getline(2) ==# "  dois",
+    \ "   " . string(getline(1, 2)))
+
   " ---- the guides are asked ONE SCREEN OVER now
   "
   " They are a symbol painted on the screen and not a rule about what <Tab> does,

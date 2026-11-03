@@ -659,6 +659,25 @@ call GT_Ok("  and from a selection, letting it go first",
   \ line(".") == 60 && mode() ==# "n",
   \ "   (line " . line(".") . ", mode " . mode() . ")   (a jump dragging a selection would take everything in between)")
 
+" ---- and CTRL with a click does not go looking for a tag
+"
+" Ctrl and a click is how a TERMINAL opens a link, and it is the terminal that
+" opens it. What Vim does with those same keys is jump to a tag, which GrooVim
+" has no use for and no file for: reported, and measured through a terminal
+" with a click on an address -- "E433: No tags file", "E426: Tag not found:
+" web" and a "Press ENTER" over a screen where the browser had already opened
+" the page.
+call GT_Ok("Ctrl and a click is a plain click",
+  \ maparg("<C-LeftMouse>", "n") ==# "<LeftMouse>" &&
+  \ maparg("<C-LeftMouse>", "i") ==# "<LeftMouse>" &&
+  \ maparg("<C-LeftMouse>", "v") ==# "<LeftMouse>",
+  \ "   [" . maparg("<C-LeftMouse>", "n") . "]   (the cursor goes where you\n" .
+  \ "    clicked, and the link is the terminal's business)")
+call GT_Ok("  and the way BACK from a tag is answered too",
+  \ maparg("<C-RightMouse>", "n") ==# "<Nop>" &&
+  \ maparg("<C-LeftRelease>", "n") ==# "<Nop>",
+  \ "   (it has nothing to go back from)")
+
 call setline(5, "no tab here")
 call cursor(5, 1)
 call feedkeys("\<Tab>", "x")

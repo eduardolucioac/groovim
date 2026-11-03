@@ -89,7 +89,9 @@ The keys you (maybe) already know!
 These do in GrooVim what they (maybe) do in any editor:
 
  * **Ctrl-Left**/**Ctrl-Right** - a word at a time *(normal mode/insert/visual)*;
- * **Tab** - indents, and over a selection it indents every line of it *(normal mode/visual)*;
+ * **Tab** - puts a tab in **where the cursor is**, the way it does while you
+   type; over a **selection** it indents every line of it instead, and
+   **Shift-Tab** takes an indent off either way *(normal mode/visual)*;
  * **Enter**, **Backspace**, **Del** and **Space** - where Vim gave them another meaning *(normal mode/visual)*;
  * **Ctrl-c** and **Ctrl-x** - copy and cut, through the system clipboard *(visual)*, and **Ctrl-v** pastes *(normal mode/insert/visual)*. A Del, an `x` or a replacement does **not** touch it: what you copied is still there after you delete something;
  * **Ctrl-u** and **Ctrl-r** - undo and redo *(normal mode/insert/visual)*;

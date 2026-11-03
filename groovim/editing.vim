@@ -92,6 +92,32 @@ endfunc
 " Note: Serves to avoid the side effect of capslock status checking.
 nnoremap <silent> <LeftMouse> :let g:onMoveScreen = 1<cr><LeftMouse>
 
+" Note: CTRL and a click is how a terminal opens a LINK, and it is the terminal
+" that opens it -- Konsole and the others do it themselves, with no help from
+" the program running inside. What Vim does with those same keys is jump to a
+" TAG, which GrooVim has no use for and no file for: reported, and measured
+" through a terminal with a click on an address --
+"
+"   E433: No tags file
+"   E426: Tag not found: web
+"   Press ENTER or type command to continue
+"
+" -- over a screen where the browser had already opened the page.
+"
+" So here they are a plain click: the cursor goes where you clicked, and the
+" link is the terminal's business. "Ctrl+RightMouse" is the other half of the
+" same thing in Vim -- the way BACK from a tag -- and it has nothing to go back
+" from.
+nmap <silent> <C-LeftMouse> <LeftMouse>
+imap <silent> <C-LeftMouse> <LeftMouse>
+vmap <silent> <C-LeftMouse> <LeftMouse>
+nnoremap <silent> <C-LeftRelease> <Nop>
+inoremap <silent> <C-LeftRelease> <Nop>
+vnoremap <silent> <C-LeftRelease> <Nop>
+nnoremap <silent> <C-RightMouse> <Nop>
+inoremap <silent> <C-RightMouse> <Nop>
+vnoremap <silent> <C-RightMouse> <Nop>
+
 " Note: Takes the line away, and what was in the transfer area stays there.
 "
 " The "_" register is the one Vim throws things into, and GrooVim sends every
@@ -408,20 +434,45 @@ func! GrooVim_NormalDel() abort
 
 endfunc
 
-" Note: "Multimode" tab.
+" Note: "Multimode" tab: it puts a TAB in where the cursor is, which is what
+" the same key does in insert mode and what it does in every editor with no
+" modes -- Notepad++ (inspiration) among them.
+"
+" It used to indent the LINE instead, with ">>", and only put a tab in when the
+" line was empty. Reported: a tab asked for in the middle of a line came out at
+" the FIRST column, as an indent of the whole line, and the text never moved
+" where it was asked to.
+"
+" Indenting LINES is what the same key does over a SELECTION, which is where
+" more than one line can be meant, and "Shift+Tab" takes an indent off either
+" way.
+"
+" "normal!" and not "normal": the "i" is the one of Vim and not a mapping some
+" plugin put on the letter -- the space of normal mode was a mapping calling
+" itself for exactly that reason.
 nnoremap <silent> <Tab> :call GrooVim_NormalTab()<cr>
 
-" Note: Allows Tab on normal mode when the line is empty.
 func! GrooVim_NormalTab() abort
+
   if !GrooVim_CanChange() | return | endif
-  if col(".") == 1 && getline(".") == ""
-    exec "normal i\<Tab>"
-  else
-    exec "normal >>"
-    if len(split(getline("."), '\zs')) == col(".")
-      exec "normal \<Right>"
-    endif
-  endif
+
+  " Note: On the END of the line it has to be an "a" and not an "i": there is
+  " no character under the cursor to put anything in front of, and an "i" would
+  " leave the tab one column short of where it was asked for.
+  let l:where = col(".")
+  let l:lengthWas = len(getline("."))
+  exec "normal! " . (l:where >= col("$") ? "a" : "i") . "\<Tab>"
+
+  " Note: And the cursor stays ON the character it was on, which has moved
+  " along by however much went in -- which is not always the same number:
+  " "expandtab" fills to the next stop and a real tab is one character.
+  "
+  " Counted, and not stepped: where leaving insert leaves the cursor depends on
+  " "virtualedit", which GrooVim moves between "onemore" and "all" while it
+  " walks. Measured with a step instead of this: one column too far, with the
+  " cursor on the space after the character it was on.
+  call cursor(line("."), l:where + len(getline(".")) - l:lengthWas)
+
 endfunc
 
 inoremap <silent> <expr> <S-Tab> GrooVim_KeysIfCanChange("\<C-o><<")

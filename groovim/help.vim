@@ -611,7 +611,8 @@ let g:GrooVimHelp = "*=D=D=D=D=D=D=D=D_HELP_FOR_GrooVim_=D=D=D=D=D=D=D=D*".
 \"\n These do in GrooVim what they (maybe) do in any editor:".
 \"\n".
 \"\n*o*  <Ctrl-Left>/<Ctrl-Right> - a word at a time (normal mode/insert/visual);".
-\"\n*o*  <Tab> - indents, and over a selection every line of it (normal mode/visual);".
+\"\n*o*  <Tab> - puts a tab in WHERE THE CURSOR IS, the way it does while you type; over a SELECTION it indents every line of it instead, and <S-Tab> takes an indent off either way (normal mode/visual);".
+\"\n*o*  <Ctrl>+a CLICK is how a terminal opens a link, and it is the terminal that opens it: here it is a plain click, with the cursor going where you clicked. Vim would go looking for a TAG, which GrooVim has no file for;".
 \"\n*o*  <Enter> , <Backspace> , <Del> and <Space> - where Vim gave them another meaning (normal mode/visual);".
 \"\n*o*  <Ctrl-c> and <Ctrl-x> - copy and cut, through the system clipboard (visual), and <Ctrl-v> pastes (normal mode/insert/visual). A <Del> , an <x> or a replacement does NOT touch it: what you copied is still there after you delete something;".
 \"\n*o*  <Ctrl-u> and <Ctrl-r> - undo and redo (normal mode/insert/visual);".
