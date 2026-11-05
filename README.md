@@ -219,8 +219,10 @@ Moving, marking and ordering!
  * The **path** of the file is on the bar, with your home as `~` and the middle
    taken out when it does not fit; **F2 Space** says the whole of it in a balloon;
  * **F5 p** opens a file by name, in a tab of its own: the same question the
-   saving asks, so a name lands in the folder you are in and a name with a path
-   in front of it lands where the path says, with **Tab** completing as you go.
+   saving asks, so a name lands in the folder of the **file you are on** -- the
+   folder GrooVim is in, for a document with no file yet -- and a name with a
+   path in front of it lands where the path says, with **Tab** completing as
+   you go.
    A file that is **not there** is asked about instead of being opened under the
    name you typed;
  * A file **dragged onto the window** opens in a tab of its own. A terminal has
@@ -295,10 +297,10 @@ memory each, so a command of another group can never come out of this one.
     - `F5->e` - Save every changed file *(normal mode/insert/visual)*;
     - `F5->a` - Saves under another name and goes on editing THAT one *(normal mode/insert/visual)*;
         - Beside F5->s , which saves, and F5->e , which saves every changed file. The COPY is F2->y : that one writes the file and leaves you where you were;
-        - One question, and the name of the file you are on comes written in it: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
+        - One question, and the name of the file you are on comes written in it: a NAME lands in the folder of the FILE you are on -- the folder GrooVim is in, for a document that has no file yet -- and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
         - A file that is already there is asked about before it is written over, and a no asks for the name again;
     - `F5->p` - Opens a file by name, in a tab of its own *(normal mode/insert/visual)*;
-        - The same question F5->a asks: a NAME lands in the folder you are in, which the question names, and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
+        - The same question F5->a asks: a NAME lands in the folder of the FILE you are on -- the folder GrooVim is in, for a document that has no file yet -- and a name with a PATH in front of it lands where the path says. <Tab> completes paths;
         - A file that is NOT there is asked about instead of being opened -- Vim opens a document under any name you type and says nothing, so a path with one letter wrong came up as an empty tab wearing the name of the file you meant. Yes starts it anyway;
         - The tab is born at the END of the line, and a file already open is not opened twice: you land on the tab that has it;
         - And on the empty new 1 GrooVim opens with -- one tab, no name, nothing typed in it -- the file opens IN it instead of in a second tab beside a page nobody wrote in. It is what Notepad++ (inspiration) does, and what the tree, a file DROPPED on the window and a file handed over with --jrinst do here;

@@ -247,7 +247,7 @@ func! GrooVim_CloseSettle(buffer, tabs) abort
   " that question is the name of the file you are ON, and this is another.
   let l:write = "write"
   if l:nameless
-    let l:where = GrooVim_AskFileWhere("", "")
+    let l:where = GrooVim_AskFileWhere("")
     let l:name = fnamemodify(l:where, ":t")
     let l:write = "saveas! " . fnameescape(l:where)
   endif

@@ -283,13 +283,51 @@ nnoremap <silent> <leader>z/ :nohlsearch<bar>call GrooVim_MarkClear()<cr>
 " from somewhere else arrives with them more often than not.
 func! GrooVim_AskFileName(head, suggestion) abort
 
-  let l:room = &columns - strdisplaywidth(a:head .
-   \ " (\"\") or path and filename: ") - 20
-  let l:answer = GrooVim_Ask(a:head . " (\"" .
-   \ GrooVim_PathShort(getcwd(), l:room) . "\") or path and filename: ",
+  let l:answer = GrooVim_Ask(a:head . " or path and filename: ",
    \ a:suggestion, "file")
 
   return substitute(l:answer, "^\\s\\+\\|\\s\\+$", "", "g")
+
+endfunc
+
+" Note: The folder a bare NAME lands in: the one the file you are on lives in.
+"
+" It used to be the folder GrooVim was started in, which is where "notes.txt"
+" went while the file you were saving a copy OF sat somewhere else entirely --
+" reported, with the question offering |"~"| on a document opened from a path
+" five folders deep. A copy, a "save as" and an open belong next to the thing
+" you are working on, which is what every editor with a file dialogue does: it
+" opens on the folder of the file.
+"
+" A document with NO file of its own has no folder to belong to, and there the
+" folder GrooVim is standing in is the only answer there is. The accessories --
+" the tree, the lists, the help -- are not documents and answer the same way.
+func! GrooVim_FileFolder() abort
+
+  let l:path = expand("%:p")
+  if l:path ==# "" || &buftype !=# "" || GrooVim_IsHelperBuffer(bufname("%"))
+    return getcwd()
+  endif
+
+  return fnamemodify(l:path, ":h")
+
+endfunc
+
+" Note: An answer turned into a FULL path, which is where the folder above is
+" used. A name with a path in front of it -- or a "~", or a path from the root
+" -- answers for itself and is left alone; everything else is a name in that
+" folder.
+"
+" "simplify" because a "../" in the answer is joined onto the folder and would
+" otherwise stay in the middle of the path: the file opens all the same, and
+" the name on the tab line and on the bar reads like a riddle.
+func! GrooVim_FilePathOf(answer) abort
+
+  if a:answer =~ "^[~/]"
+    return fnamemodify(a:answer, ":p")
+  endif
+
+  return simplify(fnamemodify(GrooVim_FileFolder() . "/" . a:answer, ":p"))
 
 endfunc
 
@@ -318,13 +356,12 @@ endfunc
 "
 " The answer comes back as a full path. There is no way out but a valid answer
 " or an Esc, which walks out of here and out of whoever called.
-func! GrooVim_AskFileWhere(what, ...) abort
+func! GrooVim_AskFileWhere(...) abort
 
   let l:suggestion = a:0 > 0 ? a:1 : expand("%:t")
 
   while 1
-    let l:answer = GrooVim_AskFileName("Filename" .
-     \ (a:what ==# "" ? "" : " of the " . a:what), l:suggestion)
+    let l:answer = GrooVim_AskFileName("Filename", l:suggestion)
 
     if l:answer ==# ""
       call GrooVim_GrooVimBarMsg("A name is needed!", 1)
@@ -332,10 +369,10 @@ func! GrooVim_AskFileWhere(what, ...) abort
       continue
     endif
 
-    " Note: ":p" spells the answer out whole: it stands "~" and a relative path
-    " up against the folder you are in, and it ends a FOLDER with a "/", which
-    " is how a folder with no file name in it is caught.
-    let l:where = fnamemodify(l:answer, ":p")
+    " Note: The answer spelled out whole, which is what puts a bare name in the
+    " folder of the file you are on -- and ends a FOLDER with a "/", which is
+    " how a folder with no file name in it is caught.
+    let l:where = GrooVim_FilePathOf(l:answer)
 
     if l:where =~ "/$"
       call GrooVim_GrooVimBarMsg("\"" . l:answer . "\" is a folder, and a NAME is missing!", 1)
@@ -388,7 +425,7 @@ endfunc
 " another name and goes on editing THAT one, and |F5->s| saves what you have.
 func! GrooVim_SaveACopy() range abort
 
-  let l:where = GrooVim_AskFileWhere("copy")
+  let l:where = GrooVim_AskFileWhere()
 
   " Note: And the document does not take the name of its copy.
   "
@@ -424,7 +461,7 @@ endfunc
 " are on is the new file from here.
 func! GrooVim_SaveAs() range abort
 
-  let l:where = GrooVim_AskFileWhere("")
+  let l:where = GrooVim_AskFileWhere()
 
   try
     exec "saveas! " . fnameescape(l:where)

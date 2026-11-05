@@ -436,7 +436,7 @@ func! GrooVim_FileOpen() abort
     return
   endif
 
-  let l:path = fnamemodify(l:answer, ":p")
+  let l:path = GrooVim_FilePathOf(l:answer)
 
   if isdirectory(l:path) || l:path =~ "/$"
     call GrooVim_GrooVimBarMsg("\"" . l:answer .

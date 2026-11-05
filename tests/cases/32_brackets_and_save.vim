@@ -88,26 +88,53 @@ func! GT_AfterSaveAs()
     \ !empty(filter(copy(g:GrooVim_Shortcuts),
     \   'get(v:val, "group", "") ==# "F5" && v:val.key ==# "a" && v:val.what =~ "another name"')),
     \ "   (F5->s saves, F5->e saves every changed file, F5->a saves as)")
-  " ---- and it is ONE question, which names the folder you are in
+  " ---- and it is ONE question, answered with a name
   "
   " It used to ask for a PATH -- with "0" for the transfer area, "1" for none and
   " "2" for the folder of the file -- and then for a NAME: a menu to read through
   " before you can answer "notes.txt".
   call GT_Ok("where to save is one question, and a name is enough",
-    \ GT_FunctionText("GrooVim_AskFileName") =~ "getcwd()" &&
-    \ len(split(GT_FunctionText("GrooVim_AskFileName"), "GrooVim_Ask(")) == 2,
+    \ len(split(GT_FunctionText("GrooVim_AskFileName"), "GrooVim_Ask(")) == 2 &&
+    \ GT_FunctionText("GrooVim_AskFileName") =~ "or path and filename",
     \ "   (a path in front of the name puts it elsewhere)")
-  call GT_Ok("  and the folder you are in is written into it",
-    \ GT_FunctionText("GrooVim_AskFileName") =~ "GrooVim_PathShort(getcwd()",
-    \ "   (so a bare name holds no mystery about where it goes)")
   call GT_Ok("  and the opening of F5->p asks that same question",
     \ GT_FunctionText("GrooVim_FileOpen") =~ "GrooVim_AskFileName" &&
     \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_AskFileName",
     \ "   (written once, so the two cannot drift apart)")
   call GT_Ok("  and a folder with no name in it is turned away",
-    \ GT_FunctionText("GrooVim_AskFileWhere") =~ 'fnamemodify(l:answer, ":p")' &&
+    \ GT_FunctionText("GrooVim_AskFileWhere") =~ "GrooVim_FilePathOf" &&
     \ GT_FunctionText("GrooVim_AskFileWhere") =~ "NAME is missing",
-    \ "   (\":p\" ends a folder with a \"/\", which is how it is caught)")
+    \ "   (a full path ends a folder with a \"/\", which is how it is caught)")
+
+  " ---- and a bare name lands next to the FILE you are on
+  "
+  " It used to land in the folder GrooVim was started in, which is where
+  " "notes.txt" went while the file you were saving a copy OF sat somewhere
+  " else entirely. Reported, with the question offering "~" on a document
+  " opened from a path five folders deep. Measured through a terminal after:
+  " the copy, the save as and the open all landed beside the file.
+  call mkdir(g:GT_OUT . "/sub", "p")
+  call writefile(["uma linha"], g:GT_OUT . "/sub/fundo.txt")
+  exec "edit! " . g:GT_OUT . "/sub/fundo.txt"
+  call GT_Ok("a bare name lands in the folder of the file you are on",
+    \ GrooVim_FileFolder() ==# g:GT_OUT . "/sub" &&
+    \ GrooVim_FilePathOf("outro.txt") ==# g:GT_OUT . "/sub/outro.txt",
+    \ "   [" . GrooVim_FilePathOf("outro.txt") . "]   (and not the folder\n" .
+    \ "    GrooVim was started in, which is where it used to go)")
+  call GT_Ok("  and a path in front of it answers for itself",
+    \ GrooVim_FilePathOf("/tmp/um/outro.txt") ==# "/tmp/um/outro.txt" &&
+    \ GrooVim_FilePathOf("~/outro.txt") ==# expand("~") . "/outro.txt",
+    \ "   [" . GrooVim_FilePathOf("~/outro.txt") . "]")
+  call GT_Ok("  and a \"..\" in it is not left in the middle of the path",
+    \ GrooVim_FilePathOf("../outro.txt") ==# g:GT_OUT . "/outro.txt",
+    \ "   [" . GrooVim_FilePathOf("../outro.txt") . "]   (the file opens all\n" .
+    \ "    the same, and the name on the tab line reads like a riddle)")
+  exec "enew!"
+  call delete(g:GT_OUT . "/sub/fundo.txt")
+  call delete(g:GT_OUT . "/sub", "d")
+  call GT_Ok("  and a document with NO file of its own uses the folder GrooVim is in",
+    \ GrooVim_FileFolder() ==# getcwd(),
+    \ "   [" . GrooVim_FileFolder() . "]   (it has no folder to belong to)")
 
   call GT_Ok("and the two ask the SAME question, in one place",
     \ GT_FunctionText("GrooVim_SaveAs") =~ "GrooVim_AskFileWhere" &&
